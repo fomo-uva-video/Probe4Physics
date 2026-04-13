@@ -1,0 +1,3 @@
+[submodule "third_party/minimal_video_pairs"]
+	path = third_party/minimal_video_pairs
+	url = https://github.com/facebookresearch/minimal_video_pairs.git

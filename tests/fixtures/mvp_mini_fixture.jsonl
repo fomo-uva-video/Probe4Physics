@@ -1,0 +1,4 @@
+{"video_id":"pair_alpha_0","video_path":"subset/video_alpha_0.mp4","question":"Did the cup end up on the left?","candidates":["Yes","No"],"answer":"Yes"}
+{"video_id":"pair_alpha_1","video_path":"subset/video_alpha_1.mp4","question":"Did the cup end up on the left?","candidates":["Yes","No"],"answer":"No"}
+{"video_id":"pair_beta_0","video_path":"subset/video_beta_0.mp4","question":"Is the block still visible?","candidates":"['Visible','Hidden']","answer":"Visible"}
+{"video_id":"pair_beta_1","video_path":"subset/video_beta_1.mp4","question":"Is the block still visible?","candidates":"['Visible','Hidden']","answer":"Hidden"}

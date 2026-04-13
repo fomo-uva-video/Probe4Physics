@@ -1,0 +1,76 @@
+defaults:
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+annotation_file: data/annotations/mvp_mini.jsonl
+videos_root: third_party/minimal_video_pairs/videos
+cache_dir: data/cache/videos
+official_repo_root: third_party/minimal_video_pairs
+
+annotations:
+  auto_download: true
+  dataset_id: facebook/minimal_video_pairs
+  hf_cache_dir: .cache/hf_datasets
+  target: auto # auto | mvp | mvp_mini
+  subsets:
+    - human_object_interactions
+    - intuitive_physics
+    - robot_object_interactions
+    - temporal_reasoning
+
+split: mini
+max_pairs: 0 # 0 means use all available pairs in annotation file
+seed: 42
+
+# Kept in config for deterministic protocol documentation.
+decode:
+  backend: pyav
+  num_frames: 16
+  fps: 4
+  sampling: uniform
+
+selection:
+  enabled: true
+  subset: intuitive_physics # intuitive_physics | all
+  plausibility_only: true
+  plausibility_keywords:
+    - "is this video physically plausible"
+    - "is the outcome of the experiment plausible"
+    - "is the trajectory of the rotating plank plausible"
+    - "is the trajectory of the ball plausible"
+    - "is the location of the cube plausible"
+    - "is the final position of the ball plausible"
+    - "is the final position of the top cube plausible"
+    - "is the interaction between the balls plausible"
+  require_binary_yes_no: true
+  yes_aliases:
+    - "yes"
+    - "plausible"
+    - "possible"
+  no_aliases:
+    - "no"
+    - "implausible"
+    - "impossible"
+  include_pair_ids: []
+  exclude_pair_ids: []
+  include_question_contains: []
+  drop_incomplete_pairs: true
+  artifacts:
+    enabled: true
+
+materialize_missing: false
+download_timeout_seconds: 120
+
+predictor:
+  mode: oracle # oracle | random | from_file
+  prediction_file: ""
+
+output_dir: artifacts/results
+output_subdir: "" # optional stable subdir; empty means timestamped folder
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  job:
+    chdir: false
