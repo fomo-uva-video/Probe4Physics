@@ -10,7 +10,8 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 
-from evaluation.mvp_eval import run_mvp_eval
+from evaluation.mvp.eval import run_mvp_eval
+from evaluation.mvp.init import run_mvp_init
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 DEFAULT_COMMAND = "eval.mvp"
@@ -24,6 +25,11 @@ class CommandSpec:
 
 
 COMMANDS: dict[str, CommandSpec] = {
+    "init.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_init,
+        description="Initialize MVP full annotations + selection + split artifacts.",
+    ),
     "eval.mvp": CommandSpec(
         config_name="mvp",
         handler=run_mvp_eval,
@@ -32,6 +38,7 @@ COMMANDS: dict[str, CommandSpec] = {
 }
 
 ALIASES = {
+    "init": "init.mvp",
     "mvp": "eval.mvp",
     "eval": "eval.mvp",
 }
@@ -85,13 +92,14 @@ def _print_help() -> None:
         "",
         "Usage:",
         "  python run.py                          # default: eval.mvp",
+        "  python run.py init.mvp [hydra_overrides]",
         "  python run.py eval.mvp [hydra_overrides]",
         "  python run.py mvp [hydra_overrides]     # alias",
         "",
         "Examples:",
-        "  python run.py",
-        "  python run.py annotation_file=/abs/path/mvp_mini.jsonl predictor.mode=oracle",
-        "  python run.py eval.mvp output_subdir=exp_001 max_pairs=100",
+        "  python run.py init.mvp",
+        "  python run.py eval.mvp",
+        "  python run.py eval.mvp split_name=val predictor.mode=random",
         "",
         "Commands:",
     ]

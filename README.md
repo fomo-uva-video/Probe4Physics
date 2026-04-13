@@ -1,50 +1,39 @@
-# Probe4Physics MVP Eval
+# Probe4Physics MVP (Simple Setup)
 
-MVP-only evaluation with:
-- strict official MVP scoring integration (no local fallback)
-- deterministic sample selection for `intuitive_physics` plausibility yes/no
-- always-on selection audit artifacts by default
-- automatic annotation download on first run when file is missing
+Configurazione semplificata: ora c'e solo **un file config**:
+- `configs/mvp.yaml`
 
-## Run
+## Comandi
 
 ```bash
-python run.py
+python run.py init.mvp
+python run.py eval.mvp
 ```
 
-Hydra overrides example:
+## Cosa fa `init.mvp`
+- scarica automaticamente le annotation full (se mancano)
+- applica selection (`intuitive_physics` + plausibility yes/no)
+- crea split deterministico 60/20/20 per `pair_id`
+- salva artifact split in `split.dir`
 
-```bash
-python run.py annotation_file=tests/fixtures/mvp_selection_fixture.jsonl videos_root=/tmp output_subdir=manual_strict_selection predictor.mode=oracle
-```
+Artifact generati in `split.dir`:
+- `split_pairs.parquet`
+- `manifest.json`
+- `selection_kept.csv`
+- `selection_dropped.csv`
+- `selection_report.json`
 
-You can also call the explicit command (future-proof style):
+## Cosa fa `eval.mvp`
+- carica solo lo split precomputato da `split.dir`
+- fa hash-check annotation vs manifest (hard fail se mismatch)
+- usa scoring ufficiale MVP
 
-```bash
-python run.py eval.mvp annotation_file=tests/fixtures/mvp_selection_fixture.jsonl predictor.mode=oracle
-```
-
-On first run, if `annotation_file` does not exist, the runner auto-downloads from
-`facebook/minimal_video_pairs` using `annotations.*` config values.
-
-## Outputs per run
-- `metrics.json`
-- `predictions.csv`
-- `summary.md`
-- `run_config.snapshot.yaml`
-- `provenance.json`
-- `selection_kept.csv` (default on)
-- `selection_dropped.csv` (default on)
-- `selection_report.json` (default on)
-
-## Selection defaults
+## Config principale
 In `configs/mvp.yaml`:
-- `selection.enabled: true`
-- `selection.subset: intuitive_physics`
-- `selection.plausibility_only: true`
-- `selection.require_binary_yes_no: true`
-- `selection.drop_incomplete_pairs: true`
-- `selection.artifacts.enabled: true`
+- `split.dir`: path unico dello split (es. `data/splits/mvp/full_60_20_20`)
+- `split.ratios`: `train/val/test`
+- `split.group_key`: `pair_id`
+- `split.stratify_keys`: `[source, question_template]`
 
 ## Environment
 

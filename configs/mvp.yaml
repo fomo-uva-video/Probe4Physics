@@ -2,27 +2,41 @@ defaults:
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
-annotation_file: data/annotations/mvp_mini.jsonl
+annotation_file: data/annotations/mvp_full.jsonl
+official_repo_root: third_party/minimal_video_pairs
 videos_root: third_party/minimal_video_pairs/videos
 cache_dir: data/cache/videos
-official_repo_root: third_party/minimal_video_pairs
+
+seed: 42
 
 annotations:
   auto_download: true
   dataset_id: facebook/minimal_video_pairs
   hf_cache_dir: .cache/hf_datasets
-  target: auto # auto | mvp | mvp_mini
   subsets:
     - human_object_interactions
     - intuitive_physics
     - robot_object_interactions
     - temporal_reasoning
 
-split: mini
-max_pairs: 0 # 0 means use all available pairs in annotation file
-seed: 42
+split:
+  dir: data/splits/mvp/full_60_20_20
+  ratios:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+  group_key: pair_id
+  stratify_keys:
+    - source
+    - question_template
+  rare_strata_min_units: 3
+  rare_bucket_label: OTHER
+  seed: ${seed}
+  template_coverage_check: false
 
-# Kept in config for deterministic protocol documentation.
+split_name: test
+max_pairs: 0
+
 decode:
   backend: pyav
   num_frames: 16

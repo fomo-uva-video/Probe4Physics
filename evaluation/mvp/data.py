@@ -36,13 +36,13 @@ def ensure_mvp_annotation_file(
             f"{path}. Enable annotations.auto_download or create the file manually."
         )
 
-    resolved_target = _resolve_target(target, path, split_hint)
+    resolved_target = _resolve_target(target, split_hint)
     download_mvp_annotations(
         output_file=path,
         dataset_id=dataset_id,
-        target=resolved_target,
         subsets=list(subsets),
         hf_cache_dir=hf_cache_dir,
+        target=resolved_target,
     )
 
     if not path.exists():
@@ -53,14 +53,17 @@ def ensure_mvp_annotation_file(
 def download_mvp_annotations(
     output_file: str | Path,
     dataset_id: str,
-    target: str,
     subsets: list[str],
     hf_cache_dir: str | Path,
+    target: str = "mvp",
 ) -> None:
-    if target not in {"mvp", "mvp_mini"}:
-        raise ValueError(f"target must be 'mvp' or 'mvp_mini', got {target!r}")
+    if target != "mvp":
+        raise ValueError(
+            "Only full MVP annotations are supported in this pipeline. "
+            f"Got target={target!r}."
+        )
 
-    split = "full" if target == "mvp" else "mini"
+    split = "full"
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -156,17 +159,21 @@ def resolve_video_path(
     return str(target)
 
 
-def _resolve_target(target: str, path: Path, split_hint: str) -> str:
+def _resolve_target(target: str, split_hint: str) -> str:
     value = str(target or "auto").strip().lower()
-    if value in {"mvp", "mvp_mini"}:
+    if value == "mvp":
         return value
     if value != "auto":
-        raise ValueError(f"annotations.target must be auto|mvp|mvp_mini, got {target!r}")
-
+        raise ValueError(
+            "annotations.target must be auto|mvp. "
+            f"Got {target!r}."
+        )
     hint = str(split_hint).strip().lower()
-    stem = path.stem.lower()
-    if "mini" in hint or "mini" in stem:
-        return "mvp_mini"
+    if "mini" in hint:
+        raise ValueError(
+            "Mini split is not supported in the MVP full-only pipeline. "
+            "Use full annotations."
+        )
     return "mvp"
 
 
