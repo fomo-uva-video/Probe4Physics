@@ -1,0 +1,29 @@
+jepa_v1:
+  default_variant: vitl16_224
+  checkpoints_dir: data/checkpoints/jepa_v1
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  model_block_depths:
+    vit_large: 24
+    vit_huge: 32
+  variants:
+    vitl16_224:
+      checkpoint_filename: vitl16.pth.tar
+      model_name: vit_large
+      crop_size: 224
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vith16_224:
+      checkpoint_filename: vith16.pth.tar
+      model_name: vit_huge
+      crop_size: 224
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vith16_384:
+      checkpoint_filename: vith16-384.pth.tar
+      model_name: vit_huge
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2

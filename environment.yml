@@ -1,8 +1,11 @@
 name: probe4physics
 channels:
+  - pytorch
   - conda-forge
 dependencies:
   - python=3.11
+  - pytorch>=2.2
+  - torchvision>=0.17
   - pip
   - datasets>=2.20
   - pyyaml>=6.0

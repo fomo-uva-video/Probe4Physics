@@ -1,0 +1,23 @@
+from .jepa_v1_adapter import JEPAV1Adapter, create_jepa_v1_adapter, resolve_relative_depth_layers
+from .registry import (
+    BackboneFeatures,
+    VideoBackboneAdapter,
+    create_adapter,
+    enforce_single_jepa_namespace,
+    get_registered_adapters,
+    register_adapter,
+    reset_runtime_guard_for_tests,
+)
+
+__all__ = [
+    "BackboneFeatures",
+    "VideoBackboneAdapter",
+    "create_adapter",
+    "register_adapter",
+    "get_registered_adapters",
+    "enforce_single_jepa_namespace",
+    "reset_runtime_guard_for_tests",
+    "JEPAV1Adapter",
+    "create_jepa_v1_adapter",
+    "resolve_relative_depth_layers",
+]

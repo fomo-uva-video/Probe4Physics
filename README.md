@@ -40,4 +40,37 @@ In `configs/mvp.yaml`:
 ```bash
 conda env create -f environment.yml
 conda activate probe4physics
+# if the env already exists, update it:
+conda env update -n probe4physics -f environment.yml --prune
+```
+
+## Official V-JEPA v1 Adapter Setup
+
+Sync submodules (including official V-JEPA v1 in `third_party/jepa_v1`):
+
+```bash
+git submodule update --init --recursive
+git -C third_party/jepa_v1 checkout 51c59d518fc63c08464af6de585f78ac0c7ed4d5
+```
+
+Download an official V-JEPA v1 checkpoint from:
+- https://github.com/facebookresearch/jepa
+
+Manual smoke command (non-CI) for frozen feature extraction:
+
+```bash
+python - <<'PY'
+import torch
+from models import create_adapter
+
+adapter = create_adapter(
+    "jepa_v1",
+    repo_root="third_party/jepa_v1",
+    checkpoint_path="/absolute/path/to/vitl16.pth.tar",
+)
+clips = torch.randn(1, 3, 16, 224, 224)
+features = adapter.extract(clips)
+print("layers:", features.selected_layers)
+print({k: tuple(v.shape) for k, v in features.tokens_by_layer.items()})
+PY
 ```

@@ -1,3 +1,6 @@
 [submodule "third_party/minimal_video_pairs"]
 	path = third_party/minimal_video_pairs
 	url = https://github.com/facebookresearch/minimal_video_pairs.git
+[submodule "third_party/jepa_v1"]
+	path = third_party/jepa_v1
+	url = https://github.com/facebookresearch/jepa.git
