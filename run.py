@@ -17,11 +17,16 @@ from benchmarks.intphys2.init import run_intphys2_init
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import has_valid_feature_cache
 from benchmarks.mvp.init import run_mvp_init
+from benchmarks.ssv2.eval import run_ssv2_eval
+from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_cache
+from benchmarks.ssv2.init import run_ssv2_init
 from experiments.registry import get_experiment, list_experiments
 from training.intphys2_extract import run_intphys2_extract
 from training.intphys2_linear import run_intphys2_eval_linear, run_intphys2_train_linear
 from training.mvp_extract import run_mvp_extract
 from training.mvp_linear import run_mvp_eval_linear, run_mvp_train_linear
+from training.ssv2_extract import run_ssv2_extract
+from training.ssv2_linear import run_ssv2_eval_linear, run_ssv2_train_linear
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 DEFAULT_COMMAND = "eval.mvp"
@@ -41,6 +46,7 @@ ALIASES = {
     "mvp": "eval.mvp",
     "eval": "eval.mvp",
     "intphys2": "eval.intphys2",
+    "ssv2": "eval.ssv2",
 }
 
 
@@ -106,6 +112,7 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
         _is_extract_cached = (
             (step == "extract.mvp" and has_valid_feature_cache(merged_config))
             or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
+            or (step == "extract.ssv2" and has_valid_ssv2_cache(merged_config))
         )
         if _is_extract_cached and not force_reextract:
             step_results.append(
@@ -204,6 +211,32 @@ COMMANDS = {
         handler=run_intphys2_eval_linear,
         description="Evaluate linear probe on IntPhys2 with accuracy + VOE scoring.",
     ),
+    # --- SSv2 ---
+    "init.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_init,
+        description="Validate SSv2 annotations, subset by class, and write split artifacts.",
+    ),
+    "eval.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_eval,
+        description="Run SSv2 evaluation pipeline (Top-1 / Top-5 accuracy).",
+    ),
+    "extract.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_extract,
+        description="Extract and cache frozen backbone features for SSv2.",
+    ),
+    "train.linear.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_train_linear,
+        description="Train a 174-class linear probe from cached SSv2 features.",
+    ),
+    "eval.linear.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_eval_linear,
+        description="Evaluate linear probe on SSv2 with Top-1 / Top-5 scoring.",
+    ),
     # --- Experiments ---
     "exp.list": CommandSpec(
         config_name="mvp",
@@ -256,10 +289,17 @@ def _print_help() -> None:
         "  python run.py train.linear.intphys2",
         "  python run.py eval.linear.intphys2",
         "",
+        "SSv2 commands:",
+        "  python run.py init.ssv2",
+        "  python run.py extract.ssv2",
+        "  python run.py train.linear.ssv2",
+        "  python run.py eval.linear.ssv2",
+        "",
         "Experiment recipes:",
         "  python run.py exp.list",
         "  python run.py exp.run name=mvp.jepa_v1.linear",
         "  python run.py exp.run name=intphys2.jepa_v1.linear",
+        "  python run.py exp.run name=ssv2.jepa_v1.linear",
         "",
         "Commands:",
     ]

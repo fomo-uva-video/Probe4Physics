@@ -25,6 +25,12 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
         pipeline=("extract.intphys2", "train.linear.intphys2", "eval.linear.intphys2"),
         config_overrides={},
     ),
+    "ssv2.jepa_v1.linear": ExperimentSpec(
+        name="ssv2.jepa_v1.linear",
+        description="SSv2 frozen-feature 174-class linear probe baseline with JEPA v1 (control task).",
+        pipeline=("extract.ssv2", "train.linear.ssv2", "eval.linear.ssv2"),
+        config_overrides={},
+    ),
 }
 
 
