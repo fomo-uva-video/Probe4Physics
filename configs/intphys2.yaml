@@ -1,0 +1,82 @@
+defaults:
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+# Path to the IntPhys2 metadata CSV (or .jsonl/.json/.parquet).
+# Expected columns: video_path, scene_id, condition, plausibility (0/1), split.
+metadata_file: data/annotations/intphys2_metadata.csv
+
+# Root directory containing the IntPhys2 video files.
+videos_root: data/videos/intphys2
+
+# Local cache for any downloaded/materialized videos.
+cache_dir: data/cache/intphys2
+
+seed: 42
+
+split:
+  dir: data/splits/intphys2
+
+# Which predefined split to evaluate on: debug | main | held_out
+split_name: main
+
+decode:
+  backend: pyav
+  num_frames: 16
+  fps: 4
+  sampling: uniform
+
+materialize_missing: false
+download_timeout_seconds: 120
+
+predictor:
+  mode: oracle  # oracle | random | from_file
+  prediction_file: ""
+
+output_dir: artifacts/results/intphys2
+output_subdir: ""  # optional stable subdir; empty means timestamped folder
+
+# Used by `python run.py exp.run name=<experiment_id>`
+name: ""
+
+backbone:
+  name: jepa_v1
+  kwargs:
+    # Example override from CLI:
+    # backbone.kwargs.variant=vitl16_224
+    # backbone.kwargs.device=cuda
+    device: cpu
+
+feature_cache:
+  dir: artifacts/features/intphys2
+  split_names:
+    - main
+  layer_ids: []  # empty uses adapter defaults (25/50/75/100% depths)
+  include_pooled: true
+  include_tokens: true
+  force_reextract: false
+
+linear_probe:
+  feature_view: pooled  # pooled | tokens_mean
+  layer: last           # last | <int layer id>
+  epochs: 30
+  lr: 0.001
+  batch_size: 128
+  eval_batch_size: 1024
+  weight_decay: 0.0
+  device: cpu
+  output_dir: artifacts/probes/intphys2
+  output_subdir: ""        # optional stable subdir for train artifacts
+  checkpoint_path: ""      # optional explicit checkpoint for eval.linear.intphys2
+  eval_output_dir: artifacts/results/intphys2
+  eval_output_subdir: ""   # optional stable subdir for linear eval artifacts
+
+experiment:
+  name: intphys2.jepa_v1.linear
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  job:
+    chdir: false
