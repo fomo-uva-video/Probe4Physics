@@ -1,4 +1,10 @@
 from .jepa_v1_adapter import JEPAV1Adapter, create_jepa_v1_adapter, resolve_relative_depth_layers
+from .videomae_adapter import (
+    VideoMAEAdapter,
+    VideoMAEV2Adapter,
+    create_videomae_adapter,
+    create_videomae_v2_adapter,
+)
 from .registry import (
     BackboneFeatures,
     VideoBackboneAdapter,
@@ -20,4 +26,8 @@ __all__ = [
     "JEPAV1Adapter",
     "create_jepa_v1_adapter",
     "resolve_relative_depth_layers",
+    "VideoMAEAdapter",
+    "VideoMAEV2Adapter",
+    "create_videomae_adapter",
+    "create_videomae_v2_adapter",
 ]
