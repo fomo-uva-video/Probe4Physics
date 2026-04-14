@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import sys
 from dataclasses import dataclass
@@ -10,8 +11,12 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 
-from evaluation.mvp.eval import run_mvp_eval
-from evaluation.mvp.init import run_mvp_init
+from benchmarks.mvp.eval import run_mvp_eval
+from benchmarks.mvp.features import has_valid_feature_cache
+from benchmarks.mvp.init import run_mvp_init
+from experiments.registry import get_experiment, list_experiments
+from training.mvp_extract import run_mvp_extract
+from training.mvp_linear import run_mvp_eval_linear, run_mvp_train_linear
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 DEFAULT_COMMAND = "eval.mvp"
@@ -24,18 +29,7 @@ class CommandSpec:
     description: str
 
 
-COMMANDS: dict[str, CommandSpec] = {
-    "init.mvp": CommandSpec(
-        config_name="mvp",
-        handler=run_mvp_init,
-        description="Initialize MVP full annotations + selection + split artifacts.",
-    ),
-    "eval.mvp": CommandSpec(
-        config_name="mvp",
-        handler=run_mvp_eval,
-        description="Run MVP evaluation pipeline.",
-    ),
-}
+COMMANDS: dict[str, CommandSpec] = {}
 
 ALIASES = {
     "init": "init.mvp",
@@ -68,6 +62,124 @@ def main(argv: list[str] | None = None) -> None:
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
+def _run_exp_list(config: dict[str, Any]) -> dict[str, Any]:
+    _ = config
+    specs = list_experiments()
+    return {
+        "experiments": [
+            {
+                "name": spec.name,
+                "description": spec.description,
+                "pipeline": list(spec.pipeline),
+                "config_overrides": spec.config_overrides,
+            }
+            for spec in specs
+        ],
+    }
+
+
+def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
+    name = _resolve_experiment_name(config)
+    spec = get_experiment(name)
+
+    merged_config = _deep_merge_dict(copy.deepcopy(config), spec.config_overrides)
+    feature_cache_cfg = merged_config.get("feature_cache", {})
+    force_reextract = bool(
+        feature_cache_cfg.get("force_reextract", False)
+        if isinstance(feature_cache_cfg, dict)
+        else False
+    )
+
+    step_results: list[dict[str, Any]] = []
+    for step in spec.pipeline:
+        if step not in COMMANDS:
+            raise KeyError(f"Experiment '{name}' references unknown command '{step}'")
+        if step.startswith("exp."):
+            raise ValueError("Nested experiment commands are not allowed.")
+
+        if step == "extract.mvp" and has_valid_feature_cache(merged_config) and not force_reextract:
+            step_results.append(
+                {
+                    "step": step,
+                    "skipped": True,
+                    "reason": "valid_feature_cache_exists",
+                }
+            )
+            continue
+
+        handler = COMMANDS[step].handler
+        result = handler(merged_config)
+        step_results.append({"step": step, "skipped": False, "result": result})
+
+    return {
+        "experiment": spec.name,
+        "description": spec.description,
+        "pipeline": step_results,
+    }
+
+
+def _resolve_experiment_name(config: dict[str, Any]) -> str:
+    top_level_name = str(config.get("name", "")).strip()
+    if top_level_name:
+        return top_level_name
+
+    exp_cfg = config.get("experiment", {})
+    if isinstance(exp_cfg, dict):
+        nested_name = str(exp_cfg.get("name", "")).strip()
+        if nested_name:
+            return nested_name
+
+    return "mvp.jepa_v1.linear"
+
+
+def _deep_merge_dict(base: dict[str, Any], updates: dict[str, Any]) -> dict[str, Any]:
+    for key, value in updates.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            base[key] = _deep_merge_dict(dict(base[key]), value)
+        else:
+            base[key] = value
+    return base
+
+
+COMMANDS = {
+    "init.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_init,
+        description="Initialize MVP full annotations + selection + split artifacts.",
+    ),
+    "eval.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_eval,
+        description="Run MVP evaluation pipeline.",
+    ),
+    "extract.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_extract,
+        description="Extract and cache frozen backbone features for MVP.",
+    ),
+    "train.linear.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_train_linear,
+        description="Train a linear probe from cached MVP features.",
+    ),
+    "eval.linear.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_eval_linear,
+        description="Evaluate linear probe predictions with official MVP scoring.",
+    ),
+    "exp.list": CommandSpec(
+        config_name="mvp",
+        handler=_run_exp_list,
+        description="List available experiment recipes.",
+    ),
+    "exp.run": CommandSpec(
+        config_name="mvp",
+        handler=_run_exp,
+        description="Run an experiment recipe (extract -> train -> eval).",
+    ),
+}
+
+
 def _parse_command_and_overrides(args: list[str]) -> tuple[str, list[str]]:
     if not args:
         return DEFAULT_COMMAND, []
@@ -92,19 +204,20 @@ def _print_help() -> None:
         "",
         "Usage:",
         "  python run.py                          # default: eval.mvp",
-        "  python run.py init.mvp [hydra_overrides]",
-        "  python run.py eval.mvp [hydra_overrides]",
-        "  python run.py mvp [hydra_overrides]     # alias",
+        "  python run.py <command> [hydra_overrides]",
         "",
-        "Examples:",
+        "Common commands:",
         "  python run.py init.mvp",
-        "  python run.py eval.mvp",
-        "  python run.py eval.mvp split_name=val predictor.mode=random",
+        "  python run.py extract.mvp",
+        "  python run.py train.linear.mvp",
+        "  python run.py eval.linear.mvp",
+        "  python run.py exp.list",
+        "  python run.py exp.run name=mvp.jepa_v1.linear",
         "",
         "Commands:",
     ]
     for name, spec in sorted(COMMANDS.items()):
-        lines.append(f"  {name:<10} {spec.description}")
+        lines.append(f"  {name:<18} {spec.description}")
 
     print("\n".join(lines))
 

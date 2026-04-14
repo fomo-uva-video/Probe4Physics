@@ -82,6 +82,46 @@ predictor:
 output_dir: artifacts/results
 output_subdir: "" # optional stable subdir; empty means timestamped folder
 
+# Used by `python run.py exp.run name=<experiment_id>`
+name: ""
+
+backbone:
+  name: jepa_v1
+  kwargs:
+    # Example override from CLI:
+    # backbone.kwargs.variant=vitl16_224
+    # backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+    device: cpu
+
+feature_cache:
+  dir: artifacts/features/mvp
+  split_names:
+    - train
+    - val
+    - test
+  layer_ids: [] # empty uses adapter defaults (e.g., 25/50/75/100% depths)
+  include_pooled: true
+  include_tokens: true
+  force_reextract: false
+
+linear_probe:
+  feature_view: pooled # pooled | tokens_mean
+  layer: last # last | <int layer id>
+  epochs: 30
+  lr: 0.001
+  batch_size: 128
+  eval_batch_size: 1024
+  weight_decay: 0.0
+  device: cpu
+  output_dir: artifacts/probes
+  output_subdir: "" # optional stable subdir for train artifacts
+  checkpoint_path: "" # optional explicit checkpoint for eval.linear.mvp
+  eval_output_dir: artifacts/results
+  eval_output_subdir: "" # optional stable subdir for linear eval artifacts
+
+experiment:
+  name: mvp.jepa_v1.linear
+
 hydra:
   run:
     dir: .

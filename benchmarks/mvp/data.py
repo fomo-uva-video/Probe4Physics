@@ -130,10 +130,18 @@ def resolve_video_path(
 
     videos_root_path = Path(videos_root)
     direct = Path(video_ref)
+    normalized_ref = str(video_ref).lstrip("/\\")
+
+    # Handle rooted-relative refs like "/grasp/.../001.mp4" by resolving
+    # them under `videos_root` first (MVP annotations can use this style).
+    rooted_relative = videos_root_path / normalized_ref
+    if rooted_relative.exists():
+        return str(rooted_relative)
+
     if direct.is_absolute() and direct.exists():
         return str(direct)
 
-    local = videos_root_path / video_ref
+    local = videos_root_path / normalized_ref
     if local.exists():
         return str(local)
 

@@ -10,14 +10,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from benchmarks.mvp import MVPBenchmark, MVPPrediction, asdict_metrics
-from evaluation.mvp.data import (
+from benchmarks.mvp.core import MVPBenchmark, MVPPrediction, asdict_metrics
+from benchmarks.mvp.data import (
     DEFAULT_MVP_SUBSETS,
     ensure_mvp_annotation_file,
     load_mvp_rows,
     resolve_video_path,
 )
-from evaluation.mvp.selection import derive_sample_id
+from benchmarks.mvp.selection import derive_sample_id
 
 
 class ConfigError(ValueError):

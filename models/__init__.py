@@ -1,7 +1,6 @@
+from .base import BackboneFeatures, VideoBackboneAdapter
 from .jepa_v1_adapter import JEPAV1Adapter, create_jepa_v1_adapter, resolve_relative_depth_layers
 from .registry import (
-    BackboneFeatures,
-    VideoBackboneAdapter,
     create_adapter,
     enforce_single_jepa_namespace,
     get_registered_adapters,

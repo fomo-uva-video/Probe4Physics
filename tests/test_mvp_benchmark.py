@@ -6,10 +6,10 @@ import unittest
 from pathlib import Path
 
 from benchmarks.mvp import MVPBenchmark, MVPPrediction, OfficialIntegrationError
-from evaluation.mvp.data import load_mvp_rows
-from evaluation.mvp.eval import ConfigError, run_mvp_eval
-from evaluation.mvp.init import run_mvp_init
-from evaluation.splitting import build_strata, build_units, materialize_sample_assignments, split_units
+from benchmarks.mvp.data import load_mvp_rows
+from benchmarks.mvp.eval import ConfigError, run_mvp_eval
+from benchmarks.mvp.init import run_mvp_init
+from benchmarks.splitting import build_strata, build_units, materialize_sample_assignments, split_units
 
 
 class MVPBenchmarkStrictTests(unittest.TestCase):

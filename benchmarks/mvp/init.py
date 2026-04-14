@@ -7,15 +7,15 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from evaluation.mvp.data import DEFAULT_MVP_SUBSETS, ensure_mvp_annotation_file, load_mvp_rows
-from evaluation.mvp.selection import (
+from benchmarks.mvp.data import DEFAULT_MVP_SUBSETS, ensure_mvp_annotation_file, load_mvp_rows
+from benchmarks.mvp.selection import (
     apply_mvp_selection,
     derive_pair_id,
     derive_sample_id,
     normalize_question_template,
     write_selection_artifacts,
 )
-from evaluation.splitting import (
+from benchmarks.splitting import (
     build_strata,
     build_units,
     materialize_sample_assignments,
