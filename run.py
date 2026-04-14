@@ -11,10 +11,15 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 
+from benchmarks.intphys2.eval import run_intphys2_eval
+from benchmarks.intphys2.features import has_valid_feature_cache as has_valid_intphys2_cache
+from benchmarks.intphys2.init import run_intphys2_init
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import has_valid_feature_cache
 from benchmarks.mvp.init import run_mvp_init
 from experiments.registry import get_experiment, list_experiments
+from training.intphys2_extract import run_intphys2_extract
+from training.intphys2_linear import run_intphys2_eval_linear, run_intphys2_train_linear
 from training.mvp_extract import run_mvp_extract
 from training.mvp_linear import run_mvp_eval_linear, run_mvp_train_linear
 
@@ -35,6 +40,7 @@ ALIASES = {
     "init": "init.mvp",
     "mvp": "eval.mvp",
     "eval": "eval.mvp",
+    "intphys2": "eval.intphys2",
 }
 
 
@@ -97,7 +103,11 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
         if step.startswith("exp."):
             raise ValueError("Nested experiment commands are not allowed.")
 
-        if step == "extract.mvp" and has_valid_feature_cache(merged_config) and not force_reextract:
+        _is_extract_cached = (
+            (step == "extract.mvp" and has_valid_feature_cache(merged_config))
+            or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
+        )
+        if _is_extract_cached and not force_reextract:
             step_results.append(
                 {
                     "step": step,
@@ -142,6 +152,7 @@ def _deep_merge_dict(base: dict[str, Any], updates: dict[str, Any]) -> dict[str,
 
 
 COMMANDS = {
+    # --- MVP ---
     "init.mvp": CommandSpec(
         config_name="mvp",
         handler=run_mvp_init,
@@ -167,6 +178,33 @@ COMMANDS = {
         handler=run_mvp_eval_linear,
         description="Evaluate linear probe predictions with official MVP scoring.",
     ),
+    # --- IntPhys2 ---
+    "init.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_init,
+        description="Validate IntPhys2 metadata and write split artifacts.",
+    ),
+    "eval.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_eval,
+        description="Run IntPhys2 evaluation pipeline (accuracy + VOE).",
+    ),
+    "extract.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_extract,
+        description="Extract and cache frozen backbone features for IntPhys2.",
+    ),
+    "train.linear.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_train_linear,
+        description="Train a linear probe from cached IntPhys2 features.",
+    ),
+    "eval.linear.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_eval_linear,
+        description="Evaluate linear probe on IntPhys2 with accuracy + VOE scoring.",
+    ),
+    # --- Experiments ---
     "exp.list": CommandSpec(
         config_name="mvp",
         handler=_run_exp_list,
@@ -206,13 +244,22 @@ def _print_help() -> None:
         "  python run.py                          # default: eval.mvp",
         "  python run.py <command> [hydra_overrides]",
         "",
-        "Common commands:",
+        "MVP commands:",
         "  python run.py init.mvp",
         "  python run.py extract.mvp",
         "  python run.py train.linear.mvp",
         "  python run.py eval.linear.mvp",
+        "",
+        "IntPhys2 commands:",
+        "  python run.py init.intphys2",
+        "  python run.py extract.intphys2",
+        "  python run.py train.linear.intphys2",
+        "  python run.py eval.linear.intphys2",
+        "",
+        "Experiment recipes:",
         "  python run.py exp.list",
         "  python run.py exp.run name=mvp.jepa_v1.linear",
+        "  python run.py exp.run name=intphys2.jepa_v1.linear",
         "",
         "Commands:",
     ]
