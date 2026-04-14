@@ -161,7 +161,7 @@ def _load_pretrained_official(
     the full official eval module (which pulls optional cv2/torchvision I/O deps).
     """
 
-    checkpoint = torch.load(str(pretrained), map_location="cpu")
+    checkpoint = torch.load(str(pretrained), map_location="cpu", weights_only=False)
     try:
         pretrained_dict = checkpoint[checkpoint_key]
     except Exception:

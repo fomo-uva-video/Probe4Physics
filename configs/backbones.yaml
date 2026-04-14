@@ -27,3 +27,64 @@ jepa_v1:
       patch_size: 16
       frames_per_clip: 16
       tubelet_size: 2
+
+videomae:
+  default_variant: vit_base_16_224
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  model_block_depths:
+    vit_base: 12
+    vit_large: 24
+    vit_huge: 32
+  variants:
+    vit_base_16_224:
+      hf_model_id: MCG-NJU/videomae-base
+      model_name: vit_base
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
+    vit_large_16_224:
+      hf_model_id: MCG-NJU/videomae-large
+      model_name: vit_large
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
+    vit_huge_16_224:
+      hf_model_id: MCG-NJU/videomae-huge
+      model_name: vit_huge
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
+
+videomae_v2:
+  default_variant: vit_base_16_224
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  model_block_depths:
+    vit_base: 12
+    vit_large: 24
+    vit_huge: 32
+    vit_giant: 40
+  variants:
+    vit_base_16_224:
+      hf_model_id: OpenGVLab/VideoMAEv2-Base
+      model_name: vit_base
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
+    vit_large_16_224:
+      hf_model_id: OpenGVLab/VideoMAEv2-Large
+      model_name: vit_large
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
+    vit_giant_16_224:
+      hf_model_id: OpenGVLab/VideoMAEv2-giant
+      model_name: vit_giant
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 16
+      tubelet_size: 2
