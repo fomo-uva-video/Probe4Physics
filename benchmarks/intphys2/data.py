@@ -13,13 +13,37 @@ INTPHYS2_SPLITS = ["debug", "main", "held_out"]
 INTPHYS2_CONDITIONS = ["permanence", "immutability", "continuity", "solidity"]
 
 # Column name aliases for flexible CSV/JSON parsing
-_VIDEO_PATH_KEYS = ("video_path", "filename", "file", "video_file", "video_ref")
-_SCENE_ID_KEYS = ("scene_id", "scene", "quadruplet_id", "group_id")
+# HuggingFace facebook/IntPhys2 columns included: file_name, SceneIndex, type, Difficulty, Camera
+_VIDEO_PATH_KEYS = ("video_path", "filename", "file_name", "file", "video_file", "video_ref")
+_SCENE_ID_KEYS = ("scene_id", "SceneIndex", "scene_index", "scene", "quadruplet_id", "group_id")
 _CONDITION_KEYS = ("condition", "principle", "physics_condition", "category")
-_PLAUSIBILITY_KEYS = ("plausibility", "label", "is_plausible", "possible")
+_PLAUSIBILITY_KEYS = ("plausibility", "type", "Type", "label", "is_plausible", "possible")
 _SPLIT_KEYS = ("split", "subset", "partition")
-_DIFFICULTY_KEYS = ("difficulty", "hard", "level")
-_CAMERA_KEYS = ("camera", "cam", "view", "viewpoint")
+_DIFFICULTY_KEYS = ("difficulty", "Difficulty", "hard", "level")
+_CAMERA_KEYS = ("camera", "Camera", "cam", "view", "viewpoint")
+
+
+def _coerce_plausibility(value: Any) -> int:
+    """Convert any plausibility representation to 0 or 1.
+
+    Handles integers, floats, and the HuggingFace string values
+    (e.g. "Possible", "Impossible", "Possible_1", "Impossible_2").
+    Returns -1 for unrecognised values so callers can flag bad rows.
+    """
+    if isinstance(value, (int, float)):
+        return int(value)
+    s = str(value).strip().lower()
+    # Check "impossible" before "possible" — the former contains the latter.
+    if "impossible" in s:
+        return 0
+    if "possible" in s or "plausible" in s or s in ("1", "true", "yes"):
+        return 1
+    if s in ("0", "false", "no"):
+        return 0
+    try:
+        return int(float(s))
+    except (ValueError, TypeError):
+        return -1
 
 
 def load_intphys2_rows(metadata_file: str | Path) -> list[dict[str, Any]]:
@@ -74,12 +98,12 @@ def normalize_intphys2_row(row: dict[str, Any]) -> dict[str, Any]:
     if "plausibility" not in result:
         for key in _PLAUSIBILITY_KEYS:
             if key in row:
-                result["plausibility"] = int(row[key])
+                result["plausibility"] = _coerce_plausibility(row[key])
                 break
         else:
             result["plausibility"] = -1
     else:
-        result["plausibility"] = int(result["plausibility"])
+        result["plausibility"] = _coerce_plausibility(result["plausibility"])
 
     if "split" not in result:
         for key in _SPLIT_KEYS:

@@ -11,6 +11,7 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 
+from benchmarks.intphys2.download import run_intphys2_download
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import has_valid_feature_cache as has_valid_intphys2_cache
 from benchmarks.intphys2.init import run_intphys2_init
@@ -186,6 +187,11 @@ COMMANDS = {
         description="Evaluate linear probe predictions with official MVP scoring.",
     ),
     # --- IntPhys2 ---
+    "download.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_download,
+        description="Download IntPhys2 from HuggingFace (facebook/IntPhys2) and write metadata CSV.",
+    ),
     "init.intphys2": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_init,
@@ -284,6 +290,7 @@ def _print_help() -> None:
         "  python run.py eval.linear.mvp",
         "",
         "IntPhys2 commands:",
+        "  python run.py download.intphys2",
         "  python run.py init.intphys2",
         "  python run.py extract.intphys2",
         "  python run.py train.linear.intphys2",

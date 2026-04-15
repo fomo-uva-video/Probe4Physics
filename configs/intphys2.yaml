@@ -71,6 +71,17 @@ linear_probe:
   eval_output_dir: artifacts/results/intphys2
   eval_output_subdir: ""   # optional stable subdir for linear eval artifacts
 
+download:
+  # HuggingFace repository to download from.
+  repo_id: facebook/IntPhys2
+  # HF split names to include. HeldOut has no plausibility labels; skip by default.
+  splits:
+    - Debug
+    - Main
+  # Where to store the downloaded files. Empty = use videos_root (recommended:
+  # avoids a separate copy step — the snapshot becomes the videos directory).
+  local_dir: ""
+
 experiment:
   name: intphys2.jepa_v1.linear
 

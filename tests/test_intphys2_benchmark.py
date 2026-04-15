@@ -470,6 +470,173 @@ class RunCommandIntPhys2Tests(unittest.TestCase):
         self.assertIn("train.linear.intphys2", spec.pipeline)
         self.assertIn("eval.linear.intphys2", spec.pipeline)
 
+    def test_download_command_is_registered(self) -> None:
+        try:
+            import run
+        except ModuleNotFoundError:
+            self.skipTest("hydra-core not installed; skipping run.py import test")
+        self.assertIn("download.intphys2", run.COMMANDS)
+
+
+# ---------------------------------------------------------------------------
+# data.py — _coerce_plausibility tests (covers HF string values)
+# ---------------------------------------------------------------------------
+
+class CoercePlausibilityTests(unittest.TestCase):
+    """Tests for the _coerce_plausibility helper added for HF column support."""
+
+    def _coerce(self, value):
+        from benchmarks.intphys2.data import _coerce_plausibility
+        return _coerce_plausibility(value)
+
+    # Integer / float inputs
+    def test_int_1_returns_1(self) -> None:
+        self.assertEqual(self._coerce(1), 1)
+
+    def test_int_0_returns_0(self) -> None:
+        self.assertEqual(self._coerce(0), 0)
+
+    def test_float_1_returns_1(self) -> None:
+        self.assertEqual(self._coerce(1.0), 1)
+
+    # Plain string variants
+    def test_possible_returns_1(self) -> None:
+        self.assertEqual(self._coerce("Possible"), 1)
+
+    def test_impossible_returns_0(self) -> None:
+        self.assertEqual(self._coerce("Impossible"), 0)
+
+    def test_possible_lowercase_returns_1(self) -> None:
+        self.assertEqual(self._coerce("possible"), 1)
+
+    def test_impossible_lowercase_returns_0(self) -> None:
+        self.assertEqual(self._coerce("impossible"), 0)
+
+    # HF suffixed variants (e.g. "Possible_1", "Impossible_2")
+    def test_possible_1_returns_1(self) -> None:
+        self.assertEqual(self._coerce("Possible_1"), 1)
+
+    def test_impossible_2_returns_0(self) -> None:
+        self.assertEqual(self._coerce("Impossible_2"), 0)
+
+    # Bool-like strings
+    def test_true_returns_1(self) -> None:
+        self.assertEqual(self._coerce("true"), 1)
+
+    def test_false_returns_0(self) -> None:
+        self.assertEqual(self._coerce("false"), 0)
+
+    # Unrecognised → -1
+    def test_unknown_string_returns_minus_1(self) -> None:
+        self.assertEqual(self._coerce("unknown_value"), -1)
+
+
+# ---------------------------------------------------------------------------
+# download.py — unit tests (no network calls)
+# ---------------------------------------------------------------------------
+
+class DownloadNormalizeHFRowTests(unittest.TestCase):
+    """Tests for _normalize_hf_row and helpers in download.py."""
+
+    def _normalize(self, row, hf_split="Debug", our_split="debug"):
+        from benchmarks.intphys2.download import _normalize_hf_row
+        return _normalize_hf_row(row, hf_split, our_split)
+
+    def test_canonical_hf_columns_are_mapped(self) -> None:
+        row = {
+            "SceneIndex": "42",
+            "file_name": "Videos/abc123.mp4",
+            "condition": "permanence",
+            "type": "Possible",
+            "Difficulty": "Easy",
+            "Camera": "Fixed",
+        }
+        result = self._normalize(row)
+        self.assertEqual(result["scene_id"], "Debug_42")
+        self.assertEqual(result["video_path"], "Debug/Videos/abc123.mp4")
+        self.assertEqual(result["condition"], "permanence")
+        self.assertEqual(result["plausibility"], 1)
+        self.assertEqual(result["split"], "debug")
+        self.assertEqual(result["difficulty"], "Easy")
+        self.assertEqual(result["camera"], "Fixed")
+
+    def test_impossible_type_gives_plausibility_0(self) -> None:
+        row = {"SceneIndex": "1", "file_name": "Videos/x.mp4", "condition": "solidity", "type": "Impossible_1"}
+        result = self._normalize(row)
+        self.assertEqual(result["plausibility"], 0)
+
+    def test_missing_type_gives_plausibility_minus_1(self) -> None:
+        row = {"SceneIndex": "1", "file_name": "Videos/x.mp4", "condition": "solidity"}
+        result = self._normalize(row)
+        self.assertEqual(result["plausibility"], -1)
+
+    def test_file_name_without_videos_prefix_is_fixed(self) -> None:
+        row = {"SceneIndex": "1", "file_name": "abc123.mp4", "condition": "continuity", "type": "Possible"}
+        result = self._normalize(row)
+        self.assertEqual(result["video_path"], "Debug/Videos/abc123.mp4")
+
+    def test_main_split_is_mapped_correctly(self) -> None:
+        row = {"SceneIndex": "5", "file_name": "Videos/z.mp4", "condition": "immutability", "type": "Impossible"}
+        result = self._normalize(row, hf_split="Main", our_split="main")
+        self.assertEqual(result["scene_id"], "Main_5")
+        self.assertEqual(result["video_path"], "Main/Videos/z.mp4")
+        self.assertEqual(result["split"], "main")
+
+    def test_condition_is_lowercased(self) -> None:
+        row = {"SceneIndex": "1", "file_name": "Videos/x.mp4", "condition": "Permanence", "type": "Possible"}
+        result = self._normalize(row)
+        self.assertEqual(result["condition"], "permanence")
+
+
+class DownloadConfigValidationTests(unittest.TestCase):
+    def test_missing_metadata_file_raises(self) -> None:
+        from benchmarks.intphys2.download import DownloadConfigError, run_intphys2_download
+        with self.assertRaises(DownloadConfigError):
+            run_intphys2_download({"videos_root": "/tmp/v"})
+
+    def test_missing_videos_root_raises(self) -> None:
+        from benchmarks.intphys2.download import DownloadConfigError, run_intphys2_download
+        with self.assertRaises(DownloadConfigError):
+            run_intphys2_download({"metadata_file": "/tmp/m.csv"})
+
+
+# ---------------------------------------------------------------------------
+# normalize_intphys2_row — HF alias columns
+# ---------------------------------------------------------------------------
+
+class NormalizeRowHFAliasTests(unittest.TestCase):
+    """Verify that HF-specific column names are resolved by normalize_intphys2_row."""
+
+    def test_file_name_alias_for_video_path(self) -> None:
+        row = {"file_name": "Videos/abc.mp4", "scene_id": "1", "condition": "solidity", "plausibility": 1, "split": "debug"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["video_path"], "Videos/abc.mp4")
+
+    def test_SceneIndex_alias_for_scene_id(self) -> None:
+        row = {"video_path": "v.mp4", "SceneIndex": "sc42", "condition": "permanence", "plausibility": 0, "split": "main"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["scene_id"], "sc42")
+
+    def test_type_possible_alias_for_plausibility(self) -> None:
+        row = {"video_path": "v.mp4", "scene_id": "1", "condition": "continuity", "type": "Possible", "split": "debug"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["plausibility"], 1)
+
+    def test_type_impossible_alias_for_plausibility(self) -> None:
+        row = {"video_path": "v.mp4", "scene_id": "1", "condition": "continuity", "type": "Impossible_1", "split": "debug"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["plausibility"], 0)
+
+    def test_Difficulty_alias(self) -> None:
+        row = {"video_path": "v.mp4", "scene_id": "1", "condition": "solidity", "plausibility": 1, "split": "main", "Difficulty": "Hard"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["difficulty"], "Hard")
+
+    def test_Camera_alias(self) -> None:
+        row = {"video_path": "v.mp4", "scene_id": "1", "condition": "solidity", "plausibility": 1, "split": "main", "Camera": "Moving"}
+        norm = normalize_intphys2_row(row)
+        self.assertEqual(norm["camera"], "Moving")
+
 
 if __name__ == "__main__":
     unittest.main()

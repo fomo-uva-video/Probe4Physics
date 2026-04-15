@@ -14,6 +14,7 @@ from .features import (
     resolve_expected_feature_cache_paths,
     run_intphys2_feature_extraction,
 )
+from .download import DownloadConfigError, DownloadError, run_intphys2_download
 from .init import InitConfigError, run_intphys2_init
 
 __all__ = [
@@ -32,4 +33,7 @@ __all__ = [
     "has_valid_feature_cache",
     "FeatureConfigError",
     "FeatureCacheError",
+    "run_intphys2_download",
+    "DownloadConfigError",
+    "DownloadError",
 ]
