@@ -28,6 +28,96 @@ jepa_v1:
       frames_per_clip: 16
       tubelet_size: 2
 
+jepa_v2:
+  default_variant: vitg_384
+  checkpoints_dir: data/checkpoints/jepa_v2
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  # Keys match the ViT constructor function name used in src/models/vision_transformer.py
+  model_block_depths:
+    vit_large: 24
+    vit_huge: 32
+    vit_giant_xformers: 40
+  variants:
+    vitl_256:
+      checkpoint_filename: vitl.pt
+      model_name: vit_large
+      checkpoint_key: target_encoder
+      crop_size: 256
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vith_256:
+      checkpoint_filename: vith.pt
+      model_name: vit_huge
+      checkpoint_key: target_encoder
+      crop_size: 256
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vitg_256:
+      checkpoint_filename: vitg.pt
+      # Official giant uses vit_giant_xformers (num_heads=22) not vit_giant (num_heads=16)
+      model_name: vit_giant_xformers
+      checkpoint_key: target_encoder
+      crop_size: 256
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vitg_384:
+      checkpoint_filename: vitg-384.pt
+      model_name: vit_giant_xformers
+      checkpoint_key: target_encoder
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+
+jepa_v2_1:
+  default_variant: vitG_384
+  checkpoints_dir: data/checkpoints/jepa_v2_1
+  # V-JEPA 2.1 layer selection is fixed to hierarchical layers (25/50/75/100% of depth).
+  # Probing at intermediate depths not aligned with hierarchical_layers is not supported.
+  # Keys match the ViT constructor function name in app/vjepa_2_1/models/vision_transformer.py
+  model_block_depths:
+    vit_base: 12
+    vit_large: 24
+    vit_giant_xformers: 40
+    vit_gigantic_xformers: 48
+  variants:
+    vitb_384:
+      checkpoint_filename: vjepa2_1_vitb_dist_vitG_384.pt
+      model_name: vit_base
+      checkpoint_key: ema_encoder
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vitl_384:
+      checkpoint_filename: vjepa2_1_vitl_dist_vitG_384.pt
+      model_name: vit_large
+      checkpoint_key: ema_encoder
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vitg_384:
+      checkpoint_filename: vjepa2_1_vitg_384.pt
+      # Official giant uses vit_giant_xformers (num_heads=22) not vit_giant (num_heads=16)
+      model_name: vit_giant_xformers
+      checkpoint_key: target_encoder
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+    vitG_384:
+      checkpoint_filename: vjepa2_1_vitG_384.pt
+      model_name: vit_gigantic_xformers
+      checkpoint_key: target_encoder
+      crop_size: 384
+      patch_size: 16
+      frames_per_clip: 16
+      tubelet_size: 2
+
 videomae:
   default_variant: vit_base_16_224
   default_relative_depths: [0.25, 0.5, 0.75, 1.0]
