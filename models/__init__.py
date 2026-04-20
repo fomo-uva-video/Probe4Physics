@@ -8,6 +8,10 @@ from .videomae_adapter import (
     create_videomae_adapter,
     create_videomae_v2_adapter,
 )
+from .ltx_video_adapter import (
+    LTXVideoAdapter,
+    create_ltx_video_adapter,
+)
 from .registry import (
     create_adapter,
     enforce_single_jepa_namespace,
@@ -35,4 +39,6 @@ __all__ = [
     "VideoMAEV2Adapter",
     "create_videomae_adapter",
     "create_videomae_v2_adapter",
+    "LTXVideoAdapter",
+    "create_ltx_video_adapter",
 ]

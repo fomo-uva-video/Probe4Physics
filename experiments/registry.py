@@ -19,17 +19,59 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
         pipeline=("extract.mvp", "train.linear.mvp", "eval.linear.mvp"),
         config_overrides={},
     ),
+    "mvp.ltx_video.linear": ExperimentSpec(
+        name="mvp.ltx_video.linear",
+        description="MVP frozen-feature linear probe baseline with LTX-Video VAE features.",
+        pipeline=("extract.mvp", "train.linear.mvp", "eval.linear.mvp"),
+        config_overrides={
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "variant": "ltx_2b_0_9_8_distilled",
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
     "intphys2.jepa_v1.linear": ExperimentSpec(
         name="intphys2.jepa_v1.linear",
         description="IntPhys2 frozen-feature linear probe baseline with JEPA v1.",
         pipeline=("extract.intphys2", "train.linear.intphys2", "eval.linear.intphys2"),
         config_overrides={},
     ),
+    "intphys2.ltx_video.linear": ExperimentSpec(
+        name="intphys2.ltx_video.linear",
+        description="IntPhys2 frozen-feature linear probe baseline with LTX-Video VAE features.",
+        pipeline=("extract.intphys2", "train.linear.intphys2", "eval.linear.intphys2"),
+        config_overrides={
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "variant": "ltx_2b_0_9_8_distilled",
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
     "ssv2.jepa_v1.linear": ExperimentSpec(
         name="ssv2.jepa_v1.linear",
         description="SSv2 frozen-feature 174-class linear probe baseline with JEPA v1 (control task).",
         pipeline=("extract.ssv2", "train.linear.ssv2", "eval.linear.ssv2"),
         config_overrides={},
+    ),
+    "ssv2.ltx_video.linear": ExperimentSpec(
+        name="ssv2.ltx_video.linear",
+        description="SSv2 frozen-feature 174-class linear probe baseline with LTX-Video VAE features.",
+        pipeline=("extract.ssv2", "train.linear.ssv2", "eval.linear.ssv2"),
+        config_overrides={
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "variant": "ltx_2b_0_9_8_distilled",
+                    "device": "cuda",
+                },
+            }
+        },
     ),
 }
 

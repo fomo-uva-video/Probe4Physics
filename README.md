@@ -12,7 +12,7 @@ Current v1 scope:
 
 ## Project Layout
 - `benchmarks/`: benchmark logic (MVP, IntPhys2, SSv2 — loading/scoring/splitting)
-- `models/`: frozen backbone adapters (currently V-JEPA v1)
+- `models/`: frozen backbone adapters (`jepa_v1`, `jepa_v2`, `jepa_v2_1`, `videomae`, `videomae_v2`, `ltx_video`)
 - `probes/`: probe contracts and implementations (currently `linear` runnable)
 - `training/`: feature extraction + probe train/eval orchestration
 - `experiments/`: experiment registry recipes
@@ -192,6 +192,9 @@ Run a full recipe (default: extract -> train.linear -> eval.linear):
 python run.py exp.run name=mvp.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
 python run.py exp.run name=intphys2.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
 python run.py exp.run name=ssv2.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run.py exp.run name=mvp.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=intphys2.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=ssv2.ltx_video.linear backbone.kwargs.device=cuda
 ```
 
 If a valid feature cache already exists, extraction is skipped automatically.
@@ -230,6 +233,9 @@ Examples:
 # extract only train split for a quick smoke run
 python run.py extract.mvp feature_cache.split_names=[train] backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
 
+# run LTX-Video feature extraction
+python run.py extract.mvp backbone.name=ltx_video +backbone.kwargs.variant=ltx_2b_0_9_8_distilled backbone.kwargs.device=cuda
+
 # train with token-mean features instead of pooled
 python run.py train.linear.mvp linear_probe.feature_view=tokens_mean
 
@@ -241,6 +247,20 @@ python run.py download.intphys2 download.splits=[Debug]
 
 # limit SSv2 subset size
 python run.py init.ssv2 split.max_samples_per_class=50
+```
+
+## LTX-Video Notes
+- The `ltx_video` adapter extracts deterministic features from LTX VAE encoder stages (not denoising trajectories).
+- First pull/smoke command:
+
+```bash
+python experiments/smoke_ltx_video.py --variant ltx_2b_0_9_8_distilled --device cuda
+```
+
+- On Snellius, use:
+
+```bash
+sbatch jobs/setup/ltx_smoke.sh
 ```
 
 ## Main Config Keys (`configs/mvp.yaml`)

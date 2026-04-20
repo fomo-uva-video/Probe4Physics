@@ -305,8 +305,11 @@ def _print_help() -> None:
         "Experiment recipes:",
         "  python run.py exp.list",
         "  python run.py exp.run name=mvp.jepa_v1.linear",
+        "  python run.py exp.run name=mvp.ltx_video.linear",
         "  python run.py exp.run name=intphys2.jepa_v1.linear",
+        "  python run.py exp.run name=intphys2.ltx_video.linear",
         "  python run.py exp.run name=ssv2.jepa_v1.linear",
+        "  python run.py exp.run name=ssv2.ltx_video.linear",
         "",
         "Commands:",
     ]

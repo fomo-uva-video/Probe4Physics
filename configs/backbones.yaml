@@ -178,3 +178,29 @@ videomae_v2:
       crop_size: 224
       patch_size: 16
       tubelet_size: 2
+
+ltx_video:
+  default_variant: ltx_2b_0_9_8_distilled
+  # LTX adapter probes deterministic VAE encoder stage activations.
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  model_block_depths:
+    ltx_vae_5: 5
+  variants:
+    ltx_2b_0_9_8_distilled:
+      hf_model_id: Lightricks/LTX-Video-0.9.8-distilled
+      model_name: ltx_vae_5
+      vae_subfolder: vae
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 4
+      patch_size_t: 1
+      torch_dtype: float32
+    ltx_video_main:
+      hf_model_id: Lightricks/LTX-Video
+      model_name: ltx_vae_5
+      vae_subfolder: vae
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 4
+      patch_size_t: 1
+      torch_dtype: float32
