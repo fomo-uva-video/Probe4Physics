@@ -140,6 +140,9 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
                 "pair_id": record["pair_id"],
                 "split": record["split"],
                 "answer_idx": int(record["answer_idx"]),
+                "plausibility_label": int(record["plausibility_label"]),
+                "yes_choice_idx": int(record["yes_choice_idx"]),
+                "no_choice_idx": int(record["no_choice_idx"]),
                 "video_ref": record["video_ref"],
                 "video_path": str(record["video_path"]),
             }
@@ -207,6 +210,14 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             "selected_layers": list(selected_layers),
             "n_samples": len(index_rows),
             "sample_ids_sha256": _sha256_lines([row["sample_id"] for row in index_rows]),
+            "index_columns": list(index_rows[0].keys()) if index_rows else [],
+        },
+        "targets": {
+            "type": "semantic_plausibility",
+            "positive_label": 1,
+            "negative_label": 0,
+            "positive_semantics": "plausible_yes_possible",
+            "negative_semantics": "implausible_no_impossible",
         },
         "files": {
             "index": paths.index_path.name,
@@ -252,6 +263,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
             "layer_ids": feature_cfg["layer_ids"],
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
+            "target_type": "semantic_plausibility",
         },
         "split_dir": str(split_dir),
         "split_manifest_annotation_sha256": str(split_manifest.get("annotation_sha256", "")),
@@ -475,6 +487,16 @@ def _ordered_sample_records(
             sample = sample_map.get(sample_id)
             if sample is None:
                 raise FeatureCacheError(f"Unable to map sample_id='{sample_id}' to benchmark sample")
+            if (
+                sample.plausibility_label is None
+                or sample.yes_choice_idx is None
+                or sample.no_choice_idx is None
+            ):
+                raise FeatureCacheError(
+                    "MVP feature extraction requires binary yes/no sample semantics. "
+                    f"sample_id={sample.sample_id} has choices={sample.choices!r} "
+                    "that do not map cleanly to plausible/implausible."
+                )
 
             resolved_video = resolve_video_path(
                 video_ref=sample.video_a_ref,
@@ -509,6 +531,9 @@ def _ordered_sample_records(
                     "pair_id": sample.pair_id,
                     "split": split_name,
                     "answer_idx": sample.answer_idx,
+                    "plausibility_label": sample.plausibility_label,
+                    "yes_choice_idx": sample.yes_choice_idx,
+                    "no_choice_idx": sample.no_choice_idx,
                     "video_ref": sample.video_a_ref,
                     "video_path": str(video_path),
                 }
@@ -571,12 +596,39 @@ def _load_split_pairs(path: Path) -> list[dict[str, Any]]:
 
 
 def _write_index(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Persist the feature index after validating semantic/positional invariants.
+
+    Old caches should not be reused once semantic plausibility labels are part
+    of the training target. The cache signature already changes for that reason;
+    this writer adds a second guard by checking that each row's semantic label
+    is internally consistent with the stored positional answer mapping before
+    the parquet file is written.
+    """
+
     try:
         import pandas as pd
     except ImportError as exc:
         raise ImportError(
             "Writing index.parquet requires pandas. Install it with: python -m pip install pandas"
         ) from exc
+
+    for row in rows:
+        plausibility_label = int(row["plausibility_label"])
+        answer_idx = int(row["answer_idx"])
+        yes_choice_idx = int(row["yes_choice_idx"])
+        no_choice_idx = int(row["no_choice_idx"])
+        if plausibility_label == 1 and answer_idx != yes_choice_idx:
+            raise FeatureCacheError(
+                "Semantic label invariant failed while writing MVP feature index: "
+                f"plausibility_label=1 requires answer_idx==yes_choice_idx, got "
+                f"answer_idx={answer_idx}, yes_choice_idx={yes_choice_idx}."
+            )
+        if plausibility_label == 0 and answer_idx != no_choice_idx:
+            raise FeatureCacheError(
+                "Semantic label invariant failed while writing MVP feature index: "
+                f"plausibility_label=0 requires answer_idx==no_choice_idx, got "
+                f"answer_idx={answer_idx}, no_choice_idx={no_choice_idx}."
+            )
 
     frame = pd.DataFrame(rows)
     frame.to_parquet(path, index=False)

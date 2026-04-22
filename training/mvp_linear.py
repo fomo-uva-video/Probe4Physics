@@ -16,14 +16,22 @@ class LinearProbeConfigError(ValueError):
     pass
 
 
+REQUIRED_MVP_SEMANTIC_COLUMNS = (
+    "plausibility_label",
+    "yes_choice_idx",
+    "no_choice_idx",
+)
+
+
 def run_mvp_train_linear(config: dict[str, Any]) -> dict[str, Any]:
     bundle = load_feature_cache_for_config(config)
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+    _require_semantic_feature_index(index)
 
     probe_cfg = _linear_cfg(config)
     features = _select_feature_tensor(bundle, probe_cfg)
-    labels = torch.tensor(index["answer_idx"].tolist(), dtype=torch.long)
+    labels = torch.tensor(index["plausibility_label"].tolist(), dtype=torch.long)
 
     train_mask = index["split"].astype(str) == "train"
     val_mask = index["split"].astype(str) == "val"
@@ -71,6 +79,9 @@ def run_mvp_train_linear(config: dict[str, Any]) -> dict[str, Any]:
         "feature_cache_dir": str(bundle["paths"].cache_dir),
         "feature_view": probe_cfg["feature_view"],
         "layer": probe_cfg["layer"],
+        "target_type": "semantic_plausibility",
+        "positive_label": 1,
+        "negative_label": 0,
         "seed": int(config.get("seed", 42)),
     }
     probe.save(checkpoint_path, metadata=metadata)
@@ -102,6 +113,7 @@ def run_mvp_eval_linear(config: dict[str, Any]) -> dict[str, Any]:
     bundle = load_feature_cache_for_config(config)
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+    _require_semantic_feature_index(index)
 
     probe_cfg = _linear_cfg(config)
     split_name = str(config.get("split_name", "test"))
@@ -118,6 +130,7 @@ def run_mvp_eval_linear(config: dict[str, Any]) -> dict[str, Any]:
             "Linear checkpoint feature signature mismatch. "
             f"checkpoint={checkpoint_signature}, current={current_signature}."
         )
+    _require_semantic_checkpoint(ckpt_meta)
 
     features = _select_feature_tensor(bundle, probe_cfg)
     split_mask = index["split"].astype(str) == split_name
@@ -128,10 +141,17 @@ def run_mvp_eval_linear(config: dict[str, Any]) -> dict[str, Any]:
     x_eval = features[split_idx]
     split_frame = index.loc[split_mask].copy()
 
-    pred_idx = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
+    semantic_pred = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
+    pred_idx = _semantic_predictions_to_choice_indices(split_frame, semantic_pred)
+    sample_ids = split_frame["sample_id"].tolist()
+    if len(sample_ids) != len(pred_idx):
+        raise LinearProbeConfigError(
+            "MVP linear eval produced a prediction count mismatch. "
+            f"n_samples={len(sample_ids)}, n_predictions={len(pred_idx)}."
+        )
     pred_by_sample = {
         str(sample_id): int(pred)
-        for sample_id, pred in zip(split_frame["sample_id"].tolist(), pred_idx, strict=True)
+        for sample_id, pred in zip(sample_ids, pred_idx)
     }
 
     output_dir = _resolve_eval_output_dir(config)
@@ -278,3 +298,65 @@ def _resolve_checkpoint_path(config: dict[str, Any]) -> Path:
             "Set linear_probe.checkpoint_path explicitly or run train.linear.mvp first."
         )
     return candidates[-1]
+
+
+def _require_semantic_feature_index(index) -> None:
+    """Fail fast when a feature cache predates semantic MVP label support.
+
+    Mixed choice ordering makes positional `answer_idx` unusable as a stable
+    binary target. Training or evaluating the linear probe without these
+    semantic columns would silently regress to the original bug, so this guard
+    points the user back to `extract.mvp` immediately.
+    """
+
+    missing = [column for column in REQUIRED_MVP_SEMANTIC_COLUMNS if column not in index.columns]
+    if missing:
+        raise LinearProbeConfigError(
+            "MVP feature cache index is missing semantic label columns "
+            f"{missing}. Re-run `python run.py extract.mvp` to regenerate the cache."
+        )
+
+
+def _require_semantic_checkpoint(metadata: dict[str, Any]) -> None:
+    """Reject checkpoints trained against the old positional target semantics."""
+
+    target_type = str(metadata.get("target_type", "")).strip()
+    if target_type == "semantic_plausibility":
+        return
+    raise LinearProbeConfigError(
+        "Linear checkpoint target_type is incompatible with MVP semantic plausibility eval. "
+        "Re-run `python run.py train.linear.mvp` after regenerating features with "
+        "`python run.py extract.mvp`."
+    )
+
+
+def _semantic_predictions_to_choice_indices(split_frame, semantic_pred: list[int]) -> list[int]:
+    """Translate semantic plausibility predictions back to sample-local `A/B`.
+
+    The probe always predicts the stable semantic convention `1=yes/plausible`
+    and `0=no/implausible`. Official MVP scoring, however, still expects a
+    positional prediction index per sample. This helper performs the final,
+    deterministic conversion with the per-row `yes_choice_idx`/`no_choice_idx`
+    metadata stored in the feature cache.
+    """
+
+    if len(split_frame) != len(semantic_pred):
+        raise LinearProbeConfigError(
+            "MVP semantic prediction count mismatch during A/B translation. "
+            f"n_rows={len(split_frame)}, n_predictions={len(semantic_pred)}."
+        )
+
+    pred_idx: list[int] = []
+    for (_, row), pred in zip(split_frame.iterrows(), semantic_pred):
+        semantic_label = int(pred)
+        if semantic_label == 1:
+            pred_idx.append(int(row["yes_choice_idx"]))
+            continue
+        if semantic_label == 0:
+            pred_idx.append(int(row["no_choice_idx"]))
+            continue
+        raise LinearProbeConfigError(
+            "MVP semantic plausibility predictions must be binary 0/1. "
+            f"Got {semantic_label} for sample_id={row['sample_id']}."
+        )
+    return pred_idx

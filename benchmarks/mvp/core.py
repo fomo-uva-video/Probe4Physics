@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Union
 
+from benchmarks.mvp.selection import derive_binary_semantics, resolve_answer_idx
+
 
 class OfficialIntegrationError(RuntimeError):
     pass
@@ -24,6 +26,9 @@ class MVPSample:
     video_a_ref: str
     video_b_ref: str
     split: str
+    plausibility_label: int | None = None
+    yes_choice_idx: int | None = None
+    no_choice_idx: int | None = None
 
 
 @dataclass(frozen=True)
@@ -132,6 +137,11 @@ class MVPBenchmark:
             question = str(row.get("question", "")).strip()
             choices = self._choices(row)
             answer_idx = self._answer_idx(row, choices)
+            semantics = None
+            try:
+                semantics = derive_binary_semantics(choices, answer_idx=answer_idx)
+            except ValueError:
+                semantics = None
             video_ref = self._video_ref(row)
             samples.append(
                 MVPSample(
@@ -140,6 +150,9 @@ class MVPBenchmark:
                     question=question,
                     choices=choices,
                     answer_idx=answer_idx,
+                    plausibility_label=None if semantics is None else semantics.plausibility_label,
+                    yes_choice_idx=None if semantics is None else semantics.yes_choice_idx,
+                    no_choice_idx=None if semantics is None else semantics.no_choice_idx,
                     video_a_ref=video_ref,
                     video_b_ref="",
                     split=split,
@@ -241,14 +254,7 @@ class MVPBenchmark:
         if answer is None:
             raise ValueError("MVP row is missing 'answer' or 'answer_idx'.")
 
-        answer_str = str(answer)
-        if answer_str in choices:
-            return choices.index(answer_str)
-
-        if answer_str.strip().lower() in {"a", "b"}:
-            return 0 if answer_str.strip().lower() == "a" else 1
-
-        raise ValueError(f"Could not map answer={answer!r} to choices={choices!r}")
+        return resolve_answer_idx(choices, answer)
 
     @staticmethod
     def _video_ref(row: dict[str, Any]) -> str:

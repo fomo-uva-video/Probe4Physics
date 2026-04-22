@@ -40,6 +40,46 @@ class MVPBenchmarkStrictTests(unittest.TestCase):
         self.assertEqual(metrics.n_samples, 4)
         self.assertEqual(metrics.n_pairs, 2)
 
+    def test_load_samples_derives_semantic_labels_for_mixed_choice_order(self) -> None:
+        benchmark = MVPBenchmark(self.official_repo)
+        samples = benchmark.load_samples(
+            [
+                {
+                    "video_id": "pair_yes_first_0",
+                    "video_path": "subset/pair_yes_first_0.mp4",
+                    "question": "Is this video physically plausible after the collision?",
+                    "candidates": ["Yes", "No"],
+                    "answer": "Yes",
+                },
+                {
+                    "video_id": "pair_no_first_0",
+                    "video_path": "subset/pair_no_first_0.mp4",
+                    "question": "Is this video physically plausible after the collision?",
+                    "candidates": ["No", "Yes"],
+                    "answer": "Yes",
+                },
+                {
+                    "video_id": "pair_no_first_1",
+                    "video_path": "subset/pair_no_first_1.mp4",
+                    "question": "Is this video physically plausible after the collision?",
+                    "candidates": ["No", "Yes"],
+                    "answer": "No",
+                },
+            ],
+            split="train",
+        )
+
+        sample_by_id = {sample.sample_id: sample for sample in samples}
+        self.assertEqual(sample_by_id["pair_yes_first_0"].plausibility_label, 1)
+        self.assertEqual(sample_by_id["pair_yes_first_0"].yes_choice_idx, 0)
+        self.assertEqual(sample_by_id["pair_yes_first_0"].no_choice_idx, 1)
+        self.assertEqual(sample_by_id["pair_no_first_0"].plausibility_label, 1)
+        self.assertEqual(sample_by_id["pair_no_first_0"].yes_choice_idx, 1)
+        self.assertEqual(sample_by_id["pair_no_first_0"].no_choice_idx, 0)
+        self.assertEqual(sample_by_id["pair_no_first_1"].plausibility_label, 0)
+        self.assertEqual(sample_by_id["pair_no_first_1"].yes_choice_idx, 1)
+        self.assertEqual(sample_by_id["pair_no_first_1"].no_choice_idx, 0)
+
 
 class SplittingCoreTests(unittest.TestCase):
     def test_grouped_split_is_deterministic_and_keeps_pairs(self) -> None:
@@ -114,6 +154,7 @@ class MVPInitEvalTests(unittest.TestCase):
             pair_id = f"pair_{i:04d}"
             question = questions[i % len(questions)]
             source = sources[i % len(sources)]
+            choices = ["Yes", "No"] if i % 2 == 0 else ["No", "Yes"]
             rows.append(
                 {
                     "video_id": f"{pair_id}_0",
@@ -121,7 +162,7 @@ class MVPInitEvalTests(unittest.TestCase):
                     "source": source,
                     "video_path": f"subset/{pair_id}_0.mp4",
                     "question": question,
-                    "candidates": ["Yes", "No"],
+                    "candidates": choices,
                     "answer": "Yes",
                     "label": 1,
                 }
@@ -133,7 +174,7 @@ class MVPInitEvalTests(unittest.TestCase):
                     "source": source,
                     "video_path": f"subset/{pair_id}_1.mp4",
                     "question": question,
-                    "candidates": ["Yes", "No"],
+                    "candidates": choices,
                     "answer": "No",
                     "label": 0,
                 }
