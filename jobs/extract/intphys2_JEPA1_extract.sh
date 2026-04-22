@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=08:00:00
-#SBATCH --output=jobs/setup/out/intphys2_JEPA1_extract_%j.out
-#SBATCH --error=jobs/setup/out/intphys2_JEPA1_extract_%j.err
+#SBATCH --output=./intphys2_JEPA1_extract_%j.out
+#SBATCH --error=./intphys2_JEPA1_extract_%j.err
 
 set -euo pipefail
 

@@ -7,6 +7,9 @@ import run
 
 
 class RunCommandTests(unittest.TestCase):
+    def test_health_command_is_registered(self) -> None:
+        self.assertIn("health", run.COMMANDS)
+
     def test_expected_commands_are_registered(self) -> None:
         expected = {
             "init.mvp",
@@ -14,6 +17,7 @@ class RunCommandTests(unittest.TestCase):
             "extract.mvp",
             "train.linear.mvp",
             "eval.linear.mvp",
+            "health",
             "exp.list",
             "exp.run",
         }
