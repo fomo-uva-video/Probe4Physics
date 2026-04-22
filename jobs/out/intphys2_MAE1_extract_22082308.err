@@ -1,0 +1,50 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Loading weights:   0%|          | 0/160 [00:00<?, ?it/s]Loading weights: 100%|██████████| 160/160 [00:00<00:00, 3190.04it/s]
+[1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-base
+Key                                                                  | Status     | 
+---------------------------------------------------------------------+------------+-
+videomae.encoder.layer.{0...11}.attention.attention.q_bias           | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.output.dense.weight              | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.layernorm_before.weight          | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.attention.key.weight   | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.layernorm_after.weight           | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.attention.query.weight | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.attention.value.weight | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.intermediate.dense.bias          | UNEXPECTED | 
+videomae.encoder.layer.{0...11}.attention.attention.v_bias           | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.attention.q_bias       | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.output.dense.weight    | UNEXPECTED | 
+encoder_to_decoder.weight                                            | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.layernorm_after.bias             | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.attention.v_bias       | UNEXPECTED | 
+mask_token                                                           | UNEXPECTED | 
+decoder.norm.weight                                                  | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.output.dense.bias                | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.layernorm_before.bias            | UNEXPECTED | 
+decoder.head.weight                                                  | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.intermediate.dense.weight        | UNEXPECTED | 
+decoder.norm.bias                                                    | UNEXPECTED | 
+decoder.decoder_layers.{0, 1, 2, 3}.attention.output.dense.bias      | UNEXPECTED | 
+decoder.head.bias                                                    | UNEXPECTED | 
+encoder.layer.{0...11}.attention.attention.key.bias                  | MISSING    | 
+encoder.layer.{0...11}.attention.attention.value.bias                | MISSING    | 
+encoder.layer.{0...11}.attention.attention.query.bias                | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[2026-04-21T16:40:43.178] error: *** JOB 22082308 ON gcn26 CANCELLED AT 2026-04-21T16:40:43 DUE to SIGNAL Terminated ***

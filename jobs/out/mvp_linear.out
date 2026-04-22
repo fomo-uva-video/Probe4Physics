@@ -1,0 +1,23 @@
+===== PROVENANCE =====
+Tue Apr 21 14:05:56 UTC 2026
+tcn182.local.snellius.surf.nl
+803c10a4efb62e4218dd6dce6c46674ff32c41a8
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+SPLIT_DIR=/scratch-shared/scur0511/probe4physics/data/splits/mvp/full_60_20_20
+FEATURE_DIR=/scratch-shared/scur0511/probe4physics/artifacts/features/mvp
+CKPT=/scratch-shared/scur0511/checkpoints/vitl16.pth.tar
+======================
+{
+  "annotation_file": "/scratch-shared/scur0511/probe4physics/data/annotations/mvp_full.jsonl",
+  "manifest": "/scratch-shared/scur0511/probe4physics/data/splits/mvp/full_60_20_20/manifest.json",
+  "n_pairs": 4943,
+  "n_samples": 9886,
+  "pairs_by_split": {
+    "test": 989,
+    "train": 2965,
+    "val": 989
+  },
+  "split_dir": "/scratch-shared/scur0511/probe4physics/data/splits/mvp/full_60_20_20"
+}

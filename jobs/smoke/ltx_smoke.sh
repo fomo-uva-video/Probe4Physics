@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=03:00:00
-#SBATCH --output=jobs/setup/out/ltx_smoke_%j.out
-#SBATCH --error=jobs/setup/out/ltx_smoke_%j.err
+#SBATCH --output=jobs/out/ltx_smoke_%j.out
+#SBATCH --error=jobs/out/ltx_smoke_%j.err
 
 set -euo pipefail
 

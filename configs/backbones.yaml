@@ -39,7 +39,7 @@ jepa_v2:
     vit_giant_xformers: 40
   variants:
     vitl_256:
-      checkpoint_filename: vitl.pt
+      checkpoint_filename: vitl.pth
       model_name: vit_large
       checkpoint_key: target_encoder
       crop_size: 256
@@ -47,7 +47,7 @@ jepa_v2:
       frames_per_clip: 16
       tubelet_size: 2
     vith_256:
-      checkpoint_filename: vith.pt
+      checkpoint_filename: vith.pth
       model_name: vit_huge
       checkpoint_key: target_encoder
       crop_size: 256
@@ -55,7 +55,7 @@ jepa_v2:
       frames_per_clip: 16
       tubelet_size: 2
     vitg_256:
-      checkpoint_filename: vitg.pt
+      checkpoint_filename: vitg.pth
       # Official giant uses vit_giant_xformers (num_heads=22) not vit_giant (num_heads=16)
       model_name: vit_giant_xformers
       checkpoint_key: target_encoder
@@ -64,7 +64,7 @@ jepa_v2:
       frames_per_clip: 16
       tubelet_size: 2
     vitg_384:
-      checkpoint_filename: vitg-384.pt
+      checkpoint_filename: vitg-384.pth
       model_name: vit_giant_xformers
       checkpoint_key: target_encoder
       crop_size: 384
