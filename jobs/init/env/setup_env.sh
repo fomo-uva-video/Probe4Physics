@@ -1,11 +1,13 @@
 #!/bin/bash
 
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --gpus=1
 #SBATCH --job-name=InstallEnvironment
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=9
 #SBATCH --time=04:00:00
+#SBATCH --output=./setup_env%j.out
+#SBATCH --error=./setup_env%j.err
 
 set -eo pipefail
 

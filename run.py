@@ -255,7 +255,7 @@ COMMANDS = {
     "health": CommandSpec(
         config_name="health",
         handler=run_health,
-        description="Run full readiness checks for backbones and datasets.",
+        description="Run lightweight readiness checks for configs, backbones, and datasets.",
     ),
     # --- Experiments ---
     "exp.list": CommandSpec(
@@ -318,6 +318,7 @@ def _print_help() -> None:
         "",
         "Health command:",
         "  python run.py health",
+        "  python run.py health synthetic_forward=true",
         "",
         "Experiment recipes:",
         "  python run.py exp.list",

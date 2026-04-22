@@ -1,13 +1,8 @@
 name: probe4physics-gpu
 channels:
-  - pytorch
-  - nvidia
   - conda-forge
 dependencies:
   - python=3.11
-  - pytorch>=2.2
-  - torchvision>=0.17
-  - pytorch-cuda=12.1
   - pip
   - numpy>=1.26
   - datasets>=2.20
@@ -23,3 +18,10 @@ dependencies:
   - diffusers>=0.37
   - accelerate>=0.30
   - safetensors>=0.4
+  - timm>=1.0
+  - easydict>=1.13
+  - einops>=0.8
+  - pip:
+      - --index-url https://download.pytorch.org/whl/cu124
+      - torch==2.6.0
+      - torchvision==0.21.0

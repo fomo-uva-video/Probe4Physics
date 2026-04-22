@@ -12,6 +12,7 @@ from benchmarks.intphys2.data import load_intphys2_rows, normalize_intphys2_row
 from benchmarks.mvp.data import load_mvp_rows
 from benchmarks.mvp.selection import derive_sample_id, derive_video_ref
 from benchmarks.ssv2.data import load_ssv2_annotations
+from models import get_registered_adapters
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIGS_DIR = PROJECT_ROOT / "configs"
@@ -37,14 +38,15 @@ LARGEST_VARIANTS = {
 
 
 def run_health(config: dict[str, Any]) -> dict[str, Any]:
-    _ = config
+    synthetic_forward = bool(config.get("synthetic_forward", False))
+    device = str(config.get("device", "cpu")).strip() or "cpu"
     backbone_cfg = _load_yaml(CONFIGS_DIR / "backbones.yaml")
     mvp_cfg = _load_yaml(CONFIGS_DIR / "mvp.yaml")
     intphys2_cfg = _load_yaml(CONFIGS_DIR / "intphys2.yaml")
     ssv2_cfg = _load_yaml(CONFIGS_DIR / "ssv2.yaml")
 
     backbones = [
-        _check_backbone(name, backbone_cfg)
+        _check_backbone(name, backbone_cfg, synthetic_forward=synthetic_forward, device=device)
         for name in BACKBONE_ORDER
     ]
     datasets = [
@@ -70,6 +72,10 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
             "passed": passed,
             "failed": failed,
         },
+        "mode": {
+            "synthetic_forward": synthetic_forward,
+            "device": device,
+        },
         "tested_backbones": [
             {
                 "name": item.get("name"),
@@ -92,10 +98,24 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
     return report
 
 
-def _check_backbone(name: str, backbone_cfg: dict[str, Any]) -> dict[str, Any]:
+def _check_backbone(
+    name: str,
+    backbone_cfg: dict[str, Any],
+    *,
+    synthetic_forward: bool,
+    device: str,
+) -> dict[str, Any]:
     checks: list[dict[str, Any]] = []
     section = backbone_cfg.get(name)
     variant = LARGEST_VARIANTS.get(name, "")
+    registered_adapters = set(get_registered_adapters())
+    checks.append(
+        _check_result(
+            "adapter_registered",
+            name in registered_adapters,
+            f"Adapter '{name}' is {'registered' if name in registered_adapters else 'missing from registry'}.",
+        )
+    )
     if not isinstance(section, dict):
         checks.append(_check_result("config_section_exists", False, f"Missing '{name}' in backbones.yaml"))
         return _bundle("backbone", name, variant, checks)
@@ -129,12 +149,21 @@ def _check_backbone(name: str, backbone_cfg: dict[str, Any]) -> dict[str, Any]:
     else:
         checks.append(_check_result("checkpoint_present", True, "Not required (HF-backed backbone)."))
 
-    probe_kwargs: dict[str, Any] = {"variant": variant, "device": "cpu"}
-    if resolved_checkpoint is not None:
-        probe_kwargs["checkpoint_path"] = str(resolved_checkpoint)
+    if synthetic_forward:
+        probe_kwargs: dict[str, Any] = {"variant": variant, "device": device}
+        if resolved_checkpoint is not None:
+            probe_kwargs["checkpoint_path"] = str(resolved_checkpoint)
 
-    probe_ok, probe_detail = _run_backbone_probe_subprocess(name, probe_kwargs)
-    checks.append(_check_result("synthetic_forward", probe_ok, probe_detail))
+        probe_ok, probe_detail = _run_backbone_probe_subprocess(name, probe_kwargs)
+        checks.append(_check_result("synthetic_forward", probe_ok, probe_detail))
+    else:
+        checks.append(
+            _check_result(
+                "synthetic_forward",
+                True,
+                "Skipped in lightweight mode. Set synthetic_forward=true to run backbone smoke forwards.",
+            )
+        )
     return _bundle("backbone", name, variant, checks)
 
 
@@ -147,7 +176,17 @@ from models import create_adapter
 
 name = {name!r}
 kwargs = {json.dumps(kwargs)}
+runtime = {{
+    "torch_version": torch.__version__,
+    "torch_cuda_version": torch.version.cuda,
+    "cuda_available": bool(torch.cuda.is_available()),
+    "cuda_device_count": int(torch.cuda.device_count()),
+}}
 try:
+    if kwargs.get("device") == "cuda" and not runtime["cuda_available"]:
+        raise RuntimeError(
+            "Requested device=cuda but torch.cuda.is_available() is False"
+        )
     adapter = create_adapter(name, **kwargs)
     frames = int(getattr(adapter, "frames_per_clip", 16))
     crop = int(getattr(adapter, "crop_size", 224))
@@ -161,10 +200,16 @@ try:
         "frames_per_clip": frames,
         "crop_size": crop,
         "selected_layers": list(getattr(features, "selected_layers", ()) or ()),
+        "runtime": runtime,
     }}
     print(json.dumps(payload))
 except Exception as exc:
-    payload = {{"ok": False, "error": str(exc), "traceback": traceback.format_exc()}}
+    payload = {{
+        "ok": False,
+        "error": str(exc),
+        "traceback": traceback.format_exc(),
+        "runtime": runtime,
+    }}
     print(json.dumps(payload))
 """
     try:
@@ -195,8 +240,22 @@ except Exception as exc:
     if bool(payload.get("ok", False)):
         frames = payload.get("frames_per_clip")
         crop = payload.get("crop_size")
-        return True, f"Probe succeeded (frames={frames}, crop={crop})."
-    return False, str(payload.get("error", "Unknown probe error"))
+        runtime = payload.get("runtime", {})
+        return True, (
+            f"Probe succeeded (frames={frames}, crop={crop}, "
+            f"torch={runtime.get('torch_version')}, "
+            f"cuda_available={runtime.get('cuda_available')}, "
+            f"device_count={runtime.get('cuda_device_count')})."
+        )
+
+    runtime = payload.get("runtime", {})
+    return False, (
+        f"{payload.get('error', 'Unknown probe error')} "
+        f"[torch={runtime.get('torch_version')}, "
+        f"torch_cuda={runtime.get('torch_cuda_version')}, "
+        f"cuda_available={runtime.get('cuda_available')}, "
+        f"device_count={runtime.get('cuda_device_count')}]"
+    )
 
 
 def _check_mvp(config: dict[str, Any]) -> dict[str, Any]:
@@ -480,9 +539,18 @@ def _format_human_report(report: dict[str, Any]) -> str:
     lines: list[str] = []
     ok = bool(report.get("ok", False))
     summary = report.get("summary", {})
+    mode = report.get("mode", {})
     lines.append("Probe4Physics Health Check")
     lines.append("")
     lines.append(f"Overall: {'PASS' if ok else 'FAIL'}")
+    lines.append(
+        "Mode: "
+        + (
+            f"deep synthetic-forward smoke (device={mode.get('device', 'cpu')})"
+            if bool(mode.get("synthetic_forward", False))
+            else "lightweight static checks"
+        )
+    )
     lines.append(
         "Checks: "
         f"total={summary.get('total_checks', 0)} "

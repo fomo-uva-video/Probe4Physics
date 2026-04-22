@@ -1,0 +1,58 @@
+===== PROVENANCE =====
+Wed Apr 22 17:50:04 UTC 2026
+gcn111.local.snellius.surf.nl
+719093129bd83abcd94e922f3d96bda3c4feb18a
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+TRANSFORMERS_CACHE=/scratch-shared/scur0511/.cache/huggingface/transformers
+HUGGINGFACE_HUB_CACHE=/scratch-shared/scur0511/.cache/huggingface/hub
+HEALTH_DEVICE=cuda
+======================
+===== TORCH RUNTIME =====
+torch_version=2.6.0+cu124
+torch_cuda_version=12.4
+cuda_available=True
+cuda_device_count=1
+CUDA_VISIBLE_DEVICES=0
+GPU 0: NVIDIA H100 (UUID: GPU-8bcb9ca1-c7cd-1d0d-3f5d-b79731223a8e)
+=========================
+Probe4Physics Health Check
+
+Overall: FAIL
+Mode: deep synthetic-forward smoke (device=cuda)
+Checks: total=41 passed=23 failed=18
+
+Backbones
+- jepa_v1 (vith16_384): PASS
+- jepa_v2 (vitg_384): PASS
+- jepa_v2_1 (vitG_384): PASS
+- videomae (vit_huge_16_224): PASS
+- videomae_v2 (vit_giant_16_224): FAIL
+- ltx_video (ltx_video_main): PASS
+
+Datasets
+- mvp: FAIL
+- intphys2: FAIL
+- ssv2: FAIL
+
+Failing checks
+- videomae_v2 (vit_giant_16_224) [synthetic_forward]: VideoMAEV2Adapter failed during forward: model still contains meta tensors. hf_model_id=OpenGVLab/VideoMAEv2-giant variant=vit_giant_16_224 device=cuda backbone_key=videomae_v2 hf_cache_dir=<default> hf_model_id=OpenGVLab/VideoMAEv2-giant load_strategy=cached_snapshot_remote_code snapshot_dir=/scratch-shared/scur0511/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-giant/snapshots/d27568eb41ccb2d41bb191fc2e3fe5aad74942d4 meta_parameter_count=0 meta_buffer_count=0 meta_parameter_examples=[] meta_buffer_examples=[] [torch=2.6.0+cu124, torch_cuda=12.4, cuda_available=True, device_count=1]
+- mvp [annotation_file_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/mvp_full.jsonl
+- mvp [split_pairs_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/mvp/full_60_20_20/split_pairs.parquet
+- mvp [split_manifest_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/mvp/full_60_20_20/manifest.json
+- mvp [manifest_readable]: Manifest file not found.
+- mvp [videos_downloaded]: Missing annotation or split_pairs file.
+- intphys2 [metadata_file_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/intphys2_metadata.csv
+- intphys2 [split_scenes_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/intphys2/split_scenes.parquet
+- intphys2 [split_manifest_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/intphys2/manifest.json
+- intphys2 [manifest_readable]: Manifest file not found.
+- intphys2 [videos_downloaded]: Metadata file not found.
+- ssv2 [train_annotation_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/train.json
+- ssv2 [val_annotation_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/validation.json
+- ssv2 [labels_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/labels.json
+- ssv2 [split_clips_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/ssv2/split_clips.parquet
+- ssv2 [split_manifest_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/ssv2/manifest.json
+- ssv2 [manifest_readable]: Manifest file not found.
+- ssv2 [videos_downloaded]: Missing split_clips and annotations.

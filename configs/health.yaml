@@ -2,6 +2,9 @@ defaults:
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
+synthetic_forward: false
+device: cpu
+
 hydra:
   run:
     dir: .

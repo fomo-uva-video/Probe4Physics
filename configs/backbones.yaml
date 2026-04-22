@@ -141,7 +141,7 @@ videomae:
       patch_size: 16
       tubelet_size: 2
     vit_huge_16_224:
-      hf_model_id: MCG-NJU/videomae-huge
+      hf_model_id: MCG-NJU/videomae-huge-finetuned-kinetics
       model_name: vit_huge
       frames_per_clip: 16
       crop_size: 224

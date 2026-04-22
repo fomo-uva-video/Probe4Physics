@@ -12,6 +12,7 @@ import torch
 from models.videomae_adapter import (
     VideoMAEAdapter,
     VideoMAEV2Adapter,
+    _materialize_videomaev2_plain_tensor_attrs,
     resolve_relative_depth_layers,
 )
 from models.registry import create_adapter, get_registered_adapters
@@ -120,12 +121,40 @@ class _FakeV2HFModel(torch.nn.Module):
         return self.model(pixel_values)
 
 
+class _FakeV2HFModelMetaPosEmbed(torch.nn.Module):
+    def __init__(self, num_blocks: int = 12, n_tokens: int = 4, d_model: int = 8) -> None:
+        super().__init__()
+        self.model = _FakeV2Inner(num_blocks, n_tokens, d_model)
+        self.model.embed_dim = d_model
+        self.model.patch_embed = types.SimpleNamespace(num_patches=n_tokens)
+        self.model.pos_embed = torch.empty((1, n_tokens, d_model), device="meta")
+
+
 def _noop_load_hf_model_v2(
     self: Any, hf_model_id: str, hf_cache_dir: Any
 ) -> torch.nn.Module:
     """Patch for ``_load_hf_model`` (v2) — returns a fake model with correct structure."""
 
     return _FakeV2HFModel(num_blocks=12)
+
+
+def _load_hf_model_v2_meta_failure(
+    self: Any, hf_model_id: str, hf_cache_dir: Any
+) -> torch.nn.Module:
+    class _MetaModel(torch.nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.meta_weight = torch.nn.Parameter(
+                torch.empty(1, device="meta"),
+            )
+
+    self._load_debug_context = {
+        "backbone_key": "videomae_v2",
+        "hf_model_id": hf_model_id,
+        "hf_cache_dir": str(hf_cache_dir or "<default>"),
+        "load_strategy": "unit_test_meta_failure",
+    }
+    return _MetaModel()
 
 
 def _make_minimal_config(tmp: Path, backbone_key: str, model_name: str = "vit_base") -> Path:
@@ -408,6 +437,40 @@ class VideoMAEV2AdapterTests(unittest.TestCase):
 
         for key in ("model_name", "hf_model_id", "config_path", "patch_size", "frames_per_clip"):
             self.assertIn(key, features.metadata, f"metadata missing key: {key}")
+
+    def test_meta_tensor_failure_message_includes_load_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _make_minimal_config(Path(tmp), "videomae_v2")
+            with mock.patch.object(
+                VideoMAEV2Adapter,
+                "_load_hf_model",
+                _load_hf_model_v2_meta_failure,
+            ):
+                with self.assertRaises(RuntimeError) as ctx:
+                    VideoMAEV2Adapter(config_path=config_path)
+
+        message = str(ctx.exception)
+        self.assertIn("VideoMAEV2Adapter failed during post_load_pre_to_device", message)
+        self.assertIn("load_strategy=unit_test_meta_failure", message)
+        self.assertIn("hf_model_id=OpenGVLab/VideoMAEv2-Base", message)
+        self.assertIn("meta_parameter_count=1", message)
+
+    def test_materialize_plain_meta_pos_embed_repairs_tensor(self) -> None:
+        model = _FakeV2HFModelMetaPosEmbed()
+        config = types.SimpleNamespace(model_config={"num_frames": 16})
+        model_module = types.SimpleNamespace(
+            get_sinusoid_encoding_table=lambda n_position, d_hid: torch.zeros(1, n_position, d_hid),
+        )
+
+        repaired = _materialize_videomaev2_plain_tensor_attrs(
+            model,
+            config=config,
+            model_module=model_module,
+        )
+
+        self.assertEqual(repaired, ["model.pos_embed"])
+        self.assertFalse(model.model.pos_embed.is_meta)
+        self.assertEqual(tuple(model.model.pos_embed.shape), (1, 4, 8))
 
 
 # ---------------------------------------------------------------------------
