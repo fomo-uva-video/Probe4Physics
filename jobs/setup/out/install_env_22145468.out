@@ -1,32 +1,0 @@
-accepted Terms of Service for https://repo.anaconda.com/pkgs/main
-accepted Terms of Service for https://repo.anaconda.com/pkgs/r
-2 channel Terms of Service accepted
-Channels:
- - conda-forge
- - defaults
-Platform: linux-64
-Collecting package metadata (repodata.json): - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - done
-Solving environment: | / - \ | / - \ | / - done
-
-Downloading and Extracting Packages: ...working...ffmpeg-8.0.1         | 11.9 MB   |            |   0% 
-libplacebo-7.351.0   | 526 KB    |            |   0% [A
-
-libdovi-3.3.2        | 304 KB    |            |   0% [A[A
-
-libdovi-3.3.2        | 304 KB    | ########## | 100% [A[A
-libplacebo-7.351.0   | 526 KB    | ########## | 100% [A
-
-libdovi-3.3.2        | 304 KB    | ########## | 100% [A[A
-libplacebo-7.351.0   | 526 KB    | ########## | 100% [Affmpeg-8.0.1         | 11.9 MB   | #########1 |  91% ffmpeg-8.0.1         | 11.9 MB   | ########## | 100% ffmpeg-8.0.1         | 11.9 MB   | ########## | 100%                                                      
-                                                     [A
-
-                                                     [A[A done
-Preparing transaction: | done
-Verifying transaction: - \ | / done
-Executing transaction: \ | / done
-Installing pip dependencies: \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - Ran pip subprocess with arguments:
-['/home/scur0511/.conda/envs/probe4physics-gpu/bin/python', '-m', 'pip', 'install', '-U', '-r', '/gpfs/home3/scur0511/Probe4Physics/condaenv._jjv8mg2.requirements.txt', '--exists-action=b']
-Pip subprocess output:
-Looking in indexes: https://pypi.org/simple, https://download.pytorch.org/whl/cu121
-
-failed

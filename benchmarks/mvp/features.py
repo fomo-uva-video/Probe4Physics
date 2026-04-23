@@ -1,3 +1,19 @@
+"""Feature extraction and cache management for the MVP benchmark.
+
+Main workflow:
+
+1. Validate that the requested split and annotation file still match.
+2. Resolve MVP sample ids to local video paths in a deterministic order.
+3. Decode each video into the tensor format expected by backbone adapters.
+4. Extract pooled and/or token features for configured backbone layers.
+5. Write a cache directory containing tensors, an index, and a manifest.
+
+The manifest/signature logic is deliberately strict. Downstream training code
+uses these caches as fixed datasets, so a cache is only reusable when the
+annotation file, split selection, target semantics, backbone config, decode
+settings, and requested layers all agree with the current config.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -23,15 +39,26 @@ from models import create_adapter
 
 
 class FeatureConfigError(ValueError):
+    """Raised when the extraction config is missing or internally invalid."""
+
     pass
 
 
 class FeatureCacheError(RuntimeError):
+    """Raised when feature cache contents are missing, stale, or inconsistent."""
+
     pass
 
 
 @dataclass(frozen=True)
 class FeatureCachePaths:
+    """Concrete paths for one expected MVP feature cache.
+
+    `signature` is the short hash used in the cache directory name. It is
+    derived from all config fields and split metadata that change the meaning
+    or order of the stored features.
+    """
+
     cache_dir: Path
     manifest_path: Path
     index_path: Path
@@ -41,6 +68,28 @@ class FeatureCachePaths:
 
 
 def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
+    """Build or reuse an MVP feature cache for the requested config.
+
+    Parameters
+    ----------
+    config:
+        Parsed project config, usually from `configs/mvp.yaml`. Required keys
+        are validated by `_validate_extract_config`; optional nested sections
+        are normalized by helper functions below.
+
+    Returns
+    -------
+    dict[str, Any]
+        A small status payload with the cache directory, signature, whether
+        extraction was skipped, and the selected layers when extraction ran.
+
+    Notes
+    -----
+    The row order of `index.parquet`, `features_pooled.pt`, and
+    `features_tokens.pt` is identical. `feature_index` in the index is the row
+    number into each saved tensor.
+    """
+
     _validate_extract_config(config)
 
     paths = resolve_expected_feature_cache_paths(config)
@@ -238,6 +287,18 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCachePaths:
+    """Return the cache paths implied by the current extraction config.
+
+    The cache path has the form:
+
+    `feature_cache.dir / backbone[_variant] / split-names / signature`
+
+    The signature includes the annotation file path, backbone config, decode
+    settings, requested layers, requested splits, and hashes stored in the split
+    manifest. This makes stale caches naturally miss when the data selection or
+    feature semantics change.
+    """
+
     split_dir = _resolve_split_dir(config)
     split_manifest_path = split_dir / "manifest.json"
     if not split_manifest_path.exists():
@@ -289,6 +350,8 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
 
 
 def has_valid_feature_cache(config: dict[str, Any]) -> bool:
+    """Return whether the exact cache requested by `config` already exists."""
+
     try:
         paths = resolve_expected_feature_cache_paths(config)
     except Exception:
@@ -297,6 +360,14 @@ def has_valid_feature_cache(config: dict[str, Any]) -> bool:
 
 
 def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Load the feature cache requested by `config`.
+
+    This is the consumer-facing helper used by training code. It checks the
+    manifest/index/tensor files before loading them, then returns a bundle with
+    paths, manifest metadata, the pandas index frame, and any saved tensor
+    payloads.
+    """
+
     paths = resolve_expected_feature_cache_paths(config)
     if not _is_valid_cache(paths):
         raise FeatureCacheError(
@@ -325,6 +396,8 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validate_extract_config(config: dict[str, Any]) -> None:
+    """Check only the top-level keys that extraction cannot proceed without."""
+
     required = [
         "annotation_file",
         "official_repo_root",
@@ -338,6 +411,8 @@ def _validate_extract_config(config: dict[str, Any]) -> None:
 
 
 def _resolve_split_dir(config: dict[str, Any]) -> Path:
+    """Resolve the directory containing `manifest.json` and `split_pairs.parquet`."""
+
     raw_split = config.get("split", {})
     if not isinstance(raw_split, dict):
         raise FeatureConfigError("split config must be a dictionary")
@@ -345,6 +420,13 @@ def _resolve_split_dir(config: dict[str, Any]) -> Path:
 
 
 def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
+    """Normalize the `feature_cache` config section.
+
+    Empty `layer_ids` means "let the adapter choose its default layers".
+    `include_pooled` and `include_tokens` control which tensor files are
+    written, but the index and manifest are always written.
+    """
+
     raw = config.get("feature_cache", {})
     if raw is None:
         raw = {}
@@ -372,6 +454,8 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _backbone_cfg(config: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Normalize the backbone adapter name and constructor kwargs."""
+
     raw = config.get("backbone", {})
     if raw is None:
         raw = {}
@@ -388,6 +472,8 @@ def _backbone_cfg(config: dict[str, Any]) -> tuple[str, dict[str, Any]]:
 
 
 def _decode_cfg(config: dict[str, Any], adapter: Any) -> dict[str, Any]:
+    """Normalize video decode settings, falling back to adapter defaults."""
+
     raw = config.get("decode", {})
     if raw is None:
         raw = {}
@@ -405,6 +491,8 @@ def _decode_cfg(config: dict[str, Any], adapter: Any) -> dict[str, Any]:
 
 
 def _annotations_cfg(config: dict[str, Any]) -> dict[str, Any]:
+    """Normalize annotation download/loading settings for full MVP."""
+
     raw = config.get("annotations", {})
     if raw is None:
         raw = {}
@@ -435,6 +523,18 @@ def _ordered_sample_records(
     *,
     warning_log_path: Path,
 ) -> list[dict[str, Any]]:
+    """Build extraction records in the same order as the split artifact.
+
+    `split_pairs.parquet` stores pair-level rows with JSON-encoded sample ids.
+    This function expands those ids back to individual samples, looks them up
+    in the annotation file, lets `MVPBenchmark` compute the official sample
+    fields, verifies binary yes/no plausibility semantics, and resolves each
+    video reference to a concrete local file.
+
+    The returned list is the source of truth for feature row order. Every item
+    becomes one row in `index.parquet` and one row in each saved feature tensor.
+    """
+
     ordered_ids_by_split: dict[str, list[str]] = {}
     for split_name in split_names:
         pair_rows = [row for row in split_rows if str(row.get("split", "")) == split_name]
@@ -543,6 +643,14 @@ def _ordered_sample_records(
 
 
 def _decode_video_clip(video_path: str, num_frames: int, crop_size: int) -> torch.Tensor:
+    """Decode a video into the shared adapter input format.
+
+    Returns a float tensor shaped `[B, C, T, H, W]` with values in `[0, 1]`.
+    Frames are sampled uniformly across the decoded video. Spatial resizing is
+    bilinear and applied frame-by-frame when the source size differs from
+    `crop_size`.
+    """
+
     try:
         import av
         import numpy as np
@@ -584,6 +692,8 @@ def _decode_video_clip(video_path: str, num_frames: int, crop_size: int) -> torc
 
 
 def _load_split_pairs(path: Path) -> list[dict[str, Any]]:
+    """Read pair-level split rows created by `python run.py init.mvp`."""
+
     try:
         import pandas as pd
     except ImportError as exc:
@@ -635,6 +745,8 @@ def _write_index(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def _load_index(path: Path):
+    """Read a previously written MVP feature index parquet file."""
+
     try:
         import pandas as pd
     except ImportError as exc:
@@ -646,6 +758,13 @@ def _load_index(path: Path):
 
 
 def _is_valid_cache(paths: FeatureCachePaths) -> bool:
+    """Return whether required files exist and the manifest signature matches.
+
+    This is intentionally a lightweight check. It proves that the cache was
+    written for the expected signature and that declared tensor files are
+    present; it does not deserialize large tensor payloads.
+    """
+
     if not paths.manifest_path.exists() or not paths.index_path.exists():
         return False
 
@@ -670,6 +789,8 @@ def _is_valid_cache(paths: FeatureCachePaths) -> bool:
 
 
 def _parse_sample_ids_json(raw: Any) -> list[str]:
+    """Parse the `sample_ids_json` field from split rows into strings."""
+
     if isinstance(raw, list):
         return [str(item) for item in raw]
     parsed = json.loads(str(raw))
@@ -679,6 +800,8 @@ def _parse_sample_ids_json(raw: Any) -> list[str]:
 
 
 def _load_json(path: Path) -> dict[str, Any]:
+    """Load a JSON object from disk and reject non-object payloads."""
+
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError(f"Expected JSON object in {path}")
@@ -686,6 +809,8 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _sha256_file(path: Path) -> str:
+    """Compute a streaming SHA-256 digest for a file."""
+
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -694,11 +819,15 @@ def _sha256_file(path: Path) -> str:
 
 
 def _sha256_json(payload: dict[str, Any]) -> str:
+    """Compute a stable SHA-256 digest for a JSON-serializable mapping."""
+
     blob = json.dumps(payload, sort_keys=True, default=str, ensure_ascii=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def _resolve_warning_log_path(config: dict[str, Any]) -> Path:
+    """Return the extraction warning log path next to the feature cache root."""
+
     raw = config.get("feature_cache", {})
     if not isinstance(raw, dict):
         raw = {}
@@ -707,6 +836,8 @@ def _resolve_warning_log_path(config: dict[str, Any]) -> Path:
 
 
 def _preflight_video_root(videos_root: Path, warning_log_path: Path) -> None:
+    """Fail early when the configured video root cannot support extraction."""
+
     if not videos_root.exists():
         _append_warning(
             warning_log_path,
@@ -745,6 +876,8 @@ def _preflight_video_root(videos_root: Path, warning_log_path: Path) -> None:
 
 
 def _contains_any_video(videos_root: Path) -> bool:
+    """Return whether the directory tree contains at least one common video file."""
+
     patterns = ("*.mp4", "*.mov", "*.avi", "*.mkv", "*.webm")
     for pattern in patterns:
         if next(videos_root.rglob(pattern), None) is not None:
@@ -759,6 +892,8 @@ def _append_warning(
     message: str,
     details: dict[str, Any],
 ) -> None:
+    """Append one JSONL warning record to the extraction warning log."""
+
     warning_log_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "timestamp_utc": datetime.now(tz=timezone.utc).isoformat(),
@@ -771,6 +906,8 @@ def _append_warning(
 
 
 def _sha256_lines(lines: list[str]) -> str:
+    """Compute a stable digest for an ordered list of line-like strings."""
+
     digest = hashlib.sha256()
     for line in lines:
         digest.update(str(line).encode("utf-8"))
