@@ -1,0 +1,47 @@
+===== PROVENANCE =====
+Thu Apr 23 14:23:55 UTC 2026
+gcn148.local.snellius.surf.nl
+357edb1716ccbc3b76827a092a081285256b6dc3
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+TRANSFORMERS_CACHE=/scratch-shared/scur0511/.cache/huggingface/transformers
+HUGGINGFACE_HUB_CACHE=/scratch-shared/scur0511/.cache/huggingface/hub
+HEALTH_DEVICE=cuda
+======================
+===== TORCH RUNTIME =====
+torch_version=2.6.0+cu124
+torch_cuda_version=12.4
+cuda_available=True
+cuda_device_count=1
+CUDA_VISIBLE_DEVICES=0
+GPU 0: NVIDIA H100 (UUID: GPU-795c951b-903f-d02c-f747-d0f57439730d)
+=========================
+Probe4Physics Health Check
+
+Overall: FAIL
+Mode: deep synthetic-forward smoke (device=cuda)
+Checks: total=41 passed=34 failed=7
+
+Backbones
+- jepa_v1 (vith16_384): PASS
+- jepa_v2 (vitg_384): PASS
+- jepa_v2_1 (vitG_384): PASS
+- videomae (vit_huge_16_224): PASS
+- videomae_v2 (vit_giant_16_224): PASS
+- ltx_video (ltx_video_main): PASS
+
+Datasets
+- mvp: PASS
+- intphys2: PASS
+- ssv2: FAIL
+
+Failing checks
+- ssv2 [train_annotation_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/train.json
+- ssv2 [val_annotation_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/validation.json
+- ssv2 [labels_exists]: /gpfs/home3/scur0511/Probe4Physics/data/annotations/ssv2/labels.json
+- ssv2 [split_clips_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/ssv2/split_clips.parquet
+- ssv2 [split_manifest_exists]: /gpfs/home3/scur0511/Probe4Physics/data/splits/ssv2/manifest.json
+- ssv2 [manifest_readable]: Manifest file not found.
+- ssv2 [videos_downloaded]: Missing split_clips and annotations.
