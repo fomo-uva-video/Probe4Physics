@@ -5,6 +5,10 @@
 #   MODE=full  -> extract with the default config
 #   MODE=smoke -> extract only the first 2 ordered samples
 #
+# Optional:
+#   MAX_SAMPLES=<N> overrides MODE-based sample selection and extracts the
+#   first N ordered samples. Use this for timing runs such as N=200.
+#
 # Expected launch style:
 #   sbatch jepa_v1.sh
 #   MODE=smoke sbatch jepa_v1.sh
@@ -24,6 +28,7 @@ load_probe4physics_env
 configure_hf_cache
 
 MODE="${MODE:-full}"
+MAX_SAMPLES="${MAX_SAMPLES:-}"
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
@@ -61,7 +66,9 @@ if [[ ! -f "${SPLIT_DIR}/manifest.json" || ! -f "${SPLIT_DIR}/split_pairs.parque
   exit 2
 fi
 
-if [[ "${MODE}" == "full" ]]; then
+if [[ -n "${MAX_SAMPLES}" ]]; then
+  MAX_SAMPLES_OVERRIDE="feature_cache.max_samples=${MAX_SAMPLES}"
+elif [[ "${MODE}" == "full" ]]; then
   MAX_SAMPLES_OVERRIDE=""
 elif [[ "${MODE}" == "smoke" ]]; then
   MAX_SAMPLES_OVERRIDE="feature_cache.max_samples=2"
@@ -80,6 +87,7 @@ python --version
 which python
 echo "REPO_ROOT=${REPO_ROOT}"
 echo "MODE=${MODE}"
+echo "MAX_SAMPLES=${MAX_SAMPLES:-<unset>}"
 echo "BACKBONE_NAME=${BACKBONE_NAME}"
 echo "BACKBONE_VARIANT=${EFFECTIVE_BACKBONE_VARIANT}"
 echo "BACKBONE_DEVICE=${BACKBONE_DEVICE}"

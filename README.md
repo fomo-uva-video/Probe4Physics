@@ -251,7 +251,7 @@ python run.py init.ssv2 split.max_samples_per_class=50
 
 ## LTX-Video Notes
 - The `ltx_video` adapter extracts deterministic features from LTX VAE encoder stages (not denoising trajectories).
-- Default Hydra variant: `ltxv_13b_0_9_8_dev` (`Lightricks/LTX-Video-0.9.8-dev`).
+- Default Hydra variant: `ltxv_13b_0_9_8_distilled` (`Lightricks/LTX-Video-0.9.8-13B-distilled`).
 - First pull/smoke command:
 
 ```bash

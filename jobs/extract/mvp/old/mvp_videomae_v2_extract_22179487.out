@@ -1,0 +1,34 @@
+===== PROVENANCE =====
+Thu Apr 23 03:40:21 PM UTC 2026
+gcn12.local.snellius.surf.nl
+c7756f524f53392ea3a1752f734bb21762c87f57
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+MODE=smoke
+BACKBONE_NAME=videomae_v2
+BACKBONE_VARIANT=vit_giant_16_224
+BACKBONE_DEVICE=cuda
+ANNOTATION_FILE=/gpfs/home3/scur0511/Probe4Physics/data/annotations/mvp_full.jsonl
+OFFICIAL_REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics/third_party/minimal_video_pairs
+VIDEOS_ROOT=/scratch-shared/scur0511/probe4physics/data/videos/mvp
+CACHE_DIR=/gpfs/home3/scur0511/Probe4Physics/data/cache/videos
+SPLIT_DIR=/gpfs/home3/scur0511/Probe4Physics/data/splits/mvp/full_60_20_20
+FEATURE_DIR=/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+======================
+{
+  "feature_cache_dir": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/55acbcceb0d47097",
+  "n_samples": 2,
+  "selected_layers": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "signature": "55acbcceb0d47097",
+  "skipped": false,
+  "warning_log": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp/extract_warnings.log"
+}
+Completed at:
+Thu Apr 23 03:41:34 PM UTC 2026

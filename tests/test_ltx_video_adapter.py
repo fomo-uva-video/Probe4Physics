@@ -43,22 +43,81 @@ class _FakeVAE(torch.nn.Module):
         return SimpleNamespace(latent_dist=SimpleNamespace(mode=lambda: hidden))
 
 
+class _FakeTemporalDownsampler(torch.nn.Module):
+    def __init__(self, stride_t: int) -> None:
+        super().__init__()
+        self.stride = (int(stride_t), 1, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        numerator = x.shape[2] + self.stride[0] - 1
+        if numerator % self.stride[0] != 0:
+            raise RuntimeError("invalid temporal length for fake LTX downsampler")
+        out_frames = numerator // self.stride[0]
+        return x[:, :, :out_frames, :, :]
+
+
+class _FakeTemporalStage(torch.nn.Module):
+    def __init__(self, delta: float, stride_t: int = 1) -> None:
+        super().__init__()
+        self.delta = float(delta)
+        modules: list[torch.nn.Module] = []
+        if int(stride_t) > 1:
+            modules.append(_FakeTemporalDownsampler(stride_t))
+        self.downsamplers = torch.nn.ModuleList(modules)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = x + self.delta
+        for downsampler in self.downsamplers:
+            out = downsampler(out)
+        return out
+
+
+class _FakeTemporalVAE(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.encoder = SimpleNamespace(
+            down_blocks=torch.nn.ModuleList(
+                [
+                    _FakeTemporalStage(1.0, stride_t=1),
+                    _FakeTemporalStage(2.0, stride_t=2),
+                    _FakeTemporalStage(3.0, stride_t=2),
+                    _FakeTemporalStage(4.0, stride_t=2),
+                ]
+            ),
+            mid_block=_FakeTemporalStage(5.0, stride_t=1),
+        )
+        self.spatial_compression_ratio = 8
+        self.temporal_compression_ratio = 8
+        self.dummy = torch.nn.Parameter(torch.zeros(1))
+
+    def encode(self, x: torch.Tensor):
+        hidden = x
+        for block in self.encoder.down_blocks:
+            hidden = block(hidden)
+        hidden = self.encoder.mid_block(hidden)
+        return SimpleNamespace(latent_dist=SimpleNamespace(mode=lambda: hidden))
+
+
 def _fake_load_vae(self: LTXVideoAdapter) -> torch.nn.Module:
     return _FakeVAE()
+
+
+def _fake_load_temporal_vae(self: LTXVideoAdapter) -> torch.nn.Module:
+    return _FakeTemporalVAE()
 
 
 def _make_minimal_config(tmp: Path) -> Path:
     config_path = tmp / "backbones.yaml"
     payload = {
         "ltx_video": {
-            "default_variant": "ltxv_13b_0_9_8_dev",
+            "default_variant": "ltxv_13b_0_9_8_distilled",
             "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
             "model_block_depths": {
                 "ltx_vae_5": 5,
             },
             "variants": {
-                "ltxv_13b_0_9_8_dev": {
-                    "hf_model_id": "Lightricks/LTX-Video-0.9.8-dev",
+                "ltxv_13b_0_9_8_distilled": {
+                    "hf_model_id": "Lightricks/LTX-Video-0.9.8-13B-distilled",
                     "model_name": "ltx_vae_5",
                     "vae_subfolder": "vae",
                     "frames_per_clip": 16,
@@ -164,6 +223,17 @@ class LTXVideoAdapterTests(unittest.TestCase):
             "crop_size",
         }
         self.assertTrue(required.issubset(features.metadata.keys()))
+
+    def test_extract_aligns_temporal_length_for_ltx_downsamplers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _make_minimal_config(Path(tmp))
+            with mock.patch.object(LTXVideoAdapter, "_load_vae", _fake_load_temporal_vae):
+                adapter = LTXVideoAdapter(config_path=config_path)
+
+            features = adapter.extract(torch.randn(1, 3, 16, 224, 224))
+
+        self.assertEqual(adapter._temporal_downsample_strides, (2, 2, 2))
+        self.assertEqual(features.metadata.get("temporal_downsample_strides"), [2, 2, 2])
 
 
 class LTXVideoRegistryTests(unittest.TestCase):

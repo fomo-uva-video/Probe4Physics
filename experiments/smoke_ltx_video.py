@@ -37,7 +37,7 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Optional variant override from configs/backbones.yaml. "
-            "Defaults to ltx_video.default_variant (e.g. ltxv_13b_0_9_8_dev)."
+            "Defaults to ltx_video.default_variant (e.g. ltxv_13b_0_9_8_distilled)."
         ),
     )
     parser.add_argument(

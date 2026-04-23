@@ -550,8 +550,8 @@ class SSv2FeatureCacheConfigTests(unittest.TestCase):
                 "default_relative_depths": [0.5, 1.0],
                 "model_block_depths": {"ltx_vae_5": 5},
                 "variants": {
-                    "ltxv_13b_0_9_8_dev": {
-                        "hf_model_id": "demo/ltx-dev",
+                    "ltxv_13b_0_9_8_distilled": {
+                        "hf_model_id": "demo/ltx-13b-distilled",
                         "model_name": "ltx_vae_5",
                         "frames_per_clip": 16,
                         "crop_size": 224,
@@ -606,7 +606,7 @@ class SSv2FeatureCacheConfigTests(unittest.TestCase):
             root = Path(tmp)
             config_path = self._write_backbones_config(
                 root / "backbones.yaml",
-                default_variant="ltxv_13b_0_9_8_dev",
+                default_variant="ltxv_13b_0_9_8_distilled",
             )
             cfg_a = self._base_config(root, config_path=config_path)
             cfg_a["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 4}
@@ -623,7 +623,7 @@ class SSv2FeatureCacheConfigTests(unittest.TestCase):
             root = Path(tmp)
             config_path_a = self._write_backbones_config(
                 root / "backbones_a.yaml",
-                default_variant="ltxv_13b_0_9_8_dev",
+                default_variant="ltxv_13b_0_9_8_distilled",
             )
             config_path_b = self._write_backbones_config(
                 root / "backbones_b.yaml",

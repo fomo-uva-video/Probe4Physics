@@ -211,8 +211,8 @@ python run.py extract.mvp \
 
 ### LTX-Video default
 
-- Default variant: `ltxv_13b_0_9_8_dev`
-- Default HF model id: `Lightricks/LTX-Video-0.9.8-dev`
+- Default variant: `ltxv_13b_0_9_8_distilled`
+- Default HF model id: `Lightricks/LTX-Video-0.9.8-13B-distilled`
 
 Quick smoke/pull:
 

@@ -52,7 +52,7 @@ class HealthRunTests(unittest.TestCase):
                 "variants": {"vit_giant_16_224": {"hf_model_id": "demo/videomaev2-giant"}},
             },
             "ltx_video": {
-                "variants": {"ltxv_13b_0_9_8_dev": {"hf_model_id": "demo/ltx-video"}},
+                "variants": {"ltxv_13b_0_9_8_distilled": {"hf_model_id": "demo/ltx-video"}},
             },
         }
 
@@ -89,7 +89,7 @@ class HealthRunTests(unittest.TestCase):
                 "variants": {"vit_giant_16_224": {"hf_model_id": "demo/videomaev2-giant"}},
             },
             "ltx_video": {
-                "variants": {"ltxv_13b_0_9_8_dev": {"hf_model_id": "demo/ltx-video"}},
+                "variants": {"ltxv_13b_0_9_8_distilled": {"hf_model_id": "demo/ltx-video"}},
             },
         }
 
@@ -118,7 +118,7 @@ class HealthRunTests(unittest.TestCase):
             "jepa_v2_1": {"variants": {"vitG_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2_1"},
             "videomae": {"variants": {"vit_huge_16_224": {}}},
             "videomae_v2": {"variants": {"vit_giant_16_224": {}}},
-            "ltx_video": {"variants": {"ltxv_13b_0_9_8_dev": {}}},
+            "ltx_video": {"variants": {"ltxv_13b_0_9_8_distilled": {}}},
         }
 
         with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
@@ -138,7 +138,7 @@ class HealthRunTests(unittest.TestCase):
             "jepa_v2_1": {"variants": {"vitG_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2_1"},
             "videomae": {"variants": {"vit_huge_16_224": {}}},
             "videomae_v2": {"variants": {"vit_giant_16_224": {}}},
-            "ltx_video": {"variants": {"ltxv_13b_0_9_8_dev": {}}},
+            "ltx_video": {"variants": {"ltxv_13b_0_9_8_distilled": {}}},
         }
 
         with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):

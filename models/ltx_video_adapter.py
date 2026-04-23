@@ -215,6 +215,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
 
         self._vae = self._load_vae()
         self._encoder_stages = self._get_encoder_stages()
+        self._temporal_downsample_strides = self._collect_temporal_downsample_strides()
 
         max_selected = max(self.selected_layers)
         if max_selected > len(self._encoder_stages):
@@ -290,6 +291,77 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             )
         return requested
 
+    def _collect_temporal_downsample_strides(self) -> tuple[int, ...]:
+        """Inspect encoder downsamplers and collect temporal strides > 1."""
+
+        encoder = getattr(self._vae, "encoder", None)
+        down_blocks = getattr(encoder, "down_blocks", None)
+        if not isinstance(down_blocks, torch.nn.ModuleList):
+            return ()
+
+        strides: list[int] = []
+        for block in down_blocks:
+            downsamplers = getattr(block, "downsamplers", None)
+            if not isinstance(downsamplers, (list, tuple, torch.nn.ModuleList)):
+                continue
+            for downsampler in downsamplers:
+                raw_stride = getattr(downsampler, "stride", 1)
+                if isinstance(raw_stride, int):
+                    temporal_stride = int(raw_stride)
+                elif isinstance(raw_stride, (tuple, list)) and raw_stride:
+                    temporal_stride = int(raw_stride[0])
+                else:
+                    temporal_stride = 1
+
+                if temporal_stride > 1:
+                    strides.append(temporal_stride)
+
+        return tuple(strides)
+
+    @staticmethod
+    def _is_valid_temporal_length(num_frames: int, strides: Sequence[int]) -> bool:
+        current = int(num_frames)
+        if current <= 0:
+            return False
+
+        for stride in strides:
+            current += int(stride) - 1
+            if current % int(stride) != 0:
+                return False
+            current //= int(stride)
+        return True
+
+    def _align_temporal_length(self, clips: torch.Tensor) -> torch.Tensor:
+        """Pad by repeating the last frame so LTX temporal downsamplers can unflatten safely."""
+
+        if not self._temporal_downsample_strides:
+            return clips
+
+        num_frames = int(clips.shape[2])
+        if self._is_valid_temporal_length(num_frames, self._temporal_downsample_strides):
+            return clips
+
+        max_extra = 1
+        for stride in self._temporal_downsample_strides:
+            max_extra *= int(stride)
+
+        target_frames: int | None = None
+        for extra in range(1, max_extra + 1):
+            candidate = num_frames + extra
+            if self._is_valid_temporal_length(candidate, self._temporal_downsample_strides):
+                target_frames = candidate
+                break
+
+        if target_frames is None:
+            raise RuntimeError(
+                "Unable to align clip temporal length for LTX VAE downsampling. "
+                f"num_frames={num_frames}, temporal_strides={self._temporal_downsample_strides}"
+            )
+
+        extra_frames = target_frames - num_frames
+        last_frame = clips[:, :, -1:, :, :].expand(-1, -1, extra_frames, -1, -1)
+        return torch.cat([clips, last_frame], dim=2)
+
     def preprocessing_metadata(self) -> dict[str, Any]:
         """Return the raw-clip preprocessing contract used before forward."""
 
@@ -323,6 +395,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
 
         # Benchmark decoders output [0, 1] float clips. LTX VAE generally expects [-1, 1].
         inputs = clips.to(self.device, dtype=torch.float32)
+        inputs = self._align_temporal_length(inputs)
         if self.normalize_input:
             inputs = inputs * 2.0 - 1.0
 
@@ -386,6 +459,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             "crop_size": self.crop_size,
             "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),
             "temporal_compression_ratio": int(getattr(self._vae, "temporal_compression_ratio", 1)),
+            "temporal_downsample_strides": [int(v) for v in self._temporal_downsample_strides],
             "preprocessing": self.preprocessing_metadata(),
         }
 

@@ -33,7 +33,7 @@ LARGEST_VARIANTS = {
     "jepa_v2_1": "vitG_384",
     "videomae": "vit_huge_16_224",
     "videomae_v2": "vit_giant_16_224",
-    "ltx_video": "ltxv_13b_0_9_8_dev",
+    "ltx_video": "ltxv_13b_0_9_8_distilled",
 }
 
 
