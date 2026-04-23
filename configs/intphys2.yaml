@@ -16,9 +16,21 @@ seed: 42
 
 split:
   dir: data/splits/intphys2
+  # 60/20/20 train/val/test applied to the Main split only (debug is dropped).
+  ratios:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+  seed: 42
+  # Stratify by physics condition so each condition is proportionally represented
+  # in every split (mirrors MVP's stratify_keys on question_template).
+  stratify_keys:
+    - condition
+  rare_strata_min_units: 3   # conditions with < 3 scenes are merged into OTHER
+  rare_bucket_label: OTHER
 
-# Which predefined split to evaluate on: debug | main | held_out
-split_name: main
+# Which split to evaluate on: train | val | test
+split_name: val
 
 decode:
   backend: pyav
@@ -52,7 +64,9 @@ feature_cache:
   # Feature tensors contain all requested splits together; index.parquet stores
   # the split for each row, and training/eval filter by that column.
   split_names:
-    - main
+    - train
+    - val
+    - test
   layer_ids: []  # empty uses adapter defaults (25/50/75/100% depths)
   include_pooled: true
   include_tokens: true

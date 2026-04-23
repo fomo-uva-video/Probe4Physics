@@ -343,7 +343,7 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise FeatureConfigError("feature_cache must be a dictionary")
 
-    split_names = raw.get("split_names", ["main"])
+    split_names = raw.get("split_names", ["train", "val", "test"])
     if not isinstance(split_names, (list, tuple)) or not split_names:
         raise FeatureConfigError("feature_cache.split_names must be a non-empty list")
 
