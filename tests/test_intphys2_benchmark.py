@@ -273,6 +273,7 @@ class IntPhys2InitTests(unittest.TestCase):
     def _init_config(self, output_root: Path, metadata_file: Path) -> dict:
         return {
             "metadata_file": str(metadata_file),
+            "videos_root": str(output_root / "videos"),  # won't exist → triggers n_missing warning
             "split": {"dir": str(output_root / "splits" / "intphys2")},
         }
 
@@ -280,6 +281,7 @@ class IntPhys2InitTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             metadata_file = tmp_path / "metadata.csv"
+            # 8 scenes × 4 clips = 32 samples, all split="main"
             rows = _make_metadata_rows(n_scenes=8, split="main")
             _write_metadata_csv(metadata_file, rows)
 
@@ -291,8 +293,29 @@ class IntPhys2InitTests(unittest.TestCase):
 
             manifest = json.loads((split_dir / "manifest.json").read_text(encoding="utf-8"))
             self.assertIn("metadata_sha256", manifest)
+            self.assertIn("split_config", manifest)
             self.assertEqual(manifest["stats"]["n_scenes"], 8)
-            self.assertEqual(manifest["stats"]["n_samples"], 32)
+            self.assertEqual(manifest["stats"]["n_samples_main"], 32)
+
+            # Output splits must be train/val/test, not the raw HF labels.
+            scenes_by_split = manifest["stats"]["scenes_by_split"]
+            self.assertIn("train", scenes_by_split)
+            self.assertIn("val", scenes_by_split)
+            self.assertIn("test", scenes_by_split)
+            self.assertEqual(sum(scenes_by_split.values()), 8)
+
+    def test_init_drops_debug_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            metadata_file = tmp_path / "metadata.csv"
+            # 4 main scenes + 2 debug scenes — debug must be dropped
+            rows = _make_metadata_rows(n_scenes=4, split="main")
+            rows += _make_metadata_rows(n_scenes=2, split="debug")
+            _write_metadata_csv(metadata_file, rows)
+
+            result = run_intphys2_init(self._init_config(tmp_path, metadata_file))
+            # Only 4 main scenes should appear in split artifacts
+            self.assertEqual(result["n_scenes"], 4)
 
     def test_init_missing_metadata_file_raises(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -304,16 +327,37 @@ class IntPhys2InitTests(unittest.TestCase):
                     }
                 )
 
+    def test_init_no_main_rows_raises(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            metadata_file = tmp_path / "metadata.csv"
+            rows = _make_metadata_rows(n_scenes=4, split="debug")  # all debug, no main
+            _write_metadata_csv(metadata_file, rows)
+            with self.assertRaises(InitConfigError):
+                run_intphys2_init(self._init_config(tmp_path, metadata_file))
+
     def test_init_invalid_plausibility_raises(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             metadata_file = tmp_path / "metadata.csv"
-            rows = _make_metadata_rows(n_scenes=2)
+            rows = _make_metadata_rows(n_scenes=4, split="main")
             rows[0]["plausibility"] = 5  # invalid
             _write_metadata_csv(metadata_file, rows)
 
             with self.assertRaises(InitConfigError):
                 run_intphys2_init(self._init_config(tmp_path, metadata_file))
+
+    def test_init_video_check_reports_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            metadata_file = tmp_path / "metadata.csv"
+            rows = _make_metadata_rows(n_scenes=4, split="main")
+            _write_metadata_csv(metadata_file, rows)
+
+            result = run_intphys2_init(self._init_config(tmp_path, metadata_file))
+            # videos_root doesn't exist → all videos reported missing
+            self.assertIn("video_check", result)
+            self.assertEqual(result["video_check"]["videos_root_exists"], False)
 
     def test_init_missing_config_keys_raises(self) -> None:
         with self.assertRaises(InitConfigError):
@@ -334,7 +378,7 @@ class IntPhys2EvalTests(unittest.TestCase):
     def _eval_config(self, output_root: Path, metadata_file: Path) -> dict:
         return {
             "metadata_file": str(metadata_file),
-            "split_name": "main",
+            "split_name": "val",
             "seed": 42,
             "predictor": {"mode": "oracle", "prediction_file": ""},
             "split": {"dir": str(output_root / "splits" / "intphys2")},
@@ -418,7 +462,7 @@ class IntPhys2EvalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             metadata_file = tmp_path / "metadata.csv"
-            rows = _make_metadata_rows(n_scenes=2, split="main")
+            rows = _make_metadata_rows(n_scenes=4, split="main")
             _write_metadata_csv(metadata_file, rows)
 
             run_intphys2_init(self._init_config(tmp_path, metadata_file))

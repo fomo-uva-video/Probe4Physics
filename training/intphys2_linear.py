@@ -16,10 +16,31 @@ class LinearProbeConfigError(ValueError):
     pass
 
 
+_EXPECTED_SPLITS = {"train", "val", "test"}
+
+
+def _require_fresh_split_index(index) -> None:
+    """Reject feature caches built before the train/val/test split was introduced.
+
+    Old IntPhys2 caches have split='main'. New caches produced by the current
+    init.intphys2 always contain train/val/test labels. Using an old cache would
+    cause a confusing 'no training samples found' failure, so we fail fast here
+    with an actionable message instead.
+    """
+    existing = set(index["split"].astype(str).unique().tolist())
+    if not existing.intersection(_EXPECTED_SPLITS):
+        raise LinearProbeConfigError(
+            f"IntPhys2 feature cache has stale split labels: {sorted(existing)}. "
+            "This cache was built before the train/val/test split was introduced. "
+            "Delete the old cache and re-run: python run.py extract.intphys2"
+        )
+
+
 def run_intphys2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
     bundle = load_feature_cache_for_config(config)
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+    _require_fresh_split_index(index)
 
     probe_cfg = _linear_cfg(config)
     features = _select_feature_tensor(bundle, probe_cfg)
@@ -28,16 +49,11 @@ def run_intphys2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
     train_mask = index["split"].astype(str) == "train"
     val_mask = index["split"].astype(str) == "val"
 
-    # IntPhys2 main split may not have an explicit train/val partition;
-    # fall back to using the entire available split for training.
     if not train_mask.any():
-        split_name = str(probe_cfg.get("train_split", "main"))
-        train_mask = index["split"].astype(str) == split_name
-        if not train_mask.any():
-            raise LinearProbeConfigError(
-                "No training samples found in feature cache index. "
-                "Ensure feature_cache.split_names includes a train or main split."
-            )
+        raise LinearProbeConfigError(
+            "No training samples found in feature cache index. "
+            "Ensure feature_cache.split_names includes 'train' and re-run extract.intphys2."
+        )
 
     x_train = features[torch.tensor(train_mask.to_numpy())]
     y_train = labels[torch.tensor(train_mask.to_numpy())]
@@ -110,9 +126,10 @@ def run_intphys2_eval_linear(config: dict[str, Any]) -> dict[str, Any]:
     bundle = load_feature_cache_for_config(config)
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+    _require_fresh_split_index(index)
 
     probe_cfg = _linear_cfg(config)
-    split_name = str(config.get("split_name", "main"))
+    split_name = str(config.get("split_name", "val"))
 
     checkpoint_path = _resolve_checkpoint_path(config)
     probe = LinearProbe.load(checkpoint_path, device=probe_cfg["device"])
@@ -253,7 +270,7 @@ def _linear_cfg(config: dict[str, Any]) -> dict[str, Any]:
     return {
         "feature_view": str(raw.get("feature_view", "pooled")).strip().lower(),
         "layer": layer,
-        "train_split": str(raw.get("train_split", "main")),
+        "train_split": str(raw.get("train_split", "train")),
         "epochs": int(raw.get("epochs", 30)),
         "lr": float(raw.get("lr", 1e-3)),
         "batch_size": int(raw.get("batch_size", 128)),
