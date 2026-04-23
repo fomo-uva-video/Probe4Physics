@@ -28,6 +28,7 @@ from .registry import (
     VideoBackboneAdapter,
     register_adapter,
 )
+from .preprocessing import imagenet_preprocessing_metadata, normalize_rgb_imagenet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
@@ -608,6 +609,11 @@ class _VideoMAEBaseAdapter(VideoBackboneAdapter):
             )
         return requested
 
+    def preprocessing_metadata(self) -> dict[str, Any]:
+        """Return the raw-clip preprocessing contract used before forward."""
+
+        return imagenet_preprocessing_metadata(family=self._BACKBONE_KEY)
+
     def extract(
         self,
         clips: torch.Tensor,
@@ -635,6 +641,7 @@ class _VideoMAEBaseAdapter(VideoBackboneAdapter):
 
         requested_layers = self._resolve_requested_layers(layer_ids)
         clips = clips.to(self.device, dtype=torch.float32)
+        clips = normalize_rgb_imagenet(clips)
 
         try:
             with torch.no_grad():
@@ -688,6 +695,7 @@ class _VideoMAEBaseAdapter(VideoBackboneAdapter):
             "tubelet_size": self.tubelet_size,
             "frames_per_clip": self.frames_per_clip,
             "crop_size": self.crop_size,
+            "preprocessing": self.preprocessing_metadata(),
         }
         return BackboneFeatures(
             tokens_by_layer=tokens_by_layer,

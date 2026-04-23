@@ -27,6 +27,7 @@ from .registry import (
     enforce_single_jepa_namespace,
     register_adapter,
 )
+from .preprocessing import imagenet_preprocessing_metadata, normalize_rgb_imagenet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
@@ -181,9 +182,10 @@ def _import_vjepa2_vit_module(repo_root: Path) -> Any:
 class JEPAV2Adapter(VideoBackboneAdapter):
     """Frozen-feature extractor for official V-JEPA v2 checkpoints.
 
-    Inputs to ``extract`` are preprocessed clip tensors with shape
-    ``[B, C, T, H, W]``.  The adapter returns per-layer tokens and mean-pooled
-    clip embeddings through ``BackboneFeatures``.
+    Inputs to ``extract`` are raw RGB clip tensors in [0, 1] with shape
+    ``[B, C, T, H, W]``.  The adapter applies ImageNet normalization internally
+    and returns per-layer tokens and mean-pooled clip embeddings through
+    ``BackboneFeatures``.
 
     V-JEPA 2 uses RoPE positional encoding by default (``use_rope=True``), so
     the ``frames_per_clip`` / ``crop_size`` constructor arguments only affect
@@ -371,6 +373,11 @@ class JEPAV2Adapter(VideoBackboneAdapter):
             )
         return requested
 
+    def preprocessing_metadata(self) -> dict[str, Any]:
+        """Return the raw-clip preprocessing contract used before forward."""
+
+        return imagenet_preprocessing_metadata(family="jepa_v2")
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -383,7 +390,7 @@ class JEPAV2Adapter(VideoBackboneAdapter):
         """Run frozen forward pass and return token + pooled features by layer.
 
         Args:
-            clips: Preprocessed video tensor of shape ``[B, C, T, H, W]``.
+            clips: Raw RGB video tensor in [0, 1] with shape ``[B, C, T, H, W]``.
             layer_ids: Optional 1-based subset of ``selected_layers`` to return.
                        When ``None``, all configured layers are returned.
 
@@ -401,6 +408,7 @@ class JEPAV2Adapter(VideoBackboneAdapter):
 
         requested_layers = self._resolve_requested_layers(layer_ids)
         clips = clips.to(self.device, dtype=torch.float32)
+        clips = normalize_rgb_imagenet(clips)
 
         with torch.no_grad():
             outputs = self._encoder(clips)
@@ -416,7 +424,7 @@ class JEPAV2Adapter(VideoBackboneAdapter):
 
         all_tokens: dict[int, torch.Tensor] = {
             layer: layer_tokens
-            for layer, layer_tokens in zip(self.selected_layers, outputs, strict=True)
+            for layer, layer_tokens in zip(self.selected_layers, outputs)
         }
         # Optional layer filtering — avoids re-forwarding when only a subset is needed.
         tokens_by_layer = {layer: all_tokens[layer] for layer in requested_layers}
@@ -434,6 +442,7 @@ class JEPAV2Adapter(VideoBackboneAdapter):
             "frames_per_clip": self.frames_per_clip,
             "crop_size": self.crop_size,
             "repo_root": str(self.repo_root),
+            "preprocessing": self.preprocessing_metadata(),
         }
         return BackboneFeatures(
             tokens_by_layer=tokens_by_layer,

@@ -10,7 +10,12 @@ from unittest import mock
 import pandas as pd
 import torch
 
-from benchmarks.mvp.features import load_feature_cache_for_config, run_mvp_feature_extraction
+from benchmarks.mvp.features import (
+    FeatureConfigError,
+    load_feature_cache_for_config,
+    resolve_expected_feature_cache_paths,
+    run_mvp_feature_extraction,
+)
 from models.base import BackboneFeatures
 
 
@@ -183,6 +188,41 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
                     self.assertEqual(int(row["answer_idx"]), int(row["yes_choice_idx"]))
                 else:
                     self.assertEqual(int(row["answer_idx"]), int(row["no_choice_idx"]))
+
+    def test_decode_crop_size_changes_cache_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            cfg_a = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg_a["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 4}
+            cfg_b = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg_b["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 8}
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+
+    def test_empty_feature_outputs_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            cfg = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg["feature_cache"]["include_pooled"] = False
+            cfg["feature_cache"]["include_tokens"] = False
+
+            with self.assertRaises(FeatureConfigError):
+                resolve_expected_feature_cache_paths(cfg)
 
 
 if __name__ == "__main__":

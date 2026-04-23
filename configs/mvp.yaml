@@ -95,6 +95,8 @@ backbone:
 
 feature_cache:
   dir: artifacts/features/mvp
+  # Feature tensors contain all requested splits together; index.parquet stores
+  # the split for each row, and training/eval filter by that column.
   split_names:
     - train
     - val

@@ -18,6 +18,10 @@ from benchmarks.intphys2.data import (
     normalize_intphys2_row,
 )
 from benchmarks.intphys2.eval import ConfigError, run_intphys2_eval
+from benchmarks.intphys2.features import (
+    FeatureConfigError,
+    resolve_expected_feature_cache_paths,
+)
 from benchmarks.intphys2.init import InitConfigError, run_intphys2_init
 
 
@@ -598,6 +602,52 @@ class DownloadConfigValidationTests(unittest.TestCase):
         from benchmarks.intphys2.download import DownloadConfigError, run_intphys2_download
         with self.assertRaises(DownloadConfigError):
             run_intphys2_download({"metadata_file": "/tmp/m.csv"})
+
+
+class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
+    def _base_config(self, root: Path) -> dict:
+        split_dir = root / "splits" / "intphys2"
+        split_dir.mkdir(parents=True, exist_ok=True)
+        (split_dir / "manifest.json").write_text(
+            json.dumps({"metadata_sha256": "fixture_metadata_sha"}, sort_keys=True),
+            encoding="utf-8",
+        )
+        return {
+            "metadata_file": str(root / "metadata.csv"),
+            "videos_root": str(root / "videos"),
+            "cache_dir": str(root / "cache"),
+            "split": {"dir": str(split_dir)},
+            "backbone": {"name": "fake_backbone", "kwargs": {}},
+            "feature_cache": {
+                "dir": str(root / "features"),
+                "split_names": ["main"],
+                "layer_ids": [12],
+                "include_pooled": True,
+                "include_tokens": True,
+            },
+        }
+
+    def test_decode_crop_size_changes_cache_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cfg_a = self._base_config(root)
+            cfg_a["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 4}
+            cfg_b = self._base_config(root)
+            cfg_b["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 8}
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+
+    def test_empty_feature_outputs_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = self._base_config(Path(tmp))
+            cfg["feature_cache"]["include_pooled"] = False
+            cfg["feature_cache"]["include_tokens"] = False
+
+            with self.assertRaises(FeatureConfigError):
+                resolve_expected_feature_cache_paths(cfg)
 
 
 # ---------------------------------------------------------------------------

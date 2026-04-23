@@ -153,7 +153,11 @@ class JEPAV1AdapterTests(unittest.TestCase):
                 "models.jepa_v1_adapter._load_pretrained_official",
                 side_effect=_fake_load_pretrained_noop,
             ):
-                adapter = JEPAV1Adapter(repo_root=root, checkpoint_path=checkpoint)
+                adapter = JEPAV1Adapter(
+                    repo_root=root,
+                    checkpoint_path=checkpoint,
+                    model_name="vit_large",
+                )
                 clips = torch.randn(2, 3, 16, 224, 224)
                 features = adapter.extract(clips, layer_ids=[12, 24])
 

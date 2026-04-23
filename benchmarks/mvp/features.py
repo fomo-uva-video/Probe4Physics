@@ -32,10 +32,10 @@ from benchmarks.mvp.data import (
     DEFAULT_MVP_SUBSETS,
     ensure_mvp_annotation_file,
     load_mvp_rows,
-    resolve_video_path,
 )
 from benchmarks.mvp.selection import derive_sample_id
 from models import create_adapter
+from models.cache_metadata import resolve_backbone_cache_metadata
 
 
 class FeatureConfigError(ValueError):
@@ -310,18 +310,22 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     split_manifest = _load_json(split_manifest_path)
     backbone_name, backbone_kwargs = _backbone_cfg(config)
     feature_cfg = _feature_cfg(config)
+    backbone_metadata = resolve_backbone_cache_metadata(backbone_name, backbone_kwargs)
 
     payload = {
         "annotation_file": str(config.get("annotation_file", "")),
         "backbone_name": backbone_name,
         "backbone_kwargs": backbone_kwargs,
-        "decode": {
-            "num_frames": int(config.get("decode", {}).get("num_frames", 16)),
-            "sampling": str(config.get("decode", {}).get("sampling", "uniform")),
-        },
+        "backbone_resolved": backbone_metadata,
+        "decode": _signature_decode_cfg(config, backbone_metadata),
         "feature_cache": {
             "split_names": feature_cfg["split_names"],
             "layer_ids": feature_cfg["layer_ids"],
+            "resolved_layer_ids": (
+                feature_cfg["layer_ids"]
+                if feature_cfg["layer_ids"]
+                else list(backbone_metadata.get("selected_layers", []))
+            ),
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
             "target_type": "semantic_plausibility",
@@ -332,7 +336,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     }
     signature = _sha256_json(payload)[:16]
 
-    variant = str(backbone_kwargs.get("variant", "")).strip()
+    variant = str(backbone_metadata.get("variant") or backbone_kwargs.get("variant", "")).strip()
     backbone_id = f"{backbone_name}_{variant}" if variant else str(backbone_name)
     split_key = "-".join(feature_cfg["split_names"])
 
@@ -382,9 +386,16 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
     tokens_payload: dict[str, Any] | None = None
 
     if str(manifest.get("files", {}).get("pooled", "")):
-        pooled_payload = torch.load(str(paths.pooled_path), map_location="cpu")
+        pooled_payload = torch.load(str(paths.pooled_path), map_location="cpu", weights_only=False)
     if str(manifest.get("files", {}).get("tokens", "")):
-        tokens_payload = torch.load(str(paths.tokens_path), map_location="cpu")
+        tokens_payload = torch.load(str(paths.tokens_path), map_location="cpu", weights_only=False)
+
+    _validate_loaded_feature_payloads(
+        manifest=manifest,
+        index=frame,
+        pooled=pooled_payload,
+        tokens=tokens_payload,
+    )
 
     return {
         "paths": paths,
@@ -443,12 +454,19 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(layer_ids_raw, (list, tuple)):
         raise FeatureConfigError("feature_cache.layer_ids must be a list")
 
+    include_pooled = bool(raw.get("include_pooled", True))
+    include_tokens = bool(raw.get("include_tokens", True))
+    if not include_pooled and not include_tokens:
+        raise FeatureConfigError(
+            "feature_cache.include_pooled and feature_cache.include_tokens cannot both be false"
+        )
+
     return {
         "dir": str(raw.get("dir", "artifacts/features/mvp")),
         "split_names": [str(item) for item in split_names],
         "layer_ids": [int(value) for value in layer_ids_raw],
-        "include_pooled": bool(raw.get("include_pooled", True)),
-        "include_tokens": bool(raw.get("include_tokens", True)),
+        "include_pooled": include_pooled,
+        "include_tokens": include_tokens,
         "force_reextract": bool(raw.get("force_reextract", False)),
     }
 
@@ -483,6 +501,25 @@ def _decode_cfg(config: dict[str, Any], adapter: Any) -> dict[str, Any]:
     default_frames = int(getattr(adapter, "frames_per_clip", 16))
     default_crop = int(getattr(adapter, "crop_size", 224))
 
+    return {
+        "num_frames": int(raw.get("num_frames", default_frames)),
+        "sampling": str(raw.get("sampling", "uniform")),
+        "crop_size": int(raw.get("crop_size", default_crop)),
+    }
+
+
+def _signature_decode_cfg(
+    config: dict[str, Any],
+    backbone_metadata: dict[str, Any],
+) -> dict[str, Any]:
+    raw = config.get("decode", {})
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise FeatureConfigError("decode must be a dictionary")
+
+    default_frames = int(backbone_metadata.get("frames_per_clip") or 16)
+    default_crop = int(backbone_metadata.get("crop_size") or 224)
     return {
         "num_frames": int(raw.get("num_frames", default_frames)),
         "sampling": str(raw.get("sampling", "uniform")),
@@ -598,12 +635,9 @@ def _ordered_sample_records(
                     "that do not map cleanly to plausible/implausible."
                 )
 
-            resolved_video = resolve_video_path(
+            resolved_video = _resolve_local_video_path(
                 video_ref=sample.video_a_ref,
                 videos_root=config["videos_root"],
-                cache_dir=config["cache_dir"],
-                materialize_missing=bool(config.get("materialize_missing", False)),
-                timeout_seconds=int(config.get("download_timeout_seconds", 120)),
             )
 
             video_path = Path(resolved_video)
@@ -640,6 +674,26 @@ def _ordered_sample_records(
             )
 
     return ordered_records
+
+
+def _resolve_local_video_path(video_ref: str, videos_root: str | Path) -> str:
+    """Resolve MVP extraction videos from local storage only."""
+
+    if not video_ref:
+        return ""
+
+    videos_root_path = Path(videos_root)
+    direct = Path(video_ref)
+    normalized_ref = str(video_ref).lstrip("/\\")
+
+    rooted_relative = videos_root_path / normalized_ref
+    if rooted_relative.exists():
+        return str(rooted_relative)
+
+    if direct.is_absolute() and direct.exists():
+        return str(direct)
+
+    return str(videos_root_path / normalized_ref)
 
 
 def _decode_video_clip(video_path: str, num_frames: int, crop_size: int) -> torch.Tensor:
@@ -755,6 +809,74 @@ def _load_index(path: Path):
         ) from exc
 
     return pd.read_parquet(path)
+
+
+def _validate_loaded_feature_payloads(
+    *,
+    manifest: dict[str, Any],
+    index: Any,
+    pooled: dict[str, Any] | None,
+    tokens: dict[str, Any] | None,
+) -> None:
+    n_rows = len(index)
+    selected_layers = [int(layer) for layer in manifest.get("features", {}).get("selected_layers", [])]
+
+    if pooled is not None:
+        _validate_feature_payload(
+            payload=pooled,
+            name="pooled",
+            selected_layers=selected_layers,
+            n_rows=n_rows,
+            expected_rank=2,
+        )
+    if tokens is not None:
+        _validate_feature_payload(
+            payload=tokens,
+            name="tokens",
+            selected_layers=selected_layers,
+            n_rows=n_rows,
+            expected_rank=3,
+        )
+
+
+def _validate_feature_payload(
+    *,
+    payload: dict[str, Any],
+    name: str,
+    selected_layers: list[int],
+    n_rows: int,
+    expected_rank: int,
+) -> None:
+    payload_layers = [int(layer) for layer in payload.get("selected_layers", [])]
+    if selected_layers and payload_layers and payload_layers != selected_layers:
+        raise FeatureCacheError(
+            f"{name} feature payload layers {payload_layers} do not match manifest layers {selected_layers}. "
+            "Re-run `python run.py extract.mvp`."
+        )
+
+    by_layer = payload.get("by_layer", {})
+    if not isinstance(by_layer, dict):
+        raise FeatureCacheError(f"{name} feature payload missing by_layer mapping. Re-run extraction.")
+
+    required_layers = selected_layers or payload_layers
+    for layer in required_layers:
+        if layer not in by_layer:
+            raise FeatureCacheError(
+                f"{name} feature payload missing layer {layer}. Re-run `python run.py extract.mvp`."
+            )
+        tensor = by_layer[layer]
+        if not isinstance(tensor, torch.Tensor):
+            raise FeatureCacheError(f"{name} layer {layer} is not a tensor. Re-run extraction.")
+        if tensor.ndim != expected_rank:
+            raise FeatureCacheError(
+                f"{name} layer {layer} expected rank {expected_rank}, got shape {tuple(tensor.shape)}. "
+                "Re-run extraction."
+            )
+        if int(tensor.shape[0]) != int(n_rows):
+            raise FeatureCacheError(
+                f"{name} layer {layer} row count {int(tensor.shape[0])} does not match index rows {n_rows}. "
+                "Re-run extraction."
+            )
 
 
 def _is_valid_cache(paths: FeatureCachePaths) -> bool:

@@ -17,6 +17,7 @@ from .registry import (
     enforce_single_jepa_namespace,
     register_adapter,
 )
+from .preprocessing import imagenet_preprocessing_metadata, normalize_rgb_imagenet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
@@ -184,8 +185,8 @@ def _load_pretrained_official(
 class JEPAV1Adapter(VideoBackboneAdapter):
     """Frozen-feature extractor for official V-JEPA v1 checkpoints.
 
-    Inputs to `extract` are expected to be preprocessed clip tensors with shape
-    [B, C, T, H, W]. The adapter returns per-layer tokens and mean-pooled
+    Inputs to `extract` are raw RGB clip tensors in [0, 1] with shape
+    [B, C, T, H, W]. The adapter applies ImageNet normalization internally and returns per-layer tokens and mean-pooled
     clip embeddings through `BackboneFeatures`.
     """
 
@@ -344,6 +345,11 @@ class JEPAV1Adapter(VideoBackboneAdapter):
             )
         return requested
 
+    def preprocessing_metadata(self) -> dict[str, Any]:
+        """Return the raw-clip preprocessing contract used before forward."""
+
+        return imagenet_preprocessing_metadata(family="jepa_v1")
+
     def extract(
         self,
         clips: torch.Tensor,
@@ -358,6 +364,7 @@ class JEPAV1Adapter(VideoBackboneAdapter):
 
         requested_layers = self._resolve_requested_layers(layer_ids)
         clips = clips.to(self.device, dtype=torch.float32)
+        clips = normalize_rgb_imagenet(clips)
 
         with torch.no_grad():
             outputs = self._encoder(clips)
@@ -373,7 +380,7 @@ class JEPAV1Adapter(VideoBackboneAdapter):
 
         all_tokens = {
             layer: layer_tokens
-            for layer, layer_tokens in zip(self.selected_layers, outputs, strict=True)
+            for layer, layer_tokens in zip(self.selected_layers, outputs)
         }
         # Optional layer filtering lets probes request a subset without re-forwarding.
         tokens_by_layer = {layer: all_tokens[layer] for layer in requested_layers}
@@ -389,6 +396,8 @@ class JEPAV1Adapter(VideoBackboneAdapter):
             "patch_size": self.patch_size,
             "tubelet_size": self.tubelet_size,
             "frames_per_clip": self.frames_per_clip,
+            "crop_size": self.crop_size,
+            "preprocessing": self.preprocessing_metadata(),
         }
         return BackboneFeatures(
             tokens_by_layer=tokens_by_layer,

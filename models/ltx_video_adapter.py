@@ -15,6 +15,7 @@ import torch
 import yaml
 
 from .registry import BackboneFeatures, VideoBackboneAdapter, register_adapter
+from .preprocessing import ltx_preprocessing_metadata
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
@@ -289,6 +290,11 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             )
         return requested
 
+    def preprocessing_metadata(self) -> dict[str, Any]:
+        """Return the raw-clip preprocessing contract used before forward."""
+
+        return ltx_preprocessing_metadata(normalize_input=self.normalize_input)
+
     @staticmethod
     def _stage_to_tokens(stage_output: torch.Tensor) -> torch.Tensor:
         """Convert a stage activation to canonical token layout [B, N, D]."""
@@ -380,6 +386,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             "crop_size": self.crop_size,
             "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),
             "temporal_compression_ratio": int(getattr(self._vae, "temporal_compression_ratio", 1)),
+            "preprocessing": self.preprocessing_metadata(),
         }
 
         return BackboneFeatures(

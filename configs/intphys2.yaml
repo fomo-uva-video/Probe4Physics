@@ -49,6 +49,8 @@ backbone:
 
 feature_cache:
   dir: artifacts/features/intphys2
+  # Feature tensors contain all requested splits together; index.parquet stores
+  # the split for each row, and training/eval filter by that column.
   split_names:
     - main
   layer_ids: []  # empty uses adapter defaults (25/50/75/100% depths)

@@ -19,9 +19,12 @@ class BackboneFeatures:
 class VideoBackboneAdapter(Protocol):
     """Protocol each backbone adapter must implement."""
 
+    def preprocessing_metadata(self) -> dict[str, Any]:
+        """Describe the adapter-side preprocessing applied to raw benchmark clips."""
+
     def extract(
         self,
         clips: torch.Tensor,
         layer_ids: Sequence[int] | None = None,
     ) -> BackboneFeatures:
-        """Extract frozen features from preprocessed clips [B, C, T, H, W]."""
+        """Extract frozen features from raw RGB clips [B, C, T, H, W] in [0, 1]."""
