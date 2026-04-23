@@ -15,6 +15,21 @@ def _dataset_result(name: str) -> dict[str, object]:
     }
 
 
+def _failing_dataset_result(name: str) -> dict[str, object]:
+    return {
+        "kind": "dataset",
+        "name": name,
+        "status": "fail",
+        "checks": [
+            {
+                "name": "fixture_missing",
+                "status": "fail",
+                "detail": "missing fixture",
+            }
+        ],
+    }
+
+
 class HealthRunTests(unittest.TestCase):
     def test_lightweight_mode_skips_synthetic_forward(self) -> None:
         backbone_cfg = {
@@ -95,6 +110,46 @@ class HealthRunTests(unittest.TestCase):
         first_call = probe_mock.call_args_list[0]
         self.assertEqual(first_call.args[1]["device"], "cuda")
         self.assertIn("deep synthetic-forward smoke (device=cuda)", report["human_report"])
+
+    def test_failed_checks_are_report_only_by_default(self) -> None:
+        backbone_cfg = {
+            "jepa_v1": {"variants": {"vith16_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v1"},
+            "jepa_v2": {"variants": {"vitg_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2"},
+            "jepa_v2_1": {"variants": {"vitG_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2_1"},
+            "videomae": {"variants": {"vit_huge_16_224": {}}},
+            "videomae_v2": {"variants": {"vit_giant_16_224": {}}},
+            "ltx_video": {"variants": {"ltx_video_main": {}}},
+        }
+
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+            with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
+                with mock.patch("experiments.health.run._check_mvp", return_value=_failing_dataset_result("mvp")):
+                    with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
+                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
+                            report = run_health({})
+
+        self.assertFalse(report["ok"])
+        self.assertEqual(report["exit_code"], 0)
+
+    def test_strict_exit_returns_nonzero_for_failed_checks(self) -> None:
+        backbone_cfg = {
+            "jepa_v1": {"variants": {"vith16_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v1"},
+            "jepa_v2": {"variants": {"vitg_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2"},
+            "jepa_v2_1": {"variants": {"vitG_384": {}}, "checkpoints_dir": "data/checkpoints/jepa_v2_1"},
+            "videomae": {"variants": {"vit_huge_16_224": {}}},
+            "videomae_v2": {"variants": {"vit_giant_16_224": {}}},
+            "ltx_video": {"variants": {"ltx_video_main": {}}},
+        }
+
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+            with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
+                with mock.patch("experiments.health.run._check_mvp", return_value=_failing_dataset_result("mvp")):
+                    with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
+                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
+                            report = run_health({"strict_exit": True})
+
+        self.assertFalse(report["ok"])
+        self.assertEqual(report["exit_code"], 1)
 
 
 if __name__ == "__main__":

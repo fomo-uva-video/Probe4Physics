@@ -39,6 +39,7 @@ LARGEST_VARIANTS = {
 
 def run_health(config: dict[str, Any]) -> dict[str, Any]:
     synthetic_forward = bool(config.get("synthetic_forward", False))
+    strict_exit = bool(config.get("strict_exit", False))
     device = str(config.get("device", "cpu")).strip() or "cpu"
     backbone_cfg = _load_yaml(CONFIGS_DIR / "backbones.yaml")
     mvp_cfg = _load_yaml(CONFIGS_DIR / "mvp.yaml")
@@ -66,7 +67,7 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
 
     report = {
         "ok": ok,
-        "exit_code": 0 if ok else 1,
+        "exit_code": 0 if ok or not strict_exit else 1,
         "summary": {
             "total_checks": total,
             "passed": passed,
@@ -75,6 +76,7 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
         "mode": {
             "synthetic_forward": synthetic_forward,
             "device": device,
+            "strict_exit": strict_exit,
         },
         "tested_backbones": [
             {

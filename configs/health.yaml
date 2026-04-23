@@ -4,6 +4,7 @@ defaults:
 
 synthetic_forward: false
 device: cpu
+strict_exit: false
 
 hydra:
   run:

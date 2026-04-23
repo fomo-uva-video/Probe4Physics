@@ -132,6 +132,7 @@ fi
 
 cmd=(
   python run.py health
+  strict_exit=true
   synthetic_forward=true
   "device=${HEALTH_DEVICE}"
 )

@@ -319,6 +319,7 @@ def _print_help() -> None:
         "Health command:",
         "  python run.py health",
         "  python run.py health synthetic_forward=true",
+        "  python run.py health strict_exit=true",
         "",
         "Experiment recipes:",
         "  python run.py exp.list",
