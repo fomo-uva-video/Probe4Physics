@@ -4,7 +4,7 @@ defaults:
 
 annotation_file: data/annotations/mvp_full.jsonl
 official_repo_root: third_party/minimal_video_pairs
-videos_root: third_party/minimal_video_pairs/videos
+videos_root: /scratch-shared/scur0511/probe4physics/data/videos/mvp
 cache_dir: data/cache/videos
 
 seed: 42
