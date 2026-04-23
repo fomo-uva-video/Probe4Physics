@@ -233,8 +233,8 @@ Examples:
 # extract only train split for a quick smoke run
 python run.py extract.mvp feature_cache.split_names=[train] backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
 
-# run LTX-Video feature extraction
-python run.py extract.mvp backbone.name=ltx_video +backbone.kwargs.variant=ltx_2b_0_9_8_distilled backbone.kwargs.device=cuda
+# run LTX-Video feature extraction with the default LTX checkpoint
+python run.py extract.mvp backbone.name=ltx_video backbone.kwargs.device=cuda
 
 # train with token-mean features instead of pooled
 python run.py train.linear.mvp linear_probe.feature_view=tokens_mean
@@ -251,10 +251,11 @@ python run.py init.ssv2 split.max_samples_per_class=50
 
 ## LTX-Video Notes
 - The `ltx_video` adapter extracts deterministic features from LTX VAE encoder stages (not denoising trajectories).
+- Default Hydra variant: `ltxv_13b_0_9_8_dev` (`Lightricks/LTX-Video-0.9.8-dev`).
 - First pull/smoke command:
 
 ```bash
-python experiments/smoke_ltx_video.py --variant ltx_2b_0_9_8_distilled --device cuda
+python experiments/smoke_ltx_video.py --device cuda
 ```
 
 - On Snellius, use:

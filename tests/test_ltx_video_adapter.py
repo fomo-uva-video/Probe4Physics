@@ -51,14 +51,14 @@ def _make_minimal_config(tmp: Path) -> Path:
     config_path = tmp / "backbones.yaml"
     payload = {
         "ltx_video": {
-            "default_variant": "ltx_2b_0_9_8_distilled",
+            "default_variant": "ltxv_13b_0_9_8_dev",
             "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
             "model_block_depths": {
                 "ltx_vae_5": 5,
             },
             "variants": {
-                "ltx_2b_0_9_8_distilled": {
-                    "hf_model_id": "Lightricks/LTX-Video-0.9.8-distilled",
+                "ltxv_13b_0_9_8_dev": {
+                    "hf_model_id": "Lightricks/LTX-Video-0.9.8-dev",
                     "model_name": "ltx_vae_5",
                     "vae_subfolder": "vae",
                     "frames_per_clip": 16,

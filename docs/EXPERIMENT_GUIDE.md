@@ -211,13 +211,13 @@ python run.py extract.mvp \
 
 ### LTX-Video default
 
-- Default variant: `ltx_2b_0_9_8_distilled`
-- Default HF model id: `Lightricks/LTX-Video-0.9.8-distilled`
+- Default variant: `ltxv_13b_0_9_8_dev`
+- Default HF model id: `Lightricks/LTX-Video-0.9.8-dev`
 
 Quick smoke/pull:
 
 ```bash
-python experiments/smoke_ltx_video.py --variant ltx_2b_0_9_8_distilled --device cuda
+python experiments/smoke_ltx_video.py --device cuda
 ```
 
 Extraction example:
@@ -225,7 +225,6 @@ Extraction example:
 ```bash
 python run.py extract.mvp \
   backbone.name=ltx_video \
-  +backbone.kwargs.variant=ltx_2b_0_9_8_distilled \
   backbone.kwargs.device=cuda
 ```
 

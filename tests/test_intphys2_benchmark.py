@@ -4,6 +4,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
+
+import torch
 
 from benchmarks.intphys2 import (
     IntPhys2Benchmark,
@@ -20,9 +23,12 @@ from benchmarks.intphys2.data import (
 from benchmarks.intphys2.eval import ConfigError, run_intphys2_eval
 from benchmarks.intphys2.features import (
     FeatureConfigError,
+    load_feature_cache_for_config,
     resolve_expected_feature_cache_paths,
+    run_intphys2_feature_extraction,
 )
 from benchmarks.intphys2.init import InitConfigError, run_intphys2_init
+from models.base import BackboneFeatures
 
 
 # ---------------------------------------------------------------------------
@@ -649,6 +655,25 @@ class DownloadConfigValidationTests(unittest.TestCase):
 
 
 class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
+    class _FakeAdapter:
+        frames_per_clip = 2
+        crop_size = 4
+
+        def __init__(self) -> None:
+            self._call_count = 0
+
+        def extract(self, clips: torch.Tensor, layer_ids=None) -> BackboneFeatures:
+            self._call_count += 1
+            layer = int(layer_ids[0]) if layer_ids else 12
+            pooled = torch.full((clips.shape[0], 4), float(self._call_count), dtype=torch.float32)
+            tokens = torch.full((clips.shape[0], 2, 4), float(self._call_count), dtype=torch.float32)
+            return BackboneFeatures(
+                tokens_by_layer={layer: tokens},
+                pooled_by_layer={layer: pooled},
+                selected_layers=(layer,),
+                metadata={"adapter": "fake"},
+            )
+
     def _base_config(self, root: Path) -> dict:
         split_dir = root / "splits" / "intphys2"
         split_dir.mkdir(parents=True, exist_ok=True)
@@ -668,6 +693,7 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
                 "layer_ids": [12],
                 "include_pooled": True,
                 "include_tokens": True,
+                "max_samples": 0,
             },
         }
 
@@ -684,6 +710,19 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
 
         self.assertNotEqual(paths_a.signature, paths_b.signature)
 
+    def test_max_samples_changes_cache_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cfg_a = self._base_config(root)
+            cfg_a["feature_cache"]["max_samples"] = 0
+            cfg_b = self._base_config(root)
+            cfg_b["feature_cache"]["max_samples"] = 2
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+
     def test_empty_feature_outputs_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             cfg = self._base_config(Path(tmp))
@@ -692,6 +731,76 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
 
             with self.assertRaises(FeatureConfigError):
                 resolve_expected_feature_cache_paths(cfg)
+
+    def test_invalid_max_samples_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = self._base_config(Path(tmp))
+            cfg["feature_cache"]["max_samples"] = "bad"
+
+            with self.assertRaises(FeatureConfigError):
+                resolve_expected_feature_cache_paths(cfg)
+
+    def test_extract_respects_max_samples_and_preserves_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata_file = root / "metadata.csv"
+            rows = _make_metadata_rows(n_scenes=4, split="main")
+            _write_metadata_csv(metadata_file, rows)
+
+            videos_root = root / "videos"
+            for row in rows:
+                video_path = videos_root / str(row["video_path"])
+                video_path.parent.mkdir(parents=True, exist_ok=True)
+                video_path.write_bytes(b"fake")
+
+            init_cfg = {
+                "metadata_file": str(metadata_file),
+                "videos_root": str(videos_root),
+                "split": {"dir": str(root / "splits" / "intphys2")},
+            }
+            run_intphys2_init(init_cfg)
+
+            extract_cfg = {
+                "metadata_file": str(metadata_file),
+                "videos_root": str(videos_root),
+                "cache_dir": str(root / "cache"),
+                "split": {"dir": str(root / "splits" / "intphys2")},
+                "backbone": {"name": "fake_backbone", "kwargs": {}},
+                "feature_cache": {
+                    "dir": str(root / "features"),
+                    "split_names": ["train", "val", "test"],
+                    "layer_ids": [12],
+                    "include_pooled": True,
+                    "include_tokens": True,
+                    "max_samples": 0,
+                    "force_reextract": True,
+                },
+            }
+
+            with mock.patch("benchmarks.intphys2.features.create_adapter", return_value=self._FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.intphys2.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ):
+                    full_result = run_intphys2_feature_extraction(extract_cfg)
+                    full_bundle = load_feature_cache_for_config(extract_cfg)
+
+                    capped_cfg = json.loads(json.dumps(extract_cfg))
+                    capped_cfg["feature_cache"]["max_samples"] = 2
+                    capped_result = run_intphys2_feature_extraction(capped_cfg)
+
+            self.assertFalse(full_result["skipped"])
+            self.assertFalse(capped_result["skipped"])
+
+            full_index = full_bundle["index"].sort_values("feature_index").reset_index(drop=True)
+            capped_bundle = load_feature_cache_for_config(capped_cfg)
+            capped_index = capped_bundle["index"].sort_values("feature_index").reset_index(drop=True)
+            manifest = capped_bundle["manifest"]
+
+            self.assertGreater(len(full_index), 2)
+            self.assertEqual(len(capped_index), 2)
+            self.assertEqual(manifest["features"]["max_samples"], 2)
+            self.assertEqual(capped_index["sample_id"].tolist(), full_index["sample_id"].tolist()[:2])
 
 
 # ---------------------------------------------------------------------------

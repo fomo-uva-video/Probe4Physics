@@ -35,7 +35,10 @@ def _parse_args() -> argparse.Namespace:
         "--variant",
         type=str,
         default=None,
-        help="Optional variant override from configs/backbones.yaml (e.g. ltx_2b_0_9_8_distilled).",
+        help=(
+            "Optional variant override from configs/backbones.yaml. "
+            "Defaults to ltx_video.default_variant (e.g. ltxv_13b_0_9_8_dev)."
+        ),
     )
     parser.add_argument(
         "--hf-cache-dir",

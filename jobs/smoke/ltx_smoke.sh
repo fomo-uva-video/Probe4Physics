@@ -29,7 +29,7 @@ fi
 
 mkdir -p jobs/setup/out
 
-BACKBONE_VARIANT="${BACKBONE_VARIANT:-ltx_2b_0_9_8_distilled}"
+BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
 BACKBONE_HF_CACHE_DIR="${BACKBONE_HF_CACHE_DIR:-}"
 RUN_UNIT_TESTS="${RUN_UNIT_TESTS:-true}"
@@ -46,7 +46,7 @@ git rev-parse HEAD
 python --version
 which python
 echo "REPO_ROOT=${REPO_ROOT}"
-echo "BACKBONE_VARIANT=${BACKBONE_VARIANT}"
+echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<default>}"
 echo "BACKBONE_DEVICE=${BACKBONE_DEVICE}"
 echo "EXTRACT_BENCHMARK=${EXTRACT_BENCHMARK}"
 echo "======================"
@@ -54,10 +54,12 @@ echo "======================"
 echo "Step 1/3: LTX adapter smoke"
 smoke_cmd=(
   python experiments/smoke_ltx_video.py
-  --variant "${BACKBONE_VARIANT}"
   --device "${BACKBONE_DEVICE}"
   --batch-size 1
 )
+if [[ -n "${BACKBONE_VARIANT}" ]]; then
+  smoke_cmd+=(--variant "${BACKBONE_VARIANT}")
+fi
 if [[ -n "${BACKBONE_HF_CACHE_DIR}" ]]; then
   smoke_cmd+=(--hf-cache-dir "${BACKBONE_HF_CACHE_DIR}")
 fi
@@ -107,8 +109,10 @@ if [[ "${EXTRACT_BENCHMARK}" == "intphys2" ]]; then
     decode.sampling=uniform
     backbone.name=ltx_video
     "backbone.kwargs.device=${BACKBONE_DEVICE}"
-    "+backbone.kwargs.variant=${BACKBONE_VARIANT}"
   )
+  if [[ -n "${BACKBONE_VARIANT}" ]]; then
+    cmd+=("+backbone.kwargs.variant=${BACKBONE_VARIANT}")
+  fi
 
   if [[ -n "${BACKBONE_HF_CACHE_DIR}" ]]; then
     cmd+=("+backbone.kwargs.hf_cache_dir=${BACKBONE_HF_CACHE_DIR}")
@@ -150,8 +154,10 @@ elif [[ "${EXTRACT_BENCHMARK}" == "mvp" ]]; then
     decode.sampling=uniform
     backbone.name=ltx_video
     "backbone.kwargs.device=${BACKBONE_DEVICE}"
-    "+backbone.kwargs.variant=${BACKBONE_VARIANT}"
   )
+  if [[ -n "${BACKBONE_VARIANT}" ]]; then
+    cmd+=("+backbone.kwargs.variant=${BACKBONE_VARIANT}")
+  fi
 
   if [[ -n "${BACKBONE_HF_CACHE_DIR}" ]]; then
     cmd+=("+backbone.kwargs.hf_cache_dir=${BACKBONE_HF_CACHE_DIR}")

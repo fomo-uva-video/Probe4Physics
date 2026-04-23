@@ -93,6 +93,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
         split_names,
         warning_log_path=warning_log_path,
     )
+    ordered_records = _limit_ordered_records(ordered_records, feature_cfg["max_samples"])
     if not ordered_records:
         raise FeatureConfigError(f"No samples found for split_names={split_names}")
 
@@ -204,6 +205,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
         "features": {
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
+            "max_samples": int(feature_cfg["max_samples"]),
             "selected_layers": list(selected_layers),
             "n_samples": len(index_rows),
             "sample_ids_sha256": _sha256_lines([row["sample_id"] for row in index_rows]),
@@ -256,6 +258,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
             ),
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
+            "max_samples": int(feature_cfg["max_samples"]),
         },
         "split_dir": str(split_dir),
         "split_manifest_metadata_sha256": str(split_manifest.get("metadata_sha256", "")),
@@ -353,6 +356,12 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(layer_ids_raw, (list, tuple)):
         raise FeatureConfigError("feature_cache.layer_ids must be a list")
 
+    max_samples_raw = raw.get("max_samples", 0)
+    try:
+        max_samples = int(max_samples_raw)
+    except (TypeError, ValueError) as exc:
+        raise FeatureConfigError("feature_cache.max_samples must be an integer") from exc
+
     include_pooled = bool(raw.get("include_pooled", True))
     include_tokens = bool(raw.get("include_tokens", True))
     if not include_pooled and not include_tokens:
@@ -366,6 +375,7 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "layer_ids": [int(v) for v in layer_ids_raw],
         "include_pooled": include_pooled,
         "include_tokens": include_tokens,
+        "max_samples": max_samples,
         "force_reextract": bool(raw.get("force_reextract", False)),
     }
 
@@ -517,6 +527,15 @@ def _ordered_sample_records(
             )
 
     return ordered_records
+
+
+def _limit_ordered_records(
+    ordered_records: list[dict[str, Any]],
+    max_samples: int,
+) -> list[dict[str, Any]]:
+    if max_samples <= 0:
+        return ordered_records
+    return ordered_records[:max_samples]
 
 
 def _decode_video_clip(video_path: str, num_frames: int, crop_size: int) -> torch.Tensor:

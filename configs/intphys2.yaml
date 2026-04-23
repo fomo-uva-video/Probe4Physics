@@ -67,6 +67,7 @@ feature_cache:
     - train
     - val
     - test
+  max_samples: 0  # 0 means unlimited; smoke jobs override this to 2
   layer_ids: []  # empty uses adapter defaults (25/50/75/100% depths)
   include_pooled: true
   include_tokens: true

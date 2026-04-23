@@ -27,7 +27,6 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             "backbone": {
                 "name": "ltx_video",
                 "kwargs": {
-                    "variant": "ltx_2b_0_9_8_distilled",
                     "device": "cuda",
                 },
             }
@@ -47,7 +46,6 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             "backbone": {
                 "name": "ltx_video",
                 "kwargs": {
-                    "variant": "ltx_2b_0_9_8_distilled",
                     "device": "cuda",
                 },
             }
@@ -67,7 +65,6 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             "backbone": {
                 "name": "ltx_video",
                 "kwargs": {
-                    "variant": "ltx_2b_0_9_8_distilled",
                     "device": "cuda",
                 },
             }

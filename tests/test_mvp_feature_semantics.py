@@ -150,6 +150,7 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
                 "layer_ids": [12],
                 "include_pooled": True,
                 "include_tokens": True,
+                "max_samples": 0,
                 "force_reextract": True,
             },
         }
@@ -208,6 +209,25 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
 
         self.assertNotEqual(paths_a.signature, paths_b.signature)
 
+    def test_max_samples_changes_cache_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            cfg_a = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg_a["feature_cache"]["max_samples"] = 0
+            cfg_b = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg_b["feature_cache"]["max_samples"] = 2
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+
     def test_empty_feature_outputs_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -223,6 +243,49 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
 
             with self.assertRaises(FeatureConfigError):
                 resolve_expected_feature_cache_paths(cfg)
+
+    def test_invalid_max_samples_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            cfg = self._extract_config(tmp_path, annotation_file, videos_root)
+            cfg["feature_cache"]["max_samples"] = "bad"
+
+            with self.assertRaises(FeatureConfigError):
+                resolve_expected_feature_cache_paths(cfg)
+
+    def test_extract_respects_max_samples_and_preserves_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            extract_cfg = self._extract_config(tmp_path, annotation_file, videos_root)
+            extract_cfg["feature_cache"]["max_samples"] = 2
+
+            with mock.patch("benchmarks.mvp.features.create_adapter", return_value=_FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.mvp.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ):
+                    result = run_mvp_feature_extraction(extract_cfg)
+
+            self.assertFalse(result["skipped"])
+            bundle = load_feature_cache_for_config(extract_cfg)
+            manifest = bundle["manifest"]
+            index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+
+            self.assertEqual(len(index), 2)
+            self.assertEqual(manifest["features"]["max_samples"], 2)
+            self.assertEqual(index["sample_id"].tolist(), ["pair_alpha_0", "pair_alpha_1"])
 
 
 if __name__ == "__main__":

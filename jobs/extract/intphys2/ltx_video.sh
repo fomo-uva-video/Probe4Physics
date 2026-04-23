@@ -1,0 +1,28 @@
+#!/bin/bash
+# Extract IntPhys2 features with LTX-Video VAE features.
+#
+# By default this wrapper follows `ltx_video.default_variant` from
+# `configs/backbones.yaml`. Override with `BACKBONE_VARIANT=<variant>` at submit
+# time when you want a non-default checkpoint.
+#
+# Usage:
+#   sbatch ltx_video.sh
+#   MODE=smoke sbatch ltx_video.sh
+
+#SBATCH --partition=gpu_a100
+#SBATCH --gpus=1
+#SBATCH --job-name=intphys2_ltx_video_extract
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=08:00:00
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+
+set -euo pipefail
+
+BACKBONE_NAME="ltx_video"
+export BACKBONE_NAME
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+JOB_DIR="${SLURM_SUBMIT_DIR:-${SCRIPT_DIR}}"
+exec "${JOB_DIR}/run_extract.sh"

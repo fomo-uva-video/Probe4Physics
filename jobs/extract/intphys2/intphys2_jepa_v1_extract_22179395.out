@@ -1,0 +1,32 @@
+===== PROVENANCE =====
+Thu Apr 23 03:23:59 PM UTC 2026
+gcn57.local.snellius.surf.nl
+9129fa07d4a09de00a8742eb74ae25b785a67243
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+MODE=smoke
+BACKBONE_NAME=jepa_v1
+BACKBONE_VARIANT=vith16_384
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home3/scur0511/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home3/scur0511/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home3/scur0511/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=/gpfs/home3/scur0511/Probe4Physics/artifacts/features/intphys2
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+======================
+{
+  "feature_cache_dir": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/intphys2/jepa_v1_vith16_384/train-val-test/88fb761775e8917d",
+  "n_samples": 2,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "88fb761775e8917d",
+  "skipped": false,
+  "warning_log": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/intphys2/extract_warnings.log"
+}
+Completed at:
+Thu Apr 23 03:24:31 PM UTC 2026

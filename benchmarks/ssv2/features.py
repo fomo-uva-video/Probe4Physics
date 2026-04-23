@@ -13,6 +13,7 @@ import torch
 
 from benchmarks.ssv2.data import resolve_video_path, sha256_file
 from models import create_adapter
+from models.cache_metadata import resolve_backbone_cache_metadata
 
 
 class FeatureConfigError(ValueError):
@@ -216,6 +217,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     split_manifest = _load_json(split_manifest_path)
     backbone_name, backbone_kwargs = _backbone_cfg(config)
     feature_cfg = _feature_cfg(config)
+    backbone_metadata = resolve_backbone_cache_metadata(backbone_name, backbone_kwargs)
 
     payload = {
         "train_annotation_file": str(config.get("train_annotation_file", "")),
@@ -223,13 +225,16 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
         "labels_file": str(config.get("labels_file", "")),
         "backbone_name": backbone_name,
         "backbone_kwargs": backbone_kwargs,
-        "decode": {
-            "num_frames": int(config.get("decode", {}).get("num_frames", 16)),
-            "sampling": str(config.get("decode", {}).get("sampling", "uniform")),
-        },
+        "backbone_resolved": backbone_metadata,
+        "decode": _signature_decode_cfg(config, backbone_metadata),
         "feature_cache": {
             "split_names": feature_cfg["split_names"],
             "layer_ids": feature_cfg["layer_ids"],
+            "resolved_layer_ids": (
+                feature_cfg["layer_ids"]
+                if feature_cfg["layer_ids"]
+                else list(backbone_metadata.get("selected_layers", []))
+            ),
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
         },
@@ -238,7 +243,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     }
     signature = _sha256_json(payload)[:16]
 
-    variant = str(backbone_kwargs.get("variant", "")).strip()
+    variant = str(backbone_metadata.get("variant") or backbone_kwargs.get("variant", "")).strip()
     backbone_id = f"{backbone_name}_{variant}" if variant else str(backbone_name)
     split_key = "-".join(feature_cfg["split_names"])
 
@@ -365,6 +370,25 @@ def _decode_cfg(config: dict[str, Any], adapter: Any) -> dict[str, Any]:
     default_frames = int(getattr(adapter, "frames_per_clip", 16))
     default_crop = int(getattr(adapter, "crop_size", 224))
 
+    return {
+        "num_frames": int(raw.get("num_frames", default_frames)),
+        "sampling": str(raw.get("sampling", "uniform")),
+        "crop_size": int(raw.get("crop_size", default_crop)),
+    }
+
+
+def _signature_decode_cfg(
+    config: dict[str, Any],
+    backbone_metadata: dict[str, Any],
+) -> dict[str, Any]:
+    raw = config.get("decode", {})
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise FeatureConfigError("decode must be a dictionary")
+
+    default_frames = int(backbone_metadata.get("frames_per_clip") or 16)
+    default_crop = int(backbone_metadata.get("crop_size") or 224)
     return {
         "num_frames": int(raw.get("num_frames", default_frames)),
         "sampling": str(raw.get("sampling", "uniform")),

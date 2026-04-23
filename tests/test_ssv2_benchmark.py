@@ -5,11 +5,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
+
 from benchmarks.ssv2 import (
     SSv2Benchmark,
     SSv2Metrics,
     SSv2Prediction,
     SSv2Sample,
+    resolve_expected_feature_cache_paths,
 )
 from benchmarks.ssv2.core import asdict_metrics
 from benchmarks.ssv2.data import (
@@ -537,6 +540,103 @@ class RunCommandSSv2Tests(unittest.TestCase):
         self.assertIn("mvp.jepa_v1.linear", names)
         self.assertIn("intphys2.jepa_v1.linear", names)
         self.assertIn("ssv2.jepa_v1.linear", names)
+
+
+class SSv2FeatureCacheConfigTests(unittest.TestCase):
+    def _write_backbones_config(self, path: Path, *, default_variant: str) -> Path:
+        payload = {
+            "ltx_video": {
+                "default_variant": default_variant,
+                "default_relative_depths": [0.5, 1.0],
+                "model_block_depths": {"ltx_vae_5": 5},
+                "variants": {
+                    "ltxv_13b_0_9_8_dev": {
+                        "hf_model_id": "demo/ltx-dev",
+                        "model_name": "ltx_vae_5",
+                        "frames_per_clip": 16,
+                        "crop_size": 224,
+                        "patch_size": 4,
+                        "patch_size_t": 1,
+                    },
+                    "ltx_2b_0_9_8_distilled": {
+                        "hf_model_id": "demo/ltx-2b-distilled",
+                        "model_name": "ltx_vae_5",
+                        "frames_per_clip": 16,
+                        "crop_size": 224,
+                        "patch_size": 4,
+                        "patch_size_t": 1,
+                    },
+                },
+            }
+        }
+        path.write_text(yaml.safe_dump(payload), encoding="utf-8")
+        return path
+
+    def _base_config(self, root: Path, *, config_path: Path) -> dict:
+        split_dir = root / "splits" / "ssv2"
+        split_dir.mkdir(parents=True, exist_ok=True)
+        (split_dir / "manifest.json").write_text(
+            json.dumps({"annotation_sha256": {"train": "fixture_train_sha"}}, sort_keys=True),
+            encoding="utf-8",
+        )
+        return {
+            "train_annotation_file": str(root / "train.json"),
+            "val_annotation_file": str(root / "val.json"),
+            "labels_file": str(root / "labels.json"),
+            "videos_root": str(root / "videos"),
+            "cache_dir": str(root / "cache"),
+            "split": {"dir": str(split_dir)},
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "config_path": str(config_path),
+                },
+            },
+            "feature_cache": {
+                "dir": str(root / "features"),
+                "split_names": ["train"],
+                "layer_ids": [],
+                "include_pooled": True,
+                "include_tokens": True,
+            },
+        }
+
+    def test_decode_crop_size_changes_cache_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config_path = self._write_backbones_config(
+                root / "backbones.yaml",
+                default_variant="ltxv_13b_0_9_8_dev",
+            )
+            cfg_a = self._base_config(root, config_path=config_path)
+            cfg_a["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 4}
+            cfg_b = self._base_config(root, config_path=config_path)
+            cfg_b["decode"] = {"num_frames": 2, "sampling": "uniform", "crop_size": 8}
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+
+    def test_default_variant_changes_cache_signature_when_variant_not_overridden(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config_path_a = self._write_backbones_config(
+                root / "backbones_a.yaml",
+                default_variant="ltxv_13b_0_9_8_dev",
+            )
+            config_path_b = self._write_backbones_config(
+                root / "backbones_b.yaml",
+                default_variant="ltx_2b_0_9_8_distilled",
+            )
+            cfg_a = self._base_config(root, config_path=config_path_a)
+            cfg_b = self._base_config(root, config_path=config_path_b)
+
+            paths_a = resolve_expected_feature_cache_paths(cfg_a)
+            paths_b = resolve_expected_feature_cache_paths(cfg_b)
+
+        self.assertNotEqual(paths_a.signature, paths_b.signature)
+        self.assertNotEqual(paths_a.cache_dir, paths_b.cache_dir)
 
 
 if __name__ == "__main__":
