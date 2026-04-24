@@ -77,6 +77,7 @@ jepa_v2_1:
   checkpoints_dir: data/checkpoints/jepa_v2_1
   # V-JEPA 2.1 layer selection is fixed to hierarchical layers (25/50/75/100% of depth).
   # Probing at intermediate depths not aligned with hierarchical_layers is not supported.
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
   # Keys match the ViT constructor function name in app/vjepa_2_1/models/vision_transformer.py
   model_block_depths:
     vit_base: 12

@@ -12,7 +12,8 @@ coexist with V-JEPA 1.
 **Layer selection for V-JEPA 2.1**
 
 The V-JEPA 2.1 ViT defines a fixed set of *hierarchical layers* at exactly the
-25 / 50 / 75 / 100 % positions of the network depth:
+25 / 50 / 75 / 100 % positions of the network depth (matching
+``default_relative_depths: [0.25, 0.5, 0.75, 1.0]``):
 
     depth=12  → [3, 6, 9, 12]   (0-based indices [2, 5, 8, 11])
     depth=24  → [6, 12, 18, 24] (0-based indices [5, 11, 17, 23])
@@ -271,6 +272,10 @@ class JEPAV2_1Adapter(VideoBackboneAdapter):
         if not isinstance(raw_depths, dict) or not raw_depths:
             raise ValueError("jepa_v2_1.model_block_depths must be a non-empty mapping.")
         model_block_depths = {str(k): int(v) for k, v in raw_depths.items()}
+
+        raw_rel = cfg.get("default_relative_depths")
+        if not isinstance(raw_rel, list) or not raw_rel:
+            raise ValueError("jepa_v2_1.default_relative_depths must be a non-empty list.")
 
         # V-JEPA 2.1 is always probed at all four hierarchical layers.
         self.selected_layers = _hierarchical_selected_layers(self.model_name, model_block_depths)

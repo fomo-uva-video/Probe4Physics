@@ -9,3 +9,7 @@ artifacts/
 
 .cache
 .claude/
+.claudeignore
+.code-review-graph/
+CLAUDE.md
+.mcp.json
