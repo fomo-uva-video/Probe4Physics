@@ -21,7 +21,7 @@ from benchmarks.mvp.init import run_mvp_init
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_cache
 from benchmarks.ssv2.init import run_ssv2_init
-from experiments.health import run_health
+from experiments.health import run_health, run_health_layers
 from experiments.registry import get_experiment, list_experiments
 from training.intphys2_extract import run_intphys2_extract
 from training.intphys2_linear import run_intphys2_eval_linear, run_intphys2_train_linear
@@ -73,7 +73,7 @@ def main(argv: list[str] | None = None) -> None:
         raise ValueError(f"Config must resolve to a dict, got: {type(config)!r}")
 
     result = command.handler(config)
-    if command_name == "health" and isinstance(result, dict) and isinstance(result.get("human_report"), str):
+    if isinstance(result, dict) and isinstance(result.get("human_report"), str):
         print(result["human_report"])
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
@@ -257,6 +257,11 @@ COMMANDS = {
         handler=run_health,
         description="Run lightweight readiness checks for configs, backbones, and datasets.",
     ),
+    "health.layers": CommandSpec(
+        config_name="health",
+        handler=run_health_layers,
+        description="Validate layer-selection wiring for each backbone variant and benchmark requests.",
+    ),
     # --- Experiments ---
     "exp.list": CommandSpec(
         config_name="mvp",
@@ -318,8 +323,10 @@ def _print_help() -> None:
         "",
         "Health command:",
         "  python run.py health",
+        "  python run.py health.layers",
         "  python run.py health synthetic_forward=true",
         "  python run.py health strict_exit=true",
+        "  python run.py health.layers strict_exit=true",
         "",
         "Experiment recipes:",
         "  python run.py exp.list",

@@ -12,7 +12,12 @@ from benchmarks.intphys2.data import load_intphys2_rows, normalize_intphys2_row
 from benchmarks.mvp.data import load_mvp_rows
 from benchmarks.mvp.selection import derive_sample_id, derive_video_ref
 from benchmarks.ssv2.data import load_ssv2_annotations
+from models.jepa_v1_adapter import resolve_relative_depth_layers as resolve_jepa_v1_relative_depth_layers
+from models.jepa_v2_adapter import resolve_relative_depth_layers as resolve_jepa_v2_relative_depth_layers
+from models.jepa_v2_1_adapter import _hierarchical_selected_layers
+from models.ltx_video_adapter import resolve_relative_depth_layers as resolve_ltx_relative_depth_layers
 from models import get_registered_adapters
+from models.videomae_adapter import resolve_relative_depth_layers as resolve_videomae_relative_depth_layers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIGS_DIR = PROJECT_ROOT / "configs"
@@ -98,6 +103,437 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
     }
     report["human_report"] = _format_human_report(report)
     return report
+
+
+def run_health_layers(config: dict[str, Any]) -> dict[str, Any]:
+    """Validate layer mapping for each configured backbone variant.
+
+    This command is static and config-driven: it does not instantiate models or
+    run forwards. It reports:
+    - Original backbone block ids (1-based and 0-based)
+    - Selected extraction layer ids resolved from config
+    - Benchmark layer requests and whether they are valid subsets
+    """
+
+    strict_exit = bool(config.get("strict_exit", False))
+    backbone_cfg = _load_yaml(CONFIGS_DIR / "backbones.yaml")
+    mvp_cfg = _load_yaml(CONFIGS_DIR / "mvp.yaml")
+    intphys2_cfg = _load_yaml(CONFIGS_DIR / "intphys2.yaml")
+    ssv2_cfg = _load_yaml(CONFIGS_DIR / "ssv2.yaml")
+
+    variants: list[dict[str, Any]] = []
+    checks: list[dict[str, Any]] = []
+    variant_lookup: dict[tuple[str, str], dict[str, Any]] = {}
+
+    for backbone_name in BACKBONE_ORDER:
+        section = backbone_cfg.get(backbone_name)
+        if not isinstance(section, dict):
+            checks.append(
+                _check_result(
+                    f"{backbone_name}.section_exists",
+                    False,
+                    f"Missing '{backbone_name}' section in configs/backbones.yaml",
+                )
+            )
+            continue
+
+        raw_variants = section.get("variants")
+        if not isinstance(raw_variants, dict) or not raw_variants:
+            checks.append(
+                _check_result(
+                    f"{backbone_name}.variants_present",
+                    False,
+                    f"'{backbone_name}.variants' must be a non-empty mapping.",
+                )
+            )
+            continue
+
+        for variant_name in sorted(raw_variants):
+            variant_payload = _check_backbone_variant_layer_mapping(
+                backbone_name,
+                variant_name,
+                section,
+                raw_variants.get(variant_name),
+            )
+            variants.append(variant_payload)
+            checks.extend(variant_payload.get("checks", []))
+            variant_lookup[(backbone_name, variant_name)] = variant_payload
+
+    benchmark_layer_requests = _resolve_benchmark_layer_requests(
+        backbone_cfg,
+        variant_lookup,
+        mvp_cfg,
+        intphys2_cfg,
+        ssv2_cfg,
+    )
+    checks.extend(item["check"] for item in benchmark_layer_requests)
+
+    total = len(checks)
+    passed = sum(1 for check in checks if check.get("status") == "pass")
+    failed = total - passed
+    ok = failed == 0
+
+    report = {
+        "ok": ok,
+        "exit_code": 0 if ok or not strict_exit else 1,
+        "summary": {
+            "total_checks": total,
+            "passed": passed,
+            "failed": failed,
+            "variant_mappings": len(variants),
+            "benchmark_requests": len(benchmark_layer_requests),
+        },
+        "mode": {"strict_exit": strict_exit},
+        "variants": variants,
+        "benchmark_layer_requests": benchmark_layer_requests,
+    }
+    report["human_report"] = _format_layer_human_report(report)
+    return report
+
+
+def _check_backbone_variant_layer_mapping(
+    backbone_name: str,
+    variant_name: str,
+    section: dict[str, Any],
+    variant_cfg: Any,
+) -> dict[str, Any]:
+    checks: list[dict[str, Any]] = []
+    model_name = ""
+    depth = 0
+    relative_depths: list[float] = []
+    selected_layers: list[int] = []
+    depth_map: dict[str, int] = {}
+
+    if not isinstance(variant_cfg, dict):
+        checks.append(
+            _check_result(
+                "variant_config_mapping",
+                False,
+                f"Variant '{variant_name}' must resolve to a mapping.",
+            )
+        )
+        return {
+            "name": backbone_name,
+            "variant": variant_name,
+            "model_name": model_name,
+            "depth": depth,
+            "requested_relative_depths": relative_depths,
+            "backbone_layer_ids_1_based": [],
+            "backbone_layer_ids_0_based": [],
+            "selected_layers_1_based": selected_layers,
+            "selected_layers_0_based": [],
+            "status": "fail",
+            "checks": checks,
+        }
+
+    model_name = str(variant_cfg.get("model_name", "")).strip()
+    checks.append(
+        _check_result(
+            "variant_model_name_present",
+            bool(model_name),
+            f"model_name='{model_name}'" if model_name else "model_name is missing.",
+        )
+    )
+
+    raw_depth_map = section.get("model_block_depths")
+    if isinstance(raw_depth_map, dict) and raw_depth_map:
+        try:
+            depth_map = {str(key): int(value) for key, value in raw_depth_map.items()}
+            checks.append(_check_result("model_block_depths_valid", True, "Depth map parsed."))
+        except Exception as exc:
+            checks.append(_check_result("model_block_depths_valid", False, f"Invalid depth map: {exc}"))
+    else:
+        checks.append(_check_result("model_block_depths_valid", False, "model_block_depths is missing or empty."))
+
+    if model_name and model_name in depth_map:
+        depth = int(depth_map[model_name])
+        checks.append(_check_result("model_depth_known", depth > 0, f"depth={depth}"))
+    else:
+        known = ", ".join(sorted(depth_map)) if depth_map else "<none>"
+        checks.append(
+            _check_result(
+                "model_depth_known",
+                False,
+                f"Model '{model_name}' not found in model_block_depths. Known: {known}",
+            )
+        )
+
+    raw_relative_depths = section.get("default_relative_depths")
+    if isinstance(raw_relative_depths, list) and raw_relative_depths:
+        try:
+            relative_depths = [float(value) for value in raw_relative_depths]
+            checks.append(
+                _check_result(
+                    "default_relative_depths_valid",
+                    True,
+                    f"relative_depths={relative_depths}",
+                )
+            )
+        except Exception as exc:
+            checks.append(
+                _check_result(
+                    "default_relative_depths_valid",
+                    False,
+                    f"Could not cast default_relative_depths to float: {exc}",
+                )
+            )
+    else:
+        checks.append(
+            _check_result(
+                "default_relative_depths_valid",
+                False,
+                "default_relative_depths is missing or empty.",
+            )
+        )
+
+    if model_name and depth > 0 and depth_map:
+        try:
+            selected_layers = _resolve_selected_layers_for_variant(
+                backbone_name=backbone_name,
+                model_name=model_name,
+                relative_depths=relative_depths,
+                model_block_depths=depth_map,
+            )
+            checks.append(
+                _check_result(
+                    "selected_layers_resolved",
+                    bool(selected_layers),
+                    f"selected_layers={selected_layers}",
+                )
+            )
+        except Exception as exc:
+            checks.append(_check_result("selected_layers_resolved", False, str(exc)))
+
+    in_bounds = bool(depth > 0 and all(1 <= layer <= depth for layer in selected_layers))
+    checks.append(
+        _check_result(
+            "selected_layers_in_bounds",
+            in_bounds,
+            f"depth={depth}, selected_layers={selected_layers}",
+        )
+    )
+
+    strictly_increasing = all(left < right for left, right in zip(selected_layers, selected_layers[1:]))
+    checks.append(
+        _check_result(
+            "selected_layers_strictly_increasing",
+            strictly_increasing,
+            f"selected_layers={selected_layers}",
+        )
+    )
+
+    original_ids_1 = list(range(1, depth + 1)) if depth > 0 else []
+    original_ids_0 = [layer - 1 for layer in original_ids_1]
+    selected_ids_0 = [layer - 1 for layer in selected_layers]
+    failed = any(check.get("status") == "fail" for check in checks)
+    return {
+        "name": backbone_name,
+        "variant": variant_name,
+        "model_name": model_name,
+        "depth": depth,
+        "requested_relative_depths": relative_depths,
+        "backbone_layer_ids_1_based": original_ids_1,
+        "backbone_layer_ids_0_based": original_ids_0,
+        "selected_layers_1_based": selected_layers,
+        "selected_layers_0_based": selected_ids_0,
+        "status": "fail" if failed else "pass",
+        "checks": checks,
+    }
+
+
+def _resolve_selected_layers_for_variant(
+    *,
+    backbone_name: str,
+    model_name: str,
+    relative_depths: list[float],
+    model_block_depths: dict[str, int],
+) -> list[int]:
+    if backbone_name == "jepa_v1":
+        return list(
+            resolve_jepa_v1_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+            )
+        )
+    if backbone_name == "jepa_v2":
+        return list(
+            resolve_jepa_v2_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+            )
+        )
+    if backbone_name == "jepa_v2_1":
+        return list(_hierarchical_selected_layers(model_name, model_block_depths))
+    if backbone_name == "videomae":
+        return list(
+            resolve_videomae_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+                backbone_key="videomae",
+            )
+        )
+    if backbone_name == "videomae_v2":
+        return list(
+            resolve_videomae_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+                backbone_key="videomae_v2",
+            )
+        )
+    if backbone_name == "ltx_video":
+        return list(
+            resolve_ltx_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+            )
+        )
+    raise ValueError(f"Unsupported backbone for layer-resolution health check: '{backbone_name}'")
+
+
+def _resolve_benchmark_layer_requests(
+    backbone_cfg: dict[str, Any],
+    variant_lookup: dict[tuple[str, str], dict[str, Any]],
+    mvp_cfg: dict[str, Any],
+    intphys2_cfg: dict[str, Any],
+    ssv2_cfg: dict[str, Any],
+) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    benchmark_cfgs = {
+        "mvp": mvp_cfg,
+        "intphys2": intphys2_cfg,
+        "ssv2": ssv2_cfg,
+    }
+    for benchmark_name, benchmark_cfg in benchmark_cfgs.items():
+        records.append(
+            _resolve_single_benchmark_layer_request(
+                benchmark_name=benchmark_name,
+                benchmark_cfg=benchmark_cfg,
+                backbone_cfg=backbone_cfg,
+                variant_lookup=variant_lookup,
+            )
+        )
+    return records
+
+
+def _resolve_single_benchmark_layer_request(
+    *,
+    benchmark_name: str,
+    benchmark_cfg: dict[str, Any],
+    backbone_cfg: dict[str, Any],
+    variant_lookup: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any]:
+    raw_backbone = benchmark_cfg.get("backbone")
+    backbone_section = raw_backbone if isinstance(raw_backbone, dict) else {}
+    backbone_name = str(backbone_section.get("name", "")).strip()
+    backbone_kwargs = backbone_section.get("kwargs")
+    kwargs = backbone_kwargs if isinstance(backbone_kwargs, dict) else {}
+
+    feature_section = benchmark_cfg.get("feature_cache")
+    feature_cache = feature_section if isinstance(feature_section, dict) else {}
+    raw_layer_ids = feature_cache.get("layer_ids", [])
+    if raw_layer_ids is None:
+        raw_layer_ids = []
+
+    try:
+        requested_layer_ids = [int(value) for value in raw_layer_ids]
+    except Exception as exc:
+        check = _check_result(
+            f"{benchmark_name}.requested_layers_valid",
+            False,
+            f"feature_cache.layer_ids must be integer-like values: {exc}",
+        )
+        return {
+            "benchmark": benchmark_name,
+            "backbone": backbone_name,
+            "variant": "",
+            "requested_layer_ids": [],
+            "available_selected_layers": [],
+            "effective_layer_ids": [],
+            "missing_requested_layers": [],
+            "check": check,
+        }
+
+    section = backbone_cfg.get(backbone_name) if isinstance(backbone_cfg.get(backbone_name), dict) else {}
+    requested_variant = str(kwargs.get("variant", "")).strip()
+    variant = requested_variant or str(section.get("default_variant", "")).strip()
+    variant_payload = variant_lookup.get((backbone_name, variant), {})
+    available_selected = list(variant_payload.get("selected_layers_1_based", []) or [])
+
+    if not backbone_name or not variant:
+        check = _check_result(
+            f"{benchmark_name}.requested_layers_valid",
+            False,
+            f"Could not resolve backbone/variant from benchmark config (backbone='{backbone_name}', variant='{variant}').",
+        )
+        return {
+            "benchmark": benchmark_name,
+            "backbone": backbone_name,
+            "variant": variant,
+            "requested_layer_ids": requested_layer_ids,
+            "available_selected_layers": available_selected,
+            "effective_layer_ids": [],
+            "missing_requested_layers": requested_layer_ids,
+            "check": check,
+        }
+
+    if not available_selected:
+        check = _check_result(
+            f"{benchmark_name}.requested_layers_valid",
+            False,
+            f"No selected layers resolved for backbone='{backbone_name}', variant='{variant}'.",
+        )
+        return {
+            "benchmark": benchmark_name,
+            "backbone": backbone_name,
+            "variant": variant,
+            "requested_layer_ids": requested_layer_ids,
+            "available_selected_layers": available_selected,
+            "effective_layer_ids": [],
+            "missing_requested_layers": requested_layer_ids,
+            "check": check,
+        }
+
+    if requested_layer_ids:
+        missing = sorted(set(requested_layer_ids) - set(available_selected))
+        ok = len(missing) == 0
+        effective = requested_layer_ids if ok else []
+        detail = (
+            f"requested={requested_layer_ids}, available={available_selected}, missing={missing}"
+            if not ok
+            else f"requested={requested_layer_ids}, available={available_selected}"
+        )
+        check = _check_result(f"{benchmark_name}.requested_layers_valid", ok, detail)
+        return {
+            "benchmark": benchmark_name,
+            "backbone": backbone_name,
+            "variant": variant,
+            "requested_layer_ids": requested_layer_ids,
+            "available_selected_layers": available_selected,
+            "effective_layer_ids": effective,
+            "missing_requested_layers": missing,
+            "check": check,
+        }
+
+    check = _check_result(
+        f"{benchmark_name}.requested_layers_valid",
+        True,
+        f"requested=<default>, effective={available_selected}",
+    )
+    return {
+        "benchmark": benchmark_name,
+        "backbone": backbone_name,
+        "variant": variant,
+        "requested_layer_ids": requested_layer_ids,
+        "available_selected_layers": available_selected,
+        "effective_layer_ids": available_selected,
+        "missing_requested_layers": [],
+        "check": check,
+    }
 
 
 def _check_backbone(
@@ -535,6 +971,95 @@ def _as_project_path(path_like: str | Path) -> Path:
     if not path.is_absolute():
         path = PROJECT_ROOT / path
     return path.resolve()
+
+
+def _format_layer_human_report(report: dict[str, Any]) -> str:
+    lines: list[str] = []
+    ok = bool(report.get("ok", False))
+    summary = report.get("summary", {})
+    lines.append("Probe4Physics Layer Health Check")
+    lines.append("")
+    lines.append(f"Overall: {'PASS' if ok else 'FAIL'}")
+    lines.append(
+        "Checks: "
+        f"total={summary.get('total_checks', 0)} "
+        f"passed={summary.get('passed', 0)} "
+        f"failed={summary.get('failed', 0)}"
+    )
+    lines.append(
+        "Mappings: "
+        f"variants={summary.get('variant_mappings', 0)} "
+        f"benchmark_requests={summary.get('benchmark_requests', 0)}"
+    )
+    lines.append("")
+    lines.append("Backbone Variant Layer Mapping")
+    for item in report.get("variants", []):
+        status = str(item.get("status", "unknown")).upper()
+        name = str(item.get("name", ""))
+        variant = str(item.get("variant", ""))
+        model_name = str(item.get("model_name", ""))
+        depth = int(item.get("depth", 0) or 0)
+        lines.append(f"- {name} ({variant}) model={model_name} depth={depth}: {status}")
+        lines.append(f"  original_1_based={item.get('backbone_layer_ids_1_based', [])}")
+        lines.append(f"  selected_1_based={item.get('selected_layers_1_based', [])}")
+        lines.append(f"  selected_0_based={item.get('selected_layers_0_based', [])}")
+
+    lines.append("")
+    lines.append("Benchmark Layer Requests")
+    for item in report.get("benchmark_layer_requests", []):
+        check = item.get("check", {})
+        status = str(check.get("status", "unknown")).upper()
+        benchmark = str(item.get("benchmark", ""))
+        backbone = str(item.get("backbone", ""))
+        variant = str(item.get("variant", ""))
+        lines.append(f"- {benchmark}: {status} ({backbone}, {variant})")
+        lines.append(f"  requested={item.get('requested_layer_ids', [])}")
+        lines.append(f"  available_selected={item.get('available_selected_layers', [])}")
+        lines.append(f"  effective={item.get('effective_layer_ids', [])}")
+        missing = item.get("missing_requested_layers", [])
+        if missing:
+            lines.append(f"  missing={missing}")
+
+    failing = _collect_layer_failing_checks(report)
+    lines.append("")
+    lines.append("Failing checks")
+    if not failing:
+        lines.append("- none")
+    else:
+        for row in failing:
+            lines.append(f"- {row['scope']} [{row['check']}]: {row['detail']}")
+
+    return "\n".join(lines)
+
+
+def _collect_layer_failing_checks(report: dict[str, Any]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for item in report.get("variants", []):
+        scope = f"{item.get('name', '')} ({item.get('variant', '')})"
+        for check in item.get("checks", []):
+            if str(check.get("status")) != "fail":
+                continue
+            rows.append(
+                {
+                    "scope": scope,
+                    "check": str(check.get("name", "")),
+                    "detail": str(check.get("detail", "")),
+                }
+            )
+
+    for item in report.get("benchmark_layer_requests", []):
+        check = item.get("check", {})
+        if str(check.get("status")) != "fail":
+            continue
+        scope = f"{item.get('benchmark', '')} ({item.get('backbone', '')}/{item.get('variant', '')})"
+        rows.append(
+            {
+                "scope": scope,
+                "check": str(check.get("name", "")),
+                "detail": str(check.get("detail", "")),
+            }
+        )
+    return rows
 
 
 def _format_human_report(report: dict[str, Any]) -> str:

@@ -67,7 +67,8 @@ fi
 
 if [[ "${RUN_UNIT_TESTS}" == "true" ]]; then
   echo "Step 2/3: targeted unit tests"
-  python -m unittest tests.test_ltx_video_adapter tests.test_run_commands
+  python -m unittest discover -s tests -p 'test_ltx_video_adapter.py'
+  python -m unittest discover -s tests -p 'test_run_commands.py'
 else
   echo "Step 2/3: skipped unit tests (RUN_UNIT_TESTS=${RUN_UNIT_TESTS})"
 fi
