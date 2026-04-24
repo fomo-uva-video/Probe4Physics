@@ -13,3 +13,5 @@ artifacts/
 .code-review-graph/
 CLAUDE.md
 .mcp.json
+.kiro/
+.cursor/
