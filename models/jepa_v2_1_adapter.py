@@ -1,29 +1,7 @@
 from __future__ import annotations
 
 """
-Thin wrapper adapter around official V-JEPA v2.1 code.
-
-V-JEPA 2.1 lives in ``third_party/vjepa2/app/vjepa_2_1/`` and shares the same
-``src.*`` import namespace as V-JEPA 2 (both repos root at
-``third_party/vjepa2``).  The two adapters therefore use the same namespace
-guard string (``"jepa_v2"``) and can coexist in one process, but neither can
-coexist with V-JEPA 1.
-
-**Layer selection for V-JEPA 2.1**
-
-The V-JEPA 2.1 ViT defines a fixed set of *hierarchical layers* at exactly the
-25 / 50 / 75 / 100 % positions of the network depth (matching
-``default_relative_depths: [0.25, 0.5, 0.75, 1.0]``):
-
-    depth=12  → [3, 6, 9, 12]   (0-based indices [2, 5, 8, 11])
-    depth=24  → [6, 12, 18, 24] (0-based indices [5, 11, 17, 23])
-    depth=40  → [10, 20, 30, 40](0-based indices [9, 19, 29, 39])
-    depth=48  → [12, 24, 38, 48](0-based indices [11, 23, 37, 47])
-
-``out_layers`` passed to the encoder constructor must be a subset of these
-indices; arbitrary layer extraction is not supported by the V-JEPA 2.1 ViT.
-The adapter always probes all four hierarchical layers; users can filter with
-``layer_ids`` in ``extract()``.
+Wrapper adapter around official V-JEPA v2.1 code.
 """
 
 import copy

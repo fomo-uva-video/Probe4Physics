@@ -2,13 +2,6 @@ from __future__ import annotations
 
 """
 Thin wrapper adapters around HuggingFace VideoMAE v1 and VideoMAEv2.
-
-VideoMAE v1: MCG-NJU/videomae-* (via transformers.VideoMAEModel)
-VideoMAEv2:  OpenGVLab/VideoMAEv2-* (via AutoModel, trust_remote_code=True)
-
-Both adapters follow the same BackboneFeatures contract established by
-jepa_v1_adapter.py. No submodule or sys.path manipulation is needed here
-because both models load entirely from HuggingFace hub.
 """
 
 import hashlib
@@ -18,11 +11,8 @@ import sys
 import types
 from pathlib import Path
 from typing import Any, Sequence
-
 import yaml
-
 import torch
-
 from .registry import (
     BackboneFeatures,
     VideoBackboneAdapter,

@@ -415,3 +415,7 @@ def create_jepa_v1_adapter(**kwargs: Any) -> JEPAV1Adapter:
 
 # Register at import-time so callers can use `create_adapter("jepa_v1", ...)`.
 register_adapter("jepa_v1", create_jepa_v1_adapter, replace=True)
+
+
+
+
