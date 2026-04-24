@@ -42,18 +42,10 @@ from .registry import (
     register_adapter,
 )
 from .preprocessing import imagenet_preprocessing_metadata, normalize_rgb_imagenet
+from .jepa_v2_adapter import resolve_relative_depth_layers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
-
-# Hierarchical layer indices (0-based) per model depth.
-# These are the only valid ``out_layers`` values for V-JEPA 2.1.
-_HIERARCHICAL_LAYERS: dict[int, tuple[int, ...]] = {
-    12: (2, 5, 8, 11),
-    24: (5, 11, 17, 23),
-    40: (9, 19, 29, 39),
-    48: (11, 23, 37, 47),
-}
 
 
 # ---------------------------------------------------------------------------
@@ -138,33 +130,6 @@ def _clean_checkpoint_keys(state_dict: dict) -> dict:
         key = key.replace("backbone.", "")
         cleaned[key] = val
     return cleaned
-
-
-# ---------------------------------------------------------------------------
-# Layer resolution
-# ---------------------------------------------------------------------------
-
-def _hierarchical_selected_layers(model_name: str, model_block_depths: dict[str, int]) -> tuple[int, ...]:
-    """Return 1-based user-facing layer ids for the hierarchical probe points.
-
-    These correspond to the 25 / 50 / 75 / 100 % positions of the ViT depth
-    and are the only indices at which V-JEPA 2.1 supports feature extraction.
-    """
-
-    if model_name not in model_block_depths:
-        known = ", ".join(sorted(model_block_depths))
-        raise ValueError(f"Unsupported model_name='{model_name}'. Known: {known}")
-
-    depth = model_block_depths[model_name]
-    if depth not in _HIERARCHICAL_LAYERS:
-        known_depths = ", ".join(str(d) for d in sorted(_HIERARCHICAL_LAYERS))
-        raise ValueError(
-            f"V-JEPA 2.1 hierarchical layers are not defined for depth={depth}. "
-            f"Supported depths: {known_depths}"
-        )
-
-    # Convert 0-based indices to 1-based user-facing ids.
-    return tuple(idx + 1 for idx in _HIERARCHICAL_LAYERS[depth])
 
 
 # ---------------------------------------------------------------------------
@@ -276,9 +241,15 @@ class JEPAV2_1Adapter(VideoBackboneAdapter):
         raw_rel = cfg.get("default_relative_depths")
         if not isinstance(raw_rel, list) or not raw_rel:
             raise ValueError("jepa_v2_1.default_relative_depths must be a non-empty list.")
+        config_relative_depths = tuple(float(v) for v in raw_rel)
 
-        # V-JEPA 2.1 is always probed at all four hierarchical layers.
-        self.selected_layers = _hierarchical_selected_layers(self.model_name, model_block_depths)
+        # V-JEPA 2.1 is always probed at all four hierarchical layers (25/50/75/100% depth).
+        self.selected_layers = resolve_relative_depth_layers(
+            self.model_name,
+            config_relative_depths,
+            model_block_depths=model_block_depths,
+            config_path=self.config_path,
+        )
 
         # Convert 1-based user ids back to 0-based indices for the ViT constructor.
         self._out_layers_zero_indexed = tuple(layer - 1 for layer in self.selected_layers)
