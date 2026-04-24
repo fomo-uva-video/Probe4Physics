@@ -18,12 +18,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
+import shutil
+import socket
 import sys
+import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import torch
 
@@ -67,6 +73,15 @@ class FeatureCachePaths:
     signature: str
 
 
+@dataclass(frozen=True)
+class ResumePaths:
+    root_dir: Path
+    chunks_dir: Path
+    state_path: Path
+    events_path: Path
+    lock_path: Path
+
+
 def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
     """Build or reuse an MVP feature cache for the requested config.
 
@@ -95,15 +110,6 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
     paths = resolve_expected_feature_cache_paths(config)
     feature_cfg = _feature_cfg(config)
     warning_log_path = _resolve_warning_log_path(config)
-
-    if _is_valid_cache(paths) and not feature_cfg["force_reextract"]:
-        return {
-            "feature_cache_dir": str(paths.cache_dir),
-            "signature": paths.signature,
-            "skipped": True,
-            "reason": "valid_cache_exists",
-            "warning_log": str(warning_log_path),
-        }
 
     videos_root = Path(str(config["videos_root"])).expanduser()
     _preflight_video_root(videos_root, warning_log_path)
@@ -134,150 +140,371 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
         )
 
     split_names = feature_cfg["split_names"]
-    ordered_records = _ordered_sample_records(
+    ordered_records_all = _ordered_sample_records(
         config,
         annotation_file,
         split_rows,
         split_names,
         warning_log_path=warning_log_path,
     )
-    ordered_records = _limit_ordered_records(ordered_records, feature_cfg["max_samples"])
+    ordered_records = _limit_ordered_records(ordered_records_all, feature_cfg["max_samples"])
     if not ordered_records:
         raise FeatureConfigError(f"No samples found for split_names={split_names}")
 
     backbone_name, backbone_kwargs = _backbone_cfg(config)
     adapter = create_adapter(backbone_name, **backbone_kwargs)
-
     decode_cfg = _decode_cfg(config, adapter)
     requested_layer_ids = feature_cfg["layer_ids"] if feature_cfg["layer_ids"] else None
 
-    pooled_acc: dict[int, list[torch.Tensor]] = {}
-    tokens_acc: dict[int, list[torch.Tensor]] = {}
-    index_rows: list[dict[str, Any]] = []
+    paths.cache_dir.mkdir(parents=True, exist_ok=True)
+    resume_paths = _resume_paths(paths.cache_dir)
+    if feature_cfg["force_reextract"]:
+        _reset_resume_state(paths, resume_paths)
+    if not feature_cfg["resume_enabled"] and resume_paths.root_dir.exists():
+        shutil.rmtree(resume_paths.root_dir)
 
-    selected_layers: tuple[int, ...] | None = None
-    adapter_metadata: dict[str, Any] | None = None
+    run_started_utc = datetime.now(tz=timezone.utc).isoformat()
+    wall_start = time.perf_counter()
+    config_hash = _sha256_json(
+        _resume_config_payload(
+            config=config,
+            feature_cfg=feature_cfg,
+            split_manifest=split_manifest,
+            split_dir=split_dir,
+            annotation_file=annotation_file,
+            backbone_name=backbone_name,
+            backbone_kwargs=backbone_kwargs,
+            decode_cfg=decode_cfg,
+        )
+    )
+    ordered_sample_ids_all = [str(row["sample_id"]) for row in ordered_records_all]
+    ordered_sample_ids_target = [str(row["sample_id"]) for row in ordered_records]
+    ordered_hash_all = _sha256_lines(ordered_sample_ids_all)
+    ordered_hash_target = _sha256_lines(ordered_sample_ids_target)
 
-    for feature_index, record in enumerate(ordered_records):
-        clip = _decode_video_clip(
-            video_path=record["video_path"],
-            num_frames=decode_cfg["num_frames"],
-            crop_size=decode_cfg["crop_size"],
+    with _resume_lock(resume_paths, stale_seconds=feature_cfg["lock_stale_seconds"]):
+        _append_resume_event(
+            resume_paths,
+            event_type="run_start",
+            details={
+                "mode": "extract.mvp",
+                "signature": paths.signature,
+                "target_max_samples": int(feature_cfg["max_samples"]),
+                "target_samples": len(ordered_records),
+                "ordered_samples_all": len(ordered_records_all),
+                "config_hash": config_hash,
+                "run_started_utc": run_started_utc,
+            },
         )
 
-        with torch.no_grad():
-            features = adapter.extract(clip, layer_ids=requested_layer_ids)
+        if _is_valid_cache(paths) and not feature_cfg["force_reextract"]:
+            manifest = _load_json(paths.manifest_path)
+            if _cache_satisfies_target(manifest, requested_samples=len(ordered_records), feature_cfg=feature_cfg):
+                _append_resume_event(
+                    resume_paths,
+                    event_type="run_complete",
+                    details={
+                        "resumed": False,
+                        "skipped": True,
+                        "reason": "valid_cache_exists",
+                        "n_samples": int(manifest.get("features", {}).get("n_samples", 0)),
+                    },
+                )
+                print(
+                    "[extract.mvp] valid cache already satisfies request; "
+                    f"signature={paths.signature} n_samples={manifest.get('features', {}).get('n_samples', 0)}"
+                )
+                elapsed_seconds = max(0.0, time.perf_counter() - wall_start)
+                return {
+                    "feature_cache_dir": str(paths.cache_dir),
+                    "signature": paths.signature,
+                    "skipped": True,
+                    "reason": "valid_cache_exists",
+                    "elapsed_seconds": elapsed_seconds,
+                    "seconds_per_processed_sample": 0.0,
+                    "warning_log": str(warning_log_path),
+                }
 
-        if selected_layers is None:
-            selected_layers = features.selected_layers
-            adapter_metadata = dict(features.metadata)
-        elif tuple(features.selected_layers) != tuple(selected_layers):
-            raise FeatureCacheError(
-                "Adapter returned inconsistent selected_layers during extraction: "
-                f"first={selected_layers}, current={features.selected_layers}"
+        state = None if not feature_cfg["resume_enabled"] else _load_resume_state(resume_paths.state_path)
+        if state is None:
+            state = _new_resume_state(
+                signature=paths.signature,
+                config_hash=config_hash,
+                ordered_hash_all=ordered_hash_all,
+                ordered_count_all=len(ordered_records_all),
+                target_max_samples=int(feature_cfg["max_samples"]),
+                target_samples=len(ordered_records),
+                chunk_size=int(feature_cfg["chunk_size"]),
+            )
+            _write_json_atomic(resume_paths.state_path, state)
+            _append_resume_event(
+                resume_paths,
+                event_type="resume_not_possible",
+                details={
+                    "reason": "resume_disabled" if not feature_cfg["resume_enabled"] else "no_existing_state",
+                    "resume_from_offset": 0,
+                },
+            )
+        else:
+            state = _validate_or_reset_resume_state(
+                state=state,
+                signature=paths.signature,
+                config_hash=config_hash,
+                ordered_hash_all=ordered_hash_all,
+                ordered_count_all=len(ordered_records_all),
+                target_max_samples=int(feature_cfg["max_samples"]),
+                target_samples=len(ordered_records),
+                feature_cfg=feature_cfg,
+                paths=paths,
+                resume_paths=resume_paths,
             )
 
-        for layer in features.selected_layers:
-            if feature_cfg["include_pooled"]:
-                pooled_acc.setdefault(int(layer), []).append(features.pooled_by_layer[layer].detach().cpu())
-            if feature_cfg["include_tokens"]:
-                tokens_acc.setdefault(int(layer), []).append(features.tokens_by_layer[layer].detach().cpu())
+        start_offset = int(state.get("n_completed_samples", 0))
+        if start_offset > len(ordered_records):
+            start_offset = len(ordered_records)
 
-        index_rows.append(
+        _append_resume_event(
+            resume_paths,
+            event_type="resume_plan",
+            details={
+                "resumed": bool(start_offset > 0),
+                "resume_from_sample_offset": start_offset,
+                "target_samples": len(ordered_records),
+                "source_state_path": str(resume_paths.state_path),
+            },
+        )
+        print(
+            "[extract.mvp] resume status: "
+            f"resumed={start_offset > 0} offset={start_offset} target={len(ordered_records)} "
+            f"signature={paths.signature}"
+        )
+
+        selected_layers = tuple(int(v) for v in state.get("selected_layers", []))
+        adapter_metadata = state.get("adapter_metadata", {})
+
+        while start_offset < len(ordered_records):
+            chunk_size = int(feature_cfg["chunk_size"])
+            end_offset = min(start_offset + chunk_size, len(ordered_records))
+            chunk_records = ordered_records[start_offset:end_offset]
+            chunk_id = int(state.get("next_chunk_id", 0))
+
+            _append_resume_event(
+                resume_paths,
+                event_type="chunk_start",
+                details={
+                    "chunk_id": chunk_id,
+                    "sample_offset_start": start_offset,
+                    "sample_offset_end": end_offset,
+                    "n_samples": len(chunk_records),
+                },
+            )
+
+            chunk_rows, chunk_pooled, chunk_tokens, chunk_layers, chunk_metadata = _extract_chunk_records(
+                records=chunk_records,
+                feature_index_offset=start_offset,
+                adapter=adapter,
+                requested_layer_ids=requested_layer_ids,
+                decode_cfg=decode_cfg,
+                include_pooled=bool(feature_cfg["include_pooled"]),
+                include_tokens=bool(feature_cfg["include_tokens"]),
+            )
+
+            if not selected_layers:
+                selected_layers = tuple(chunk_layers)
+                adapter_metadata = dict(chunk_metadata)
+            elif tuple(chunk_layers) != tuple(selected_layers):
+                raise FeatureCacheError(
+                    "Adapter returned inconsistent selected_layers across chunks: "
+                    f"state={selected_layers}, chunk={chunk_layers}"
+                )
+
+            chunk_dir = resume_paths.chunks_dir / f"{chunk_id:06d}_{start_offset:09d}_{end_offset:09d}"
+            chunk_dir.mkdir(parents=True, exist_ok=True)
+            chunk_index_path = chunk_dir / "index.parquet"
+            chunk_pooled_path = chunk_dir / "features_pooled.pt"
+            chunk_tokens_path = chunk_dir / "features_tokens.pt"
+
+            _write_index(chunk_index_path, chunk_rows)
+            if feature_cfg["include_pooled"]:
+                _torch_save_atomic(
+                    chunk_pooled_path,
+                    {"selected_layers": list(selected_layers), "by_layer": chunk_pooled},
+                )
+            if feature_cfg["include_tokens"]:
+                _torch_save_atomic(
+                    chunk_tokens_path,
+                    {"selected_layers": list(selected_layers), "by_layer": chunk_tokens},
+                )
+
+            state_chunks = list(state.get("completed_chunks", []))
+            state_chunks.append(
+                {
+                    "chunk_id": chunk_id,
+                    "start_offset": start_offset,
+                    "end_offset": end_offset,
+                    "n_samples": len(chunk_rows),
+                    "index_path": str(chunk_index_path),
+                    "pooled_path": str(chunk_pooled_path) if feature_cfg["include_pooled"] else "",
+                    "tokens_path": str(chunk_tokens_path) if feature_cfg["include_tokens"] else "",
+                }
+            )
+
+            state.update(
+                {
+                    "status": "in_progress",
+                    "target_max_samples": int(feature_cfg["max_samples"]),
+                    "total_target_samples": len(ordered_records),
+                    "completed_chunks": state_chunks,
+                    "n_completed_samples": end_offset,
+                    "resume_from_sample_offset": end_offset,
+                    "resume_from_chunk_id": chunk_id + 1,
+                    "next_chunk_id": chunk_id + 1,
+                    "selected_layers": list(selected_layers),
+                    "adapter_metadata": adapter_metadata,
+                    "last_writer_job_id": _slurm_job_id(),
+                    "hostname": socket.gethostname(),
+                    "updated_at_utc": datetime.now(tz=timezone.utc).isoformat(),
+                }
+            )
+            _write_json_atomic(resume_paths.state_path, state)
+            _append_resume_event(
+                resume_paths,
+                event_type="chunk_complete",
+                details={
+                    "chunk_id": chunk_id,
+                    "sample_offset_start": start_offset,
+                    "sample_offset_end": end_offset,
+                    "n_samples": len(chunk_rows),
+                },
+            )
+
+            start_offset = end_offset
+
+        _append_resume_event(resume_paths, event_type="finalize_start", details={})
+        index_rows, pooled_by_layer, tokens_by_layer = _materialize_from_chunks(
+            state=state,
+            include_pooled=bool(feature_cfg["include_pooled"]),
+            include_tokens=bool(feature_cfg["include_tokens"]),
+            selected_layers=tuple(selected_layers),
+            target_samples=len(ordered_records),
+        )
+
+        if len(index_rows) != len(ordered_records):
+            raise FeatureCacheError(
+                "Resume materialization row mismatch: "
+                f"expected={len(ordered_records)} got={len(index_rows)}"
+            )
+
+        _write_index(paths.index_path, index_rows)
+        if feature_cfg["include_pooled"]:
+            _torch_save_atomic(
+                paths.pooled_path,
+                {"selected_layers": list(selected_layers), "by_layer": pooled_by_layer},
+            )
+        if feature_cfg["include_tokens"]:
+            _torch_save_atomic(
+                paths.tokens_path,
+                {"selected_layers": list(selected_layers), "by_layer": tokens_by_layer},
+            )
+
+        raw_reused_samples = int(state.get("n_completed_samples_initial", 0))
+        reused_samples = min(max(raw_reused_samples, 0), len(index_rows))
+        resume_start_offset = reused_samples
+        new_samples = len(index_rows) - reused_samples
+        run_finished_utc = datetime.now(tz=timezone.utc).isoformat()
+        elapsed_seconds = max(0.0, time.perf_counter() - wall_start)
+        seconds_per_processed_sample = elapsed_seconds / float(new_samples) if new_samples > 0 else 0.0
+        seconds_per_total_sample = elapsed_seconds / float(len(index_rows)) if index_rows else 0.0
+        aggregated_elapsed_seconds = float(state.get("aggregated_elapsed_seconds", 0.0)) + elapsed_seconds
+        aggregated_processed_samples = int(state.get("aggregated_processed_samples", 0)) + int(new_samples)
+        aggregated_seconds_per_processed_sample = (
+            aggregated_elapsed_seconds / float(aggregated_processed_samples)
+            if aggregated_processed_samples > 0
+            else 0.0
+        )
+        aggregated_seconds_per_total_sample = (
+            aggregated_elapsed_seconds / float(len(index_rows))
+            if index_rows
+            else 0.0
+        )
+        manifest = _build_manifest(
+            paths=paths,
+            split_dir=split_dir,
+            split_manifest_path=split_manifest_path,
+            split_manifest=split_manifest,
+            split_names=split_names,
+            annotation_file=annotation_file,
+            annotation_sha=annotation_sha,
+            backbone_name=backbone_name,
+            backbone_kwargs=backbone_kwargs,
+            adapter_metadata=adapter_metadata,
+            decode_cfg=decode_cfg,
+            feature_cfg=feature_cfg,
+            selected_layers=tuple(selected_layers),
+            index_rows=index_rows,
+            resume_paths=resume_paths,
+            resumed=bool(reused_samples > 0),
+            reused_samples=reused_samples,
+            new_samples=new_samples,
+            resume_start_offset=resume_start_offset,
+            ordered_hash_all=ordered_hash_all,
+            ordered_hash_target=ordered_hash_target,
+            run_started_utc=run_started_utc,
+            run_finished_utc=run_finished_utc,
+            elapsed_seconds=elapsed_seconds,
+            seconds_per_processed_sample=seconds_per_processed_sample,
+            seconds_per_total_sample=seconds_per_total_sample,
+            aggregated_elapsed_seconds=aggregated_elapsed_seconds,
+            aggregated_processed_samples=aggregated_processed_samples,
+            aggregated_seconds_per_processed_sample=aggregated_seconds_per_processed_sample,
+            aggregated_seconds_per_total_sample=aggregated_seconds_per_total_sample,
+        )
+        _write_json_atomic(paths.manifest_path, manifest)
+
+        state.update(
             {
-                "feature_index": feature_index,
-                "sample_id": record["sample_id"],
-                "pair_id": record["pair_id"],
-                "split": record["split"],
-                "answer_idx": int(record["answer_idx"]),
-                "plausibility_label": int(record["plausibility_label"]),
-                "yes_choice_idx": int(record["yes_choice_idx"]),
-                "no_choice_idx": int(record["no_choice_idx"]),
-                "video_ref": record["video_ref"],
-                "video_path": str(record["video_path"]),
+                "status": "complete",
+                "n_completed_samples": len(index_rows),
+                "resume_from_sample_offset": len(index_rows),
+                "resume_from_chunk_id": int(state.get("next_chunk_id", 0)),
+                "total_target_samples": len(index_rows),
+                "last_writer_job_id": _slurm_job_id(),
+                "hostname": socket.gethostname(),
+                "updated_at_utc": datetime.now(tz=timezone.utc).isoformat(),
+                "aggregated_elapsed_seconds": aggregated_elapsed_seconds,
+                "aggregated_processed_samples": aggregated_processed_samples,
+                "completed_runs": int(state.get("completed_runs", 0)) + 1,
             }
         )
-
-    if selected_layers is None:
-        raise FeatureCacheError("Feature extraction produced no outputs.")
-
-    paths.cache_dir.mkdir(parents=True, exist_ok=True)
-    _write_index(paths.index_path, index_rows)
-
-    if feature_cfg["include_pooled"]:
-        pooled_by_layer = {
-            layer: torch.cat(values, dim=0)
-            for layer, values in sorted(pooled_acc.items())
-        }
-        torch.save(
-            {
-                "selected_layers": list(selected_layers),
-                "by_layer": pooled_by_layer,
+        _write_json_atomic(resume_paths.state_path, state)
+        _append_resume_event(
+            resume_paths,
+            event_type="finalize_complete",
+            details={"n_samples": len(index_rows)},
+        )
+        _append_resume_event(
+            resume_paths,
+            event_type="run_complete",
+            details={
+                "resumed": bool(reused_samples > 0),
+                "reused_samples": reused_samples,
+                "new_samples": new_samples,
+                "resume_from_sample_offset": resume_start_offset,
+                "n_samples": len(index_rows),
+                "elapsed_seconds": elapsed_seconds,
+                "seconds_per_processed_sample": seconds_per_processed_sample,
+                "aggregated_elapsed_seconds": aggregated_elapsed_seconds,
+                "aggregated_processed_samples": aggregated_processed_samples,
             },
-            paths.pooled_path,
         )
 
-    if feature_cfg["include_tokens"]:
-        tokens_by_layer = {
-            layer: torch.cat(values, dim=0)
-            for layer, values in sorted(tokens_acc.items())
-        }
-        torch.save(
-            {
-                "selected_layers": list(selected_layers),
-                "by_layer": tokens_by_layer,
-            },
-            paths.tokens_path,
-        )
-
-    manifest = {
-        "version": 1,
-        "kind": "mvp_feature_cache",
-        "signature": paths.signature,
-        "created_at_utc": datetime.now(tz=timezone.utc).isoformat(),
-        "python": sys.version,
-        "platform": platform.platform(),
-        "split": {
-            "dir": str(split_dir),
-            "manifest": str(split_manifest_path),
-            "manifest_sha256": _sha256_file(split_manifest_path),
-            "manifest_annotation_sha256": str(split_manifest.get("annotation_sha256", "")),
-            "names": split_names,
-        },
-        "annotation": {
-            "file": str(annotation_file),
-            "sha256": annotation_sha,
-        },
-        "backbone": {
-            "name": backbone_name,
-            "kwargs": backbone_kwargs,
-            "metadata": adapter_metadata or {},
-        },
-        "decode": decode_cfg,
-        "features": {
-            "include_pooled": bool(feature_cfg["include_pooled"]),
-            "include_tokens": bool(feature_cfg["include_tokens"]),
-            "max_samples": int(feature_cfg["max_samples"]),
-            "selected_layers": list(selected_layers),
-            "n_samples": len(index_rows),
-            "sample_ids_sha256": _sha256_lines([row["sample_id"] for row in index_rows]),
-            "index_columns": list(index_rows[0].keys()) if index_rows else [],
-        },
-        "targets": {
-            "type": "semantic_plausibility",
-            "positive_label": 1,
-            "negative_label": 0,
-            "positive_semantics": "plausible_yes_possible",
-            "negative_semantics": "implausible_no_impossible",
-        },
-        "files": {
-            "index": paths.index_path.name,
-            "pooled": paths.pooled_path.name if feature_cfg["include_pooled"] else "",
-            "tokens": paths.tokens_path.name if feature_cfg["include_tokens"] else "",
-        },
-    }
-    paths.manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
-
+    print(
+        "[extract.mvp] completed: "
+        f"signature={paths.signature} resumed={reused_samples > 0} "
+        f"reused_samples={reused_samples} new_samples={new_samples} total={len(index_rows)} "
+        f"elapsed_s={elapsed_seconds:.3f} sec_per_processed_sample={seconds_per_processed_sample:.6f} "
+        f"elapsed_agg_s={aggregated_elapsed_seconds:.3f}"
+    )
     return {
         "feature_cache_dir": str(paths.cache_dir),
         "signature": paths.signature,
@@ -285,6 +512,16 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
         "n_samples": len(index_rows),
         "selected_layers": list(selected_layers),
         "warning_log": str(warning_log_path),
+        "resumed": bool(reused_samples > 0),
+        "resume_from_sample_offset": resume_start_offset,
+        "resume_events": str(resume_paths.events_path),
+        "elapsed_seconds": elapsed_seconds,
+        "seconds_per_processed_sample": seconds_per_processed_sample,
+        "seconds_per_total_sample": seconds_per_total_sample,
+        "aggregated_elapsed_seconds": aggregated_elapsed_seconds,
+        "aggregated_processed_samples": aggregated_processed_samples,
+        "aggregated_seconds_per_processed_sample": aggregated_seconds_per_processed_sample,
+        "aggregated_seconds_per_total_sample": aggregated_seconds_per_total_sample,
     }
 
 
@@ -330,7 +567,6 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
             ),
             "include_pooled": bool(feature_cfg["include_pooled"]),
             "include_tokens": bool(feature_cfg["include_tokens"]),
-            "max_samples": int(feature_cfg["max_samples"]),
             "target_type": "semantic_plausibility",
         },
         "split_dir": str(split_dir),
@@ -363,7 +599,20 @@ def has_valid_feature_cache(config: dict[str, Any]) -> bool:
         paths = resolve_expected_feature_cache_paths(config)
     except Exception:
         return False
-    return _is_valid_cache(paths)
+    if not _is_valid_cache(paths):
+        return False
+    try:
+        manifest = _load_json(paths.manifest_path)
+        feature_cfg = _feature_cfg(config)
+        return _cache_satisfies_target(
+            manifest,
+            requested_samples=int(manifest.get("features", {}).get("n_samples", 0))
+            if int(feature_cfg.get("max_samples", 0)) <= 0
+            else int(feature_cfg["max_samples"]),
+            feature_cfg=feature_cfg,
+        )
+    except Exception:
+        return False
 
 
 def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -376,6 +625,7 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
     """
 
     paths = resolve_expected_feature_cache_paths(config)
+    feature_cfg = _feature_cfg(config)
     if not _is_valid_cache(paths):
         raise FeatureCacheError(
             "Feature cache is missing or invalid for current config. "
@@ -383,6 +633,14 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
         )
 
     manifest = _load_json(paths.manifest_path)
+    requested_samples = int(feature_cfg["max_samples"])
+    if requested_samples <= 0:
+        requested_samples = int(manifest.get("features", {}).get("n_samples", 0))
+    if not _cache_satisfies_target(manifest, requested_samples=requested_samples, feature_cfg=feature_cfg):
+        raise FeatureCacheError(
+            "Feature cache exists but does not satisfy requested sample count. "
+            "Re-run `python run.py extract.mvp`."
+        )
     frame = _load_index(paths.index_path)
 
     pooled_payload: dict[str, Any] | None = None
@@ -478,6 +736,10 @@ def _feature_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "include_tokens": include_tokens,
         "max_samples": max_samples,
         "force_reextract": bool(raw.get("force_reextract", False)),
+        "resume_enabled": bool(raw.get("resume_enabled", True)),
+        "resume_strict": bool(raw.get("resume_strict", True)),
+        "chunk_size": max(1, int(raw.get("chunk_size", 64))),
+        "lock_stale_seconds": max(60, int(raw.get("lock_stale_seconds", 86400))),
     }
 
 
@@ -762,6 +1024,520 @@ def _decode_video_clip(video_path: str, num_frames: int, crop_size: int) -> torc
         clip = resized.reshape(b, t, c, crop_size, crop_size).permute(0, 2, 1, 3, 4).contiguous()
 
     return clip
+
+
+def _resume_paths(cache_dir: Path) -> ResumePaths:
+    root_dir = cache_dir / ".resume"
+    return ResumePaths(
+        root_dir=root_dir,
+        chunks_dir=root_dir / "chunks",
+        state_path=root_dir / "state.json",
+        events_path=root_dir / "events.jsonl",
+        lock_path=root_dir / "lock",
+    )
+
+
+def _slurm_job_id() -> str:
+    return str(os.environ.get("SLURM_JOB_ID", ""))
+
+
+def _resume_config_payload(
+    *,
+    config: dict[str, Any],
+    feature_cfg: dict[str, Any],
+    split_manifest: dict[str, Any],
+    split_dir: Path,
+    annotation_file: str,
+    backbone_name: str,
+    backbone_kwargs: dict[str, Any],
+    decode_cfg: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "mode": "extract.mvp",
+        "annotation_file": str(annotation_file),
+        "split_dir": str(split_dir),
+        "split_manifest_annotation_sha256": str(split_manifest.get("annotation_sha256", "")),
+        "split_manifest_selection_sha256": str(split_manifest.get("selection_sha256", "")),
+        "split_names": list(feature_cfg["split_names"]),
+        "layer_ids": list(feature_cfg["layer_ids"]),
+        "include_pooled": bool(feature_cfg["include_pooled"]),
+        "include_tokens": bool(feature_cfg["include_tokens"]),
+        "backbone_name": str(backbone_name),
+        "backbone_kwargs": dict(backbone_kwargs),
+        "decode": dict(decode_cfg),
+        "official_repo_root": str(config.get("official_repo_root", "")),
+        "videos_root": str(config.get("videos_root", "")),
+    }
+
+
+def _new_resume_state(
+    *,
+    signature: str,
+    config_hash: str,
+    ordered_hash_all: str,
+    ordered_count_all: int,
+    target_max_samples: int,
+    target_samples: int,
+    chunk_size: int,
+) -> dict[str, Any]:
+    now = datetime.now(tz=timezone.utc).isoformat()
+    return {
+        "version": 1,
+        "status": "in_progress",
+        "signature": str(signature),
+        "config_hash": str(config_hash),
+        "ordered_sample_ids_hash": str(ordered_hash_all),
+        "ordered_sample_count": int(ordered_count_all),
+        "chunk_size": int(chunk_size),
+        "target_max_samples": int(target_max_samples),
+        "total_target_samples": int(target_samples),
+        "completed_chunks": [],
+        "n_completed_samples": 0,
+        "n_completed_samples_initial": 0,
+        "resume_from_sample_offset": 0,
+        "resume_from_chunk_id": 0,
+        "next_chunk_id": 0,
+        "selected_layers": [],
+        "adapter_metadata": {},
+        "created_at_utc": now,
+        "updated_at_utc": now,
+        "last_writer_job_id": _slurm_job_id(),
+        "hostname": socket.gethostname(),
+        "aggregated_elapsed_seconds": 0.0,
+        "aggregated_processed_samples": 0,
+        "completed_runs": 0,
+    }
+
+
+def _load_resume_state(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    payload = _load_json(path)
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
+def _validate_or_reset_resume_state(
+    *,
+    state: dict[str, Any],
+    signature: str,
+    config_hash: str,
+    ordered_hash_all: str,
+    ordered_count_all: int,
+    target_max_samples: int,
+    target_samples: int,
+    feature_cfg: dict[str, Any],
+    paths: FeatureCachePaths,
+    resume_paths: ResumePaths,
+) -> dict[str, Any]:
+    state_signature = str(state.get("signature", ""))
+    state_config_hash = str(state.get("config_hash", ""))
+    state_ordered_hash = str(state.get("ordered_sample_ids_hash", ""))
+    state_ordered_count = int(state.get("ordered_sample_count", -1))
+
+    mismatch = (
+        state_signature != str(signature)
+        or state_config_hash != str(config_hash)
+        or state_ordered_hash != str(ordered_hash_all)
+        or state_ordered_count != int(ordered_count_all)
+    )
+    if mismatch:
+        if feature_cfg["resume_strict"]:
+            raise FeatureCacheError(
+                "Resume state does not match current extraction configuration. "
+                "Set feature_cache.resume_strict=false to reset state automatically."
+            )
+        _append_resume_event(
+            resume_paths,
+            event_type="resume_not_possible",
+            details={"reason": "state_mismatch_reset"},
+        )
+        _reset_resume_state(paths, resume_paths)
+        return _new_resume_state(
+            signature=signature,
+            config_hash=config_hash,
+            ordered_hash_all=ordered_hash_all,
+            ordered_count_all=ordered_count_all,
+            target_max_samples=target_max_samples,
+            target_samples=target_samples,
+            chunk_size=int(feature_cfg["chunk_size"]),
+        )
+
+    n_completed = int(state.get("n_completed_samples", 0))
+    if n_completed < 0 or n_completed > int(ordered_count_all):
+        raise FeatureCacheError(
+            "Resume state has invalid n_completed_samples "
+            f"({n_completed}) for ordered_count={ordered_count_all}."
+        )
+
+    state["target_max_samples"] = int(target_max_samples)
+    state["total_target_samples"] = int(target_samples)
+    state["n_completed_samples_initial"] = int(n_completed)
+    state["updated_at_utc"] = datetime.now(tz=timezone.utc).isoformat()
+    state["last_writer_job_id"] = _slurm_job_id()
+    state["hostname"] = socket.gethostname()
+    state["aggregated_elapsed_seconds"] = float(state.get("aggregated_elapsed_seconds", 0.0))
+    state["aggregated_processed_samples"] = int(state.get("aggregated_processed_samples", 0))
+    state["completed_runs"] = int(state.get("completed_runs", 0))
+    return state
+
+
+def _cache_satisfies_target(
+    manifest: dict[str, Any],
+    *,
+    requested_samples: int,
+    feature_cfg: dict[str, Any],
+) -> bool:
+    features = manifest.get("features", {})
+    n_samples = int(features.get("n_samples", 0))
+    if n_samples <= 0:
+        return False
+    if requested_samples > 0 and n_samples < requested_samples:
+        return False
+
+    requested_max_samples = int(feature_cfg.get("max_samples", 0))
+    cached_requested = int(features.get("requested_max_samples", features.get("max_samples", 0)))
+    if requested_max_samples <= 0 and cached_requested > 0:
+        return False
+    return True
+
+
+def _reset_resume_state(paths: FeatureCachePaths, resume_paths: ResumePaths) -> None:
+    if resume_paths.root_dir.exists():
+        shutil.rmtree(resume_paths.root_dir)
+    for file_path in [paths.manifest_path, paths.index_path, paths.pooled_path, paths.tokens_path]:
+        if file_path.exists():
+            file_path.unlink()
+
+
+@contextmanager
+def _resume_lock(resume_paths: ResumePaths, *, stale_seconds: int) -> Any:
+    resume_paths.root_dir.mkdir(parents=True, exist_ok=True)
+    token = uuid4().hex
+    now_utc = datetime.now(tz=timezone.utc).isoformat()
+    payload = {
+        "token": token,
+        "created_at_utc": now_utc,
+        "hostname": socket.gethostname(),
+        "job_id": _slurm_job_id(),
+        "pid": os.getpid(),
+    }
+
+    for _ in range(2):
+        try:
+            fd = os.open(str(resume_paths.lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(json.dumps(payload, sort_keys=True, ensure_ascii=True))
+            break
+        except FileExistsError:
+            stale = _is_stale_lock(resume_paths.lock_path, stale_seconds=stale_seconds)
+            if not stale:
+                raise FeatureCacheError(
+                    "Another extraction process holds the resume lock: "
+                    f"{resume_paths.lock_path}"
+                )
+            resume_paths.lock_path.unlink(missing_ok=True)
+    else:
+        raise FeatureCacheError(f"Failed to acquire resume lock: {resume_paths.lock_path}")
+
+    try:
+        yield
+    finally:
+        if resume_paths.lock_path.exists():
+            try:
+                existing = json.loads(resume_paths.lock_path.read_text(encoding="utf-8"))
+            except Exception:
+                existing = {}
+            if str(existing.get("token", "")) == token:
+                resume_paths.lock_path.unlink(missing_ok=True)
+
+
+def _is_stale_lock(lock_path: Path, *, stale_seconds: int) -> bool:
+    if not lock_path.exists():
+        return True
+    try:
+        payload = json.loads(lock_path.read_text(encoding="utf-8"))
+        created = str(payload.get("created_at_utc", ""))
+        if not created:
+            return True
+        created_ts = datetime.fromisoformat(created)
+        age = (datetime.now(tz=timezone.utc) - created_ts).total_seconds()
+        return age > float(stale_seconds)
+    except Exception:
+        return True
+
+
+def _append_resume_event(
+    resume_paths: ResumePaths,
+    *,
+    event_type: str,
+    details: dict[str, Any],
+) -> None:
+    resume_paths.root_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "timestamp_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "event_type": str(event_type),
+        "job_id": _slurm_job_id(),
+        "pid": os.getpid(),
+        "hostname": socket.gethostname(),
+        "details": details,
+    }
+    with resume_paths.events_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, sort_keys=True, ensure_ascii=True) + "\n")
+
+
+def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.parent / f".{path.name}.tmp.{os.getpid()}.{uuid4().hex}"
+    tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True), encoding="utf-8")
+    os.replace(tmp_path, path)
+
+
+def _torch_save_atomic(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.parent / f".{path.name}.tmp.{os.getpid()}.{uuid4().hex}"
+    torch.save(payload, tmp_path)
+    os.replace(tmp_path, path)
+
+
+def _extract_chunk_records(
+    *,
+    records: list[dict[str, Any]],
+    feature_index_offset: int,
+    adapter: Any,
+    requested_layer_ids: list[int] | None,
+    decode_cfg: dict[str, Any],
+    include_pooled: bool,
+    include_tokens: bool,
+) -> tuple[
+    list[dict[str, Any]],
+    dict[int, torch.Tensor],
+    dict[int, torch.Tensor],
+    tuple[int, ...],
+    dict[str, Any],
+]:
+    chunk_rows: list[dict[str, Any]] = []
+    pooled_acc: dict[int, list[torch.Tensor]] = {}
+    tokens_acc: dict[int, list[torch.Tensor]] = {}
+    selected_layers: tuple[int, ...] | None = None
+    adapter_metadata: dict[str, Any] = {}
+
+    for local_index, record in enumerate(records):
+        clip = _decode_video_clip(
+            video_path=record["video_path"],
+            num_frames=int(decode_cfg["num_frames"]),
+            crop_size=int(decode_cfg["crop_size"]),
+        )
+        with torch.no_grad():
+            features = adapter.extract(clip, layer_ids=requested_layer_ids)
+
+        if selected_layers is None:
+            selected_layers = tuple(int(v) for v in features.selected_layers)
+            adapter_metadata = dict(features.metadata)
+        elif tuple(int(v) for v in features.selected_layers) != tuple(selected_layers):
+            raise FeatureCacheError(
+                "Adapter returned inconsistent selected_layers within chunk: "
+                f"first={selected_layers}, current={features.selected_layers}"
+            )
+
+        for layer in features.selected_layers:
+            layer_id = int(layer)
+            if include_pooled:
+                pooled_acc.setdefault(layer_id, []).append(features.pooled_by_layer[layer].detach().cpu())
+            if include_tokens:
+                tokens_acc.setdefault(layer_id, []).append(features.tokens_by_layer[layer].detach().cpu())
+
+        chunk_rows.append(
+            {
+                "feature_index": int(feature_index_offset + local_index),
+                "sample_id": record["sample_id"],
+                "pair_id": record["pair_id"],
+                "split": record["split"],
+                "answer_idx": int(record["answer_idx"]),
+                "plausibility_label": int(record["plausibility_label"]),
+                "yes_choice_idx": int(record["yes_choice_idx"]),
+                "no_choice_idx": int(record["no_choice_idx"]),
+                "video_ref": record["video_ref"],
+                "video_path": str(record["video_path"]),
+            }
+        )
+
+    if selected_layers is None:
+        raise FeatureCacheError("Chunk extraction produced no outputs.")
+
+    pooled_by_layer = {
+        layer: torch.cat(values, dim=0)
+        for layer, values in sorted(pooled_acc.items())
+    } if include_pooled else {}
+    tokens_by_layer = {
+        layer: torch.cat(values, dim=0)
+        for layer, values in sorted(tokens_acc.items())
+    } if include_tokens else {}
+
+    return chunk_rows, pooled_by_layer, tokens_by_layer, tuple(selected_layers), adapter_metadata
+
+
+def _materialize_from_chunks(
+    *,
+    state: dict[str, Any],
+    include_pooled: bool,
+    include_tokens: bool,
+    selected_layers: tuple[int, ...],
+    target_samples: int,
+) -> tuple[list[dict[str, Any]], dict[int, torch.Tensor], dict[int, torch.Tensor]]:
+    completed_chunks = sorted(
+        list(state.get("completed_chunks", [])),
+        key=lambda chunk: int(chunk.get("start_offset", 0)),
+    )
+
+    index_rows: list[dict[str, Any]] = []
+    pooled_acc: dict[int, list[torch.Tensor]] = {}
+    tokens_acc: dict[int, list[torch.Tensor]] = {}
+
+    for chunk in completed_chunks:
+        if len(index_rows) >= target_samples:
+            break
+        chunk_index_path = Path(str(chunk.get("index_path", "")))
+        if not chunk_index_path.exists():
+            raise FeatureCacheError(f"Missing chunk index file: {chunk_index_path}")
+        chunk_rows = _load_index(chunk_index_path).to_dict(orient="records")
+        n_take = min(len(chunk_rows), max(0, target_samples - len(index_rows)))
+        chunk_rows = chunk_rows[:n_take]
+        index_rows.extend(chunk_rows)
+
+        if include_pooled:
+            chunk_pooled_path = Path(str(chunk.get("pooled_path", "")))
+            if not chunk_pooled_path.exists():
+                raise FeatureCacheError(f"Missing chunk pooled payload: {chunk_pooled_path}")
+            payload = torch.load(str(chunk_pooled_path), map_location="cpu", weights_only=False)
+            for layer in selected_layers:
+                pooled_acc.setdefault(int(layer), []).append(payload["by_layer"][int(layer)][:n_take])
+
+        if include_tokens:
+            chunk_tokens_path = Path(str(chunk.get("tokens_path", "")))
+            if not chunk_tokens_path.exists():
+                raise FeatureCacheError(f"Missing chunk tokens payload: {chunk_tokens_path}")
+            payload = torch.load(str(chunk_tokens_path), map_location="cpu", weights_only=False)
+            for layer in selected_layers:
+                tokens_acc.setdefault(int(layer), []).append(payload["by_layer"][int(layer)][:n_take])
+
+    pooled_by_layer = {
+        layer: torch.cat(values, dim=0)
+        for layer, values in sorted(pooled_acc.items())
+    } if include_pooled else {}
+    tokens_by_layer = {
+        layer: torch.cat(values, dim=0)
+        for layer, values in sorted(tokens_acc.items())
+    } if include_tokens else {}
+    return index_rows, pooled_by_layer, tokens_by_layer
+
+
+def _build_manifest(
+    *,
+    paths: FeatureCachePaths,
+    split_dir: Path,
+    split_manifest_path: Path,
+    split_manifest: dict[str, Any],
+    split_names: list[str],
+    annotation_file: str,
+    annotation_sha: str,
+    backbone_name: str,
+    backbone_kwargs: dict[str, Any],
+    adapter_metadata: dict[str, Any],
+    decode_cfg: dict[str, Any],
+    feature_cfg: dict[str, Any],
+    selected_layers: tuple[int, ...],
+    index_rows: list[dict[str, Any]],
+    resume_paths: ResumePaths,
+    resumed: bool,
+    reused_samples: int,
+    new_samples: int,
+    resume_start_offset: int,
+    ordered_hash_all: str,
+    ordered_hash_target: str,
+    run_started_utc: str,
+    run_finished_utc: str,
+    elapsed_seconds: float,
+    seconds_per_processed_sample: float,
+    seconds_per_total_sample: float,
+    aggregated_elapsed_seconds: float,
+    aggregated_processed_samples: int,
+    aggregated_seconds_per_processed_sample: float,
+    aggregated_seconds_per_total_sample: float,
+) -> dict[str, Any]:
+    return {
+        "version": 2,
+        "kind": "mvp_feature_cache",
+        "signature": paths.signature,
+        "created_at_utc": datetime.now(tz=timezone.utc).isoformat(),
+        "python": sys.version,
+        "platform": platform.platform(),
+        "split": {
+            "dir": str(split_dir),
+            "manifest": str(split_manifest_path),
+            "manifest_sha256": _sha256_file(split_manifest_path),
+            "manifest_annotation_sha256": str(split_manifest.get("annotation_sha256", "")),
+            "names": split_names,
+        },
+        "annotation": {
+            "file": str(annotation_file),
+            "sha256": annotation_sha,
+        },
+        "backbone": {
+            "name": backbone_name,
+            "kwargs": backbone_kwargs,
+            "metadata": adapter_metadata or {},
+        },
+        "decode": decode_cfg,
+        "features": {
+            "include_pooled": bool(feature_cfg["include_pooled"]),
+            "include_tokens": bool(feature_cfg["include_tokens"]),
+            "max_samples": int(feature_cfg["max_samples"]),
+            "requested_max_samples": int(feature_cfg["max_samples"]),
+            "selected_layers": list(selected_layers),
+            "n_samples": len(index_rows),
+            "sample_ids_sha256": _sha256_lines([row["sample_id"] for row in index_rows]),
+            "ordered_sample_ids_sha256_all": ordered_hash_all,
+            "ordered_sample_ids_sha256_target": ordered_hash_target,
+            "index_columns": list(index_rows[0].keys()) if index_rows else [],
+        },
+        "targets": {
+            "type": "semantic_plausibility",
+            "positive_label": 1,
+            "negative_label": 0,
+            "positive_semantics": "plausible_yes_possible",
+            "negative_semantics": "implausible_no_impossible",
+        },
+        "resume": {
+            "enabled": bool(feature_cfg["resume_enabled"]),
+            "resumed": bool(resumed),
+            "source_state_path": str(resume_paths.state_path),
+            "events_path": str(resume_paths.events_path),
+            "resume_start_offset": int(resume_start_offset),
+            "reused_samples": int(reused_samples),
+            "new_samples": int(new_samples),
+        },
+        "timing": {
+            "run_started_utc": str(run_started_utc),
+            "run_finished_utc": str(run_finished_utc),
+            "elapsed_seconds": float(elapsed_seconds),
+            "processed_samples": int(new_samples),
+            "seconds_per_processed_sample": float(seconds_per_processed_sample),
+            "seconds_per_total_sample": float(seconds_per_total_sample),
+            "aggregated": {
+                "elapsed_seconds": float(aggregated_elapsed_seconds),
+                "processed_samples": int(aggregated_processed_samples),
+                "seconds_per_processed_sample": float(aggregated_seconds_per_processed_sample),
+                "seconds_per_total_sample": float(aggregated_seconds_per_total_sample),
+            },
+        },
+        "files": {
+            "index": paths.index_path.name,
+            "pooled": paths.pooled_path.name if feature_cfg["include_pooled"] else "",
+            "tokens": paths.tokens_path.name if feature_cfg["include_tokens"] else "",
+        },
+    }
 
 
 def _load_split_pairs(path: Path) -> list[dict[str, Any]]:

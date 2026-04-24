@@ -106,6 +106,10 @@ feature_cache:
   include_pooled: true
   include_tokens: true
   force_reextract: false
+  resume_enabled: true
+  resume_strict: true
+  chunk_size: 64
+  lock_stale_seconds: 86400
 
 linear_probe:
   feature_view: pooled # pooled | tokens_mean

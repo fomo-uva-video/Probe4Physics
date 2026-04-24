@@ -178,8 +178,15 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
             manifest = bundle["manifest"]
             index = bundle["index"].sort_values("sample_id").reset_index(drop=True)
 
-            self.assertEqual(manifest["version"], 1)
+            self.assertEqual(manifest["version"], 2)
             self.assertEqual(manifest["targets"]["type"], "semantic_plausibility")
+            self.assertIn("timing", manifest)
+            self.assertIn("elapsed_seconds", manifest["timing"])
+            self.assertIn("seconds_per_processed_sample", manifest["timing"])
+            self.assertIn("aggregated", manifest["timing"])
+            self.assertIn("elapsed_seconds", manifest["timing"]["aggregated"])
+            self.assertIn("processed_samples", manifest["timing"]["aggregated"])
+            self.assertGreaterEqual(float(manifest["timing"]["elapsed_seconds"]), 0.0)
             self.assertIn("plausibility_label", index.columns)
             self.assertIn("yes_choice_idx", index.columns)
             self.assertIn("no_choice_idx", index.columns)
@@ -209,7 +216,7 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
 
         self.assertNotEqual(paths_a.signature, paths_b.signature)
 
-    def test_max_samples_changes_cache_signature(self) -> None:
+    def test_max_samples_does_not_change_cache_signature(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             annotation_file = tmp_path / "mvp_fixture.jsonl"
@@ -226,7 +233,7 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
             paths_a = resolve_expected_feature_cache_paths(cfg_a)
             paths_b = resolve_expected_feature_cache_paths(cfg_b)
 
-        self.assertNotEqual(paths_a.signature, paths_b.signature)
+        self.assertEqual(paths_a.signature, paths_b.signature)
 
     def test_empty_feature_outputs_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -286,6 +293,53 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
             self.assertEqual(len(index), 2)
             self.assertEqual(manifest["features"]["max_samples"], 2)
             self.assertEqual(index["sample_id"].tolist(), ["pair_alpha_0", "pair_alpha_1"])
+
+    def test_extract_resumes_when_max_samples_increases(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            annotation_file = tmp_path / "mvp_fixture.jsonl"
+            rows = self._write_annotation_fixture(annotation_file)
+            videos_root = tmp_path / "videos"
+            self._create_video_files(videos_root, rows)
+            self._write_split_artifacts(tmp_path / "splits" / "mvp_train_only", annotation_file)
+
+            first_cfg = self._extract_config(tmp_path, annotation_file, videos_root)
+            first_cfg["feature_cache"]["max_samples"] = 2
+            first_cfg["feature_cache"]["force_reextract"] = True
+
+            second_cfg = json.loads(json.dumps(first_cfg))
+            second_cfg["feature_cache"]["max_samples"] = 4
+            second_cfg["feature_cache"]["force_reextract"] = False
+
+            with mock.patch("benchmarks.mvp.features.create_adapter", return_value=_FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.mvp.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ):
+                    first_result = run_mvp_feature_extraction(first_cfg)
+
+            with mock.patch("benchmarks.mvp.features.create_adapter", return_value=_FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.mvp.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ) as decode_mock:
+                    second_result = run_mvp_feature_extraction(second_cfg)
+
+            self.assertFalse(first_result["skipped"])
+            self.assertTrue(second_result["resumed"])
+            self.assertEqual(second_result["resume_from_sample_offset"], 2)
+            self.assertEqual(decode_mock.call_count, 2)
+
+            bundle = load_feature_cache_for_config(second_cfg)
+            manifest = bundle["manifest"]
+            index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+            self.assertEqual(len(index), 4)
+            self.assertEqual(int(manifest["timing"]["processed_samples"]), 2)
+            self.assertEqual(int(manifest["timing"]["aggregated"]["processed_samples"]), 4)
+            self.assertGreaterEqual(
+                float(manifest["timing"]["aggregated"]["elapsed_seconds"]),
+                float(manifest["timing"]["elapsed_seconds"]),
+            )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,50 @@
+===== PROVENANCE =====
+Thu Apr 23 09:56:15 PM UTC 2026
+gcn20.local.snellius.surf.nl
+0be21fbcde7a3d51b209c1c3da3991a488c53166
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+MODE=full
+MAX_SAMPLES=200
+BACKBONE_NAME=jepa_v1
+BACKBONE_VARIANT=vith16_384
+BACKBONE_DEVICE=cuda
+ANNOTATION_FILE=/gpfs/home3/scur0511/Probe4Physics/data/annotations/mvp_full.jsonl
+OFFICIAL_REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics/third_party/minimal_video_pairs
+VIDEOS_ROOT=/scratch-shared/scur0511/probe4physics/data/videos/mvp
+CACHE_DIR=/gpfs/home3/scur0511/Probe4Physics/data/cache/videos
+SPLIT_DIR=/gpfs/home3/scur0511/Probe4Physics/data/splits/mvp/full_60_20_20
+FEATURE_DIR=/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+======================
+JOB_START_UTC=2026-04-23T21:56:15Z
+[extract.mvp] resume status: resumed=False offset=0 target=200 signature=195f8fef90088d1e
+[extract.mvp] completed: signature=195f8fef90088d1e resumed=False reused_samples=0 new_samples=200 total=200 elapsed_s=255.456 sec_per_processed_sample=1.277281 elapsed_agg_s=255.456
+{
+  "aggregated_elapsed_seconds": 255.4562689671293,
+  "aggregated_processed_samples": 200,
+  "aggregated_seconds_per_processed_sample": 1.2772813448356464,
+  "aggregated_seconds_per_total_sample": 1.2772813448356464,
+  "elapsed_seconds": 255.4562689671293,
+  "feature_cache_dir": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e",
+  "n_samples": 200,
+  "resume_events": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 1.2772813448356464,
+  "seconds_per_total_sample": 1.2772813448356464,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "195f8fef90088d1e",
+  "skipped": false,
+  "warning_log": "/gpfs/home3/scur0511/Probe4Physics/artifacts/features/mvp/extract_warnings.log"
+}
+JOB_END_UTC=2026-04-23T22:00:54Z
+JOB_ELAPSED_SECONDS=279
+Completed at:
+Thu Apr 23 10:00:54 PM UTC 2026

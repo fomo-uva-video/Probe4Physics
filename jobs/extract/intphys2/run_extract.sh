@@ -111,7 +111,17 @@ if [[ -n "${MAX_SAMPLES_OVERRIDE}" ]]; then
   cmd+=("${MAX_SAMPLES_OVERRIDE}")
 fi
 
+JOB_START_EPOCH="$(date +%s)"
+JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+echo "JOB_START_UTC=${JOB_START_UTC}"
+
 "${cmd[@]}"
+
+JOB_END_EPOCH="$(date +%s)"
+JOB_END_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+JOB_ELAPSED_SECONDS="$((JOB_END_EPOCH - JOB_START_EPOCH))"
+echo "JOB_END_UTC=${JOB_END_UTC}"
+echo "JOB_ELAPSED_SECONDS=${JOB_ELAPSED_SECONDS}"
 
 echo "Completed at:"
 date -u

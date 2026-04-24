@@ -710,7 +710,7 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
 
         self.assertNotEqual(paths_a.signature, paths_b.signature)
 
-    def test_max_samples_changes_cache_signature(self) -> None:
+    def test_max_samples_does_not_change_cache_signature(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             cfg_a = self._base_config(root)
@@ -721,7 +721,7 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
             paths_a = resolve_expected_feature_cache_paths(cfg_a)
             paths_b = resolve_expected_feature_cache_paths(cfg_b)
 
-        self.assertNotEqual(paths_a.signature, paths_b.signature)
+        self.assertEqual(paths_a.signature, paths_b.signature)
 
     def test_empty_feature_outputs_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -800,7 +800,84 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
             self.assertGreater(len(full_index), 2)
             self.assertEqual(len(capped_index), 2)
             self.assertEqual(manifest["features"]["max_samples"], 2)
+            self.assertIn("timing", manifest)
+            self.assertIn("elapsed_seconds", manifest["timing"])
+            self.assertIn("seconds_per_processed_sample", manifest["timing"])
+            self.assertIn("aggregated", manifest["timing"])
+            self.assertIn("elapsed_seconds", manifest["timing"]["aggregated"])
+            self.assertIn("processed_samples", manifest["timing"]["aggregated"])
+            self.assertGreaterEqual(float(manifest["timing"]["elapsed_seconds"]), 0.0)
             self.assertEqual(capped_index["sample_id"].tolist(), full_index["sample_id"].tolist()[:2])
+
+    def test_extract_resumes_when_max_samples_increases(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata_file = root / "metadata.csv"
+            rows = _make_metadata_rows(n_scenes=4, split="main")
+            _write_metadata_csv(metadata_file, rows)
+
+            videos_root = root / "videos"
+            for row in rows:
+                video_path = videos_root / str(row["video_path"])
+                video_path.parent.mkdir(parents=True, exist_ok=True)
+                video_path.write_bytes(b"fake")
+
+            init_cfg = {
+                "metadata_file": str(metadata_file),
+                "videos_root": str(videos_root),
+                "split": {"dir": str(root / "splits" / "intphys2")},
+            }
+            run_intphys2_init(init_cfg)
+
+            first_cfg = {
+                "metadata_file": str(metadata_file),
+                "videos_root": str(videos_root),
+                "cache_dir": str(root / "cache"),
+                "split": {"dir": str(root / "splits" / "intphys2")},
+                "backbone": {"name": "fake_backbone", "kwargs": {}},
+                "feature_cache": {
+                    "dir": str(root / "features"),
+                    "split_names": ["train", "val", "test"],
+                    "layer_ids": [12],
+                    "include_pooled": True,
+                    "include_tokens": True,
+                    "max_samples": 2,
+                    "force_reextract": True,
+                },
+            }
+            second_cfg = json.loads(json.dumps(first_cfg))
+            second_cfg["feature_cache"]["max_samples"] = 4
+            second_cfg["feature_cache"]["force_reextract"] = False
+
+            with mock.patch("benchmarks.intphys2.features.create_adapter", return_value=self._FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.intphys2.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ):
+                    first_result = run_intphys2_feature_extraction(first_cfg)
+
+            with mock.patch("benchmarks.intphys2.features.create_adapter", return_value=self._FakeAdapter()):
+                with mock.patch(
+                    "benchmarks.intphys2.features._decode_video_clip",
+                    return_value=torch.zeros((1, 3, 2, 4, 4), dtype=torch.float32),
+                ) as decode_mock:
+                    second_result = run_intphys2_feature_extraction(second_cfg)
+
+            self.assertFalse(first_result["skipped"])
+            self.assertTrue(second_result["resumed"])
+            self.assertEqual(second_result["resume_from_sample_offset"], 2)
+            self.assertEqual(decode_mock.call_count, 2)
+
+            bundle = load_feature_cache_for_config(second_cfg)
+            manifest = bundle["manifest"]
+            index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
+            self.assertEqual(len(index), 4)
+            self.assertEqual(int(manifest["timing"]["processed_samples"]), 2)
+            self.assertEqual(int(manifest["timing"]["aggregated"]["processed_samples"]), 4)
+            self.assertGreaterEqual(
+                float(manifest["timing"]["aggregated"]["elapsed_seconds"]),
+                float(manifest["timing"]["elapsed_seconds"]),
+            )
 
 
 # ---------------------------------------------------------------------------

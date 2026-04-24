@@ -1,0 +1,3 @@
+e.g.,
+
+sbatch --parsable --export=ALL,MAX_SAMPLES=10,FORCE_REEXTRACT=false jepa_v1.sh
