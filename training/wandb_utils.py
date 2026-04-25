@@ -49,6 +49,9 @@ class WandbTrainLogger:
                 "n_train": summary.get("n_train"),
                 "n_val": summary.get("n_val"),
                 "input_dim": summary.get("input_dim"),
+                "elapsed_seconds": summary.get("elapsed_seconds"),
+                "seconds_per_train_sample": summary.get("seconds_per_train_sample"),
+                "seconds_per_labeled_sample": summary.get("seconds_per_labeled_sample"),
             }
         )
         if summary.get("n_classes") is not None:

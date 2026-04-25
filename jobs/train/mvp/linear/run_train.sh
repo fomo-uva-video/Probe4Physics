@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shared runner for IntPhys2 linear-probe training jobs.
+# Shared runner for MVP linear-probe training jobs.
 #
 # Expected launch style:
 #   sbatch jepa_v1.sh
@@ -45,7 +45,7 @@ JOB_START_EPOCH="$(date +%s)"
 JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 echo "JOB_START_UTC=${JOB_START_UTC}"
 
-python run.py train.linear.intphys2 \
+python run.py train.linear.mvp \
   "backbone.name=${BACKBONE_NAME}" \
   "linear_probe.layer=${LINEAR_PROBE_LAYER}" \
   "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}" \

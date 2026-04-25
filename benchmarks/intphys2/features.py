@@ -519,14 +519,132 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
 
     base_dir = Path(feature_cfg["dir"]).expanduser().resolve()
     cache_dir = base_dir / backbone_id / split_key / signature
-
-    return FeatureCachePaths(
+    exact_paths = FeatureCachePaths(
         cache_dir=cache_dir,
         manifest_path=cache_dir / "manifest.json",
         index_path=cache_dir / "index.parquet",
         pooled_path=cache_dir / "features_pooled.pt",
         tokens_path=cache_dir / "features_tokens.pt",
         signature=signature,
+    )
+    if exact_paths.manifest_path.exists():
+        return exact_paths
+
+    compatible = _find_compatible_feature_cache(
+        base_dir=base_dir,
+        backbone_id=backbone_id,
+        split_key=split_key,
+        split_manifest_metadata_sha256=str(split_manifest.get("metadata_sha256", "")),
+        feature_cfg=feature_cfg,
+        backbone_name=backbone_name,
+        backbone_metadata=backbone_metadata,
+        decode_cfg=payload["decode"],
+    )
+    return compatible or exact_paths
+
+
+def _find_compatible_feature_cache(
+    *,
+    base_dir: Path,
+    backbone_id: str,
+    split_key: str,
+    split_manifest_metadata_sha256: str,
+    feature_cfg: dict[str, Any],
+    backbone_name: str,
+    backbone_metadata: dict[str, Any],
+    decode_cfg: dict[str, Any],
+) -> FeatureCachePaths | None:
+    root = base_dir / backbone_id / split_key
+    if not root.exists():
+        return None
+
+    expected_layers = (
+        [int(v) for v in feature_cfg["layer_ids"]]
+        if feature_cfg["layer_ids"]
+        else [int(v) for v in backbone_metadata.get("selected_layers", [])]
+    )
+    expected_variant = str(backbone_metadata.get("variant", "")).strip()
+
+    matches: list[tuple[float, FeatureCachePaths]] = []
+    for manifest_path in root.glob("*/manifest.json"):
+        cache_dir = manifest_path.parent
+        try:
+            manifest = _load_json(manifest_path)
+        except Exception:
+            continue
+        if not _manifest_matches_requested_cache(
+            manifest,
+            split_manifest_metadata_sha256=split_manifest_metadata_sha256,
+            feature_cfg=feature_cfg,
+            backbone_name=backbone_name,
+            expected_variant=expected_variant,
+            expected_layers=expected_layers,
+            decode_cfg=decode_cfg,
+        ):
+            continue
+        matches.append((manifest_path.stat().st_mtime, _feature_cache_paths(cache_dir)))
+
+    if not matches:
+        return None
+    matches.sort(key=lambda item: item[0])
+    return matches[-1][1]
+
+
+def _manifest_matches_requested_cache(
+    manifest: dict[str, Any],
+    *,
+    split_manifest_metadata_sha256: str,
+    feature_cfg: dict[str, Any],
+    backbone_name: str,
+    expected_variant: str,
+    expected_layers: list[int],
+    decode_cfg: dict[str, Any],
+) -> bool:
+    if str(manifest.get("kind", "")) != "intphys2_feature_cache":
+        return False
+
+    split = manifest.get("split", {})
+    if str(split.get("metadata_sha256", "")) != split_manifest_metadata_sha256:
+        return False
+    if [str(item) for item in split.get("names", [])] != [str(item) for item in feature_cfg["split_names"]]:
+        return False
+
+    backbone = manifest.get("backbone", {})
+    if str(backbone.get("name", "")) != backbone_name:
+        return False
+
+    metadata = backbone.get("metadata", {})
+    if str(metadata.get("variant", "")).strip() != expected_variant:
+        return False
+
+    features = manifest.get("features", {})
+    if bool(features.get("include_pooled", False)) != bool(feature_cfg["include_pooled"]):
+        return False
+    if bool(features.get("include_tokens", False)) != bool(feature_cfg["include_tokens"]):
+        return False
+    if [int(v) for v in features.get("selected_layers", [])] != expected_layers:
+        return False
+
+    manifest_decode = manifest.get("decode", {})
+    return {
+        "num_frames": int(manifest_decode.get("num_frames", -1)),
+        "sampling": str(manifest_decode.get("sampling", "")),
+        "crop_size": int(manifest_decode.get("crop_size", -1)),
+    } == {
+        "num_frames": int(decode_cfg["num_frames"]),
+        "sampling": str(decode_cfg["sampling"]),
+        "crop_size": int(decode_cfg["crop_size"]),
+    }
+
+
+def _feature_cache_paths(cache_dir: Path) -> FeatureCachePaths:
+    return FeatureCachePaths(
+        cache_dir=cache_dir,
+        manifest_path=cache_dir / "manifest.json",
+        index_path=cache_dir / "index.parquet",
+        pooled_path=cache_dir / "features_pooled.pt",
+        tokens_path=cache_dir / "features_tokens.pt",
+        signature=cache_dir.name,
     )
 
 

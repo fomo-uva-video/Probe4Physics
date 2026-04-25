@@ -1,0 +1,97 @@
+{
+  "os":  "Linux-5.14.0-570.84.1.el9_6.x86_64-x86_64-with-glibc2.34",
+  "python":  "CPython 3.11.15",
+  "startedAt":  "2026-04-25T16:17:02.193537Z",
+  "args":  [
+    "train.linear.intphys2",
+    "backbone.name=jepa_v1",
+    "linear_probe.layer=last",
+    "linear_probe.feature_view=pooled",
+    "linear_probe.wandb.enabled=true",
+    "linear_probe.wandb.project=probe4physics",
+    "linear_probe.wandb.mode=online"
+  ],
+  "program":  "/gpfs/home3/scur0511/Probe4Physics/run.py",
+  "codePath":  "run.py",
+  "codePathLocal":  "run.py",
+  "git":  {
+    "remote":  "https://github.com/fomo-uva-video/Probe4Physics.git",
+    "commit":  "ee8106bccc92ddcaf41b6dc56c3f27ff12f019e0"
+  },
+  "email":  "caselli.niccolo.developer@gmail.com",
+  "root":  "/gpfs/home3/scur0511/Probe4Physics",
+  "host":  "gcn16.local.snellius.surf.nl",
+  "executable":  "/home/scur0511/.conda/envs/probe4physics-gpu/bin/python",
+  "cpu_count":  72,
+  "cpu_count_logical":  72,
+  "gpu":  "NVIDIA A100-SXM4-40GB",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "270181482496",
+      "used":  "4417679360"
+    }
+  },
+  "memory":  {
+    "total":  "540626931712"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA A100-SXM4-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-7e8c118f-381e-55ce-3ad4-63e25f8356d3"
+    }
+  ],
+  "cudaVersion":  "13.1",
+  "slurm":  {
+    "cluster_name":  "snellius",
+    "conf":  "/var/spool/slurm/slurmd/conf-cache/slurm.conf",
+    "cpus_on_node":  "18",
+    "cpus_per_task":  "8",
+    "eclibr":  "0",
+    "ecplug":  "1",
+    "erlast":  "sbatch",
+    "ersbac":  "1",
+    "export_env":  "ALL",
+    "get_user_env":  "1",
+    "gpus":  "1",
+    "gpus_on_node":  "1",
+    "gtids":  "0",
+    "job_account":  "gpuuva073",
+    "job_cpus_per_node":  "18",
+    "job_end_time":  "1777140899",
+    "job_gid":  "62305",
+    "job_gpus":  "0",
+    "job_id":  "22244879",
+    "job_name":  "intphys2_jepa_v1_linear",
+    "job_nodelist":  "gcn16",
+    "job_num_nodes":  "1",
+    "job_partition":  "gpu_a100",
+    "job_qos":  "normal",
+    "job_start_time":  "1777133699",
+    "job_uid":  "62771",
+    "job_user":  "scur0511",
+    "jobid":  "22244879",
+    "localid":  "0",
+    "nnodes":  "1",
+    "nodeid":  "0",
+    "nodelist":  "gcn16",
+    "nprocs":  "1",
+    "ntasks":  "1",
+    "oom_kill_step":  "0",
+    "prio_process":  "0",
+    "procid":  "0",
+    "script_context":  "prolog_task",
+    "step_gres":  "gres/cpu:0",
+    "submit_dir":  "/gpfs/home3/scur0511/Probe4Physics/jobs/train/intphys2/linear",
+    "submit_host":  "int6.local.snellius.surf.nl",
+    "task_pid":  "327774",
+    "tasks_per_node":  "1",
+    "topology_addr":  "root.ibsw6.gcn16",
+    "topology_addr_pattern":  "switch.switch.node",
+    "tres_per_task":  "cpu=8"
+  },
+  "writerId":  "u10t1fcs8ryfve4a5hzwvzg53z9z90px"
+}

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Train an IntPhys2 linear probe with LTX-Video features.
+# Train an MVP linear probe with LTX-Video features.
 #
 # Usage:
 #   sbatch ltx_video.sh
@@ -7,7 +7,7 @@
 
 #SBATCH --partition=gpu_a100
 #SBATCH --gpus=1
-#SBATCH --job-name=intphys2_ltx_video_linear
+#SBATCH --job-name=mvp_ltx_video_linear
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=02:00:00

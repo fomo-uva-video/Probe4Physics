@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ class LinearProbeConfigError(ValueError):
 
 
 def run_ssv2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
+    wall_start = time.perf_counter()
     bundle = load_feature_cache_for_config(config)
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
@@ -116,7 +118,19 @@ def run_ssv2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
             "n_val": int(val_mask.sum()),
             "input_dim": input_dim,
             "n_classes": n_classes,
+            "elapsed_seconds": max(0.0, time.perf_counter() - wall_start),
         }
+        train_summary["seconds_per_train_sample"] = (
+            train_summary["elapsed_seconds"] / float(train_summary["n_train"])
+            if train_summary["n_train"] > 0
+            else 0.0
+        )
+        total_seen = int(train_summary["n_train"]) + int(train_summary["n_val"])
+        train_summary["seconds_per_labeled_sample"] = (
+            train_summary["elapsed_seconds"] / float(total_seen)
+            if total_seen > 0
+            else 0.0
+        )
 
         (output_dir / "train_summary.json").write_text(
             json.dumps(train_summary, indent=2, sort_keys=True),
