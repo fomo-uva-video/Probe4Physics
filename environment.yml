@@ -24,3 +24,4 @@ dependencies:
   - timm>=1.0
   - easydict>=1.13
   - einops>=0.8
+  - wandb>=0.16

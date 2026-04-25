@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 
 import torch
 from torch import nn
@@ -37,6 +37,7 @@ class Probe(Protocol):
         batch_size: int = 128,
         weight_decay: float = 0.0,
         seed: int = 42,
+        epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
         ...
 
@@ -117,6 +118,7 @@ class BaseClassifierProbe(ABC):
         batch_size: int = 128,
         weight_decay: float = 0.0,
         seed: int = 42,
+        epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
         torch.manual_seed(int(seed))
 
@@ -174,6 +176,8 @@ class BaseClassifierProbe(ABC):
                 row["val_accuracy"] = float(val_accuracy)
 
             history.append(row)
+            if epoch_logger is not None:
+                epoch_logger(dict(row))
 
         return ProbeFitResult(
             train_loss=float(final_train_loss),

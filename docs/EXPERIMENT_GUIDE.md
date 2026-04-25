@@ -288,7 +288,9 @@ python run.py train.linear.mvp \
   linear_probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
   linear_probe.epochs=30 \
   linear_probe.batch_size=128 \
-  linear_probe.device=cuda
+  linear_probe.device=cuda \
+  linear_probe.wandb.enabled=true \
+  linear_probe.wandb.project=probe4physics
 ```
 
 ### Evaluate (MVP)
@@ -310,6 +312,8 @@ linear_probe.output_dir/<timestamp_or_output_subdir>/
   linear_probe.pt
   train_summary.json
 ```
+
+When `linear_probe.wandb.enabled=true`, `train.linear.*` also logs per-epoch loss/accuracy and final run metadata to Weights & Biases. The run name defaults to `<experiment>/<benchmark>/<feature_view>/<output_subdir>`, and can be overridden with `linear_probe.wandb.name=...`.
 
 Eval outputs:
 

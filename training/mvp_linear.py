@@ -10,6 +10,7 @@ import torch
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import load_feature_cache_for_config
 from probes import LinearProbe, create_probe
+from training.wandb_utils import init_wandb_train_logger
 
 
 class LinearProbeConfigError(ValueError):
@@ -58,55 +59,77 @@ def run_mvp_train_linear(config: dict[str, Any]) -> dict[str, Any]:
         device=probe_cfg["device"],
     )
 
-    fit = probe.fit(
-        x_train,
-        y_train,
-        x_val=x_val,
-        y_val=y_val,
-        epochs=probe_cfg["epochs"],
-        lr=probe_cfg["lr"],
-        batch_size=probe_cfg["batch_size"],
-        weight_decay=probe_cfg["weight_decay"],
-        seed=int(config.get("seed", 42)),
-    )
-
     output_dir = _resolve_train_output_dir(config)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    checkpoint_path = output_dir / "linear_probe.pt"
-    metadata = {
-        "feature_signature": str(manifest.get("signature", "")),
-        "feature_cache_dir": str(bundle["paths"].cache_dir),
-        "feature_view": probe_cfg["feature_view"],
-        "layer": probe_cfg["layer"],
-        "target_type": "semantic_plausibility",
-        "positive_label": 1,
-        "negative_label": 0,
-        "seed": int(config.get("seed", 42)),
-    }
-    probe.save(checkpoint_path, metadata=metadata)
-
-    train_summary = {
-        "checkpoint": str(checkpoint_path),
-        "output_dir": str(output_dir),
-        "feature_signature": str(manifest.get("signature", "")),
-        "fit": {
-            "train_loss": fit.train_loss,
-            "val_loss": fit.val_loss,
-            "n_epochs": fit.n_epochs,
-            "history": fit.history,
+    logger = init_wandb_train_logger(
+        config,
+        benchmark="mvp",
+        output_dir=output_dir,
+        metadata={
+            "feature_signature": str(manifest.get("signature", "")),
+            "feature_view": probe_cfg["feature_view"],
+            "layer": probe_cfg["layer"],
+            "target_type": "semantic_plausibility",
         },
-        "n_train": int(train_mask.sum()),
-        "n_val": int(val_mask.sum()),
-        "input_dim": input_dim,
-    }
-
-    (output_dir / "train_summary.json").write_text(
-        json.dumps(train_summary, indent=2, sort_keys=True),
-        encoding="utf-8",
     )
 
-    return train_summary
+    train_summary: dict[str, Any] | None = None
+    try:
+        fit = probe.fit(
+            x_train,
+            y_train,
+            x_val=x_val,
+            y_val=y_val,
+            epochs=probe_cfg["epochs"],
+            lr=probe_cfg["lr"],
+            batch_size=probe_cfg["batch_size"],
+            weight_decay=probe_cfg["weight_decay"],
+            seed=int(config.get("seed", 42)),
+            epoch_logger=None if logger is None else logger.log_epoch,
+        )
+        checkpoint_path = output_dir / "linear_probe.pt"
+        metadata = {
+            "feature_signature": str(manifest.get("signature", "")),
+            "feature_cache_dir": str(bundle["paths"].cache_dir),
+            "feature_view": probe_cfg["feature_view"],
+            "layer": probe_cfg["layer"],
+            "target_type": "semantic_plausibility",
+            "positive_label": 1,
+            "negative_label": 0,
+            "seed": int(config.get("seed", 42)),
+        }
+        probe.save(checkpoint_path, metadata=metadata)
+
+        train_summary = {
+            "checkpoint": str(checkpoint_path),
+            "output_dir": str(output_dir),
+            "feature_signature": str(manifest.get("signature", "")),
+            "fit": {
+                "train_loss": fit.train_loss,
+                "train_accuracy": fit.train_accuracy,
+                "val_loss": fit.val_loss,
+                "val_accuracy": fit.val_accuracy,
+                "n_epochs": fit.n_epochs,
+                "history": fit.history,
+            },
+            "n_train": int(train_mask.sum()),
+            "n_val": int(val_mask.sum()),
+            "input_dim": input_dim,
+        }
+
+        (output_dir / "train_summary.json").write_text(
+            json.dumps(train_summary, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        return train_summary
+    finally:
+        if logger is not None:
+            try:
+                if train_summary is not None:
+                    logger.log_summary(train_summary)
+            finally:
+                logger.finish()
 
 
 def run_mvp_eval_linear(config: dict[str, Any]) -> dict[str, Any]:

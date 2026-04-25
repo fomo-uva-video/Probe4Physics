@@ -20,6 +20,7 @@ class _CapturingProbe:
         self.x_val: torch.Tensor | None = None
         self.y_val: torch.Tensor | None = None
         self.saved_metadata: dict[str, object] | None = None
+        self.logged_epochs: list[dict[str, float]] = []
 
     def fit(
         self,
@@ -33,12 +34,24 @@ class _CapturingProbe:
         batch_size: int = 128,
         weight_decay: float = 0.0,
         seed: int = 42,
+        epoch_logger=None,
     ) -> ProbeFitResult:
         del epochs, lr, batch_size, weight_decay, seed
         self.x_train = x_train.clone()
         self.y_train = y_train.clone()
         self.x_val = None if x_val is None else x_val.clone()
         self.y_val = None if y_val is None else y_val.clone()
+        if epoch_logger is not None:
+            row = {
+                "epoch": 1.0,
+                "train_loss": 0.1,
+                "train_accuracy": 100.0,
+            }
+            if y_val is not None:
+                row["val_loss"] = 0.2
+                row["val_accuracy"] = 100.0
+            self.logged_epochs.append(dict(row))
+            epoch_logger(row)
         return ProbeFitResult(
             train_loss=0.1,
             train_accuracy=100.0,
@@ -158,6 +171,38 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
         with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
             with self.assertRaisesRegex(LinearProbeConfigError, "Re-run `python run.py extract.mvp`"):
                 run_mvp_train_linear(config)
+
+    def test_train_logs_to_wandb_when_enabled(self) -> None:
+        fake_probe = _CapturingProbe()
+        fake_bundle = self._fake_bundle()
+        fake_logger = mock.Mock()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = {
+                "seed": 13,
+                "linear_probe": {
+                    "feature_view": "pooled",
+                    "layer": "last",
+                    "device": "cpu",
+                    "output_dir": tmp,
+                    "output_subdir": "train_run",
+                    "wandb": {
+                        "enabled": True,
+                        "project": "probe4physics-test",
+                    },
+                },
+            }
+
+            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
+                with mock.patch("training.mvp_linear.create_probe", return_value=fake_probe):
+                    with mock.patch("training.mvp_linear.init_wandb_train_logger", return_value=fake_logger):
+                        result = run_mvp_train_linear(config)
+
+        fake_logger.log_epoch.assert_called_once()
+        fake_logger.log_summary.assert_called_once_with(result)
+        fake_logger.finish.assert_called_once()
+        self.assertEqual(result["fit"]["train_accuracy"], 100.0)
+        self.assertEqual(result["fit"]["val_accuracy"], 100.0)
 
 
 if __name__ == "__main__":

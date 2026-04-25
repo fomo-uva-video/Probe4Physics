@@ -239,6 +239,9 @@ python run.py extract.mvp backbone.name=ltx_video backbone.kwargs.device=cuda
 # train with token-mean features instead of pooled
 python run.py train.linear.mvp linear_probe.feature_view=tokens_mean
 
+# train and log probe metrics to Weights & Biases
+python run.py train.linear.mvp linear_probe.wandb.enabled=true linear_probe.wandb.project=probe4physics
+
 # evaluate a specific split and checkpoint
 python run.py eval.linear.mvp split_name=val linear_probe.checkpoint_path=/absolute/path/to/linear_probe.pt
 
@@ -269,6 +272,7 @@ sbatch jobs/setup/ltx_smoke.sh
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
 - `linear_probe.*`: probe training/eval settings and output locations
+- `linear_probe.wandb.*`: optional Weights & Biases settings for `train.linear.*`
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.mvp`
 

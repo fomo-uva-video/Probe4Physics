@@ -125,6 +125,19 @@ linear_probe:
   checkpoint_path: "" # optional explicit checkpoint for eval.linear.mvp
   eval_output_dir: artifacts/results
   eval_output_subdir: "" # optional stable subdir for linear eval artifacts
+  wandb:
+    enabled: false
+    project: probe4physics
+    entity: ""
+    name: ""
+    group: ""
+    job_type: probe_train
+    tags: []
+    notes: ""
+    mode: online # online | offline | disabled
+    dir: "" # empty uses the train output_dir
+    resume: null
+    id: ""
 
 experiment:
   name: mvp.jepa_v1.linear
