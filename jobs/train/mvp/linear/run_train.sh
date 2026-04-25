@@ -20,6 +20,8 @@ load_probe4physics_env
 configure_hf_cache
 
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
+BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
+LINEAR_PROBE_EPOCHS="${LINEAR_PROBE_EPOCHS:-100}"
 LINEAR_PROBE_LAYER="${LINEAR_PROBE_LAYER:-last}"
 LINEAR_PROBE_FEATURE_VIEW="${LINEAR_PROBE_FEATURE_VIEW:-pooled}"
 ENABLE_WANDB="${ENABLE_WANDB:-true}"
@@ -34,6 +36,8 @@ python --version
 which python
 echo "REPO_ROOT=${REPO_ROOT}"
 echo "BACKBONE_NAME=${BACKBONE_NAME}"
+echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<config default>}"
+echo "LINEAR_PROBE_EPOCHS=${LINEAR_PROBE_EPOCHS}"
 echo "LINEAR_PROBE_LAYER=${LINEAR_PROBE_LAYER}"
 echo "LINEAR_PROBE_FEATURE_VIEW=${LINEAR_PROBE_FEATURE_VIEW}"
 echo "ENABLE_WANDB=${ENABLE_WANDB}"
@@ -45,14 +49,23 @@ JOB_START_EPOCH="$(date +%s)"
 JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 echo "JOB_START_UTC=${JOB_START_UTC}"
 
-python run.py train.linear.mvp \
-  "backbone.name=${BACKBONE_NAME}" \
-  "linear_probe.layer=${LINEAR_PROBE_LAYER}" \
-  "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}" \
-  "linear_probe.wandb.enabled=${ENABLE_WANDB}" \
-  "linear_probe.wandb.project=${WANDB_PROJECT}" \
-  "linear_probe.wandb.mode=${WANDB_MODE}" \
-  "$@"
+cmd=(
+  python run.py train.linear.mvp
+  "backbone.name=${BACKBONE_NAME}"
+  "linear_probe.epochs=${LINEAR_PROBE_EPOCHS}"
+  "linear_probe.layer=${LINEAR_PROBE_LAYER}"
+  "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}"
+  "linear_probe.wandb.enabled=${ENABLE_WANDB}"
+  "linear_probe.wandb.project=${WANDB_PROJECT}"
+  "linear_probe.wandb.mode=${WANDB_MODE}"
+)
+
+if [[ -n "${BACKBONE_VARIANT}" ]]; then
+  cmd+=("+backbone.kwargs.variant=${BACKBONE_VARIANT}")
+fi
+
+cmd+=("$@")
+"${cmd[@]}"
 
 JOB_END_EPOCH="$(date +%s)"
 JOB_END_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

@@ -15,3 +15,6 @@ CLAUDE.md
 .mcp.json
 .kiro/
 .cursor/
+
+
+/wandb

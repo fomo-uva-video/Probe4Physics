@@ -299,7 +299,7 @@ python run.py train.linear.mvp \
 python run.py eval.linear.mvp \
   split_name=val \
   linear_probe.device=cuda \
-  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/<run_subdir>/linear_probe.pt \
+  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/<run_subdir>/linear_probe_best.pt \
   linear_probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results
 ```
 
@@ -309,7 +309,8 @@ Train outputs:
 
 ```text
 linear_probe.output_dir/<timestamp_or_output_subdir>/
-  linear_probe.pt
+  linear_probe_best.pt
+  linear_probe_last.pt
   train_summary.json
 ```
 
@@ -433,7 +434,7 @@ Cause: eval auto-discovery searches timestamped folders, but your run used a fix
 Fix: pass checkpoint explicitly:
 
 ```bash
-linear_probe.checkpoint_path=/path/to/linear_probe.pt
+linear_probe.checkpoint_path=/path/to/linear_probe_best.pt
 ```
 
 ## 10.4 FutureWarning: `torch.load(... weights_only=False)`
@@ -506,7 +507,7 @@ python run.py eval.linear.mvp \
   split_name=val \
   feature_cache.dir=/scratch-shared/$USER/probe4physics/artifacts/features/mvp \
   feature_cache.split_names=[train,val] \
-  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/my_mvp_run/linear_probe.pt \
+  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/my_mvp_run/linear_probe_best.pt \
   linear_probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results \
   linear_probe.eval_output_subdir=my_mvp_run \
   linear_probe.device=cuda

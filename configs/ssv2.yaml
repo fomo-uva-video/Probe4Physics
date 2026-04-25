@@ -66,7 +66,7 @@ feature_cache:
 linear_probe:
   feature_view: pooled  # pooled | tokens_mean
   layer: last           # last | <int layer id>
-  epochs: 30
+  epochs: 100
   lr: 0.001
   batch_size: 128
   eval_batch_size: 1024

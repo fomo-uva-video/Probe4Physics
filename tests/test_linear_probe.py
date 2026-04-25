@@ -51,6 +51,30 @@ class LinearProbeTests(unittest.TestCase):
         self.assertTrue(all("train_loss" in row for row in seen))
         self.assertTrue(all("train_accuracy" in row for row in seen))
 
+    def test_fit_tracks_best_validation_epoch(self) -> None:
+        probe = LinearProbe(input_dim=4, num_classes=2, device="cpu")
+
+        x = torch.randn(64, 4)
+        y = (x[:, 0] > 0).long()
+
+        fit = probe.fit(
+            x,
+            y,
+            x_val=x,
+            y_val=y,
+            epochs=4,
+            lr=1e-2,
+            batch_size=16,
+            seed=7,
+        )
+
+        self.assertEqual(fit.n_epochs, 4)
+        self.assertIsNotNone(fit.best_epoch)
+        self.assertGreaterEqual(int(fit.best_epoch), 1)
+        self.assertLessEqual(int(fit.best_epoch), 4)
+        self.assertIsNotNone(fit.best_val_accuracy)
+        self.assertIsNotNone(probe.best_fit_state_dict())
+
 
 if __name__ == "__main__":
     unittest.main()

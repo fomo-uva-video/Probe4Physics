@@ -38,12 +38,17 @@ class WandbTrainLogger:
                 "final_val_loss": fit.get("val_loss"),
                 "final_val_accuracy": fit.get("val_accuracy"),
                 "n_epochs": fit.get("n_epochs"),
+                "best_epoch": fit.get("best_epoch"),
+                "best_val_loss": fit.get("best_val_loss"),
+                "best_val_accuracy": fit.get("best_val_accuracy"),
             }
             self.run.summary.update({k: v for k, v in payload.items() if v is not None})
 
         self.run.summary.update(
             {
                 "checkpoint_path": summary.get("checkpoint"),
+                "checkpoint_last_path": summary.get("checkpoint_last"),
+                "checkpoint_best_path": summary.get("checkpoint_best"),
                 "output_dir": summary.get("output_dir"),
                 "feature_signature": summary.get("feature_signature"),
                 "n_train": summary.get("n_train"),

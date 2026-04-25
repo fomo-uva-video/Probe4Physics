@@ -77,7 +77,8 @@ If videos are missing or `videos_root` is invalid, extraction writes warnings to
 Trains the linear probe from cached features (no backbone forward).
 
 Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe.pt`
+- `linear_probe_best.pt`
+- `linear_probe_last.pt`
 - `train_summary.json`
 
 ### Stage 4: `eval.linear.mvp`
@@ -129,7 +130,8 @@ Main outputs mirror the MVP cache layout under `feature_cache.dir`.
 Trains a binary linear probe (impossible=0, possible=1) from cached features.
 
 Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe.pt`
+- `linear_probe_best.pt`
+- `linear_probe_last.pt`
 - `train_summary.json`
 
 ### Stage 4: `eval.linear.intphys2`
@@ -169,7 +171,8 @@ Main outputs mirror the MVP cache layout under `feature_cache.dir`.
 Trains a 174-class linear probe from cached features.
 
 Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe.pt`
+- `linear_probe_best.pt`
+- `linear_probe_last.pt`
 - `train_summary.json`
 
 ### Stage 4: `eval.linear.ssv2`
@@ -243,7 +246,7 @@ python run.py train.linear.mvp linear_probe.feature_view=tokens_mean
 python run.py train.linear.mvp linear_probe.wandb.enabled=true linear_probe.wandb.project=probe4physics
 
 # evaluate a specific split and checkpoint
-python run.py eval.linear.mvp split_name=val linear_probe.checkpoint_path=/absolute/path/to/linear_probe.pt
+python run.py eval.linear.mvp split_name=val linear_probe.checkpoint_path=/absolute/path/to/linear_probe_best.pt
 
 # download only the Debug split of IntPhys2
 python run.py download.intphys2 download.splits=[Debug]

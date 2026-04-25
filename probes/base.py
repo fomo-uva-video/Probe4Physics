@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -19,6 +20,9 @@ class ProbeFitResult:
     val_loss: float | None
     val_accuracy: float | None
     n_epochs: int
+    best_epoch: int | None = None
+    best_val_loss: float | None = None
+    best_val_accuracy: float | None = None
     history: list[dict[str, float]] = field(default_factory=list)
 
 
@@ -66,6 +70,10 @@ class BaseClassifierProbe(ABC):
 
         self.model = self._build_model()
         self.model.to(self.device)
+        self._last_fit_best_state_dict: dict[str, Any] | None = None
+        self._last_fit_best_epoch: int | None = None
+        self._last_fit_best_val_loss: float | None = None
+        self._last_fit_best_val_accuracy: float | None = None
 
     @abstractmethod
     def _build_model(self) -> nn.Module:
@@ -138,6 +146,10 @@ class BaseClassifierProbe(ABC):
         history: list[dict[str, float]] = []
         final_train_loss = 0.0
         final_train_accuracy = 0.0
+        best_epoch: int | None = None
+        best_val_loss: float | None = None
+        best_val_accuracy: float | None = None
+        best_state_dict: dict[str, Any] | None = None
 
         for epoch_idx in range(int(epochs)):
             self.model.train()
@@ -174,10 +186,34 @@ class BaseClassifierProbe(ABC):
                 val_loss, val_accuracy = self._compute_loss_accuracy(x_val, y_val, criterion)
                 row["val_loss"] = float(val_loss)
                 row["val_accuracy"] = float(val_accuracy)
+                if (
+                    best_val_accuracy is None
+                    or float(val_accuracy) > float(best_val_accuracy)
+                    or (
+                        float(val_accuracy) == float(best_val_accuracy)
+                        and (
+                            best_val_loss is None
+                            or float(val_loss) < float(best_val_loss)
+                        )
+                    )
+                ):
+                    best_epoch = int(epoch_idx + 1)
+                    best_val_loss = float(val_loss)
+                    best_val_accuracy = float(val_accuracy)
+                    best_state_dict = copy.deepcopy(self.model.state_dict())
 
             history.append(row)
             if epoch_logger is not None:
                 epoch_logger(dict(row))
+
+        if best_state_dict is None:
+            best_epoch = int(epochs)
+            best_state_dict = copy.deepcopy(self.model.state_dict())
+
+        self._last_fit_best_state_dict = best_state_dict
+        self._last_fit_best_epoch = best_epoch
+        self._last_fit_best_val_loss = best_val_loss
+        self._last_fit_best_val_accuracy = best_val_accuracy
 
         return ProbeFitResult(
             train_loss=float(final_train_loss),
@@ -185,6 +221,9 @@ class BaseClassifierProbe(ABC):
             val_loss=history[-1].get("val_loss") if history else None,
             val_accuracy=history[-1].get("val_accuracy") if history else None,
             n_epochs=int(epochs),
+            best_epoch=best_epoch,
+            best_val_loss=best_val_loss,
+            best_val_accuracy=best_val_accuracy,
             history=history,
         )
 
@@ -238,3 +277,8 @@ class BaseClassifierProbe(ABC):
             "num_classes": self.num_classes,
             **self._checkpoint_extra_fields(),
         }
+
+    def best_fit_state_dict(self) -> dict[str, Any] | None:
+        if self._last_fit_best_state_dict is None:
+            return None
+        return copy.deepcopy(self._last_fit_best_state_dict)

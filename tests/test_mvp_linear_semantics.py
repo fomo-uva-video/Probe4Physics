@@ -144,6 +144,11 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
                 with mock.patch("training.mvp_linear.create_probe", return_value=fake_probe):
                     result = run_mvp_train_linear(config)
 
+            self.assertTrue(Path(result["checkpoint"]).exists())
+            self.assertTrue(Path(result["checkpoint_last"]).exists())
+            self.assertTrue(Path(result["checkpoint_best"]).exists())
+            self.assertFalse((Path(tmp) / "train_run" / "linear_probe.pt").exists())
+
         self.assertEqual(result["n_train"], 2)
         self.assertEqual(result["n_val"], 1)
         self.assertEqual(fake_probe.y_train.tolist(), [1, 1])

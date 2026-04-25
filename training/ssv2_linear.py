@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import time
 from datetime import datetime, timezone
@@ -11,6 +12,7 @@ import torch
 from benchmarks.ssv2.data import SSV2_NUM_CLASSES
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import load_feature_cache_for_config
+from models.cache_metadata import resolve_backbone_cache_metadata
 from probes import LinearProbe, create_probe
 from training.wandb_utils import init_wandb_train_logger
 
@@ -90,7 +92,8 @@ def run_ssv2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
             seed=int(config.get("seed", 42)),
             epoch_logger=None if logger is None else logger.log_epoch,
         )
-        checkpoint_path = output_dir / "linear_probe.pt"
+        checkpoint_last_path = output_dir / "linear_probe_last.pt"
+        checkpoint_best_path = output_dir / "linear_probe_best.pt"
         metadata = {
             "feature_signature": str(manifest.get("signature", "")),
             "feature_cache_dir": str(bundle["paths"].cache_dir),
@@ -99,11 +102,33 @@ def run_ssv2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
             "seed": int(config.get("seed", 42)),
             "benchmark": "ssv2",
             "n_classes": n_classes,
+            "checkpoint_kind": "last",
         }
-        probe.save(checkpoint_path, metadata=metadata)
+        probe.save(checkpoint_last_path, metadata=metadata)
+
+        best_metadata = dict(metadata)
+        best_metadata["checkpoint_kind"] = "best"
+        if fit.best_epoch is not None:
+            best_metadata["best_epoch"] = int(fit.best_epoch)
+        if fit.best_val_accuracy is not None:
+            best_metadata["best_val_accuracy"] = float(fit.best_val_accuracy)
+        if fit.best_val_loss is not None:
+            best_metadata["best_val_loss"] = float(fit.best_val_loss)
+
+        best_state_dict = getattr(probe, "best_fit_state_dict", None)
+        best_state = best_state_dict() if callable(best_state_dict) else None
+        if best_state is not None and hasattr(probe, "model"):
+            last_state = copy.deepcopy(probe.model.state_dict())
+            probe.model.load_state_dict(best_state)
+            probe.save(checkpoint_best_path, metadata=best_metadata)
+            probe.model.load_state_dict(last_state)
+        else:
+            probe.save(checkpoint_best_path, metadata=best_metadata)
 
         train_summary = {
-            "checkpoint": str(checkpoint_path),
+            "checkpoint": str(checkpoint_best_path),
+            "checkpoint_last": str(checkpoint_last_path),
+            "checkpoint_best": str(checkpoint_best_path),
             "output_dir": str(output_dir),
             "feature_signature": str(manifest.get("signature", "")),
             "fit": {
@@ -112,6 +137,9 @@ def run_ssv2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
                 "val_loss": fit.val_loss,
                 "val_accuracy": fit.val_accuracy,
                 "n_epochs": fit.n_epochs,
+                "best_epoch": fit.best_epoch,
+                "best_val_loss": fit.best_val_loss,
+                "best_val_accuracy": fit.best_val_accuracy,
                 "history": fit.history,
             },
             "n_train": int(train_mask.sum()),
@@ -314,7 +342,7 @@ def _resolve_train_output_dir(config: dict[str, Any]) -> Path:
         return root / subdir
 
     timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    return root / f"linear_train_{timestamp}"
+    return root / f"ssv2_linear_{_backbone_run_label(config)}_{timestamp}"
 
 
 def _resolve_eval_output_dir(config: dict[str, Any]) -> Path:
@@ -338,10 +366,31 @@ def _resolve_checkpoint_path(config: dict[str, Any]) -> Path:
         return path
 
     train_root = Path(str(raw.get("output_dir", "artifacts/probes/ssv2")))
-    candidates = sorted(train_root.glob("linear_train_*/linear_probe.pt"))
+    patterns = (
+        "*/linear_probe_best.pt",
+        "*/linear_probe_last.pt",
+    )
+    candidates: list[Path] = []
+    for pattern in patterns:
+        candidates = sorted(train_root.glob(pattern))
+        if candidates:
+            break
     if not candidates:
         raise FileNotFoundError(
             "No linear checkpoint found automatically. "
             "Set linear_probe.checkpoint_path explicitly or run train.linear.ssv2 first."
         )
     return candidates[-1]
+
+
+def _backbone_run_label(config: dict[str, Any]) -> str:
+    raw = config.get("backbone", {})
+    if not isinstance(raw, dict):
+        return "backbone"
+    name = str(raw.get("name", "backbone")).strip() or "backbone"
+    kwargs = raw.get("kwargs", {})
+    if not isinstance(kwargs, dict):
+        kwargs = {}
+    metadata = resolve_backbone_cache_metadata(name, kwargs)
+    variant = str(metadata.get("variant") or kwargs.get("variant", "")).strip()
+    return f"{name}_{variant}" if variant else name

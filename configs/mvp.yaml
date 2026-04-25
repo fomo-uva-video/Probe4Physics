@@ -104,7 +104,7 @@ feature_cache:
   max_samples: 0 # 0 means unlimited; smoke jobs override this to 2
   layer_ids: [] # empty uses adapter defaults (e.g., 25/50/75/100% depths)
   include_pooled: true
-  include_tokens: true
+  include_tokens: false
   force_reextract: false
   resume_enabled: true
   resume_strict: true
@@ -114,7 +114,7 @@ feature_cache:
 linear_probe:
   feature_view: pooled # pooled | tokens_mean
   layer: last # last | <int layer id>
-  epochs: 30
+  epochs: 100
   lr: 0.001
   batch_size: 128
   eval_batch_size: 1024
