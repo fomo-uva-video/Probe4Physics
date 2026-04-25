@@ -627,10 +627,18 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
     paths = resolve_expected_feature_cache_paths(config)
     feature_cfg = _feature_cfg(config)
     if not _is_valid_cache(paths):
-        raise FeatureCacheError(
-            "Feature cache is missing or invalid for current config. "
-            "Run `python run.py extract.mvp` first."
+        compatible = _find_compatible_feature_cache(config, exact_paths=paths, feature_cfg=feature_cfg)
+        if compatible is None:
+            raise FeatureCacheError(
+                "Feature cache is missing or invalid for current config. "
+                "Run `python run.py extract.mvp` first."
+            )
+        print(
+            "[features.mvp] using compatible legacy cache: "
+            f"expected_signature={paths.signature} actual_signature={compatible.signature} "
+            f"cache_dir={compatible.cache_dir}"
         )
+        paths = compatible
 
     manifest = _load_json(paths.manifest_path)
     requested_samples = int(feature_cfg["max_samples"])
@@ -665,6 +673,189 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
         "pooled": pooled_payload,
         "tokens": tokens_payload,
     }
+
+
+def _find_compatible_feature_cache(
+    config: dict[str, Any],
+    *,
+    exact_paths: FeatureCachePaths,
+    feature_cfg: dict[str, Any],
+) -> FeatureCachePaths | None:
+    split_dir = _resolve_split_dir(config)
+    split_manifest_path = split_dir / "manifest.json"
+    if not split_manifest_path.exists():
+        return None
+
+    try:
+        split_manifest = _load_json(split_manifest_path)
+    except Exception:
+        return None
+
+    backbone_name, backbone_kwargs = _backbone_cfg(config)
+    backbone_metadata = resolve_backbone_cache_metadata(backbone_name, backbone_kwargs)
+    variant = str(backbone_metadata.get("variant") or backbone_kwargs.get("variant", "")).strip()
+    backbone_id = f"{backbone_name}_{variant}" if variant else str(backbone_name)
+    split_key = "-".join(feature_cfg["split_names"])
+    root = Path(feature_cfg["dir"]).expanduser().resolve() / backbone_id / split_key
+    if not root.exists():
+        return None
+
+    expected_layers = (
+        [int(v) for v in feature_cfg["layer_ids"]]
+        if feature_cfg["layer_ids"]
+        else [int(v) for v in backbone_metadata.get("selected_layers", [])]
+    )
+    decode_cfg = _signature_decode_cfg(config, backbone_metadata)
+
+    matches: list[tuple[float, FeatureCachePaths]] = []
+    for manifest_path in root.glob("*/manifest.json"):
+        cache_dir = manifest_path.parent
+        if cache_dir == exact_paths.cache_dir:
+            continue
+        candidate = _feature_cache_paths(cache_dir)
+        if not _is_valid_cache(candidate):
+            continue
+        try:
+            manifest = _load_json(candidate.manifest_path)
+        except Exception:
+            continue
+        if not _manifest_matches_compatible_request(
+            manifest,
+            split_manifest=split_manifest,
+            feature_cfg=feature_cfg,
+            backbone_name=backbone_name,
+            expected_variant=variant,
+            expected_layers=expected_layers,
+            decode_cfg=decode_cfg,
+        ):
+            continue
+        if not _index_matches_current_mvp_semantics(
+            config,
+            paths=candidate,
+            feature_cfg=feature_cfg,
+        ):
+            continue
+        matches.append((manifest_path.stat().st_mtime, candidate))
+
+    if not matches:
+        return None
+    matches.sort(key=lambda item: item[0])
+    return matches[-1][1]
+
+
+def _manifest_matches_compatible_request(
+    manifest: dict[str, Any],
+    *,
+    split_manifest: dict[str, Any],
+    feature_cfg: dict[str, Any],
+    backbone_name: str,
+    expected_variant: str,
+    expected_layers: list[int],
+    decode_cfg: dict[str, Any],
+) -> bool:
+    if str(manifest.get("kind", "")) != "mvp_feature_cache":
+        return False
+
+    targets = manifest.get("targets", {})
+    if str(targets.get("type", "")) != "semantic_plausibility":
+        return False
+
+    split = manifest.get("split", {})
+    if [str(item) for item in split.get("names", [])] != [str(item) for item in feature_cfg["split_names"]]:
+        return False
+
+    expected_annotation_sha = str(split_manifest.get("annotation_sha256", ""))
+    manifest_annotation_sha = str(
+        split.get("manifest_annotation_sha256", "")
+        or manifest.get("annotation", {}).get("sha256", "")
+    )
+    if expected_annotation_sha and manifest_annotation_sha != expected_annotation_sha:
+        return False
+
+    backbone = manifest.get("backbone", {})
+    if str(backbone.get("name", "")) != backbone_name:
+        return False
+    metadata = backbone.get("metadata", {})
+    if str(metadata.get("variant", "")).strip() != expected_variant:
+        return False
+
+    features = manifest.get("features", {})
+    if bool(features.get("include_pooled", False)) != bool(feature_cfg["include_pooled"]):
+        return False
+    if bool(features.get("include_tokens", False)) != bool(feature_cfg["include_tokens"]):
+        return False
+    if [int(v) for v in features.get("selected_layers", [])] != expected_layers:
+        return False
+
+    manifest_decode = manifest.get("decode", {})
+    return {
+        "num_frames": int(manifest_decode.get("num_frames", -1)),
+        "sampling": str(manifest_decode.get("sampling", "")),
+        "crop_size": int(manifest_decode.get("crop_size", -1)),
+    } == {
+        "num_frames": int(decode_cfg["num_frames"]),
+        "sampling": str(decode_cfg["sampling"]),
+        "crop_size": int(decode_cfg["crop_size"]),
+    }
+
+
+def _index_matches_current_mvp_semantics(
+    config: dict[str, Any],
+    *,
+    paths: FeatureCachePaths,
+    feature_cfg: dict[str, Any],
+) -> bool:
+    try:
+        split_dir = _resolve_split_dir(config)
+        split_rows = _load_split_pairs(split_dir / "split_pairs.parquet")
+        index = _load_index(paths.index_path).sort_values("feature_index").reset_index(drop=True)
+        current_records = _ordered_sample_records(
+            config,
+            str(config.get("annotation_file", "")),
+            split_rows,
+            feature_cfg["split_names"],
+            warning_log_path=_resolve_warning_log_path(config),
+        )
+    except Exception:
+        return False
+
+    current_records = _limit_ordered_records(current_records, len(index))
+    if len(current_records) != len(index):
+        return False
+
+    columns = (
+        "sample_id",
+        "pair_id",
+        "split",
+        "answer_idx",
+        "plausibility_label",
+        "yes_choice_idx",
+        "no_choice_idx",
+        "video_ref",
+    )
+    for column in columns:
+        if column not in index.columns:
+            return False
+        expected = [_compat_value(row[column]) for row in current_records]
+        cached = [_compat_value(value) for value in index[column].tolist()]
+        if expected != cached:
+            return False
+    return True
+
+
+def _compat_value(value: Any) -> str:
+    return str(value)
+
+
+def _feature_cache_paths(cache_dir: Path) -> FeatureCachePaths:
+    return FeatureCachePaths(
+        cache_dir=cache_dir,
+        manifest_path=cache_dir / "manifest.json",
+        index_path=cache_dir / "index.parquet",
+        pooled_path=cache_dir / "features_pooled.pt",
+        tokens_path=cache_dir / "features_tokens.pt",
+        signature=cache_dir.name,
+    )
 
 
 def _validate_extract_config(config: dict[str, Any]) -> None:

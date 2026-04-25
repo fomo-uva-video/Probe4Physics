@@ -669,7 +669,11 @@ def has_valid_feature_cache(config: dict[str, Any]) -> bool:
         return False
 
 
-def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
+def load_feature_cache_for_config(
+    config: dict[str, Any],
+    *,
+    feature_view: str | None = None,
+) -> dict[str, Any]:
     paths = resolve_expected_feature_cache_paths(config)
     feature_cfg = _feature_cfg(config)
     if not _is_valid_cache(paths):
@@ -692,9 +696,13 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
     pooled_payload: dict[str, Any] | None = None
     tokens_payload: dict[str, Any] | None = None
 
-    if str(manifest.get("files", {}).get("pooled", "")):
+    view = str(feature_view or "").strip().lower()
+    load_pooled = view in {"", "pooled"}
+    load_tokens = view in {"", "tokens_mean", "tokens"}
+
+    if load_pooled and str(manifest.get("files", {}).get("pooled", "")):
         pooled_payload = torch.load(str(paths.pooled_path), map_location="cpu", weights_only=False)
-    if str(manifest.get("files", {}).get("tokens", "")):
+    if load_tokens and str(manifest.get("files", {}).get("tokens", "")):
         tokens_payload = torch.load(str(paths.tokens_path), map_location="cpu", weights_only=False)
 
     _validate_loaded_feature_payloads(

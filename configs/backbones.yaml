@@ -192,6 +192,15 @@ ltx_video:
       patch_size: 4
       patch_size_t: 1
       torch_dtype: float32
+    ltxv_13b_0_9_8_dev:
+      hf_model_id: Lightricks/LTX-Video
+      model_name: ltx_vae_5
+      vae_subfolder: vae
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 4
+      patch_size_t: 1
+      torch_dtype: float32
     ltx_2b_0_9_8_distilled:
       hf_model_id: Lightricks/LTX-Video-0.9.8-distilled
       model_name: ltx_vae_5

@@ -3,7 +3,7 @@
 #
 # Expected launch style:
 #   sbatch jepa_v1.sh
-#   sbatch jepa_v2.sh linear_probe.device=cuda
+#   sbatch jepa_v2.sh linear_probe.epochs=200
 
 set -euo pipefail
 
@@ -22,6 +22,7 @@ configure_hf_cache
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 LINEAR_PROBE_EPOCHS="${LINEAR_PROBE_EPOCHS:-100}"
+LINEAR_PROBE_DEVICE="${LINEAR_PROBE_DEVICE:-cpu}"
 LINEAR_PROBE_LAYER="${LINEAR_PROBE_LAYER:-last}"
 LINEAR_PROBE_FEATURE_VIEW="${LINEAR_PROBE_FEATURE_VIEW:-pooled}"
 ENABLE_WANDB="${ENABLE_WANDB:-true}"
@@ -38,6 +39,7 @@ echo "REPO_ROOT=${REPO_ROOT}"
 echo "BACKBONE_NAME=${BACKBONE_NAME}"
 echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<config default>}"
 echo "LINEAR_PROBE_EPOCHS=${LINEAR_PROBE_EPOCHS}"
+echo "LINEAR_PROBE_DEVICE=${LINEAR_PROBE_DEVICE}"
 echo "LINEAR_PROBE_LAYER=${LINEAR_PROBE_LAYER}"
 echo "LINEAR_PROBE_FEATURE_VIEW=${LINEAR_PROBE_FEATURE_VIEW}"
 echo "ENABLE_WANDB=${ENABLE_WANDB}"
@@ -53,6 +55,7 @@ cmd=(
   python run.py train.linear.mvp
   "backbone.name=${BACKBONE_NAME}"
   "linear_probe.epochs=${LINEAR_PROBE_EPOCHS}"
+  "linear_probe.device=${LINEAR_PROBE_DEVICE}"
   "linear_probe.layer=${LINEAR_PROBE_LAYER}"
   "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}"
   "linear_probe.wandb.enabled=${ENABLE_WANDB}"

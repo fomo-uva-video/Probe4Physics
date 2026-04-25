@@ -3,7 +3,7 @@
 #
 # Expected launch style:
 #   sbatch jepa_v1.sh
-#   sbatch jepa_v2.sh linear_probe.device=cuda
+#   sbatch jepa_v2.sh linear_probe.device=cpu
 
 set -euo pipefail
 
@@ -24,9 +24,14 @@ BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 LINEAR_PROBE_EPOCHS="${LINEAR_PROBE_EPOCHS:-100}"
 LINEAR_PROBE_LAYER="${LINEAR_PROBE_LAYER:-last}"
 LINEAR_PROBE_FEATURE_VIEW="${LINEAR_PROBE_FEATURE_VIEW:-pooled}"
+LINEAR_PROBE_DEVICE="${LINEAR_PROBE_DEVICE:-cpu}"
 ENABLE_WANDB="${ENABLE_WANDB:-true}"
 WANDB_PROJECT="${WANDB_PROJECT:-probe4physics}"
 WANDB_MODE="${WANDB_MODE:-online}"
+
+if [[ "${LINEAR_PROBE_DEVICE}" == "cpu" ]]; then
+  export CUDA_VISIBLE_DEVICES=""
+fi
 
 echo "===== TRAIN PROVENANCE ====="
 date -u
@@ -40,6 +45,7 @@ echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<config default>}"
 echo "LINEAR_PROBE_EPOCHS=${LINEAR_PROBE_EPOCHS}"
 echo "LINEAR_PROBE_LAYER=${LINEAR_PROBE_LAYER}"
 echo "LINEAR_PROBE_FEATURE_VIEW=${LINEAR_PROBE_FEATURE_VIEW}"
+echo "LINEAR_PROBE_DEVICE=${LINEAR_PROBE_DEVICE}"
 echo "ENABLE_WANDB=${ENABLE_WANDB}"
 echo "WANDB_PROJECT=${WANDB_PROJECT}"
 echo "WANDB_MODE=${WANDB_MODE}"
@@ -55,6 +61,7 @@ cmd=(
   "linear_probe.epochs=${LINEAR_PROBE_EPOCHS}"
   "linear_probe.layer=${LINEAR_PROBE_LAYER}"
   "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}"
+  "linear_probe.device=${LINEAR_PROBE_DEVICE}"
   "linear_probe.wandb.enabled=${ENABLE_WANDB}"
   "linear_probe.wandb.project=${WANDB_PROJECT}"
   "linear_probe.wandb.mode=${WANDB_MODE}"

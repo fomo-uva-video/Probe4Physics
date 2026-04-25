@@ -42,12 +42,11 @@ def _require_fresh_split_index(index) -> None:
 
 def run_intphys2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
     wall_start = time.perf_counter()
-    bundle = load_feature_cache_for_config(config)
+    probe_cfg = _linear_cfg(config)
+    bundle = load_feature_cache_for_config(config, feature_view=probe_cfg["feature_view"])
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
     _require_fresh_split_index(index)
-
-    probe_cfg = _linear_cfg(config)
     features = _select_feature_tensor(bundle, probe_cfg)
     labels = torch.tensor(index["plausibility"].tolist(), dtype=torch.long)
 
@@ -187,12 +186,11 @@ def run_intphys2_train_linear(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_intphys2_eval_linear(config: dict[str, Any]) -> dict[str, Any]:
-    bundle = load_feature_cache_for_config(config)
+    probe_cfg = _linear_cfg(config)
+    bundle = load_feature_cache_for_config(config, feature_view=probe_cfg["feature_view"])
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
     _require_fresh_split_index(index)
-
-    probe_cfg = _linear_cfg(config)
     split_name = str(config.get("split_name", "val"))
 
     checkpoint_path = _resolve_checkpoint_path(config)
