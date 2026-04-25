@@ -1,0 +1,19 @@
+=== START jepa_v2_1 FULL | Fri 24 Apr 02:43:20 CEST 2026 ===
+/home/v25/ippa6201/.venv/lib/python3.10/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/usr/lib/python3.10/contextlib.py:103: FutureWarning: `torch.backends.cuda.sdp_kernel()` is deprecated. In the future, this context manager will be removed. Please see `torch.nn.attention.sdpa_kernel()` for the new context manager, with updated signature.
+  self.gen = func(*args, **kwds)
+{
+  "feature_cache_dir": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/jepa_v2_1_vitG_384/train-val-test/5c7753635ab2bb76",
+  "n_samples": 1012,
+  "selected_layers": [
+    12,
+    24,
+    38,
+    48
+  ],
+  "signature": "5c7753635ab2bb76",
+  "skipped": false,
+  "warning_log": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/extract_warnings.log"
+}
+=== DONE jepa_v2_1 exit=0 | Fri 24 Apr 03:46:41 CEST 2026 ===
