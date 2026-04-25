@@ -6,6 +6,30 @@ synthetic_forward: false
 device: cpu
 strict_exit: false
 
+features:
+  # CPU-only cache validation. These are the feature roots used by
+  # train.linear.mvp and train.linear.intphys2 unless overridden on the CLI.
+  datasets:
+    mvp:
+      dir: /scratch-shared/scur0511/probe4physics/artifacts/features/mvp
+      config: mvp
+      required: true
+    intphys2:
+      dir: /scratch-shared/scur0511/probe4physics/artifacts/features/intphys2
+      config: intphys2
+      required: true
+  expected_backbones:
+    - jepa_v1
+    - jepa_v2
+    - jepa_v2_1
+    - videomae
+    - videomae_v2
+    - ltx_video
+  require_all_backbones: true
+  check_tensors: true
+  check_video_paths: false
+  allow_full_tensor_load: false
+
 hydra:
   run:
     dir: .

@@ -21,7 +21,7 @@ from benchmarks.mvp.init import run_mvp_init
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_cache
 from benchmarks.ssv2.init import run_ssv2_init
-from experiments.health import run_health, run_health_layers
+from experiments.health import run_health, run_health_features, run_health_layers
 from experiments.registry import get_experiment, list_experiments
 from training.intphys2_extract import run_intphys2_extract
 from training.intphys2_linear import run_intphys2_eval_linear, run_intphys2_train_linear
@@ -262,6 +262,11 @@ COMMANDS = {
         handler=run_health_layers,
         description="Validate layer-selection wiring for each backbone variant and benchmark requests.",
     ),
+    "health.features": CommandSpec(
+        config_name="health",
+        handler=run_health_features,
+        description="Validate cached feature manifests, indexes, tensors, splits, and video coverage.",
+    ),
     # --- Experiments ---
     "exp.list": CommandSpec(
         config_name="mvp",
@@ -324,9 +329,11 @@ def _print_help() -> None:
         "Health command:",
         "  python run.py health",
         "  python run.py health.layers",
+        "  python run.py health.features",
         "  python run.py health synthetic_forward=true",
         "  python run.py health strict_exit=true",
         "  python run.py health.layers strict_exit=true",
+        "  python run.py health.features strict_exit=true",
         "",
         "Experiment recipes:",
         "  python run.py exp.list",

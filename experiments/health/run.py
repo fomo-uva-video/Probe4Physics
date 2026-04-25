@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -14,7 +15,7 @@ from benchmarks.mvp.selection import derive_sample_id, derive_video_ref
 from benchmarks.ssv2.data import load_ssv2_annotations
 from models.jepa_v1_adapter import resolve_relative_depth_layers as resolve_jepa_v1_relative_depth_layers
 from models.jepa_v2_adapter import resolve_relative_depth_layers as resolve_jepa_v2_relative_depth_layers
-from models.jepa_v2_1_adapter import _hierarchical_selected_layers
+from models.jepa_v2_1_adapter import resolve_relative_depth_layers as resolve_jepa_v2_1_relative_depth_layers
 from models.ltx_video_adapter import resolve_relative_depth_layers as resolve_ltx_relative_depth_layers
 from models import get_registered_adapters
 from models.videomae_adapter import resolve_relative_depth_layers as resolve_videomae_relative_depth_layers
@@ -191,6 +192,648 @@ def run_health_layers(config: dict[str, Any]) -> dict[str, Any]:
     return report
 
 
+def run_health_features(config: dict[str, Any]) -> dict[str, Any]:
+    """Validate cached feature artifacts without instantiating backbones.
+
+    The check intentionally stays CPU- and filesystem-only. It scans configured
+    feature roots, reads each cache manifest and index, and memory-maps tensor
+    payloads when supported so shape checks do not require GPU or model loads.
+    """
+
+    strict_exit = bool(config.get("strict_exit", False))
+    raw_feature_cfg = config.get("features", {})
+    feature_cfg = raw_feature_cfg if isinstance(raw_feature_cfg, dict) else {}
+    check_tensors = bool(feature_cfg.get("check_tensors", True))
+    check_video_paths = bool(feature_cfg.get("check_video_paths", False))
+    allow_full_tensor_load = bool(feature_cfg.get("allow_full_tensor_load", False))
+    require_all_backbones = bool(feature_cfg.get("require_all_backbones", True))
+    expected_backbones = _feature_expected_backbones(feature_cfg)
+
+    datasets = [
+        _check_feature_dataset(
+            spec,
+            expected_backbones=expected_backbones,
+            require_all_backbones=require_all_backbones,
+            check_tensors=check_tensors,
+            check_video_paths=check_video_paths,
+            allow_full_tensor_load=allow_full_tensor_load,
+        )
+        for spec in _feature_dataset_specs(feature_cfg)
+    ]
+
+    checks: list[dict[str, Any]] = []
+    cache_count = 0
+    found_backbones: set[str] = set()
+    for dataset in datasets:
+        checks.extend(dataset.get("checks", []))
+        for cache in dataset.get("caches", []):
+            cache_count += 1
+            checks.extend(cache.get("checks", []))
+            backbone = str(cache.get("backbone", "")).strip()
+            if backbone:
+                found_backbones.add(backbone)
+
+    total = len(checks)
+    passed = sum(1 for check in checks if check.get("status") == "pass")
+    failed = total - passed
+    ok = failed == 0
+
+    report = {
+        "ok": ok,
+        "exit_code": 0 if ok or not strict_exit else 1,
+        "summary": {
+            "total_checks": total,
+            "passed": passed,
+            "failed": failed,
+            "datasets": len(datasets),
+            "caches": cache_count,
+            "backbones": len(found_backbones),
+        },
+        "mode": {
+            "strict_exit": strict_exit,
+            "check_tensors": check_tensors,
+            "check_video_paths": check_video_paths,
+            "allow_full_tensor_load": allow_full_tensor_load,
+            "require_all_backbones": require_all_backbones,
+            "expected_backbones": expected_backbones,
+        },
+        "datasets": datasets,
+    }
+    report["human_report"] = _format_feature_human_report(report)
+    return report
+
+
+def _feature_dataset_specs(feature_cfg: dict[str, Any]) -> list[dict[str, Any]]:
+    raw_datasets = feature_cfg.get("datasets")
+    if not isinstance(raw_datasets, dict) or not raw_datasets:
+        raw_datasets = {
+            "mvp": {
+                "dir": "/scratch-shared/scur0511/probe4physics/artifacts/features/mvp",
+                "config": "mvp",
+                "required": True,
+            },
+            "intphys2": {
+                "dir": "/scratch-shared/scur0511/probe4physics/artifacts/features/intphys2",
+                "config": "intphys2",
+                "required": True,
+            },
+        }
+
+    ordered_names = [name for name in ("mvp", "intphys2", "ssv2") if name in raw_datasets]
+    ordered_names.extend(sorted(str(name) for name in raw_datasets if str(name) not in ordered_names))
+
+    specs: list[dict[str, Any]] = []
+    for name in ordered_names:
+        raw_spec = raw_datasets.get(name, {})
+        if isinstance(raw_spec, str):
+            payload: dict[str, Any] = {"dir": raw_spec}
+        elif isinstance(raw_spec, dict):
+            payload = dict(raw_spec)
+        else:
+            payload = {}
+        payload["name"] = str(name)
+        payload["dir"] = str(payload.get("dir", "")).strip()
+        payload["config"] = str(payload.get("config", name)).strip() or str(name)
+        payload["required"] = bool(payload.get("required", True))
+        specs.append(payload)
+    return specs
+
+
+def _feature_expected_backbones(feature_cfg: dict[str, Any]) -> list[str]:
+    raw = feature_cfg.get("expected_backbones", BACKBONE_ORDER)
+    if raw is None or raw == "":
+        return []
+    if not isinstance(raw, list):
+        raw = [raw]
+    expected: list[str] = []
+    for item in raw:
+        name = str(item).strip()
+        if name and name not in expected:
+            expected.append(name)
+    return expected
+
+
+def _check_feature_dataset(
+    spec: dict[str, Any],
+    *,
+    expected_backbones: list[str],
+    require_all_backbones: bool,
+    check_tensors: bool,
+    check_video_paths: bool,
+    allow_full_tensor_load: bool,
+) -> dict[str, Any]:
+    name = str(spec.get("name", "")).strip()
+    root = _as_project_path(str(spec.get("dir", "")))
+    config_name = str(spec.get("config", name)).strip() or name
+    required = bool(spec.get("required", True))
+    checks: list[dict[str, Any]] = []
+    caches: list[dict[str, Any]] = []
+
+    checks.append(_check_result("feature_root_configured", bool(str(spec.get("dir", "")).strip()), str(root)))
+    if root.exists():
+        checks.append(_check_result("feature_root_exists", root.is_dir(), str(root)))
+    else:
+        checks.append(
+            _check_result(
+                "feature_root_exists",
+                not required,
+                f"{root} ({'required' if required else 'optional'})",
+            )
+        )
+
+    dataset_cfg_path = CONFIGS_DIR / (config_name if config_name.endswith(".yaml") else f"{config_name}.yaml")
+    if dataset_cfg_path.exists():
+        try:
+            dataset_cfg = _load_yaml(dataset_cfg_path)
+            declared = str((dataset_cfg.get("feature_cache", {}) or {}).get("dir", "")).strip()
+            declared_root = _as_project_path(declared) if declared else Path("")
+            checks.append(
+                _check_result(
+                    "training_config_points_to_feature_root",
+                    bool(declared) and declared_root == root,
+                    f"{dataset_cfg_path.name}: feature_cache.dir={declared_root if declared else '<missing>'}",
+                )
+            )
+        except Exception as exc:
+            checks.append(_check_result("training_config_points_to_feature_root", False, f"Could not load {dataset_cfg_path}: {exc}"))
+    else:
+        checks.append(_check_result("training_config_points_to_feature_root", False, f"Missing config file: {dataset_cfg_path}"))
+
+    manifest_paths = sorted(root.glob("*/*/*/manifest.json")) if root.is_dir() else []
+    checks.append(_check_result("cache_manifests_found", bool(manifest_paths) or not required, f"count={len(manifest_paths)}"))
+
+    for manifest_path in manifest_paths:
+        caches.append(
+            _check_feature_cache_dir(
+                dataset_name=name,
+                cache_dir=manifest_path.parent,
+                expected_backbones=expected_backbones,
+                check_tensors=check_tensors,
+                check_video_paths=check_video_paths,
+                allow_full_tensor_load=allow_full_tensor_load,
+            )
+        )
+
+    found_backbones = sorted({str(cache.get("backbone", "")) for cache in caches if str(cache.get("backbone", ""))})
+    if require_all_backbones and expected_backbones:
+        missing = [backbone for backbone in expected_backbones if backbone not in found_backbones]
+        checks.append(
+            _check_result(
+                "expected_backbones_present",
+                not missing,
+                f"found={found_backbones}, missing={missing}",
+            )
+        )
+    else:
+        checks.append(
+            _check_result(
+                "expected_backbones_present",
+                True,
+                f"not enforced; found={found_backbones}",
+            )
+        )
+
+    failed = any(check.get("status") == "fail" for check in checks) or any(
+        cache.get("status") == "fail" for cache in caches
+    )
+    return {
+        "kind": "feature_dataset",
+        "name": name,
+        "root": str(root),
+        "status": "fail" if failed else "pass",
+        "checks": checks,
+        "caches": caches,
+        "found_backbones": found_backbones,
+    }
+
+
+def _check_feature_cache_dir(
+    *,
+    dataset_name: str,
+    cache_dir: Path,
+    expected_backbones: list[str],
+    check_tensors: bool,
+    check_video_paths: bool,
+    allow_full_tensor_load: bool,
+) -> dict[str, Any]:
+    checks: list[dict[str, Any]] = []
+    manifest_path = cache_dir / "manifest.json"
+    index_frame: Any | None = None
+    manifest: dict[str, Any] = {}
+    n_rows = 0
+
+    backbone_dir = cache_dir.parents[1].name if len(cache_dir.parents) > 1 else ""
+    split_key = cache_dir.parent.name
+    backbone = _match_feature_backbone(backbone_dir, expected_backbones)
+
+    checks.append(_check_result("manifest_exists", manifest_path.exists(), str(manifest_path)))
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            checks.append(_check_result("manifest_readable", True, "Parsed manifest.json"))
+        except Exception as exc:
+            checks.append(_check_result("manifest_readable", False, f"Failed to parse manifest: {exc}"))
+            manifest = {}
+
+    kind = str(manifest.get("kind", ""))
+    checks.append(
+        _check_result(
+            "manifest_kind_matches_dataset",
+            bool(kind) and dataset_name in kind,
+            f"kind={kind or '<missing>'}",
+        )
+    )
+
+    files = manifest.get("files", {}) if isinstance(manifest.get("files", {}), dict) else {}
+    index_name = str(files.get("index", "index.parquet") or "index.parquet")
+    index_path = cache_dir / index_name
+    checks.append(_check_result("index_exists", index_path.exists(), str(index_path)))
+    if index_path.exists():
+        try:
+            import pandas as pd
+
+            index_frame = pd.read_parquet(index_path)
+            n_rows = int(len(index_frame))
+            checks.append(_check_result("index_readable", True, f"rows={n_rows}"))
+        except Exception as exc:
+            checks.append(_check_result("index_readable", False, f"Failed to read index parquet: {exc}"))
+
+    features_meta = manifest.get("features", {}) if isinstance(manifest.get("features", {}), dict) else {}
+    manifest_samples = _safe_int(features_meta.get("n_samples"), default=-1)
+    if index_frame is not None:
+        checks.extend(
+            _check_feature_index(
+                dataset_name,
+                index_frame,
+                manifest_samples,
+                features_meta,
+                _manifest_split_names(manifest),
+            )
+        )
+        if check_video_paths:
+            checks.append(_check_feature_video_paths(index_frame))
+        else:
+            checks.append(_check_result("video_paths_exist", True, "Skipped by features.check_video_paths=false"))
+
+    if check_tensors:
+        checks.extend(
+            _check_feature_tensor_payloads(
+                cache_dir,
+                files,
+                features_meta,
+                n_rows,
+                allow_full_tensor_load=allow_full_tensor_load,
+            )
+        )
+    else:
+        checks.append(_check_result("tensor_shapes_valid", True, "Skipped by features.check_tensors=false"))
+
+    failed = any(check.get("status") == "fail" for check in checks)
+    return {
+        "dataset": dataset_name,
+        "cache_dir": str(cache_dir),
+        "backbone_dir": backbone_dir,
+        "backbone": backbone,
+        "split_key": split_key,
+        "signature": str(manifest.get("signature", cache_dir.name)),
+        "n_samples": n_rows,
+        "status": "fail" if failed else "pass",
+        "checks": checks,
+    }
+
+
+def _check_feature_index(
+    dataset_name: str,
+    index_frame: Any,
+    manifest_samples: int,
+    features_meta: dict[str, Any],
+    manifest_splits: list[str],
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    n_rows = int(len(index_frame))
+    checks.append(_check_result("index_nonempty", n_rows > 0, f"rows={n_rows}"))
+    if manifest_samples >= 0:
+        checks.append(
+            _check_result(
+                "index_rows_match_manifest",
+                n_rows == manifest_samples,
+                f"index_rows={n_rows}, manifest_n_samples={manifest_samples}",
+            )
+        )
+
+    required_columns = {
+        "mvp": ["feature_index", "sample_id", "split", "video_path", "plausibility_label"],
+        "intphys2": ["feature_index", "sample_id", "split", "video_path", "plausibility"],
+        "ssv2": ["feature_index", "sample_id", "split", "video_path", "label_idx"],
+    }.get(dataset_name, ["feature_index", "sample_id", "split", "video_path"])
+    missing_columns = [column for column in required_columns if column not in index_frame.columns]
+    checks.append(_check_result("index_required_columns", not missing_columns, f"missing={missing_columns}"))
+
+    if "feature_index" in index_frame.columns:
+        try:
+            values = sorted(int(value) for value in index_frame["feature_index"].tolist())
+            expected = list(range(n_rows))
+            checks.append(
+                _check_result(
+                    "feature_index_contiguous",
+                    values == expected,
+                    f"min={values[0] if values else '<none>'}, max={values[-1] if values else '<none>'}, rows={n_rows}",
+                )
+            )
+        except Exception as exc:
+            checks.append(_check_result("feature_index_contiguous", False, f"Could not parse feature_index: {exc}"))
+
+    if "split" in index_frame.columns:
+        splits = sorted(str(value) for value in index_frame["split"].dropna().astype(str).unique().tolist())
+        split_ok = bool(splits) and (not manifest_splits or set(splits).issubset(set(manifest_splits)))
+        checks.append(_check_result("index_splits_valid", split_ok, f"index={splits}, manifest={manifest_splits}"))
+
+    manifest_hash = str(features_meta.get("sample_ids_sha256", "")).strip()
+    if manifest_hash and "sample_id" in index_frame.columns and "feature_index" in index_frame.columns:
+        try:
+            ordered = index_frame.sort_values("feature_index")
+            actual_hash = _sha256_lines(str(value) for value in ordered["sample_id"].tolist())
+            checks.append(
+                _check_result(
+                    "sample_ids_match_manifest_hash",
+                    actual_hash == manifest_hash,
+                    f"actual={actual_hash}, manifest={manifest_hash}",
+                )
+            )
+        except Exception as exc:
+            checks.append(_check_result("sample_ids_match_manifest_hash", False, f"Could not hash sample ids: {exc}"))
+    else:
+        checks.append(
+            _check_result(
+                "sample_ids_match_manifest_hash",
+                True,
+                "No sample_ids_sha256 in manifest or sample_id/feature_index missing; skipped.",
+            )
+        )
+
+    return checks
+
+
+def _manifest_split_names(manifest: dict[str, Any]) -> list[str]:
+    split_meta = manifest.get("split", {}) if isinstance(manifest.get("split", {}), dict) else {}
+    raw = split_meta.get("names", [])
+    if not isinstance(raw, list):
+        raw = [raw]
+    return [str(value) for value in raw if str(value).strip()]
+
+
+def _check_feature_video_paths(index_frame: Any) -> dict[str, Any]:
+    if "video_path" not in index_frame.columns:
+        return _check_result("video_paths_exist", False, "index has no video_path column")
+
+    missing_examples: list[str] = []
+    missing_count = 0
+    for raw in index_frame["video_path"].tolist():
+        value = str(raw or "").strip()
+        if not value:
+            missing_count += 1
+            if len(missing_examples) < 10:
+                missing_examples.append("<empty>")
+            continue
+        path = _as_project_path(value)
+        if not path.exists():
+            missing_count += 1
+            if len(missing_examples) < 10:
+                missing_examples.append(str(path))
+    return _check_result(
+        "video_paths_exist",
+        missing_count == 0,
+        f"checked={len(index_frame)}, missing={missing_count}, examples={missing_examples}",
+    )
+
+
+def _check_feature_tensor_payloads(
+    cache_dir: Path,
+    files: dict[str, Any],
+    features_meta: dict[str, Any],
+    n_rows: int,
+    *,
+    allow_full_tensor_load: bool,
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for key, expected_ndim in (("pooled", 2), ("tokens", 3)):
+        include_key = f"include_{key}"
+        included = bool(features_meta.get(include_key, False))
+        filename = str(files.get(key, "") or "").strip()
+        if not filename:
+            checks.append(
+                _check_result(
+                    f"{key}_tensor_present",
+                    not included,
+                    "not requested" if not included else f"manifest marks {include_key}=true but no file is listed",
+                )
+            )
+            continue
+
+        tensor_path = cache_dir / filename
+        checks.append(_check_result(f"{key}_tensor_present", tensor_path.exists(), str(tensor_path)))
+        if not tensor_path.exists():
+            continue
+
+        try:
+            payload = _torch_load_feature_payload(tensor_path, allow_full_load=allow_full_tensor_load)
+        except Exception as exc:
+            checks.append(_check_result(f"{key}_tensor_readable", False, f"torch.load failed: {exc}"))
+            continue
+        checks.append(_check_result(f"{key}_tensor_readable", True, "loaded metadata without full tensor materialization"))
+        checks.extend(_check_single_tensor_payload(key, payload, n_rows, expected_ndim))
+    return checks
+
+
+def _check_single_tensor_payload(
+    key: str,
+    payload: Any,
+    n_rows: int,
+    expected_ndim: int,
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    if not isinstance(payload, dict):
+        return [_check_result(f"{key}_tensor_payload_valid", False, f"expected dict, got {type(payload)!r}")]
+
+    raw_layers = payload.get("selected_layers", [])
+    try:
+        selected_layers = [int(value) for value in raw_layers]
+    except Exception:
+        selected_layers = []
+    by_layer = payload.get("by_layer", {})
+    checks.append(
+        _check_result(
+            f"{key}_selected_layers_present",
+            bool(selected_layers) and isinstance(by_layer, dict),
+            f"selected_layers={selected_layers}",
+        )
+    )
+    if not selected_layers or not isinstance(by_layer, dict):
+        return checks
+
+    bad_layers: list[str] = []
+    for layer in selected_layers:
+        tensor = _lookup_layer_tensor(by_layer, layer)
+        if tensor is None:
+            bad_layers.append(f"{layer}:missing")
+            continue
+        shape = tuple(int(dim) for dim in getattr(tensor, "shape", ()))
+        if len(shape) != expected_ndim:
+            bad_layers.append(f"{layer}:ndim={len(shape)} shape={shape}")
+            continue
+        if shape[0] != n_rows:
+            bad_layers.append(f"{layer}:rows={shape[0]} expected={n_rows}")
+    checks.append(
+        _check_result(
+            f"{key}_tensor_shapes_match_index",
+            not bad_layers,
+            f"layers={selected_layers}, rows={n_rows}, problems={bad_layers}",
+        )
+    )
+    return checks
+
+
+def _torch_load_feature_payload(path: Path, *, allow_full_load: bool) -> Any:
+    import torch
+
+    fake_error: Exception | None = None
+    try:
+        from torch._subclasses.fake_tensor import FakeTensorMode
+
+        with FakeTensorMode():
+            return torch.load(str(path), map_location="cpu", weights_only=False)
+    except Exception as exc:
+        fake_error = exc
+
+    try:
+        return torch.load(str(path), map_location="cpu", weights_only=False, mmap=True)
+    except TypeError as exc:
+        if allow_full_load:
+            return torch.load(str(path), map_location="cpu", weights_only=False)
+        raise RuntimeError(
+            "Could not inspect tensor metadata with FakeTensorMode or mmap=True, "
+            "and full tensor loading is disabled. Re-run with "
+            "features.allow_full_tensor_load=true only if the cache fits in RAM. "
+            f"fake_error={fake_error}; mmap_error={exc}"
+        ) from exc
+
+
+def _lookup_layer_tensor(by_layer: dict[Any, Any], layer: int) -> Any | None:
+    if layer in by_layer:
+        return by_layer[layer]
+    layer_str = str(layer)
+    if layer_str in by_layer:
+        return by_layer[layer_str]
+    return None
+
+
+def _match_feature_backbone(backbone_dir: str, expected_backbones: list[str]) -> str:
+    for name in sorted(expected_backbones, key=len, reverse=True):
+        if backbone_dir == name or backbone_dir.startswith(f"{name}_"):
+            return name
+    return backbone_dir
+
+
+def _safe_int(value: Any, *, default: int) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
+def _sha256_lines(lines: Any) -> str:
+    digest = hashlib.sha256()
+    for line in lines:
+        digest.update(str(line).encode("utf-8"))
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
+def _format_feature_human_report(report: dict[str, Any]) -> str:
+    lines: list[str] = []
+    ok = bool(report.get("ok", False))
+    summary = report.get("summary", {})
+    mode = report.get("mode", {})
+    lines.append("Probe4Physics Feature Cache Health Check")
+    lines.append("")
+    lines.append(f"Overall: {'PASS' if ok else 'FAIL'}")
+    lines.append(
+        "Mode: CPU metadata/index/tensor-shape checks "
+        f"(check_tensors={mode.get('check_tensors')}, "
+        f"check_video_paths={mode.get('check_video_paths')}, "
+        f"allow_full_tensor_load={mode.get('allow_full_tensor_load')})"
+    )
+    lines.append(
+        "Checks: "
+        f"total={summary.get('total_checks', 0)} "
+        f"passed={summary.get('passed', 0)} "
+        f"failed={summary.get('failed', 0)}"
+    )
+    lines.append(
+        "Coverage: "
+        f"datasets={summary.get('datasets', 0)} "
+        f"caches={summary.get('caches', 0)} "
+        f"backbones={summary.get('backbones', 0)}"
+    )
+    lines.append("")
+    lines.append("Datasets")
+    for dataset in report.get("datasets", []):
+        status = str(dataset.get("status", "unknown")).upper()
+        lines.append(
+            f"- {dataset.get('name', '')}: {status} "
+            f"root={dataset.get('root', '')} "
+            f"caches={len(dataset.get('caches', []))} "
+            f"backbones={dataset.get('found_backbones', [])}"
+        )
+        for cache in dataset.get("caches", []):
+            cache_status = str(cache.get("status", "unknown")).upper()
+            lines.append(
+                f"  - {cache.get('backbone_dir', '')}/{cache.get('split_key', '')}/{cache.get('signature', '')}: "
+                f"{cache_status} rows={cache.get('n_samples', 0)}"
+            )
+
+    failing = _collect_feature_failing_checks(report)
+    lines.append("")
+    lines.append("Failing checks")
+    if not failing:
+        lines.append("- none")
+    else:
+        for row in failing:
+            lines.append(f"- {row['scope']} [{row['check']}]: {row['detail']}")
+    return "\n".join(lines)
+
+
+def _collect_feature_failing_checks(report: dict[str, Any]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for dataset in report.get("datasets", []):
+        dataset_scope = str(dataset.get("name", ""))
+        for check in dataset.get("checks", []):
+            if str(check.get("status")) == "fail":
+                rows.append(
+                    {
+                        "scope": dataset_scope,
+                        "check": str(check.get("name", "")),
+                        "detail": str(check.get("detail", "")),
+                    }
+                )
+        for cache in dataset.get("caches", []):
+            cache_scope = (
+                f"{dataset_scope}/{cache.get('backbone_dir', '')}/"
+                f"{cache.get('split_key', '')}/{cache.get('signature', '')}"
+            )
+            for check in cache.get("checks", []):
+                if str(check.get("status")) != "fail":
+                    continue
+                rows.append(
+                    {
+                        "scope": cache_scope,
+                        "check": str(check.get("name", "")),
+                        "detail": str(check.get("detail", "")),
+                    }
+                )
+    return rows
+
+
 def _check_backbone_variant_layer_mapping(
     backbone_name: str,
     variant_name: str,
@@ -365,7 +1008,13 @@ def _resolve_selected_layers_for_variant(
             )
         )
     if backbone_name == "jepa_v2_1":
-        return list(_hierarchical_selected_layers(model_name, model_block_depths))
+        return list(
+            resolve_jepa_v2_1_relative_depth_layers(
+                model_name,
+                relative_depths=relative_depths,
+                model_block_depths=model_block_depths,
+            )
+        )
     if backbone_name == "videomae":
         return list(
             resolve_videomae_relative_depth_layers(
