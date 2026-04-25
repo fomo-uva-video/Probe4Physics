@@ -1,0 +1,17 @@
+=== START jepa_v1 FULL RESTART | Fri 24 Apr 03:25:06 CEST 2026 ===
+/usr/lib/python3.10/contextlib.py:103: FutureWarning: `torch.backends.cuda.sdp_kernel()` is deprecated. In the future, this context manager will be removed. Please see `torch.nn.attention.sdpa_kernel()` for the new context manager, with updated signature.
+  self.gen = func(*args, **kwds)
+{
+  "feature_cache_dir": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/jepa_v1_vith16_384/train-val-test/78346a9facde6609",
+  "n_samples": 1012,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "78346a9facde6609",
+  "skipped": false,
+  "warning_log": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/extract_warnings.log"
+}
+=== DONE jepa_v1 exit=0 | Fri 24 Apr 04:03:30 CEST 2026 ===

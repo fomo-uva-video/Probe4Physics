@@ -1,0 +1,32 @@
+=== START videomae MVP FULL | Fri 24 Apr 03:34:57 CEST 2026 ===
+Loading weights:   0%|          | 0/418 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 104/418 [00:00<00:00, 1019.93it/s]Loading weights:  49%|████▉     | 206/418 [00:00<00:00, 998.84it/s] Loading weights:  75%|███████▌  | 314/418 [00:00<00:00, 1030.27it/s]Loading weights: 100%|██████████| 418/418 [00:00<00:00, 1067.60it/s]
+[transformers] [1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-huge-finetuned-kinetics
+Key                                                        | Status     | 
+-----------------------------------------------------------+------------+-
+videomae.encoder.layer.{0...31}.attention.attention.q_bias | UNEXPECTED | 
+videomae.encoder.layer.{0...31}.attention.attention.v_bias | UNEXPECTED | 
+classifier.weight                                          | UNEXPECTED | 
+classifier.bias                                            | UNEXPECTED | 
+fc_norm.weight                                             | UNEXPECTED | 
+fc_norm.bias                                               | UNEXPECTED | 
+encoder.layer.{0...31}.attention.attention.key.bias        | MISSING    | 
+encoder.layer.{0...31}.attention.attention.value.bias      | MISSING    | 
+encoder.layer.{0...31}.attention.attention.query.bias      | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+{
+  "feature_cache_dir": "/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/videomae_vit_huge_16_224/train-val-test/8032308ced2f1768",
+  "n_samples": 9886,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "8032308ced2f1768",
+  "skipped": false,
+  "warning_log": "/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/extract_warnings.log"
+}
+=== DONE videomae exit=0 | Fri 24 Apr 06:09:53 CEST 2026 ===

@@ -1,0 +1,32 @@
+=== START videomae FULL | Fri 24 Apr 02:42:56 CEST 2026 ===
+Loading weights:   0%|          | 0/418 [00:00<?, ?it/s]Loading weights: 100%|██████████| 418/418 [00:00<00:00, 9134.92it/s]
+[transformers] [1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-huge-finetuned-kinetics
+Key                                                        | Status     | 
+-----------------------------------------------------------+------------+-
+videomae.encoder.layer.{0...31}.attention.attention.q_bias | UNEXPECTED | 
+videomae.encoder.layer.{0...31}.attention.attention.v_bias | UNEXPECTED | 
+classifier.bias                                            | UNEXPECTED | 
+classifier.weight                                          | UNEXPECTED | 
+fc_norm.weight                                             | UNEXPECTED | 
+fc_norm.bias                                               | UNEXPECTED | 
+encoder.layer.{0...31}.attention.attention.value.bias      | MISSING    | 
+encoder.layer.{0...31}.attention.attention.key.bias        | MISSING    | 
+encoder.layer.{0...31}.attention.attention.query.bias      | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+{
+  "feature_cache_dir": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/videomae_vit_huge_16_224/train-val-test/1e642fe5ac5d5e7f",
+  "n_samples": 1012,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "1e642fe5ac5d5e7f",
+  "skipped": false,
+  "warning_log": "/home/v25/ippa6201/Probe4Physics/artifacts/features/intphys2/extract_warnings.log"
+}
+=== DONE videomae exit=0 | Fri 24 Apr 03:10:09 CEST 2026 ===

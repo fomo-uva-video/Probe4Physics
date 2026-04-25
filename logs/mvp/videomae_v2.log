@@ -1,0 +1,42 @@
+=== START videomae_v2 MVP FULL | Fri 24 Apr 03:34:57 CEST 2026 ===
+Loading weights:   0%|          | 0/524 [00:00<?, ?it/s]Loading weights: 100%|██████████| 524/524 [00:00<00:00, 6757.19it/s]
+[transformers] [1mVideoMAEv2 LOAD REPORT[0m from: /home/v25/ippa6201/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-giant/snapshots/d27568eb41ccb2d41bb191fc2e3fe5aad74942d4
+Key                                                | Status     |  | 
+---------------------------------------------------+------------+--+-
+model.encoder_to_decoder.weight                    | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.bias       | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.weight   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.weight     | UNEXPECTED |  | 
+model.decoder.norm.bias                            | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.bias     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.weight | UNEXPECTED |  | 
+model.decoder.head.weight                          | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.bias   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.weight   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.weight     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.bias     | UNEXPECTED |  | 
+model.decoder.head.bias                            | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.q_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.bias       | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.v_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.qkv.weight  | UNEXPECTED |  | 
+model.mask_token                                   | UNEXPECTED |  | 
+model.decoder.norm.weight                          | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Materialized VideoMAEv2 plain tensor attribute from helper: model.pos_embed (num_patches=2048 embed_dim=1408 model_config_num_frames=16)
+{
+  "feature_cache_dir": "/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517",
+  "n_samples": 9886,
+  "selected_layers": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "signature": "7c0fab9616b3b517",
+  "skipped": false,
+  "warning_log": "/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/extract_warnings.log"
+}
+=== DONE videomae_v2 exit=0 | Fri 24 Apr 07:39:23 CEST 2026 ===
