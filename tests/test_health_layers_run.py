@@ -41,8 +41,9 @@ def _backbone_cfg_fixture() -> dict[str, object]:
         "ltx_video": {
             "default_variant": "ltxv_13b_0_9_8_distilled",
             "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
-            "model_block_depths": {"ltx_vae_5": 5},
-            "variants": {"ltxv_13b_0_9_8_distilled": {"model_name": "ltx_vae_5"}},
+            "default_noise_levels": [0.9, 0.5, 0.1],
+            "model_block_depths": {"ltx_transformer_28": 28},
+            "variants": {"ltxv_13b_0_9_8_distilled": {"model_name": "ltx_transformer_28"}},
         },
     }
 
@@ -58,7 +59,7 @@ class HealthLayersRunTests(unittest.TestCase):
     def test_layer_mapping_report_passes_for_valid_config(self) -> None:
         backbone_cfg = _backbone_cfg_fixture()
         mvp_cfg = _benchmark_cfg("jepa_v1", [])
-        intphys2_cfg = _benchmark_cfg("jepa_v2_1", [12, 24, 38, 48])
+        intphys2_cfg = _benchmark_cfg("jepa_v2_1", [12, 24, 36, 48])
         ssv2_cfg = _benchmark_cfg("videomae", [8, 16, 24, 32])
 
         with mock.patch(
@@ -76,7 +77,7 @@ class HealthLayersRunTests(unittest.TestCase):
             for item in report["variants"]
             if item.get("name") == "jepa_v2_1" and item.get("variant") == "vitG_384"
         )
-        self.assertEqual(jepa21["selected_layers_1_based"], [12, 24, 38, 48])
+        self.assertEqual(jepa21["selected_layers_1_based"], [12, 24, 36, 48])
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][0], 1)
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][-1], 48)
 

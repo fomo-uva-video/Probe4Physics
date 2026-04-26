@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Sequence
 
 import torch
 
@@ -26,6 +26,12 @@ def normalize_rgb_imagenet(clips: torch.Tensor) -> torch.Tensor:
     return (clips - mean) / std
 
 
+def normalize_rgb_minus_one_one(clips: torch.Tensor) -> torch.Tensor:
+    """Scale raw RGB clips from ``[0, 1]`` to ``[-1, 1]``."""
+
+    return clips * 2.0 - 1.0
+
+
 def imagenet_preprocessing_metadata(*, family: str, layout: str = "BCTHW") -> dict[str, Any]:
     return {
         "version": PREPROCESSING_VERSION,
@@ -39,13 +45,22 @@ def imagenet_preprocessing_metadata(*, family: str, layout: str = "BCTHW") -> di
     }
 
 
-def ltx_preprocessing_metadata(*, normalize_input: bool) -> dict[str, Any]:
+def ltx_diffusion_preprocessing_metadata(
+    *,
+    normalize_input: bool,
+    noise_levels: Sequence[float],
+    prompt_mode: str,
+    noise_policy: str,
+) -> dict[str, Any]:
     return {
         "version": PREPROCESSING_VERSION,
-        "family": "ltx_video_vae",
+        "family": "ltx_video_diffusion",
         "input_color": "rgb",
         "input_range": [0.0, 1.0],
         "layout": "BCTHW",
-        "normalization": "scale_to_minus_one_one" if normalize_input else "identity",
-        "output_range": [-1.0, 1.0] if normalize_input else [0.0, 1.0],
+        "pixel_normalization": "scale_to_minus_one_one" if normalize_input else "identity",
+        "vae_encode_input_range": [-1.0, 1.0] if normalize_input else [0.0, 1.0],
+        "noise_levels": [float(v) for v in noise_levels],
+        "prompt_mode": str(prompt_mode),
+        "noise_policy": str(noise_policy),
     }

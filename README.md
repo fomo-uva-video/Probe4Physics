@@ -268,7 +268,7 @@ python run_probe.py eval --dataset mvp --probe linear split_name=val probe.check
 ```
 
 ## LTX-Video Notes
-- The `ltx_video` adapter extracts deterministic features from LTX VAE encoder stages (not denoising trajectories).
+- The `ltx_video` adapter extracts deterministic diffusion features by VAE-encoding clips, injecting fixed noise at configured denoising regimes, and probing LTX transformer blocks.
 - Default Hydra variant: `ltxv_13b_0_9_8_distilled` (`Lightricks/LTX-Video-0.9.8-13B-distilled`).
 - First pull/smoke command:
 

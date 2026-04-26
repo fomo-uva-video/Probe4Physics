@@ -548,22 +548,23 @@ class SSv2FeatureCacheConfigTests(unittest.TestCase):
             "ltx_video": {
                 "default_variant": default_variant,
                 "default_relative_depths": [0.5, 1.0],
-                "model_block_depths": {"ltx_vae_5": 5},
+                "default_noise_levels": [0.9, 0.5, 0.1],
+                "model_block_depths": {"ltx_transformer_28": 28},
                 "variants": {
                     "ltxv_13b_0_9_8_distilled": {
                         "hf_model_id": "demo/ltx-13b-distilled",
-                        "model_name": "ltx_vae_5",
+                        "model_name": "ltx_transformer_28",
                         "frames_per_clip": 16,
                         "crop_size": 224,
-                        "patch_size": 4,
+                        "patch_size": 1,
                         "patch_size_t": 1,
                     },
                     "ltx_2b_0_9_8_distilled": {
                         "hf_model_id": "demo/ltx-2b-distilled",
-                        "model_name": "ltx_vae_5",
+                        "model_name": "ltx_transformer_28",
                         "frames_per_clip": 16,
                         "crop_size": 224,
-                        "patch_size": 4,
+                        "patch_size": 1,
                         "patch_size_t": 1,
                     },
                 },

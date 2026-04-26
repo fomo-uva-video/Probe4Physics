@@ -5,7 +5,8 @@ from typing import Any, Sequence
 
 import yaml
 
-from .preprocessing import imagenet_preprocessing_metadata, ltx_preprocessing_metadata
+from .ltx_video_adapter import resolve_noise_levels, resolve_probe_layer_ids
+from .preprocessing import imagenet_preprocessing_metadata, ltx_diffusion_preprocessing_metadata
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,9 @@ def resolve_backbone_cache_metadata(name: str, kwargs: dict[str, Any]) -> dict[s
     relative_depths = kwargs.get("relative_depths")
     if relative_depths is None:
         relative_depths = section.get("default_relative_depths", [])
+    noise_levels = kwargs.get("noise_levels")
+    if noise_levels is None:
+        noise_levels = section.get("default_noise_levels", [])
 
     metadata: dict[str, Any] = {
         "name": key,
@@ -61,6 +65,7 @@ def resolve_backbone_cache_metadata(name: str, kwargs: dict[str, Any]) -> dict[s
             model_name=model_name,
             relative_depths=relative_depths,
             model_block_depths=section.get("model_block_depths", {}),
+            noise_levels=noise_levels,
         ),
         "preprocessing": _resolve_preprocessing_metadata(key, kwargs),
     }
@@ -82,6 +87,7 @@ def _resolve_selected_layers(
     model_name: str,
     relative_depths: Any,
     model_block_depths: Any,
+    noise_levels: Any = None,
 ) -> list[int]:
     if not model_name or not isinstance(model_block_depths, dict):
         return []
@@ -93,6 +99,16 @@ def _resolve_selected_layers(
     depth = depths[model_name]
     if backbone_name == "jepa_v2_1":
         return [idx + 1 for idx in _HIERARCHICAL_LAYERS.get(depth, ())]
+
+    if backbone_name == "ltx_video":
+        return list(
+            resolve_probe_layer_ids(
+                model_name,
+                relative_depths=relative_depths,
+                noise_levels=noise_levels,
+                model_block_depths=depths,
+            )
+        )
 
     if not isinstance(relative_depths, Sequence) or isinstance(relative_depths, (str, bytes)):
         return []
@@ -113,5 +129,13 @@ def _resolve_preprocessing_metadata(name: str, kwargs: dict[str, Any]) -> dict[s
     if name in {"jepa_v1", "jepa_v2", "jepa_v2_1", "videomae", "videomae_v2"}:
         return imagenet_preprocessing_metadata(family=name)
     if name == "ltx_video":
-        return ltx_preprocessing_metadata(normalize_input=bool(kwargs.get("normalize_input", True)))
+        return ltx_diffusion_preprocessing_metadata(
+            normalize_input=bool(kwargs.get("normalize_input", True)),
+            noise_levels=resolve_noise_levels(
+                kwargs.get("noise_levels"),
+                config_path=kwargs.get("config_path", DEFAULT_BACKBONES_CONFIG_PATH),
+            ),
+            prompt_mode="empty_string",
+            noise_policy="fixed_reference_noise",
+        )
     return {}

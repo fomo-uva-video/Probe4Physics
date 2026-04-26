@@ -1,24 +1,48 @@
 from __future__ import annotations
 
 """
-LTX-Video adapter using deterministic VAE-encoder stage activations.
+LTX-Video adapter using diffusion-transformer hidden states at fixed noise levels.
 
-This adapter intentionally extracts features from the LTX VAE encoder rather than
-running diffusion denoising steps, so extraction stays deterministic and aligns
-with this repository's frozen-feature probing pipeline.
+The proposal for this repository treats diffusion models differently from plain
+encoder backbones: probe both multiple denoising regimes and multiple backbone
+depths. This adapter therefore:
+
+1. encodes raw clips into LTX VAE latents,
+2. injects deterministic reference noise at configured noise levels, and
+3. captures hidden states from selected LTX transformer blocks.
+
+The canonical adapter schema only supports integer layer ids, so the adapter
+flattens the `(noise_level, transformer_depth)` grid into ordered probe-slot ids.
+Metadata exposes the exact mapping for reproducibility.
 """
 
+from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
 import torch
 import yaml
 
+from .preprocessing import (
+    ltx_diffusion_preprocessing_metadata,
+    normalize_rgb_minus_one_one,
+)
 from .registry import BackboneFeatures, VideoBackboneAdapter, register_adapter
-from .preprocessing import ltx_preprocessing_metadata
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
+DEFAULT_NOISE_LEVELS = (0.9, 0.5, 0.1)
+DEFAULT_NOISE_SEED = 0
+
+
+@dataclass(frozen=True)
+class LTXProbeLayerSpec:
+    probe_layer_id: int
+    noise_level_index: int
+    noise_fraction: float
+    noise_label: str
+    depth_layer_id: int
 
 
 def _load_ltx_video_config(
@@ -105,7 +129,7 @@ def resolve_relative_depth_layers(
     model_block_depths: dict[str, int] | None = None,
     config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
 ) -> tuple[int, ...]:
-    """Map relative probe depths (e.g. 0.25, 0.5, ...) to 1-based stage ids."""
+    """Map relative probe depths (e.g. 0.25, 0.5, ...) to 1-based transformer block ids."""
 
     if relative_depths is None or model_block_depths is None:
         cfg = _load_ltx_video_config(config_path)
@@ -144,13 +168,94 @@ def resolve_relative_depth_layers(
     return tuple(resolved)
 
 
-class LTXVideoAdapter(VideoBackboneAdapter):
-    """Frozen-feature extractor for LTX-Video VAE encoder stages.
+def resolve_noise_levels(
+    noise_levels: Sequence[float] | None = None,
+    *,
+    config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
+) -> tuple[float, ...]:
+    """Resolve configured diffusion noise levels as fractions in ``(0, 1]``."""
 
-    Inputs to ``extract`` are expected to be clip tensors in shape ``[B, C, T, H, W]``
-    with values in ``[0, 1]``. By default, clips are mapped to ``[-1, 1]`` before
-    feeding the VAE encoder.
-    """
+    if noise_levels is None:
+        cfg = _load_ltx_video_config(config_path)
+        raw_levels = cfg.get("default_noise_levels", list(DEFAULT_NOISE_LEVELS))
+        if not isinstance(raw_levels, list) or not raw_levels:
+            raise ValueError("ltx_video.default_noise_levels must be a non-empty list.")
+        noise_levels = tuple(float(v) for v in raw_levels)
+
+    resolved: list[float] = []
+    for value in noise_levels:
+        current = float(value)
+        if not (0.0 < current <= 1.0):
+            raise ValueError(f"Invalid noise level {value!r}. Expected values in (0, 1].")
+        if current not in resolved:
+            resolved.append(current)
+    if not resolved:
+        raise ValueError("noise_levels cannot be empty.")
+    return tuple(resolved)
+
+
+def resolve_probe_layer_specs(
+    model_name: str,
+    *,
+    relative_depths: Sequence[float] | None = None,
+    noise_levels: Sequence[float] | None = None,
+    model_block_depths: dict[str, int] | None = None,
+    config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
+) -> tuple[LTXProbeLayerSpec, ...]:
+    """Resolve the flattened proposal grid of ``(noise_level, depth)`` probe slots."""
+
+    depth_layers = resolve_relative_depth_layers(
+        model_name,
+        relative_depths=relative_depths,
+        model_block_depths=model_block_depths,
+        config_path=config_path,
+    )
+    resolved_noise_levels = resolve_noise_levels(noise_levels, config_path=config_path)
+
+    specs: list[LTXProbeLayerSpec] = []
+    probe_layer_id = 1
+    for noise_index, noise_fraction in enumerate(resolved_noise_levels):
+        specs_for_noise = len(resolved_noise_levels)
+        if specs_for_noise == 3:
+            label = ("high", "mid", "low")[noise_index]
+        else:
+            label = f"noise_{noise_index + 1}"
+        for depth_layer_id in depth_layers:
+            specs.append(
+                LTXProbeLayerSpec(
+                    probe_layer_id=probe_layer_id,
+                    noise_level_index=noise_index,
+                    noise_fraction=float(noise_fraction),
+                    noise_label=label,
+                    depth_layer_id=int(depth_layer_id),
+                )
+            )
+            probe_layer_id += 1
+    return tuple(specs)
+
+
+def resolve_probe_layer_ids(
+    model_name: str,
+    *,
+    relative_depths: Sequence[float] | None = None,
+    noise_levels: Sequence[float] | None = None,
+    model_block_depths: dict[str, int] | None = None,
+    config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
+) -> tuple[int, ...]:
+    return tuple(
+        spec.probe_layer_id
+        for spec in resolve_probe_layer_specs(
+            model_name,
+            relative_depths=relative_depths,
+            noise_levels=noise_levels,
+            model_block_depths=model_block_depths,
+            config_path=config_path,
+        )
+    )
+
+
+class LTXVideoAdapter(VideoBackboneAdapter):
+    """Frozen-feature extractor for LTX diffusion transformer blocks."""
 
     def __init__(
         self,
@@ -159,6 +264,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         hf_cache_dir: str | Path | None = None,
         model_name: str | None = None,
         relative_depths: Sequence[float] | None = None,
+        noise_levels: Sequence[float] | None = None,
         config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
         device: str | torch.device = "cpu",
         crop_size: int | None = None,
@@ -169,12 +275,14 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         torch_dtype: str | torch.dtype | None = None,
         normalize_input: bool = True,
         enable_vae_tiling: bool = False,
+        noise_seed: int = DEFAULT_NOISE_SEED,
     ) -> None:
         self.config_path = Path(config_path).resolve()
         self.device = torch.device(device)
         self.hf_cache_dir = str(hf_cache_dir) if hf_cache_dir is not None else None
         self.normalize_input = bool(normalize_input)
         self.enable_vae_tiling = bool(enable_vae_tiling)
+        self.noise_seed = int(noise_seed)
 
         cfg = _load_ltx_video_config(self.config_path)
         self.variant, variant_cfg, self.hf_model_id = _resolve_variant_bundle(
@@ -182,12 +290,12 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             variant=variant,
         )
 
-        self.model_name = str(model_name or variant_cfg.get("model_name", "ltx_vae_5"))
+        self.model_name = str(model_name or variant_cfg.get("model_name", "ltx_transformer_28"))
         self.crop_size = int(crop_size if crop_size is not None else variant_cfg.get("crop_size", 224))
         self.frames_per_clip = int(
             frames_per_clip if frames_per_clip is not None else variant_cfg.get("frames_per_clip", 16)
         )
-        self.patch_size = int(patch_size if patch_size is not None else variant_cfg.get("patch_size", 4))
+        self.patch_size = int(patch_size if patch_size is not None else variant_cfg.get("patch_size", 1))
         self.patch_size_t = int(
             patch_size_t if patch_size_t is not None else variant_cfg.get("patch_size_t", 1)
         )
@@ -206,31 +314,51 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             raise ValueError("ltx_video.default_relative_depths must be a non-empty list.")
         default_relative_depths = tuple(float(v) for v in raw_rel)
 
-        self.selected_layers = resolve_relative_depth_layers(
+        self.noise_levels = resolve_noise_levels(
+            noise_levels if noise_levels is not None else cfg.get("default_noise_levels", list(DEFAULT_NOISE_LEVELS)),
+            config_path=self.config_path,
+        )
+        self._probe_layer_specs = resolve_probe_layer_specs(
             self.model_name,
             relative_depths=relative_depths if relative_depths is not None else default_relative_depths,
+            noise_levels=self.noise_levels,
             model_block_depths=model_block_depths,
             config_path=self.config_path,
         )
+        self._probe_specs_by_slot = {spec.probe_layer_id: spec for spec in self._probe_layer_specs}
+        self.selected_layers = tuple(spec.probe_layer_id for spec in self._probe_layer_specs)
+        self._depth_layers = tuple(
+            dict.fromkeys(spec.depth_layer_id for spec in self._probe_layer_specs).keys()
+        )
 
-        self._vae = self._load_vae()
-        self._encoder_stages = self._get_encoder_stages()
+        (
+            self._vae,
+            self._transformer,
+            self._scheduler,
+            self._tokenizer,
+            self._text_encoder,
+        ) = self._load_components()
+        self._noise_timesteps = tuple(self._noise_fraction_to_timestep(level) for level in self.noise_levels)
+        self._transformer_blocks = self._get_transformer_blocks()
         self._temporal_downsample_strides = self._collect_temporal_downsample_strides()
+        self._prompt_embeds, self._prompt_attention_mask = self._encode_prompt()
 
-        max_selected = max(self.selected_layers)
-        if max_selected > len(self._encoder_stages):
+        max_selected_depth = max(self._depth_layers)
+        if max_selected_depth > len(self._transformer_blocks):
             raise ValueError(
-                "Configured selected_layers exceed available LTX VAE encoder stages: "
-                f"max_selected={max_selected}, available={len(self._encoder_stages)}. "
+                "Configured selected transformer depths exceed available LTX transformer blocks: "
+                f"max_selected={max_selected_depth}, available={len(self._transformer_blocks)}. "
                 "Adjust ltx_video.model_block_depths or relative depths in backbones.yaml."
             )
 
-    def _load_vae(self) -> torch.nn.Module:
+    def _load_components(
+        self,
+    ) -> tuple[torch.nn.Module, torch.nn.Module, Any, Any, torch.nn.Module]:
         try:
-            from diffusers import AutoencoderKLLTXVideo
+            from diffusers import LTXPipeline
         except ImportError as exc:
             raise ImportError(
-                "diffusers with AutoencoderKLLTXVideo support is required for LTX-Video. "
+                "diffusers with LTXPipeline support is required for LTX-Video. "
                 "Install or update with: python -m pip install -U diffusers transformers accelerate safetensors"
             ) from exc
 
@@ -239,41 +367,48 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             kwargs["cache_dir"] = self.hf_cache_dir
 
         try:
-            vae = AutoencoderKLLTXVideo.from_pretrained(
-                self.hf_model_id,
-                subfolder=self.vae_subfolder,
-                **kwargs,
-            )
+            pipeline = LTXPipeline.from_pretrained(self.hf_model_id, **kwargs)
         except Exception as exc:  # pragma: no cover - depends on HF/network/license
             raise RuntimeError(
-                "Failed to load LTX-Video VAE from HuggingFace. "
-                f"model_id='{self.hf_model_id}', subfolder='{self.vae_subfolder}'. "
+                "Failed to load LTX-Video pipeline from HuggingFace. "
+                f"model_id='{self.hf_model_id}'. "
                 "Ensure network access, accepted model license, and valid HF authentication if required."
             ) from exc
 
-        vae.to(self.device)
-        vae.eval()
-        for parameter in vae.parameters():
-            parameter.requires_grad = False
+        pipeline.to(self.device)
+
+        components = (
+            getattr(pipeline, "vae", None),
+            getattr(pipeline, "transformer", None),
+            getattr(pipeline, "scheduler", None),
+            getattr(pipeline, "tokenizer", None),
+            getattr(pipeline, "text_encoder", None),
+        )
+        if any(component is None for component in components):
+            raise RuntimeError(
+                "Loaded LTX pipeline is missing one or more required components: "
+                "vae, transformer, scheduler, tokenizer, text_encoder."
+            )
+
+        vae, transformer, scheduler, tokenizer, text_encoder = components
+        modules = (vae, transformer, text_encoder)
+        for module in modules:
+            module.eval()
+            for parameter in module.parameters():
+                parameter.requires_grad = False
 
         if self.enable_vae_tiling and hasattr(vae, "enable_tiling"):
             vae.enable_tiling()
 
-        return vae
+        return vae, transformer, scheduler, tokenizer, text_encoder
 
-    def _get_encoder_stages(self) -> list[torch.nn.Module]:
-        encoder = getattr(self._vae, "encoder", None)
-        if encoder is None:
-            raise RuntimeError("Loaded LTX VAE does not expose an encoder module.")
-
-        down_blocks = getattr(encoder, "down_blocks", None)
-        mid_block = getattr(encoder, "mid_block", None)
-        if not isinstance(down_blocks, torch.nn.ModuleList) or mid_block is None:
+    def _get_transformer_blocks(self) -> list[torch.nn.Module]:
+        blocks = getattr(self._transformer, "transformer_blocks", None)
+        if not isinstance(blocks, torch.nn.ModuleList):
             raise RuntimeError(
-                "Could not locate LTX VAE encoder stages. Expected attributes: encoder.down_blocks and encoder.mid_block."
+                "Loaded LTX transformer does not expose transformer_blocks ModuleList."
             )
-
-        return [*list(down_blocks), mid_block]
+        return list(blocks)
 
     def _resolve_requested_layers(self, layer_ids: Sequence[int] | None) -> tuple[int, ...]:
         if layer_ids is None:
@@ -362,24 +497,179 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         last_frame = clips[:, :, -1:, :, :].expand(-1, -1, extra_frames, -1, -1)
         return torch.cat([clips, last_frame], dim=2)
 
+    def _encode_prompt(self) -> tuple[torch.Tensor, torch.Tensor]:
+        max_length = getattr(self._tokenizer, "model_max_length", None)
+        tokenizer_kwargs: dict[str, Any] = {
+            "padding": "max_length",
+            "truncation": True,
+            "return_tensors": "pt",
+        }
+        if isinstance(max_length, int) and max_length > 0:
+            tokenizer_kwargs["max_length"] = max_length
+
+        tokens = self._tokenizer([""], **tokenizer_kwargs)
+        input_ids = tokens.input_ids.to(self.device)
+        attention_mask = tokens.attention_mask.to(self.device)
+
+        with torch.no_grad():
+            outputs = self._text_encoder(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+            )
+
+        hidden_states = getattr(outputs, "last_hidden_state", None)
+        if not isinstance(hidden_states, torch.Tensor):
+            raise RuntimeError("LTX text encoder did not return last_hidden_state.")
+
+        return hidden_states, attention_mask
+
+    def _expand_prompt_batch(self, batch_size: int) -> tuple[torch.Tensor, torch.Tensor]:
+        prompt_embeds = self._prompt_embeds.to(device=self.device, dtype=self.model_dtype)
+        prompt_mask = self._prompt_attention_mask.to(device=self.device)
+        prompt_embeds = prompt_embeds.expand(batch_size, -1, -1).contiguous()
+        prompt_mask = prompt_mask.expand(batch_size, -1).contiguous()
+        return prompt_embeds, prompt_mask
+
+    def _noise_fraction_to_timestep(self, noise_fraction: float) -> float:
+        scheduler_cfg = getattr(self._scheduler, "config", None)
+        total = int(getattr(scheduler_cfg, "num_train_timesteps", 1000))
+        upper = max(total - 1, 1)
+        timestep = round(float(noise_fraction) * upper)
+        timestep = max(1, min(upper, timestep))
+        return float(timestep)
+
     def preprocessing_metadata(self) -> dict[str, Any]:
         """Return the raw-clip preprocessing contract used before forward."""
 
-        return ltx_preprocessing_metadata(normalize_input=self.normalize_input)
+        return ltx_diffusion_preprocessing_metadata(
+            normalize_input=self.normalize_input,
+            noise_levels=self.noise_levels,
+            prompt_mode="empty_string",
+            noise_policy="fixed_reference_noise",
+        )
 
-    @staticmethod
-    def _stage_to_tokens(stage_output: torch.Tensor) -> torch.Tensor:
-        """Convert a stage activation to canonical token layout [B, N, D]."""
+    def _encode_clips_to_latents(self, clips: torch.Tensor) -> torch.Tensor:
+        inputs = clips.to(self.device, dtype=torch.float32)
+        inputs = self._align_temporal_length(inputs)
+        if self.normalize_input:
+            inputs = normalize_rgb_minus_one_one(inputs)
+        inputs = inputs.to(dtype=self.model_dtype)
 
-        if stage_output.ndim != 5:
+        with torch.no_grad():
+            encoded = self._vae.encode(inputs)
+
+        latent_dist = getattr(encoded, "latent_dist", None)
+        if latent_dist is None or not hasattr(latent_dist, "mode"):
+            raise RuntimeError("LTX VAE encode() did not return a latent distribution with mode().")
+
+        latents = latent_dist.mode()
+        if not isinstance(latents, torch.Tensor):
+            raise RuntimeError(f"LTX VAE latent mode() returned non-tensor value: {type(latents)!r}")
+        return latents
+
+    def _reference_noise(self, latents: torch.Tensor) -> torch.Tensor:
+        generator = torch.Generator(device="cpu")
+        generator.manual_seed(self.noise_seed)
+        base_noise = torch.randn(
+            (1, *latents.shape[1:]),
+            generator=generator,
+            dtype=torch.float32,
+        )
+        base_noise = base_noise.to(device=latents.device, dtype=latents.dtype)
+        return base_noise.expand(latents.shape[0], -1, -1, -1, -1).contiguous()
+
+    def _scale_noise(
+        self,
+        latents: torch.Tensor,
+        *,
+        noise: torch.Tensor,
+        timestep_value: float,
+    ) -> torch.Tensor:
+        timestep = torch.full(
+            (latents.shape[0],),
+            float(timestep_value),
+            device=latents.device,
+            dtype=latents.dtype,
+        )
+        scaled = self._scheduler.scale_noise(latents, timestep, noise)
+        if not isinstance(scaled, torch.Tensor):
             raise RuntimeError(
-                "Expected LTX VAE stage output with shape [B, C, T, H, W], "
-                f"got shape {tuple(stage_output.shape)}"
+                f"LTX scheduler scale_noise() returned non-tensor value: {type(scaled)!r}"
             )
+        return scaled
 
-        batch, channels, frames, height, width = stage_output.shape
-        _ = frames, height, width
-        return stage_output.permute(0, 2, 3, 4, 1).reshape(batch, -1, channels)
+    def _capture_transformer_layers(
+        self,
+        noisy_latents: torch.Tensor,
+        *,
+        depth_layers: Sequence[int],
+        timestep_value: float,
+    ) -> dict[int, torch.Tensor]:
+        if noisy_latents.ndim != 5:
+            raise RuntimeError(
+                "Expected LTX latent tensor with shape [B, C, T, H, W], "
+                f"got shape {tuple(noisy_latents.shape)}"
+            )
+        hidden_states = noisy_latents.permute(0, 2, 3, 4, 1).reshape(
+            noisy_latents.shape[0], -1, noisy_latents.shape[1]
+        ).to(dtype=self.model_dtype)
+        batch_size = int(hidden_states.shape[0])
+        prompt_embeds, prompt_mask = self._expand_prompt_batch(batch_size)
+
+        captured: dict[int, torch.Tensor] = {}
+        handles: list[Any] = []
+
+        for depth_layer in depth_layers:
+            block = self._transformer_blocks[depth_layer - 1]
+
+            def _make_hook(layer_id: int):
+                def _hook(
+                    module: torch.nn.Module,
+                    inputs: tuple[Any, ...],
+                    output: torch.Tensor | tuple[Any, ...],
+                ) -> None:
+                    _ = module, inputs
+                    value = output[0] if isinstance(output, tuple) else output
+                    if not isinstance(value, torch.Tensor):
+                        raise RuntimeError(
+                            f"Unexpected non-tensor output from LTX transformer block {layer_id}: {type(value)!r}"
+                        )
+                    captured[layer_id] = value
+
+                return _hook
+
+            handles.append(block.register_forward_hook(_make_hook(depth_layer)))
+
+        timestep = torch.full(
+            (batch_size,),
+            float(timestep_value),
+            device=self.device,
+            dtype=hidden_states.dtype,
+        )
+
+        try:
+            with torch.no_grad():
+                self._transformer(
+                    hidden_states=hidden_states,
+                    encoder_hidden_states=prompt_embeds,
+                    timestep=timestep,
+                    encoder_attention_mask=prompt_mask,
+                    num_frames=int(noisy_latents.shape[2]),
+                    height=int(noisy_latents.shape[3]),
+                    width=int(noisy_latents.shape[4]),
+                    return_dict=False,
+                )
+        finally:
+            for handle in handles:
+                handle.remove()
+
+        missing_layers = [layer for layer in depth_layers if layer not in captured]
+        if missing_layers:
+            raise RuntimeError(
+                "Failed to capture all requested LTX transformer block activations. "
+                f"Missing layers: {missing_layers}"
+            )
+        return captured
 
     def extract(
         self,
@@ -392,67 +682,55 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             raise ValueError(f"Expected clips shape [B, C, T, H, W], got {tuple(clips.shape)}")
 
         requested_layers = self._resolve_requested_layers(layer_ids)
+        requested_specs = [self._probe_specs_by_slot[layer_id] for layer_id in requested_layers]
 
-        # Benchmark decoders output [0, 1] float clips. LTX VAE generally expects [-1, 1].
-        inputs = clips.to(self.device, dtype=torch.float32)
-        inputs = self._align_temporal_length(inputs)
-        if self.normalize_input:
-            inputs = inputs * 2.0 - 1.0
+        latents = self._encode_clips_to_latents(clips)
+        reference_noise = self._reference_noise(latents)
 
-        captured: dict[int, torch.Tensor] = {}
-        handles: list[Any] = []
-
-        for layer_id in self.selected_layers:
-            stage_module = self._encoder_stages[layer_id - 1]
-
-            def _make_hook(lid: int):
-                def _hook(
-                    module: torch.nn.Module,
-                    input: tuple[Any, ...],
-                    output: torch.Tensor | tuple[Any, ...],
-                ) -> None:
-                    _ = module, input
-                    value = output[0] if isinstance(output, tuple) else output
-                    if not isinstance(value, torch.Tensor):
-                        raise RuntimeError(
-                            f"Unexpected non-tensor output from LTX VAE stage {lid}: {type(value)!r}"
-                        )
-                    captured[lid] = value
-
-                return _hook
-
-            handles.append(stage_module.register_forward_hook(_make_hook(layer_id)))
-
-        try:
-            with torch.no_grad():
-                self._vae.encode(inputs)
-        finally:
-            for handle in handles:
-                handle.remove()
-
-        missing_layers = [layer for layer in self.selected_layers if layer not in captured]
-        if missing_layers:
-            raise RuntimeError(
-                "Failed to capture all requested LTX VAE stage activations. "
-                f"Missing layers: {missing_layers}"
-            )
+        specs_by_noise_index: dict[int, list[LTXProbeLayerSpec]] = defaultdict(list)
+        for spec in requested_specs:
+            specs_by_noise_index[spec.noise_level_index].append(spec)
 
         tokens_by_layer: dict[int, torch.Tensor] = {}
         pooled_by_layer: dict[int, torch.Tensor] = {}
-        for layer in requested_layers:
-            tokens = self._stage_to_tokens(captured[layer])
-            tokens_by_layer[layer] = tokens
-            pooled_by_layer[layer] = tokens.mean(dim=1)
+
+        for noise_index, specs in specs_by_noise_index.items():
+            timestep_value = self._noise_timesteps[noise_index]
+            noisy_latents = self._scale_noise(
+                latents,
+                noise=reference_noise,
+                timestep_value=timestep_value,
+            )
+
+            depth_layers = tuple(dict.fromkeys(spec.depth_layer_id for spec in specs).keys())
+            captured = self._capture_transformer_layers(
+                noisy_latents,
+                depth_layers=depth_layers,
+                timestep_value=timestep_value,
+            )
+
+            for spec in specs:
+                tokens = captured[spec.depth_layer_id]
+                if tokens.ndim != 3:
+                    raise RuntimeError(
+                        "Expected LTX transformer hidden states with shape [B, N, D], "
+                        f"got shape {tuple(tokens.shape)}"
+                    )
+                tokens_by_layer[spec.probe_layer_id] = tokens
+                pooled_by_layer[spec.probe_layer_id] = tokens.mean(dim=1)
 
         metadata = {
             "hf_model_id": self.hf_model_id,
             "config_path": str(self.config_path),
             "variant": self.variant,
             "model_name": self.model_name,
-            "extract_source": "vae_encoder_stages",
+            "extract_source": "diffusion_transformer_blocks",
             "vae_subfolder": self.vae_subfolder,
             "torch_dtype": str(self.model_dtype).replace("torch.", ""),
             "normalize_input": self.normalize_input,
+            "noise_seed": self.noise_seed,
+            "noise_levels": [float(v) for v in self.noise_levels],
+            "noise_timesteps": [float(v) for v in self._noise_timesteps],
             "patch_size": self.patch_size,
             "patch_size_t": self.patch_size_t,
             "frames_per_clip": self.frames_per_clip,
@@ -460,6 +738,16 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),
             "temporal_compression_ratio": int(getattr(self._vae, "temporal_compression_ratio", 1)),
             "temporal_downsample_strides": [int(v) for v in self._temporal_downsample_strides],
+            "transformer_block_count": len(self._transformer_blocks),
+            "layer_spec_by_id": {
+                str(spec.probe_layer_id): {
+                    "noise_level_index": int(spec.noise_level_index),
+                    "noise_fraction": float(spec.noise_fraction),
+                    "noise_label": spec.noise_label,
+                    "depth_layer_id": int(spec.depth_layer_id),
+                }
+                for spec in self._probe_layer_specs
+            },
             "preprocessing": self.preprocessing_metadata(),
         }
 
