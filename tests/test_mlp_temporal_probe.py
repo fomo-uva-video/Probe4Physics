@@ -5,11 +5,61 @@ import unittest
 from pathlib import Path
 
 import torch
+import torch.nn.functional as F
 
 from probes.mlp import MLPProbe
-from probes.temporal_attn import TemporalAttentiveProbe
+from probes.temporal_attn import (
+    TemporalAttentiveProbe,
+    _MultiheadCrossAttention,
+    _MultiheadSelfAttention,
+)
 
 
+def _manual_self_attention(module: _MultiheadSelfAttention, x: torch.Tensor) -> torch.Tensor:
+    embed_dim = module.mha.embed_dim
+    num_heads = module.mha.num_heads
+    head_dim = embed_dim // num_heads
+    scale = head_dim**0.5
+    batch_size, seq_len, _ = x.shape
+
+    qkv = F.linear(x, module.mha.in_proj_weight, module.mha.in_proj_bias)
+    q, k, v = qkv.split(embed_dim, dim=-1)
+    q = q.reshape(batch_size, seq_len, num_heads, head_dim).transpose(1, 2)
+    k = k.reshape(batch_size, seq_len, num_heads, head_dim).transpose(1, 2)
+    v = v.reshape(batch_size, seq_len, num_heads, head_dim).transpose(1, 2)
+
+    attn = torch.softmax(torch.matmul(q, k.transpose(-2, -1)) / scale, dim=-1)
+    out = torch.matmul(attn, v)
+    out = out.transpose(1, 2).reshape(batch_size, seq_len, embed_dim)
+    return F.linear(out, module.mha.out_proj.weight, module.mha.out_proj.bias)
+
+
+def _manual_cross_attention(
+    module: _MultiheadCrossAttention,
+    query: torch.Tensor,
+    context: torch.Tensor,
+) -> torch.Tensor:
+    embed_dim = module.mha.embed_dim
+    num_heads = module.mha.num_heads
+    head_dim = embed_dim // num_heads
+    scale = head_dim**0.5
+    batch_size, query_len, _ = query.shape
+    context_len = context.shape[1]
+
+    q_weight, k_weight, v_weight = module.mha.in_proj_weight.split(embed_dim, dim=0)
+    q_bias, k_bias, v_bias = module.mha.in_proj_bias.split(embed_dim, dim=0)
+    q = F.linear(query, q_weight, q_bias)
+    k = F.linear(context, k_weight, k_bias)
+    v = F.linear(context, v_weight, v_bias)
+
+    q = q.reshape(batch_size, query_len, num_heads, head_dim).transpose(1, 2)
+    k = k.reshape(batch_size, context_len, num_heads, head_dim).transpose(1, 2)
+    v = v.reshape(batch_size, context_len, num_heads, head_dim).transpose(1, 2)
+
+    attn = torch.softmax(torch.matmul(q, k.transpose(-2, -1)) / scale, dim=-1)
+    out = torch.matmul(attn, v)
+    out = out.transpose(1, 2).reshape(batch_size, query_len, embed_dim)
+    return F.linear(out, module.mha.out_proj.weight, module.mha.out_proj.bias)
 class MLPProbeTests(unittest.TestCase):
     def test_save_and_load_roundtrip(self) -> None:
         probe = MLPProbe(
@@ -39,6 +89,24 @@ class MLPProbeTests(unittest.TestCase):
 
 
 class TemporalAttentiveProbeTests(unittest.TestCase):
+    def test_attention_modules_match_legacy_attention_math(self) -> None:
+        torch.manual_seed(7)
+
+        self_attn = _MultiheadSelfAttention(embed_dim=8, num_heads=2, dropout=0.0)
+        cross_attn = _MultiheadCrossAttention(embed_dim=8, num_heads=2, dropout=0.0)
+        self_attn.eval()
+        cross_attn.eval()
+
+        x = torch.randn(3, 5, 8)
+        query = torch.randn(3, 1, 8)
+        context = torch.randn(3, 5, 8)
+
+        torch.testing.assert_close(self_attn(x), _manual_self_attention(self_attn, x))
+        torch.testing.assert_close(
+            cross_attn(query, context),
+            _manual_cross_attention(cross_attn, query, context),
+        )
+
     def test_save_and_load_roundtrip(self) -> None:
         probe = TemporalAttentiveProbe(
             input_dim=8,
@@ -67,6 +135,21 @@ class TemporalAttentiveProbeTests(unittest.TestCase):
             loaded = TemporalAttentiveProbe.load(ckpt, device="cpu")
             pred = loaded.predict(x)
             self.assertEqual(tuple(pred.shape), (32,))
+
+    def test_predict_logits_supports_input_projection(self) -> None:
+        probe = TemporalAttentiveProbe(
+            input_dim=6,
+            num_classes=3,
+            embed_dim=8,
+            num_heads=2,
+            num_self_attn_blocks=1,
+            mlp_ratio=2.0,
+            dropout=0.0,
+            device="cpu",
+        )
+
+        logits = probe.predict_logits(torch.randn(7, 4, 6))
+        self.assertEqual(tuple(logits.shape), (7, 3))
 
     def test_fit_rejects_non_token_input(self) -> None:
         probe = TemporalAttentiveProbe(
