@@ -12,7 +12,7 @@ import pandas as pd
 import torch
 
 from probes.linear import LinearProbe
-from run_probe import ProbeConfigError, run_mvp_eval_probe
+from training.run_probe import ProbeConfigError, run_mvp_eval_probe
 
 
 class _StaticProbe:
@@ -106,8 +106,8 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
-                with mock.patch("run_probe.run_mvp_eval") as mocked_eval:
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("training.run_probe.run_mvp_eval") as mocked_eval:
                     with self.assertRaises(ProbeConfigError):
                         run_mvp_eval_probe(config)
 
@@ -158,7 +158,7 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                 with self.assertRaisesRegex(ProbeConfigError, "Re-run `python run.py extract.mvp`"):
                     run_mvp_eval_probe(config)
 
@@ -242,13 +242,13 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                 with mock.patch(
-                    "run_probe.load_probe_from_checkpoint",
+                    "training.run_probe.load_probe_from_checkpoint",
                     return_value=(_StaticProbe([1, 0, 1, 0]), {"metadata": {"feature_signature": "cache_sig", "target_type": "semantic_plausibility"}}),
                 ):
                     with mock.patch(
-                        "run_probe.run_mvp_eval",
+                        "training.run_probe.run_mvp_eval",
                         return_value={"metrics": {"accuracy": 100.0}},
                     ) as mocked_eval:
                         summary = run_mvp_eval_probe(config)
@@ -403,9 +403,9 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                 with mock.patch(
-                    "run_probe.load_probe_from_checkpoint",
+                    "training.run_probe.load_probe_from_checkpoint",
                     return_value=(
                         _StaticProbe([1, 0, 1, 0]),
                         {

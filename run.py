@@ -23,7 +23,7 @@ from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_c
 from benchmarks.ssv2.init import run_ssv2_init
 from experiments.health import run_health, run_health_features, run_health_layers
 from experiments.registry import get_experiment, list_experiments
-from run_probe import (
+from training.run_probe import (
     run_intphys2_eval_probe,
     run_intphys2_train_probe,
     run_mvp_eval_probe,

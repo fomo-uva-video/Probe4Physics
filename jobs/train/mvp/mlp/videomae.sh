@@ -1,0 +1,35 @@
+#!/bin/bash
+# Train a MVP mlp probe with videomae features.
+#
+# Usage:
+#   sbatch videomae.sh
+
+#SBATCH --partition=rome
+#SBATCH --job-name=mvp_videomae_mlp
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=02:00:00
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+
+set -euo pipefail
+
+DATASET_NAME="mvp"
+PROBE_NAME="mlp"
+BACKBONE_NAME="videomae"
+BACKBONE_VARIANT="vit_huge_16_224"
+PROBE_EPOCHS="100"
+PROBE_DEVICE="cpu"
+PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
+PROBE_FEATURE_VIEW="pooled"
+ENABLE_WANDB="true"
+WANDB_PROJECT="probe4physics"
+WANDB_MODE="online"
+ENABLE_OPTUNA="true"
+OPTUNA_N_TRIALS="10"
+OPTUNA_N_JOBS="1"
+OPTUNA_TIMEOUT_SECONDS="0"
+export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS
+
+SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+exec "${SCRIPT_DIR}/run_train.sh" "$@"

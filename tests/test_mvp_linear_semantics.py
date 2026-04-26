@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 
 from probes.base import ProbeFitResult
-from run_probe import ProbeConfigError, run_mvp_train_probe
+from training.run_probe import ProbeConfigError, run_mvp_train_probe
 
 
 class _CapturingProbe:
@@ -141,8 +141,8 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
-                with mock.patch("run_probe.create_probe", return_value=fake_probe):
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("training.run_probe.create_probe", return_value=fake_probe):
                     result = run_mvp_train_probe(config)
 
             self.assertTrue(Path(result["checkpoint"]).exists())
@@ -175,7 +175,7 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
             }
         }
 
-        with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+        with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
             with self.assertRaisesRegex(ProbeConfigError, "Re-run `python run.py extract.mvp`"):
                 run_mvp_train_probe(config)
 
@@ -201,9 +201,9 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
-                with mock.patch("run_probe.create_probe", return_value=fake_probe):
-                    with mock.patch("run_probe.init_wandb_train_logger", return_value=fake_logger):
+            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("training.run_probe.create_probe", return_value=fake_probe):
+                    with mock.patch("training.run_probe.init_wandb_train_logger", return_value=fake_logger):
                         result = run_mvp_train_probe(config)
 
         fake_logger.log_epoch.assert_called_once()

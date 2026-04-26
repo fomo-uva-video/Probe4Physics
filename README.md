@@ -8,8 +8,8 @@ Current v1 scope:
 - probe training and evaluation
 - experiment recipes through `run.py`
 
-`run.py` remains the project-level launcher. `run_probe.py` is the dedicated
-probe train/eval entrypoint.
+`run.py` remains the project-level launcher. Probe train/eval orchestration now
+lives in `training/run_probe.py` and is invoked through `run.py`.
 
 ## Project Layout
 - `benchmarks/`: benchmark logic (MVP, IntPhys2, SSv2 — loading/scoring/splitting)
@@ -83,7 +83,7 @@ Main outputs in `probe.output_dir/...`:
 - `train_summary.json`
 
 ### Stage 4: `eval.probe.mvp`
-Loads linear checkpoint, verifies feature signature, writes predictions, and runs official MVP scoring.
+Loads the selected probe checkpoint, verifies feature signature, writes predictions, and runs official MVP scoring.
 
 Main outputs in `probe.eval_output_dir/...`:
 - `probe_predictions.json`
@@ -257,14 +257,6 @@ python run.py download.intphys2 download.splits=[Debug]
 
 # limit SSv2 subset size
 python run.py init.ssv2 split.max_samples_per_class=50
-```
-
-Direct probe CLI:
-```bash
-python run_probe.py train --dataset mvp --probe linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run_probe.py train --dataset intphys2 --probe mlp probe.feature_view=tokens_mean
-python run_probe.py train --dataset ssv2 --probe temporal_attn probe.feature_view=tokens
-python run_probe.py eval --dataset mvp --probe linear split_name=val probe.checkpoint_path=/absolute/path/to/probe_best.pt
 ```
 
 ## LTX-Video Notes

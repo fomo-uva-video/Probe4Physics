@@ -33,7 +33,7 @@ from probes import (
 )
 from training.wandb_utils import WandbTrainLogger, init_wandb_train_logger
 
-CONFIG_DIR = Path(__file__).resolve().parent / "configs"
+CONFIG_DIR = Path(__file__).resolve().parents[1] / "configs"
 _SUPPORTED_PROBE_VIEWS = {
     "linear": {"pooled", "tokens_mean"},
     "mlp": {"pooled", "tokens_mean"},

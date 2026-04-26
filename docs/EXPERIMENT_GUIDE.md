@@ -280,8 +280,9 @@ Current pipeline commands are wired for probes:
 - `train.probe.<benchmark>`
 - `eval.probe.<benchmark>`
 
-These commands dispatch into `run_probe.py`, which now owns probe selection,
-checkpoint loading, train/eval orchestration, and optional Optuna sweeps.
+These commands dispatch into `training/run_probe.py`, which owns probe
+selection, checkpoint loading, train/eval orchestration, and optional Optuna
+sweeps.
 
 ### Train (MVP)
 
@@ -439,7 +440,7 @@ Fix:
 - verify specific missing file exists under that root
 - rerun missing download target if needed (`make .download.intphys`, etc.)
 
-## 10.3 "No linear checkpoint found automatically"
+## 10.3 "No probe checkpoint found automatically"
 
 Cause: eval auto-discovery searches timestamped folders, but your run used a fixed output subdir.
 

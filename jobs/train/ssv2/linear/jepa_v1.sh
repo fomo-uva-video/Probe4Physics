@@ -1,0 +1,35 @@
+#!/bin/bash
+# Train a SSv2 linear probe with jepa_v1 features.
+#
+# Usage:
+#   sbatch jepa_v1.sh
+
+#SBATCH --partition=rome
+#SBATCH --job-name=ssv2_jepa_v1_linear
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=02:00:00
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
+
+set -euo pipefail
+
+DATASET_NAME="ssv2"
+PROBE_NAME="linear"
+BACKBONE_NAME="jepa_v1"
+BACKBONE_VARIANT="vith16_384"
+PROBE_EPOCHS="100"
+PROBE_DEVICE="cpu"
+PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
+PROBE_FEATURE_VIEW="pooled"
+ENABLE_WANDB="true"
+WANDB_PROJECT="probe4physics"
+WANDB_MODE="online"
+ENABLE_OPTUNA="true"
+OPTUNA_N_TRIALS="10"
+OPTUNA_N_JOBS="1"
+OPTUNA_TIMEOUT_SECONDS="0"
+export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS
+
+SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+exec "${SCRIPT_DIR}/run_train.sh" "$@"

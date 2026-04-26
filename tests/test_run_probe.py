@@ -7,7 +7,7 @@ from unittest import mock
 
 import torch
 
-import run_probe
+from training import run_probe
 from probes.mlp import MLPProbe
 
 
@@ -134,9 +134,9 @@ class RunProbeTests(unittest.TestCase):
                     "probe_eval_dir": str(output_dir),
                 }
 
-            with mock.patch("run_probe._import_optuna", return_value=_FakeOptunaModule()):
-                with mock.patch("run_probe._run_single_train", side_effect=_fake_train):
-                    with mock.patch("run_probe._run_single_eval", side_effect=_fake_eval):
+            with mock.patch("training.run_probe._import_optuna", return_value=_FakeOptunaModule()):
+                with mock.patch("training.run_probe._run_single_train", side_effect=_fake_train):
+                    with mock.patch("training.run_probe._run_single_eval", side_effect=_fake_eval):
                         summary = run_probe.run_probe_train("mvp", config)
 
         self.assertEqual(summary["study_name"], "study_run")

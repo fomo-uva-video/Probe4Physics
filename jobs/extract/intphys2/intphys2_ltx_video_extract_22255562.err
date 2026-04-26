@@ -1,0 +1,104 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Fetching 34 files:   0%|          | 0/34 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 34 files:   6%|▌         | 2/34 [00:00<00:03, 10.34it/s]Fetching 34 files:  12%|█▏        | 4/34 [00:09<01:26,  2.87s/it]Fetching 34 files:  15%|█▍        | 5/34 [00:10<01:00,  2.08s/it]Fetching 34 files:  41%|████      | 14/34 [00:10<00:09,  2.05it/s]Fetching 34 files:  53%|█████▎    | 18/34 [00:15<00:11,  1.34it/s]Fetching 34 files: 100%|██████████| 34/34 [00:15<00:00,  2.16it/s]
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s][transformers] Could not extract SentencePiece model from /scratch-shared/scur0511/.cache/huggingface/hub/models--Lightricks--LTX-Video-0.9.8-13B-distilled/snapshots/7c64400e1861cc0d7b98d570a1926d5408ec60cd/tokenizer/spiece.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+Loading pipeline components...:  20%|██        | 1/5 [00:00<00:00, 24.66it/s]
+Traceback (most recent call last):
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/tokenization_utils_tokenizers.py", line 217, in convert_to_native_format
+    extractor = SentencePieceExtractor(vocab_file)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/convert_slow_tokenizer.py", line 152, in __init__
+    requires_backends(self, "sentencepiece")
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2026, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/convert_slow_tokenizer.py", line 1920, in extract_vocab_merges_from_model
+    from tiktoken.load import load_tiktoken_bpe
+ModuleNotFoundError: No module named 'tiktoken'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 370, in _load_components
+    pipeline = LTXPipeline.from_pretrained(self.hf_model_id, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/pipelines/pipeline_utils.py", line 1049, in from_pretrained
+    loaded_sub_model = load_sub_model(
+                       ^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/pipelines/pipeline_loading_utils.py", line 885, in load_sub_model
+    loaded_sub_model = load_method(os.path.join(cached_folder, name), **loading_kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/tokenization_utils_base.py", line 1740, in from_pretrained
+    return cls._from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/tokenization_utils_base.py", line 1927, in _from_pretrained
+    init_kwargs = cls.convert_to_native_format(**init_kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/tokenization_utils_tokenizers.py", line 283, in convert_to_native_format
+    local_kwargs["tokenizer_object"] = converter.converted()
+                                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/convert_slow_tokenizer.py", line 1957, in converted
+    tokenizer = self.tokenizer()
+                ^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/convert_slow_tokenizer.py", line 1950, in tokenizer
+    vocab_scores, merges = self.extract_vocab_merges_from_model(self.vocab_file)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/convert_slow_tokenizer.py", line 1922, in extract_vocab_merges_from_model
+    raise ValueError(
+ValueError: `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 361, in <module>
+    main()
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 80, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/intphys2_extract.py", line 9, in run_intphys2_extract
+    return run_intphys2_feature_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/intphys2/features.py", line 107, in run_intphys2_feature_extraction
+    adapter = create_adapter(backbone_name, **backbone_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/registry.py", line 40, in create_adapter
+    return _ADAPTER_FACTORIES[key](**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 765, in create_ltx_video_adapter
+    return LTXVideoAdapter(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 340, in __init__
+    ) = self._load_components()
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 372, in _load_components
+    raise RuntimeError(
+RuntimeError: Failed to load LTX-Video pipeline from HuggingFace. model_id='Lightricks/LTX-Video-0.9.8-13B-distilled'. Ensure network access, accepted model license, and valid HF authentication if required.
