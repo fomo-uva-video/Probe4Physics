@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import math
 from typing import Any
 
 import torch
-import torch.nn.functional as F
 from torch import nn
 
 from probes.base import BaseClassifierProbe
@@ -17,7 +15,7 @@ from probes.registry import register_probe
 
 
 class _MultiheadSelfAttention(nn.Module):
-    """Scaled dot-product multi-head self-attention."""
+    """PyTorch-backed multi-head self-attention."""
 
     def __init__(self, embed_dim: int, num_heads: int, dropout: float = 0.0) -> None:
         super().__init__()
@@ -25,46 +23,20 @@ class _MultiheadSelfAttention(nn.Module):
             raise ValueError(
                 f"embed_dim ({embed_dim}) must be divisible by num_heads ({num_heads})"
             )
-        self.embed_dim = embed_dim
-        self.num_heads = num_heads
-        self.head_dim = embed_dim // num_heads
-        self.scale = math.sqrt(self.head_dim)
-        self.dropout = dropout
-
-        self.qkv = nn.Linear(embed_dim, 3 * embed_dim, bias=True)
-        self.proj = nn.Linear(embed_dim, embed_dim, bias=True)
+        self.mha = nn.MultiheadAttention(
+            embed_dim=embed_dim,
+            num_heads=num_heads,
+            dropout=dropout,
+            batch_first=True,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Parameters
-        ----------
-        x : Tensor of shape [B, T, D]
-
-        Returns
-        -------
-        Tensor of shape [B, T, D]
-        """
-        B, T, D = x.shape
-        qkv = self.qkv(x)  # [B, T, 3D]
-        q, k, v = qkv.split(self.embed_dim, dim=-1)  # each [B, T, D]
-
-        # Reshape to [B, heads, T, head_dim]
-        q = q.reshape(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        k = k.reshape(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        v = v.reshape(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-
-        attn = torch.matmul(q, k.transpose(-2, -1)) / self.scale  # [B, H, T, T]
-        attn = F.softmax(attn, dim=-1)
-        if self.dropout > 0.0 and self.training:
-            attn = F.dropout(attn, p=self.dropout)
-
-        out = torch.matmul(attn, v)  # [B, H, T, head_dim]
-        out = out.transpose(1, 2).reshape(B, T, D)
-        return self.proj(out)
+        out, _ = self.mha(x, x, x, need_weights=False)
+        return out
 
 
 class _MultiheadCrossAttention(nn.Module):
-    """Multi-head cross-attention (query from one source, key/value from another)."""
+    """PyTorch-backed multi-head cross-attention."""
 
     def __init__(self, embed_dim: int, num_heads: int, dropout: float = 0.0) -> None:
         super().__init__()
@@ -72,46 +44,16 @@ class _MultiheadCrossAttention(nn.Module):
             raise ValueError(
                 f"embed_dim ({embed_dim}) must be divisible by num_heads ({num_heads})"
             )
-        self.embed_dim = embed_dim
-        self.num_heads = num_heads
-        self.head_dim = embed_dim // num_heads
-        self.scale = math.sqrt(self.head_dim)
-        self.dropout = dropout
-
-        self.q_proj = nn.Linear(embed_dim, embed_dim, bias=True)
-        self.kv_proj = nn.Linear(embed_dim, 2 * embed_dim, bias=True)
-        self.proj = nn.Linear(embed_dim, embed_dim, bias=True)
+        self.mha = nn.MultiheadAttention(
+            embed_dim=embed_dim,
+            num_heads=num_heads,
+            dropout=dropout,
+            batch_first=True,
+        )
 
     def forward(self, query: torch.Tensor, context: torch.Tensor) -> torch.Tensor:
-        """
-        Parameters
-        ----------
-        query   : Tensor of shape [B, Tq, D]
-        context : Tensor of shape [B, T,  D]
-
-        Returns
-        -------
-        Tensor of shape [B, Tq, D]
-        """
-        B, Tq, D = query.shape
-        T = context.shape[1]
-
-        q = self.q_proj(query)  # [B, Tq, D]
-        kv = self.kv_proj(context)  # [B, T, 2D]
-        k, v = kv.split(self.embed_dim, dim=-1)
-
-        q = q.reshape(B, Tq, self.num_heads, self.head_dim).transpose(1, 2)
-        k = k.reshape(B, T,  self.num_heads, self.head_dim).transpose(1, 2)
-        v = v.reshape(B, T,  self.num_heads, self.head_dim).transpose(1, 2)
-
-        attn = torch.matmul(q, k.transpose(-2, -1)) / self.scale  # [B, H, Tq, T]
-        attn = F.softmax(attn, dim=-1)
-        if self.dropout > 0.0 and self.training:
-            attn = F.dropout(attn, p=self.dropout)
-
-        out = torch.matmul(attn, v)  # [B, H, Tq, head_dim]
-        out = out.transpose(1, 2).reshape(B, Tq, D)
-        return self.proj(out)
+        out, _ = self.mha(query, context, context, need_weights=False)
+        return out
 
 
 class _TransformerBlock(nn.Module):
@@ -279,7 +221,6 @@ class _AttentiveProbeModel(nn.Module):
 
         # Squeeze the sequence dimension and classify
         return self.classifier(query.squeeze(1))  # [B, num_classes]
-
 
 # ---------------------------------------------------------------------------
 # Public probe class
