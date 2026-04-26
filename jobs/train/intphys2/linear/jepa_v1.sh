@@ -6,12 +6,12 @@
 #   sbatch jepa_v1.sh probe.device=cpu
 
 #SBATCH --partition=rome
-#SBATCH --job-name=intphys2_jepa_v1_linear
+#SBATCH --job-name=intphys2_jepa_v1_linear_layers
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=02:00:00
-#SBATCH --output=output/training/intphys2/linear/intphys2_jepa_v1_linear_last_%j.out
-#SBATCH --error=output/training/intphys2/linear/intphys2_jepa_v1_linear_last_%j.err
+#SBATCH --output=output/training/intphys2/linear/intphys2_jepa_v1_linear_layers_%j.out
+#SBATCH --error=output/training/intphys2/linear/intphys2_jepa_v1_linear_layers_%j.err
 
 set -euo pipefail
 
@@ -19,8 +19,8 @@ DATASET_NAME="intphys2"
 PROBE_NAME="linear"
 BACKBONE_NAME="jepa_v1"
 BACKBONE_VARIANT="vith16_384"
-PROBE_LAYER="8,16,24,23"  # possible values: last | 8 | 16 | 24 | 32
-PROBE_LAYERS="${PROBE_LAYER}"
+PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
+PROBE_LAYERS="8,16,24,32"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"
