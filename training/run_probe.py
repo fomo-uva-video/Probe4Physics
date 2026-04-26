@@ -3,12 +3,15 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import os
+import random
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+import numpy as np
 import torch
 from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
@@ -50,10 +53,31 @@ _REQUIRED_MVP_SEMANTIC_COLUMNS = (
     "yes_choice_idx",
     "no_choice_idx",
 )
+_MODEL_SELECTION_SPLIT = "val"
 
 
 class ProbeConfigError(ValueError):
     pass
+
+
+def _seed_training_runtime(seed: int, *, deterministic: bool) -> None:
+    """Seed global RNGs before probe construction and optionally force deterministic kernels."""
+
+    resolved_seed = int(seed)
+    random.seed(resolved_seed)
+    np.random.seed(resolved_seed)
+    torch.manual_seed(resolved_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(resolved_seed)
+        torch.cuda.manual_seed_all(resolved_seed)
+
+    torch.use_deterministic_algorithms(bool(deterministic))
+    if hasattr(torch.backends, "cudnn"):
+        torch.backends.cudnn.deterministic = bool(deterministic)
+        if deterministic:
+            torch.backends.cudnn.benchmark = False
+    if deterministic:
+        os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 
 @dataclass(frozen=True)
@@ -64,9 +88,21 @@ class DatasetSpec:
     default_train_output_dir: str
     default_eval_output_dir: str
     default_eval_split: str
+    report_splits: tuple[str, ...]
     train_prefix: str
     eval_prefix: str
     objective_metric: str
+
+
+@dataclass(frozen=True)
+class EvalContext:
+    spec: DatasetSpec
+    manifest: dict[str, Any]
+    index: Any
+    features: torch.Tensor
+    probe: Any
+    checkpoint_path: Path
+    current_signature: str
 
 
 DATASET_SPECS = {
@@ -77,6 +113,7 @@ DATASET_SPECS = {
         default_train_output_dir="artifacts/probes",
         default_eval_output_dir="artifacts/results",
         default_eval_split="test",
+        report_splits=("train", "val", "test"),
         train_prefix="mvp_probe",
         eval_prefix="mvp_probe_eval",
         objective_metric="accuracy",
@@ -90,7 +127,8 @@ DATASET_SPECS = {
         eval_runner=lambda config: run_intphys2_eval(config),
         default_train_output_dir="artifacts/probes/intphys2",
         default_eval_output_dir="artifacts/results/intphys2",
-        default_eval_split="val",
+        default_eval_split="test",
+        report_splits=("train", "val", "test"),
         train_prefix="intphys2_probe",
         eval_prefix="intphys2_probe_eval",
         objective_metric="voe_accuracy",
@@ -102,6 +140,7 @@ DATASET_SPECS = {
         default_train_output_dir="artifacts/probes/ssv2",
         default_eval_output_dir="artifacts/results/ssv2",
         default_eval_split="val",
+        report_splits=(),
         train_prefix="ssv2_probe",
         eval_prefix="ssv2_probe_eval",
         objective_metric="top1_accuracy",
@@ -184,7 +223,7 @@ def run_probe_train(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
 def run_probe_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
     _require_dataset(dataset)
     probe_cfg = _probe_cfg(config)
-    return _run_single_eval(dataset, config, probe_cfg)
+    return _run_report_eval(dataset, config, probe_cfg)
 
 
 def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -193,12 +232,10 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
     sweep_layers = _resolve_sweep_layers(config, probe_cfg)
     sweep_root = _resolve_train_eval_root_dir(dataset, config, probe_cfg)
     sweep_root.mkdir(parents=True, exist_ok=True)
-    eval_split = str(config.get("split_name", DATASET_SPECS[dataset].default_eval_split))
+    eval_split = _resolve_primary_eval_split(dataset, config)
+    reported_splits = list(_resolve_report_splits(dataset, config))
 
     layer_summaries: list[dict[str, Any]] = []
-    best_layer: int | str | None = None
-    best_layer_label = ""
-    best_metric: float | None = None
 
     for layer in sweep_layers:
         layer_label = _layer_label(layer)
@@ -220,12 +257,11 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
 
         eval_config = _with_checkpoint_path(layer_config, checkpoint_path)
         eval_probe_cfg = _probe_cfg(eval_config)
-        eval_summary = _run_single_eval(
+        eval_summary = _run_report_eval(
             dataset,
             eval_config,
             eval_probe_cfg,
             output_dir=eval_dir,
-            split_name=eval_split,
         )
 
         objective_metric = float(eval_summary["objective_metric"])
@@ -239,22 +275,20 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
         }
         layer_summaries.append(layer_summary)
 
-        if best_metric is None or objective_metric > best_metric:
-            best_metric = objective_metric
-            best_layer = layer
-            best_layer_label = layer_label
-
     summary = {
         "dataset": dataset,
         "probe_name": probe_cfg["name"],
         "feature_view": probe_cfg["feature_view"],
+        "train_split": probe_cfg["train_split"],
+        "model_selection_split": _MODEL_SELECTION_SPLIT,
         "split_name": eval_split,
+        "reported_splits": reported_splits,
         "sweep_dir": str(sweep_root),
         "requested_layers": [_serialize_layer_value(layer) for layer in sweep_layers],
         "layers": layer_summaries,
-        "best_layer": None if best_layer is None else _serialize_layer_value(best_layer),
-        "best_layer_label": best_layer_label,
-        "best_objective_metric": best_metric,
+        "best_layer": None,
+        "best_layer_label": None,
+        "best_objective_metric": None,
     }
     (sweep_root / "train_eval_summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True),
@@ -298,6 +332,7 @@ def _run_single_train(
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
     _validate_dataset_index(dataset, index)
+    _require_report_splits_present(dataset, index)
 
     features = _select_feature_tensor(bundle, probe_cfg)
     labels = _resolve_labels(dataset, index)
@@ -320,6 +355,8 @@ def _run_single_train(
 
     input_dim = int(x_train.shape[-1])
     num_classes = _resolve_num_classes(dataset, labels, manifest)
+    seed = int(config.get("seed", 42))
+    _seed_training_runtime(seed, deterministic=bool(probe_cfg["deterministic"]))
     probe = _create_probe_instance(probe_cfg, input_dim=input_dim, num_classes=num_classes)
 
     train_output_dir = output_dir or _resolve_train_output_dir(dataset, config, probe_cfg)
@@ -351,7 +388,7 @@ def _run_single_train(
             lr=probe_cfg["lr"],
             batch_size=probe_cfg["batch_size"],
             weight_decay=probe_cfg["weight_decay"],
-            seed=int(config.get("seed", 42)),
+            seed=seed,
             epoch_logger=fit_epoch_logger,
         )
 
@@ -435,21 +472,47 @@ def _run_single_train(
                     logger.finish()
 
 
-def _run_single_eval(
+def _run_report_eval(
     dataset: str,
     config: dict[str, Any],
     probe_cfg: dict[str, Any],
     *,
     output_dir: Path | None = None,
-    split_name: str | None = None,
 ) -> dict[str, Any]:
+    report_splits = _resolve_report_splits(dataset, config)
+    primary_split = _resolve_primary_eval_split(dataset, config)
+    context = _load_eval_context(dataset, config, probe_cfg)
+    if len(report_splits) == 1:
+        return _run_single_eval_from_context(
+            dataset,
+            config,
+            probe_cfg,
+            context,
+            output_dir=output_dir,
+            split_name=report_splits[0],
+        )
+    return _run_multi_split_eval(
+        dataset,
+        config,
+        probe_cfg,
+        context,
+        output_dir=output_dir,
+        primary_split=primary_split,
+        report_splits=report_splits,
+    )
+
+
+def _load_eval_context(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+) -> EvalContext:
     spec = DATASET_SPECS[dataset]
     bundle = spec.load_bundle(config, probe_cfg["feature_view"])
     manifest = bundle["manifest"]
     index = bundle["index"].sort_values("feature_index").reset_index(drop=True)
     _validate_dataset_index(dataset, index)
-
-    eval_split = str(split_name or config.get("split_name", spec.default_eval_split))
+    _require_report_splits_present(dataset, index)
     checkpoint_path = _resolve_checkpoint_path(dataset, config, probe_cfg)
     probe, ckpt_payload = load_probe_from_checkpoint(
         checkpoint_path,
@@ -469,6 +532,53 @@ def _run_single_eval(
         _require_semantic_checkpoint(ckpt_meta)
 
     features = _select_feature_tensor(bundle, probe_cfg)
+    return EvalContext(
+        spec=spec,
+        manifest=manifest,
+        index=index,
+        features=features,
+        probe=probe,
+        checkpoint_path=checkpoint_path,
+        current_signature=current_signature,
+    )
+
+
+def _run_single_eval(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    split_name: str | None = None,
+) -> dict[str, Any]:
+    context = _load_eval_context(dataset, config, probe_cfg)
+    raw_eval_split = split_name or config.get("split_name", DATASET_SPECS[dataset].default_eval_split)
+    eval_split = str(raw_eval_split).strip() or DATASET_SPECS[dataset].default_eval_split
+    return _run_single_eval_from_context(
+        dataset,
+        config,
+        probe_cfg,
+        context,
+        output_dir=output_dir,
+        split_name=eval_split,
+    )
+
+
+def _run_single_eval_from_context(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    output_dir: Path | None = None,
+    split_name: str,
+) -> dict[str, Any]:
+    eval_split = str(split_name)
+    index = context.index
+    features = context.features
+    probe = context.probe
+    spec = context.spec
+
     split_mask = index["split"].astype(str) == eval_split
     if not split_mask.any():
         raise ProbeConfigError(
@@ -545,13 +655,14 @@ def _run_single_eval(
     metric_value = _extract_objective_metric(dataset, result.get("metrics", {}), probe_cfg)
     summary = {
         "probe_eval_dir": str(eval_output_dir),
-        "checkpoint": str(checkpoint_path),
+        "checkpoint": str(context.checkpoint_path),
         "prediction_file": str(pred_file),
-        "feature_signature": current_signature,
+        "feature_signature": context.current_signature,
         "dataset": dataset,
         "probe_name": probe_cfg["name"],
         "split_name": eval_split,
         "objective_metric": metric_value,
+        "metrics": result.get("metrics", {}),
         "base_eval": result,
     }
     (eval_output_dir / "probe_eval_summary.json").write_text(
@@ -559,6 +670,138 @@ def _run_single_eval(
         encoding="utf-8",
     )
     return summary
+
+
+def _run_multi_split_eval(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    output_dir: Path | None,
+    primary_split: str,
+    report_splits: tuple[str, ...],
+) -> dict[str, Any]:
+    if primary_split not in report_splits:
+        raise ProbeConfigError(
+            f"Primary eval split '{primary_split}' must be one of the reported splits {list(report_splits)}."
+        )
+
+    eval_root = output_dir or _resolve_eval_output_dir(dataset, config, probe_cfg)
+    eval_root.mkdir(parents=True, exist_ok=True)
+
+    split_summaries: dict[str, dict[str, Any]] = {}
+    metrics_by_split: dict[str, dict[str, Any]] = {}
+    prediction_files: dict[str, str] = {}
+    split_eval_dirs: dict[str, str] = {}
+
+    for split_name in report_splits:
+        split_summary = _run_single_eval_from_context(
+            dataset,
+            config,
+            probe_cfg,
+            context,
+            output_dir=eval_root / split_name,
+            split_name=split_name,
+        )
+        split_summaries[split_name] = split_summary
+        metrics = split_summary.get("metrics", {})
+        if not isinstance(metrics, dict):
+            raise ProbeConfigError(f"Eval metrics for split '{split_name}' must be a dictionary.")
+        metrics_by_split[split_name] = metrics
+        prediction_files[split_name] = str(split_summary["prediction_file"])
+        split_eval_dirs[split_name] = str(split_summary["probe_eval_dir"])
+
+    primary_summary = split_summaries[primary_split]
+    summary = {
+        "probe_eval_dir": str(eval_root),
+        "checkpoint": str(context.checkpoint_path),
+        "prediction_file": str(primary_summary["prediction_file"]),
+        "prediction_files": prediction_files,
+        "feature_signature": context.current_signature,
+        "dataset": dataset,
+        "probe_name": probe_cfg["name"],
+        "split_name": primary_split,
+        "reported_splits": list(report_splits),
+        "objective_metric": float(primary_summary["objective_metric"]),
+        "metrics": primary_summary["metrics"],
+        "metrics_by_split": metrics_by_split,
+        "base_eval": primary_summary["base_eval"],
+        "split_eval_dirs": split_eval_dirs,
+        "split_evals": split_summaries,
+    }
+    (eval_root / "metrics.json").write_text(
+        json.dumps(metrics_by_split, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (eval_root / "probe_eval_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    _write_aggregate_eval_summary(eval_root / "summary.md", summary)
+    _write_aggregate_eval_config_snapshot(eval_root / "run_config.snapshot.yaml", config)
+    return summary
+
+
+def _resolve_primary_eval_split(dataset: str, config: dict[str, Any]) -> str:
+    spec = DATASET_SPECS[dataset]
+    return str(config.get("split_name", spec.default_eval_split)).strip() or spec.default_eval_split
+
+
+def _resolve_report_splits(dataset: str, config: dict[str, Any]) -> tuple[str, ...]:
+    spec = DATASET_SPECS[dataset]
+    primary_split = _resolve_primary_eval_split(dataset, config)
+    if not spec.report_splits:
+        return (primary_split,)
+    if primary_split not in spec.report_splits:
+        raise ProbeConfigError(
+            f"Configured split_name='{primary_split}' is incompatible with report_splits={list(spec.report_splits)}."
+        )
+    return spec.report_splits
+
+
+def _require_report_splits_present(dataset: str, index: Any) -> None:
+    required_splits = DATASET_SPECS[dataset].report_splits
+    if not required_splits:
+        return
+    available_splits = set(index["split"].astype(str).unique().tolist())
+    missing_splits = sorted(split for split in required_splits if split not in available_splits)
+    if not missing_splits:
+        return
+    raise ProbeConfigError(
+        f"{dataset} feature cache index is missing required splits {missing_splits}. "
+        f"Available splits: {sorted(available_splits)}. "
+        f"Ensure feature_cache.split_names includes {list(required_splits)} and re-run extract.{dataset}."
+    )
+
+
+def _write_aggregate_eval_summary(path: Path, summary: dict[str, Any]) -> None:
+    lines = [
+        "# Probe Eval Summary",
+        "",
+        f"- dataset: {summary['dataset']}",
+        f"- probe_name: {summary['probe_name']}",
+        f"- checkpoint: {summary['checkpoint']}",
+        f"- primary_split: {summary['split_name']}",
+        f"- reported_splits: {', '.join(summary['reported_splits'])}",
+        "",
+    ]
+    metrics_by_split = summary.get("metrics_by_split", {})
+    if isinstance(metrics_by_split, dict):
+        for split_name in summary["reported_splits"]:
+            metrics = metrics_by_split.get(split_name, {})
+            lines.append(f"## {split_name}")
+            if isinstance(metrics, dict) and metrics:
+                for key in sorted(metrics):
+                    lines.append(f"- {key}: {metrics[key]}")
+            else:
+                lines.append("- no metrics")
+            lines.append("")
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def _write_aggregate_eval_config_snapshot(path: Path, config: dict[str, Any]) -> None:
+    path.write_text(OmegaConf.to_yaml(OmegaConf.create(config), resolve=True), encoding="utf-8")
 
 
 
@@ -662,7 +905,7 @@ def _run_optuna_study(
             )
 
             eval_cfg = copy.deepcopy(trial_cfg)
-            eval_cfg["split_name"] = DATASET_SPECS[dataset].default_eval_split
+            eval_cfg["split_name"] = _MODEL_SELECTION_SPLIT
             eval_probe_cfg = _probe_cfg(eval_cfg)
             eval_probe_cfg["checkpoint_path"] = str(train_summary["checkpoint"])
             eval_summary = _run_single_eval(
@@ -670,7 +913,7 @@ def _run_optuna_study(
                 _with_checkpoint_path(eval_cfg, train_summary["checkpoint"]),
                 eval_probe_cfg,
                 output_dir=trial_dir / "val_eval",
-                split_name=DATASET_SPECS[dataset].default_eval_split,
+                split_name=_MODEL_SELECTION_SPLIT,
             )
 
             metric_value = float(eval_summary["objective_metric"])
@@ -840,7 +1083,7 @@ def _resolve_split_masks(
 ) -> tuple[Any, Any]:
     train_split = probe_cfg["train_split"]
     train_mask = index["split"].astype(str) == train_split
-    val_mask = index["split"].astype(str) == "val"
+    val_mask = index["split"].astype(str) == _MODEL_SELECTION_SPLIT
 
     if dataset == "ssv2" and not train_mask.any():
         available = sorted(index["split"].astype(str).unique().tolist())
@@ -1032,6 +1275,7 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "eval_batch_size": int(raw.get("eval_batch_size", 1024)),
         "weight_decay": float(raw.get("weight_decay", 0.0)),
         "device": str(raw.get("device", "cpu")),
+        "deterministic": bool(raw.get("deterministic", False)),
         "output_dir": str(raw.get("output_dir", "")),
         "output_subdir": str(raw.get("output_subdir", "")),
         "checkpoint_path": str(raw.get("checkpoint_path", "")),
@@ -1352,6 +1596,7 @@ def _training_metadata(
         "feature_view": probe_cfg["feature_view"],
         "layer": probe_cfg["layer"],
         "seed": int(config.get("seed", 42)),
+        "deterministic": bool(probe_cfg["deterministic"]),
         "num_classes": int(num_classes),
         "probe_hparams": _probe_hparam_summary(probe_cfg, num_classes),
     }
@@ -1374,6 +1619,7 @@ def _probe_hparam_summary(probe_cfg: dict[str, Any], num_classes: int) -> dict[s
         "eval_batch_size": probe_cfg["eval_batch_size"],
         "weight_decay": probe_cfg["weight_decay"],
         "device": probe_cfg["device"],
+        "deterministic": bool(probe_cfg["deterministic"]),
         "num_classes": int(num_classes),
     }
     if probe_cfg["name"] == "mlp":

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -169,7 +170,7 @@ class RunProbeTests(unittest.TestCase):
     def test_train_eval_runs_requested_layers_sequentially(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             config = {
-                "split_name": "val",
+                "split_name": "test",
                 "probe": {
                     "name": "linear",
                     "output_dir": tmp,
@@ -202,13 +203,13 @@ class RunProbeTests(unittest.TestCase):
                     "output_dir": str(output_dir),
                 }
 
-            def _fake_eval(dataset, cfg, probe_cfg, *, output_dir=None, split_name=None):
-                del dataset, cfg
+            def _fake_eval(dataset, cfg, probe_cfg, *, output_dir=None):
+                del dataset
                 eval_calls.append(
                     {
                         "layer": probe_cfg["layer"],
                         "checkpoint": probe_cfg["checkpoint_path"],
-                        "split_name": split_name,
+                        "split_name": cfg["split_name"],
                         "output_dir": str(output_dir),
                     }
                 )
@@ -216,15 +217,16 @@ class RunProbeTests(unittest.TestCase):
                 return {
                     "objective_metric": metric,
                     "probe_eval_dir": str(output_dir),
+                    "reported_splits": ["train", "val", "test"],
                 }
 
             with mock.patch("training.run_probe._run_train_workflow", side_effect=_fake_train_workflow):
-                with mock.patch("training.run_probe._run_single_eval", side_effect=_fake_eval):
+                with mock.patch("training.run_probe._run_report_eval", side_effect=_fake_eval):
                     summary = run_probe.run_probe_train_eval("mvp", config)
 
         self.assertEqual([item["layer"] for item in train_calls], [8, "last"])
         self.assertEqual([item["layer"] for item in eval_calls], [8, "last"])
-        self.assertEqual([item["split_name"] for item in eval_calls], ["val", "val"])
+        self.assertEqual([item["split_name"] for item in eval_calls], ["test", "test"])
         self.assertEqual(
             [item["wandb_group"] for item in train_calls],
             ["probe_group_layer_8", "probe_group_layer_last"],
@@ -233,8 +235,9 @@ class RunProbeTests(unittest.TestCase):
             [item["study_name"] for item in train_calls],
             ["probe_study_layer_8", "probe_study_layer_last"],
         )
-        self.assertEqual(summary["best_layer"], "last")
-        self.assertEqual(summary["best_layer_label"], "last")
+        self.assertEqual(summary["reported_splits"], ["train", "val", "test"])
+        self.assertIsNone(summary["best_layer"])
+        self.assertIsNone(summary["best_layer_label"])
         self.assertEqual(len(summary["layers"]), 2)
 
     def test_make_optuna_epoch_pruning_callback_reports_val_accuracy(self) -> None:
@@ -288,10 +291,10 @@ class RunProbeTests(unittest.TestCase):
                     },
                 },
             }
+            eval_splits: list[str] = []
 
             def _fake_train(dataset, cfg, probe_cfg, *, output_dir=None, finish_logger=True, epoch_callback=None):
                 del dataset, cfg, probe_cfg, finish_logger, epoch_callback
-                trial_name = Path(output_dir or tmp).name
                 checkpoint = Path(output_dir or tmp) / "probe_best.pt"
                 return (
                     {
@@ -304,7 +307,8 @@ class RunProbeTests(unittest.TestCase):
                 )
 
             def _fake_eval(dataset, cfg, probe_cfg, *, output_dir=None, split_name=None):
-                del dataset, cfg, probe_cfg, split_name
+                del dataset, probe_cfg
+                eval_splits.append(str(split_name or cfg["split_name"]))
                 trial_name = Path(output_dir or tmp).parent.name
                 trial_number = int(trial_name.split("_")[-1])
                 return {
@@ -322,6 +326,79 @@ class RunProbeTests(unittest.TestCase):
         self.assertEqual(summary["best_trial_number"], 1)
         self.assertEqual(summary["best_value"], 2.0)
         self.assertEqual(len(summary["trials"]), 2)
+        self.assertEqual(eval_splits, ["val", "val"])
+
+    def test_run_multi_split_eval_writes_root_metrics_for_train_val_test(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            checkpoint_path = Path(tmp) / "probe_best.pt"
+            eval_root = Path(tmp) / "eval"
+            config = {
+                "split_name": "test",
+                "probe": {
+                    "name": "linear",
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+            context = run_probe.EvalContext(
+                spec=run_probe.DATASET_SPECS["mvp"],
+                manifest={"signature": "sig"},
+                index=None,
+                features=torch.empty(0),
+                probe=object(),
+                checkpoint_path=checkpoint_path,
+                current_signature="sig",
+            )
+
+            metric_by_split = {
+                "train": 0.7,
+                "val": 0.8,
+                "test": 0.9,
+            }
+
+            def _fake_single_eval(dataset, cfg, resolved_probe_cfg, resolved_context, *, output_dir=None, split_name):
+                del dataset, cfg, resolved_probe_cfg, resolved_context
+                assert output_dir is not None
+                split_dir = Path(output_dir)
+                split_dir.mkdir(parents=True, exist_ok=True)
+                metric = metric_by_split[str(split_name)]
+                metrics = {"accuracy": metric}
+                return {
+                    "probe_eval_dir": str(split_dir),
+                    "checkpoint": str(checkpoint_path),
+                    "prediction_file": str(split_dir / "probe_predictions.json"),
+                    "feature_signature": "sig",
+                    "dataset": "mvp",
+                    "probe_name": "linear",
+                    "split_name": str(split_name),
+                    "objective_metric": metric,
+                    "metrics": metrics,
+                    "base_eval": {
+                        "output_dir": str(split_dir),
+                        "metrics": metrics,
+                    },
+                }
+
+            with mock.patch("training.run_probe._run_single_eval_from_context", side_effect=_fake_single_eval):
+                summary = run_probe._run_multi_split_eval(
+                    "mvp",
+                    config,
+                    probe_cfg,
+                    context,
+                    output_dir=eval_root,
+                    primary_split="test",
+                    report_splits=("train", "val", "test"),
+                )
+
+            metrics_payload = json.loads((eval_root / "metrics.json").read_text(encoding="utf-8"))
+            summary_payload = json.loads((eval_root / "probe_eval_summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(metrics_payload["train"]["accuracy"], 0.7)
+            self.assertEqual(metrics_payload["val"]["accuracy"], 0.8)
+            self.assertEqual(metrics_payload["test"]["accuracy"], 0.9)
+            self.assertEqual(summary["objective_metric"], 0.9)
+            self.assertEqual(summary_payload["split_name"], "test")
+            self.assertEqual(summary_payload["reported_splits"], ["train", "val", "test"])
+            self.assertTrue((eval_root / "summary.md").exists())
+            self.assertTrue((eval_root / "run_config.snapshot.yaml").exists())
 
 
 if __name__ == "__main__":

@@ -75,6 +75,7 @@ probe:
   eval_batch_size: 1024
   weight_decay: 0.0
   device: cpu
+  deterministic: false  # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/ssv2
   output_subdir: ""        # optional stable subdir for train artifacts
   checkpoint_path: ""      # optional explicit checkpoint for eval.probe.ssv2

@@ -1,0 +1,762 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+[I 2026-04-26 17:11:00,982] A new study created in RDB with name: intphys2_linear_jepa_v1_vith16_384_layer_last
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/scur0511/.netrc.
+wandb: Currently logged in as: caselli-niccolo-developer (caselli-niccolo-developer-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171104-4091cbl8
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0000
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/4091cbl8
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=63.2353 voe_accuracy=43.1373 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0000/val_eval
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▂▂▂▂▃▃▃▃▃▃▃▃▄▄▅▅▅▅▅▅▅▅▆▆▆▆▇▇▇▇▇▇███
+wandb: train_accuracy ▁▁▅▄▅▅▆▆▆▆▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇█▇████▇█▇███
+wandb:     train_loss ██▇▆▆▆▆▆▅▄▄▄▄▄▄▄▄▄▄▄▄▃▃▃▃▃▃▃▃▃▃▃▂▂▂▂▂▂▂▁
+wandb:   val_accuracy ▁▄▄▄▂▄▄▃▃▄▅▆▅▆▇▇▆▇▇▆▇▆▆▇▆█▇█▇█▇▇█▆██▇█▇█
+wandb:       val_loss ▆▅▅▄▂▂▂▁▁▁▁▁▁▁▁▂▂▂▂▂▃▃▃▃▄▄▄▄▅▅▅▆▆▆▇▇▇▇▇█
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 1249
+wandb:    best_val_accuracy 63.23529
+wandb:        best_val_loss 0.68465
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 118.02154
+wandb:                epoch 2000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0000 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/4091cbl8
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171104-4091cbl8/logs
+[I 2026-04-26 17:13:00,480] Trial 0 finished with value: 43.13725490196079 and parameters: {'lr': 0.0001329291894316216, 'weight_decay': 0.005061576888752304, 'batch_size': 32, 'epochs': 2000}. Best is trial 0 with value: 43.13725490196079.
+wandb: setting up run abf7vhrg
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171300-abf7vhrg
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0001
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/abf7vhrg
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=59.3137 voe_accuracy=41.1765 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0001/val_eval
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt; uploading output.log
+wandb: uploading history steps 0-99, summary, console lines 0-4
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▂▂▂▃▃▃▄▄▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇█████
+wandb: train_accuracy ▁▂▁▁▂▂▄▃▄▄▁▄▃▃▄▆▆▄▄▄▆▅▅▆▅▆▇▇▆▆▆▇▇▆██▆▆▆▆
+wandb:     train_loss █▇▇▆▆▅▇▆▅▆▅▅▆▅▅▅▄▅▄▅▄▃▄▄▃▃▃▃▃▃▄▂▃▃▃▃▂▂▁▂
+wandb:   val_accuracy ▁▂▄▃▄▅▃▂▄▅▅▇▅▆▇▆▄▆▆▅▇▇▅▇▇▅▆▇▆▇▅▆▇█▇▅▇▇▇█
+wandb:       val_loss ▆▅█▅▅▄▃▃▃▃▄▄▃▃▄▂▄▂▃▃▁▂▁▃▂▂▁▁▃▁▁▁▂▆▄▂▁▁▄▇
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 88
+wandb:    best_val_accuracy 59.31373
+wandb:        best_val_loss 0.67815
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 2.89574
+wandb:                epoch 100
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0001 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/abf7vhrg
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171300-abf7vhrg/logs
+[I 2026-04-26 17:13:04,711] Trial 1 finished with value: 41.17647058823529 and parameters: {'lr': 0.00314288089084011, 'weight_decay': 1.879466824163843e-07, 'batch_size': 256, 'epochs': 100}. Best is trial 0 with value: 43.13725490196079.
+wandb: setting up run z8p7kca2
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171304-z8p7kca2
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0002
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/z8p7kca2
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=63.2353 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0002/val_eval
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▁▂▂▂▂▂▂▂▂▃▃▄▄▄▄▄▅▅▅▅▅▅▅▆▆▆▆▆▆▆▇▇███
+wandb: train_accuracy ▂▁▂▁▂▃▃▃▄▄▄▄▄▄▄▄▅▅▅▄▅▅▅▆▆▆▆▇▇▇▇▇█▇██▇▇██
+wandb:     train_loss ███▇▇▆▆▆▆▆▆▆▅▅▅▅▅▅▄▄▄▄▄▄▃▃▃▃▃▃▃▃▃▂▂▂▂▂▁▁
+wandb:   val_accuracy ▁▄▇▂▆▅▃▄▅▄▅▄▅▆▆▅▇▆▇▇▇▆▇▆▅▇▅▇▅█▅▆██▅▇▅▇▇█
+wandb:       val_loss █▇▇▇▆▅▅▅▄▄▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▃
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 978
+wandb:    best_val_accuracy 63.23529
+wandb:        best_val_loss 0.67889
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 31.58037
+wandb:                epoch 1000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0002 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/z8p7kca2
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171304-z8p7kca2/logs
+[I 2026-04-26 17:13:37,304] Trial 2 finished with value: 45.09803921568628 and parameters: {'lr': 0.00023345864076016249, 'weight_decay': 0.0005141096648805752, 'batch_size': 128, 'epochs': 1000}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run eijxf6ve
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171337-eijxf6ve
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0003
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/eijxf6ve
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=56.3725 voe_accuracy=39.2157 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0003/val_eval
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt
+wandb: uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb: train_accuracy ▃▃▂▂▃▂▄▄▁▄▄▂▄▄▅▄▃▅▂▄▃▅▇▆▅▅▅▅▆▅█▇▇██▇█▇██
+wandb:     train_loss █▆▅▅▄▄▄▄▄▄▄▄▃▃▄▃▃▃▄▃▄▂▃▂▂▃▂▂▂▂▂▂▁▂▁▁▁▁▁▁
+wandb:   val_accuracy ▃▅▃▂▁▃▄▃▂▅▄▃▇▆▆▄▄▄▆▃▅▇▆▄▅▆▆█▆▇▇█▆█▅▅█▇▆▄
+wandb:       val_loss ▇█▇▇▇▆▆▇▆▆▆▅▅▄▆▅▄▄▅▄▅▃▃▃▃▃▂▃▂▂▂▃▂▁▁▁▁▁▁▂
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 49
+wandb:    best_val_accuracy 56.37255
+wandb:        best_val_loss 0.69062
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 2.39244
+wandb:                epoch 50
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0003 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/eijxf6ve
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171337-eijxf6ve/logs
+[I 2026-04-26 17:13:41,183] Trial 3 finished with value: 39.21568627450981 and parameters: {'lr': 8.200518402245828e-05, 'weight_decay': 3.855073690026179e-08, 'batch_size': 32, 'epochs': 50}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run 3tzqkca3
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171341-3tzqkca3
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0004
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/3tzqkca3
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=57.8431 voe_accuracy=37.2549 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0004/val_eval
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb: train_accuracy ▁▂▂▁▂▄▂▂▃▃▃▄▅▅▄▃▅▃▄▄▅▅▃▄▆▆▅▄▄▅▇▆▆▇▆▅▆██▆
+wandb:     train_loss █▅▅▅▅▄▅▄▅▅▄▄▄▄▄▄▄▄▄▃▅▄▃▂▃▃▃▃▂▃▃▂▂▂▂▂▁▁▁▁
+wandb:   val_accuracy ▂▂▃▁▅▄▂▃▄▂▄▄▆▅▃▄▆▂▂▅▂▅▆█▆▅▆█▆▅▅▆▅▇▇▇▇▆▆█
+wandb:       val_loss █▆▄▅▄▄▅▄▄▄▄▄▃▃▄▆▃▃▇▆▃▄▃▂▂▃▃▂▂▂▄▂▂▁▁▂▁▂▁▁
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 25
+wandb:    best_val_accuracy 57.84314
+wandb:        best_val_loss 0.68918
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 2.25352
+wandb:                epoch 50
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0004 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/3tzqkca3
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171341-3tzqkca3/logs
+[I 2026-04-26 17:13:44,462] Trial 4 finished with value: 37.254901960784316 and parameters: {'lr': 0.00043664735929796326, 'weight_decay': 1.2856617791467908e-07, 'batch_size': 32, 'epochs': 50}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run 41s7tejf
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171344-41s7tejf
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0005
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/41s7tejf
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▂▂▂▂▂▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▆▆▆▇▇▇▇▇█████
+wandb: train_accuracy ▁▃▅▅▅▅▆▅▆▆▅▇▇▇▇▇▇▇▇▇▇▇▆▆▇▇█▇▇▇█▇▇███████
+wandb:     train_loss ███▇▆▆▆▆▆▅▅▅▅▅▅▄▄▄▃▃▃▃▃▃▃▃▂▂▃▂▂▂▂▂▂▁▁▁▁▁
+wandb:   val_accuracy ▁▄▁▂▂▅▆▅▅▅▆▄▇██▅▅▅▆▅▅▆▅▆▆▄▄▆▇▄▇▅▇▆▅▆▇▆▇▇
+wandb:       val_loss █▇▇▇▆▅▅▅▅▄▄▄▄▄▄▃▃▃▂▂▂▃▂▃▂▂▂▁▂▁▁▁▁▁▁▂▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 500
+wandb: train_accuracy 70.69536
+wandb:     train_loss 0.62709
+wandb:   val_accuracy 57.84314
+wandb:       val_loss 0.67708
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0005 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/41s7tejf
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171344-41s7tejf/logs
+[I 2026-04-26 17:14:02,798] Trial 5 pruned. Pruned at epoch 500 with val_accuracy=57.8431
+wandb: setting up run k91qizq6
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171403-k91qizq6
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0006
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/k91qizq6
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading wandb-metadata.json; uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▂▂▂▂▂▂▃▃▃▃▃▃▃▄▄▄▅▅▅▅▅▅▅▆▆▆▇▇▇▇▇▇████
+wandb: train_accuracy ▂▄▆▅▅▅▅▅▅▆█▆▆▇█▇▅▄▂▁▄▄▄▃▄▂▁▂▃▄▄▅▆▆▅▆▅▃▄▃
+wandb:     train_loss █▆▆▅▄▄▃▄▄▃▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▂▁▁▁▁▂▁▁
+wandb:   val_accuracy ▅▅▅▁▃▃▄▃▂▃▅▄▅▅▅▅▅▄▅▅▅▅▅▇▇█████▅▄▅▄▅▄▅▅▅▅
+wandb:       val_loss ██▇▆▅▄▃▃▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 100
+wandb: train_accuracy 49.83444
+wandb:     train_loss 0.69429
+wandb:   val_accuracy 50
+wandb:       val_loss 0.69579
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0006 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/k91qizq6
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171403-k91qizq6/logs
+[I 2026-04-26 17:14:07,097] Trial 6 pruned. Pruned at epoch 100 with val_accuracy=50.0000
+wandb: setting up run s3xdz6sh
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171407-s3xdz6sh
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0007
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/s3xdz6sh
+wandb: updating run metadata
+wandb: uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json
+wandb: uploading requirements.txt; uploading wandb-summary.json; uploading wandb-metadata.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▂▂▂▃▃▃▃▃▃▃▃▃▃▄▄▄▄▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇██
+wandb: train_accuracy ▁▂▁▁▂▁▁▂▁▂▂▃▄▄▄▅▁▁▆▅▄▄▅▄▄▆█▄▄▄▇▆▆▆▄█▆▄▆▆
+wandb:     train_loss █▅▄▄▃▃▃▃▃▃▃▂▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▂▁▁▁
+wandb:   val_accuracy ▃▁▄▃▄▆▆▅▂▆▃▇▄▄▆▆▅▇▅▅▆▅▆▅▅▅▅▅▆▅▆▇▆▅█▅█▆▆▆
+wandb:       val_loss █▅▄▄▄▄▄▄▃▃▃▃▃▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 100
+wandb: train_accuracy 55.62914
+wandb:     train_loss 0.68598
+wandb:   val_accuracy 51.47059
+wandb:       val_loss 0.69145
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0007 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/s3xdz6sh
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171407-s3xdz6sh/logs
+[I 2026-04-26 17:14:11,802] Trial 7 pruned. Pruned at epoch 100 with val_accuracy=51.4706
+wandb: setting up run 66yvxscf
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171412-66yvxscf
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0008
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/66yvxscf
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=58.3333 voe_accuracy=37.2549 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0008/val_eval
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt; uploading output.log
+wandb: uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▂▂▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▅▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇██
+wandb: train_accuracy ▁▁▂▂▂▂▃▃▃▄▄▂▃▂▃▄▄▅▆▅▆▇▇▇▆▇▄▇▇▇▆▅▆▆▇▆█▅▇█
+wandb:     train_loss █▇██▇▇▇▆▇▇▅▇▆▇▆▅▅▄▅▅▅▅▅▅▄▃▃▃▃▄▃▃▃▃▃▃▁▃▃▃
+wandb:   val_accuracy ▁▂▂▄▄▄▄▄▃▅▃▄▄▄▂▄▅▄▆▆▆▇▅▅▅█▇▃▂▃▅▄▅▆▆▆▅▇▅▆
+wandb:       val_loss ███▇▆▆▆▆▅▅▅▅▅▄▅▄▄▄▃▃▃▃▃▃▃▃▂▃▂▂▂▂▂▂▂▁▂▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 72
+wandb:    best_val_accuracy 58.33333
+wandb:        best_val_loss 0.68885
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 2.94968
+wandb:                epoch 100
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0008 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/66yvxscf
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171412-66yvxscf/logs
+[I 2026-04-26 17:14:16,168] Trial 8 finished with value: 37.254901960784316 and parameters: {'lr': 0.0003699972431463808, 'weight_decay': 3.6749049453053196e-06, 'batch_size': 256, 'epochs': 100}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run ydisci9c
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171416-ydisci9c
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0009
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/ydisci9c
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▂▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇████
+wandb: train_accuracy ▃▄▁▁▂▃▄▄▄▄▃▅▄▂▄▄▄▃▄▅▅▅▅▆▅▆▅▅▅▇▆▆▇▆▇▆▇█▇█
+wandb:     train_loss █▅▅▄▅▄▄▄▄▄▃▃▃▃▃▃▃▃▃▃▃▂▂▂▂▂▂▂▂▂▁▂▂▂▁▁▁▁▁▁
+wandb:   val_accuracy ▄▃▂▅▅▁▄▅▅▅▂▅▅▅▅▄▅▅▄▄▅▅▆█▆▆▆▅▅▇▇▇▇▇▅▇█▇▅▅
+wandb:       val_loss █▆▃▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 100
+wandb: train_accuracy 54.30464
+wandb:     train_loss 0.69051
+wandb:   val_accuracy 51.47059
+wandb:       val_loss 0.6915
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0009 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/ydisci9c
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171416-ydisci9c/logs
+[I 2026-04-26 17:14:20,101] Trial 9 pruned. Pruned at epoch 100 with val_accuracy=51.4706
+wandb: setting up run 608bxdaj
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171420-608bxdaj
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0010
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/608bxdaj
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=55.3922 voe_accuracy=39.2157 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0010/val_eval
+wandb: updating run metadata
+wandb: uploading requirements.txt; uploading output.log; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json
+wandb: uploading config.yaml; uploading wandb-metadata.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▃▃▄▄▄▅▅▅▆▆▇▇▇██
+wandb: train_accuracy ▃▁▂▂▄▄▄▅▃▃▅▄▄▆▅█▅▅▅▄
+wandb:     train_loss █▄▂▃▃▃▂▂▃▃▂▂▂▁▁▁▁▁▂▂
+wandb:   val_accuracy ▂▂▃▁▂▆▂▂▃▄▆▆▄▆█▂█▂▄▅
+wandb:       val_loss ▅▅▃▄▃▃▃█▇▃▆▂▂▃▁▁█▄▃▂
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 15
+wandb:    best_val_accuracy 55.39216
+wandb:        best_val_loss 0.68714
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 1.3332
+wandb:                epoch 20
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0010 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/608bxdaj
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171420-608bxdaj/logs
+[I 2026-04-26 17:14:22,832] Trial 10 finished with value: 39.21568627450981 and parameters: {'lr': 0.002146403547714585, 'weight_decay': 0.00011188771567666644, 'batch_size': 64, 'epochs': 20}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run j0d5s690
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171423-j0d5s690
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0011
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/j0d5s690
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=67.6471 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0011/val_eval
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇████
+wandb: train_accuracy ▁▃▅▅▅▅▆▆▅▆▆▆▆▆▆▆▆▆▇▆▆▇▇▇▇▇▇▇▇█▇▇██▇█████
+wandb:     train_loss █▇▆▆▆▆▆▅▅▅▄▄▄▄▄▄▃▄▃▃▂▂▃▂▂▂▂▂▂▂▂▁▂▂▂▁▁▁▁▁
+wandb:   val_accuracy ▁▃▃▄▂▂▅▄▄▅▅▇▅▅▅▄▂▄▅▆▇▆▄▆▄▆▅▆▆▅▆▅▇▇▆██▅▇▅
+wandb:       val_loss ▂▁▁▁▁▁▂▂▃▂▃▃▃▃▃▃▃▃▃▄▄▄▅▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇██
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 1910
+wandb:    best_val_accuracy 67.64706
+wandb:        best_val_loss 0.84521
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 101.33359
+wandb:                epoch 2000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0011 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/j0d5s690
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171423-j0d5s690/logs
+[I 2026-04-26 17:16:05,576] Trial 11 finished with value: 45.09803921568628 and parameters: {'lr': 0.0009028168422346196, 'weight_decay': 0.002792471643386217, 'batch_size': 64, 'epochs': 2000}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run zll852oo
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171605-zll852oo
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0012
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/zll852oo
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▅▅▅▅▅▅▅▆▆▆▆▆▆▆▇▇▇▇▇███
+wandb: train_accuracy ▁▂▂▁▃▅▂▄▅▅▆▅▅▆▆▆▅▆▆▅▆▇▇▅█▇▆▅▃▇▆▄██▇▇██▇█
+wandb:     train_loss ██▇▇▇▇▇▇▆▇▆▆▆▅▆▅▅▅▅▅▅▄▃▃▃▃▃▃▄▂▂▃▄▁▂▂▂▁▂▁
+wandb:   val_accuracy ▁▄▄▅▄▁▄▂▆▅▇▂▂▆▅▆███▅▆▃▇▅▇▆▇▆▆▅▇█▆▅▇▇▅▇█▆
+wandb:       val_loss █▇▇▇▇▇▆▅▅▅▅▇▄▄▄▄▄▃▅▃▃▃▃▃▃▃▃▂▃▄▃▂▂▂▃▂▁▂▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 124
+wandb: train_accuracy 67.54967
+wandb:     train_loss 0.63694
+wandb:   val_accuracy 59.80392
+wandb:       val_loss 0.67777
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0012 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/zll852oo
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171605-zll852oo/logs
+[I 2026-04-26 17:16:10,393] Trial 12 pruned. Pruned at epoch 124 with val_accuracy=59.8039
+wandb: setting up run zjr12mh4
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171610-zjr12mh4
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0013
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/zjr12mh4
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=67.1569 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0013/val_eval
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading output.log; uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▁▁▂▂▂▂▂▂▃▃▃▄▄▄▄▅▅▅▅▅▅▅▆▆▆▆▇▇▇▇▇████
+wandb: train_accuracy ▁▃▂▃▃▄▄▅▅▆▆▅▆▆▆▆▆▆▆▆▇▇▆▇█▇▇▆▇▇▆▇▇▇▇█████
+wandb:     train_loss █▇▇▇▆▆▅▅▅▅▄▄▄▄▄▄▄▃▃▃▃▃▃▃▃▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁
+wandb:   val_accuracy ▁▃▂▃▅▄▅▅▄▃▅▆▆▆▅▇▆▆▇▇▇▇▆▆▆▆▆▇▆▆▇▆▇█▇▆▇▇▇▆
+wandb:       val_loss ▁▁▂▁▂▁▂▂▂▂▂▃▃▃▃▃▃▃▄▄▅▄▄▅▅▆▅▅▆▆▇▆█▇▇▇█▇██
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 1812
+wandb:    best_val_accuracy 67.15686
+wandb:        best_val_loss 0.83526
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 100.36703
+wandb:                epoch 2000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0013 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/zjr12mh4
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171610-zjr12mh4/logs
+[I 2026-04-26 17:17:52,425] Trial 13 finished with value: 45.09803921568628 and parameters: {'lr': 0.0009651607211596985, 'weight_decay': 0.00873967829523843, 'batch_size': 64, 'epochs': 2000}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run 9fg509p9
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171752-9fg509p9
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0014
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/9fg509p9
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=68.1373 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0014/val_eval
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading output.log
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▂▂▂▂▃▃▃▃▃▃▄▄▄▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▇▇▇▇▇▇█
+wandb: train_accuracy ▁▃▅▄▅▅▅▅▆▆▆▆▆▇▇▆▇▆▇▇▇▆▆▆█▇▇▇▇▇██▇██▇▆█▇█
+wandb:     train_loss ▇▆█▆▆▅▆▅▅▅▄▄▄▄▄▃▃▃▃▄▃▂▃▃▃▂▂▂▂▂▁▂▂▁▁▂▁▁▁▁
+wandb:   val_accuracy ▁▁▃▁▅▄▃▆▄▅▃▇▆▅█▇▇▇▇▇▇▅▅▇▆▅▆▆▆▅▆▅▆▆▆▆▆▆▅▄
+wandb:       val_loss ▁▁▁▁▁▂▂▂▂▂▃▂▃▄▃▃▅▄▄▅▅▄▄▅▅▅▅▅▆▅▅▆▆▆▆▆▆▇▇█
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 371
+wandb:    best_val_accuracy 68.13725
+wandb:        best_val_loss 0.9325
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 34.99004
+wandb:                epoch 1000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0014 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/9fg509p9
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171752-9fg509p9/logs
+[I 2026-04-26 17:18:28,603] Trial 14 finished with value: 45.09803921568628 and parameters: {'lr': 0.008616062314829318, 'weight_decay': 0.0005743193782031245, 'batch_size': 64, 'epochs': 1000}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run njyu2a2s
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171828-njyu2a2s
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0015
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/njyu2a2s
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=52.4510 voe_accuracy=11.7647 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0015/val_eval
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt; uploading output.log; uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▃▃▄▄▄▅▅▅▆▆▇▇▇██
+wandb: train_accuracy ▄▄▅▂▂▅█▅▄▄▁▃▅▃▅▄▄▄▄▅
+wandb:     train_loss █▇▅▄▃▄▂▂▁▂▁▁▂▂▂▂▂▁▁▁
+wandb:   val_accuracy ▃▄▅▅▁▃▄▄▄▃▃▆▆██▇▇▆▆▅
+wandb:       val_loss █▆▄▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 15
+wandb:    best_val_accuracy 52.45098
+wandb:        best_val_loss 0.6954
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 1.25146
+wandb:                epoch 20
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0015 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/njyu2a2s
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171828-njyu2a2s/logs
+[I 2026-04-26 17:18:31,022] Trial 15 finished with value: 11.76470588235294 and parameters: {'lr': 1.9592076566280752e-05, 'weight_decay': 2.0687694804023012e-05, 'batch_size': 128, 'epochs': 20}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run k5hm2t1k
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171831-k5hm2t1k
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0016
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/k5hm2t1k
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=64.2157 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0016/val_eval
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▁▁▂▂▂▂▂▃▃▃▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇█████
+wandb: train_accuracy ▁▂▃▃▃▅▄▅▆▅▅▆▆▇▆▅▆▇▇▆▇▇▇▇█▇█▇▇▇▇▇████████
+wandb:     train_loss ██▇▇▇▆▆▆▆▆▅▅▅▅▅▄▄▄▄▄▄▄▃▃▃▂▃▃▃▃▃▂▂▂▂▂▁▁▁▁
+wandb:   val_accuracy ▁▂▃▃▂▃▄▅▅▆▅▄▅▅▄▆▆▅▆▆▇█▇▇▇▆▇▆▇▇▇█▇▇▆█▇▆█▇
+wandb:       val_loss ▂▃▄▂▂▂▁▁▁▁▁▂▂▁▂▁▂▂▂▂▃▂▄▄▃▄▄▅▅▅▆▅▆▆▆▆▇▇▆█
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 206
+wandb:    best_val_accuracy 64.21568
+wandb:        best_val_loss 0.69034
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 15.0648
+wandb:                epoch 500
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0016 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/k5hm2t1k
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171831-k5hm2t1k/logs
+[I 2026-04-26 17:18:47,223] Trial 16 finished with value: 45.09803921568628 and parameters: {'lr': 0.001623403835013245, 'weight_decay': 0.0013875294328406648, 'batch_size': 64, 'epochs': 500}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run npdhd56s
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171847-npdhd56s
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0017
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/npdhd56s
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json
+wandb: uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▁▂▂▂▂▂▃▃▃▃▃▃▃▃▄▄▄▄▅▅▅▅▅▅▅▆▆▆▆▆▆▇▇▇██
+wandb: train_accuracy ▁▂▂▂▃▃▂▅▄▄▄▅▃▅▅▄▅▄▅▅▅▇▅▆▇▅▇▆█▆▅█▇▇█▇▇▇▇█
+wandb:     train_loss █▇▆▆▆▅▅▅▆▅▅▄▅▅▄▄▄▄▄▄▄▃▃▃▃▃▃▃▂▂▂▂▂▂▁▁▂▁▁▁
+wandb:   val_accuracy ▁▂▃▄▁▅▃▆▅▇▄▆▅▅▅▇▆▇▇▆█▅▅▆▇▇▇▇▇█▇███▇▆▆▇▇▇
+wandb:       val_loss ██▆▆▆▅▆▅▅▅▅▄▄▄▅▄▄▄▄▄▃▃▃▃▃▃▂▃▂▂▂▃▂▂▂▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:          epoch 118
+wandb: train_accuracy 64.40397
+wandb:     train_loss 0.67362
+wandb:   val_accuracy 55.88235
+wandb:       val_loss 0.68617
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0017 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/npdhd56s
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171847-npdhd56s/logs
+[I 2026-04-26 17:18:51,942] Trial 17 pruned. Pruned at epoch 118 with val_accuracy=55.8824
+wandb: setting up run dr55m8s9
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171852-dr55m8s9
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0018
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/dr55m8s9
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=66.6667 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/train/trial_0018/val_eval
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading output.log; uploading wandb-summary.json
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▂▂▃▃▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb: train_accuracy ▂▁▁▄▄▅▅▅▅▆▅▅▆▅▆▆▆▆▇▆▆▆▆▇▇▇▇█▇█▇███████▇█
+wandb:     train_loss ██▇▇▆▅▅▅▅▄▄▄▄▄▃▃▃▃▃▃▂▃▂▂▂▂▂▂▂▂▂▁▂▂▂▁▁▁▁▁
+wandb:   val_accuracy ▁▃▂▂▂▃▂▅▆▃▄▅▄▅▆▇█▅▆▅▆▇▆▆▅▇▇▇▆▇▇██▇▆▇█▇▇█
+wandb:       val_loss ▁▁▁▁▁▂▂▃▂▂▂▃▄▃▂▃▄▄▄▅▅▅▅▅▅▅▆▅▅▆▆▆▇▆▇▇▇▇▇█
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 664
+wandb:    best_val_accuracy 66.66667
+wandb:        best_val_loss 0.7773
+wandb: checkpoint_best_path artifacts/probes/int...
+wandb: checkpoint_last_path artifacts/probes/int...
+wandb:      checkpoint_path artifacts/probes/int...
+wandb:              dataset intphys2
+wandb:      elapsed_seconds 31.39536
+wandb:                epoch 1000
+wandb:    feature_signature 78346a9facde6609
+wandb:                  +22 ...
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0018 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/dr55m8s9
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171852-dr55m8s9/logs
+[I 2026-04-26 17:19:24,730] Trial 18 finished with value: 45.09803921568628 and parameters: {'lr': 0.0036954703899431227, 'weight_decay': 0.002164878155683282, 'batch_size': 256, 'epochs': 1000}. Best is trial 2 with value: 45.09803921568628.
+wandb: setting up run 33u3rzn1
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260426_171924-33u3rzn1
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0019
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/33u3rzn1
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▁▂▂▂▂▂▂▂▂▃▃▃▃▃▃▃▃▄▄▄▄▄▅▅▅▆▆▆▆▆▇▇▇▇▇██
+wandb: train_accuracy ▁▃▁▂▄▆▄▄▅▄▄▅▅▅▆▆▇▆▇▇▆▇▄▃▇▆▆██▆▇█▅▆▆▇██▇▇
+wandb:     train_loss █▇▇█▇▇▇▆▇▆▆▇▆▆▅▅▅▄▅▅▄▄▃▃▃▆▂▃▂▂▂▂▂▁▂▂▂▁▁▁
+wandb:   val_accuracy ▁▂▁▂▅▅▆▆▅▁▄▅▆█▃▃▆▇▄▇▄▆▆▂▅▇▃▅▄▆▆▄▄▅▆▄▄▅▆█
+wandb:       val_loss █▇▇▇▆▆▆▆▆▅▄▄▅▄▄▃▃▄▃▃▃▃▃▂▄▂▃▂▁▂▂▂▁▁▁▁▁▁▁▂
+wandb: 
+wandb: Run summary:
+wandb:          epoch 142
+wandb: train_accuracy 65.89404
+wandb:     train_loss 0.63583
+wandb:   val_accuracy 58.82353
+wandb:       val_loss 0.67527
+wandb: 
+wandb: 🚀 View run intphys2_linear_jepa_v1_vith16_384_layer_last/trial_0019 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/33u3rzn1
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260426_171924-33u3rzn1/logs
+[I 2026-04-26 17:19:29,935] Trial 19 pruned. Pruned at epoch 142 with val_accuracy=58.8235
+[eval.intphys2] Starting eval | split_name=train split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=151 split_samples=604
+[eval.intphys2] Generated predictions | n_predictions=604
+[eval.intphys2] Scoring complete | accuracy=74.1722 voe_accuracy=58.2781 n_scenes=151 n_samples=604
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/eval/train
+[eval.intphys2] Starting eval | split_name=val split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=63.2353 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/eval/val
+[eval.intphys2] Starting eval | split_name=test split_dir=data/splits/intphys2 predictor_mode=from_file metadata_file=data/annotations/intphys2_metadata.csv
+[eval.intphys2] Loaded split assignments | split_scenes=51 split_samples=204
+[eval.intphys2] Generated predictions | n_predictions=204
+[eval.intphys2] Scoring complete | accuracy=64.7059 voe_accuracy=45.0980 n_scenes=51 n_samples=204
+[eval.intphys2] Artifacts written | output_dir=artifacts/probes/intphys2/intphys2_probe_linear_jepa_v1_vith16_384_20260426T151059Z/layer_last/eval/test

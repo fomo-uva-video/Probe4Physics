@@ -30,7 +30,7 @@ split:
   rare_bucket_label: OTHER
 
 # Which split to evaluate on: train | val | test
-split_name: val
+split_name: test
 
 decode:
   backend: pyav
@@ -89,6 +89,7 @@ probe:
   eval_batch_size: 1024
   weight_decay: 0.0
   device: cpu
+  deterministic: false  # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/intphys2
   output_subdir: ""        # optional stable subdir for train artifacts
   checkpoint_path: ""      # optional explicit checkpoint for eval.probe.intphys2
