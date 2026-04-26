@@ -23,7 +23,7 @@ DATASET_NAME="${DATASET_NAME:?DATASET_NAME must be set by the wrapper script}"
 PROBE_NAME="${PROBE_NAME:?PROBE_NAME must be set by the wrapper script}"
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
-PROBE_EPOCHS="${PROBE_EPOCHS:-100}"
+PROBE_EPOCHS="${PROBE_EPOCHS:-}"
 PROBE_DEVICE="${PROBE_DEVICE:-cpu}"
 PROBE_LAYER="${PROBE_LAYER:-last}"
 PROBE_LAYERS="${PROBE_LAYERS:-${PROBE_LAYER}}"
@@ -68,7 +68,7 @@ echo "DATASET_NAME=${DATASET_NAME}"
 echo "PROBE_NAME=${PROBE_NAME}"
 echo "BACKBONE_NAME=${BACKBONE_NAME}"
 echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<config default>}"
-echo "PROBE_EPOCHS=${PROBE_EPOCHS}"
+echo "PROBE_EPOCHS=${PROBE_EPOCHS:-<config default>}"
 echo "PROBE_DEVICE=${PROBE_DEVICE}"
 echo "PROBE_LAYER=${PROBE_LAYER}"
 echo "PROBE_LAYERS=${PROBE_LAYERS}"
@@ -97,7 +97,6 @@ cmd=(
   python run.py "train_eval.probe.${DATASET_NAME}"
   "backbone.name=${BACKBONE_NAME}"
   "probe.name=${PROBE_NAME}"
-  "probe.epochs=${PROBE_EPOCHS}"
   "probe.device=${PROBE_DEVICE}"
   "probe.layer=${PROBE_LAYER}"
   "probe.layers=[${PROBE_LAYERS_COMPACT}]"
@@ -116,6 +115,11 @@ cmd=(
   "probe.optuna.pruner.interval_steps=${OPTUNA_PRUNER_INTERVAL_STEPS}"
   "probe.optuna.study_name=${OPTUNA_STUDY_NAME}"
 )
+
+if [[ -n "${PROBE_EPOCHS}" ]]; then
+  cmd+=("probe.epochs=${PROBE_EPOCHS}")
+  cmd+=("probe.optuna.search_space.epochs.enabled=false")
+fi
 
 if [[ "${PROBE_FEATURE_VIEW}" == "tokens" || "${PROBE_FEATURE_VIEW}" == "tokens_mean" || "${PROBE_NAME}" == "temporal_attn" ]]; then
   cmd+=("feature_cache.include_tokens=true")
