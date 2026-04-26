@@ -6,8 +6,8 @@ Integrate Hugging Face LTX-Video as a pullable backbone option in Probe4Physics,
 
 1. init splits
 2. extract frozen features
-3. train linear probe
-4. eval linear probe
+3. train probe
+4. eval probe
 
 This plan is intentionally implementation-first for extraction/probing (not full video generation workflows), so it fits the current benchmark architecture.
 
@@ -48,7 +48,7 @@ Based on current repository patterns and docs:
 Current scripts in [jobs/setup](../jobs/setup) are mostly hardwired for JEPA v1 and need a small extension for LTX validation on cluster:
 
 1. [jobs/setup/mvp_linear_test.sh](../jobs/setup/mvp_linear_test.sh)
-   - currently pins `name=mvp.jepa_v1.linear`, `backbone.name=jepa_v1`, and JEPA checkpoint args.
+   - currently pins `name=mvp.jepa_v1.probe`, `backbone.name=jepa_v1`, and JEPA checkpoint args.
    - should be parameterized so the same smoke job can run `ltx_video` without copy-paste script forks.
 2. [jobs/setup/intphys2_init_extract.sh](../jobs/setup/intphys2_init_extract.sh)
    - currently runs `extract.intphys2` with `backbone.name=jepa_v1` and JEPA checkpoint arguments.
@@ -180,9 +180,9 @@ File to update:
 
 Add recipes:
 
-- `mvp.ltx_video.linear`
-- `intphys2.ltx_video.linear`
-- `ssv2.ltx_video.linear`
+- `mvp.ltx_video.probe`
+- `intphys2.ltx_video.probe`
+- `ssv2.ltx_video.probe`
 
 Each recipe should override:
 
@@ -254,7 +254,7 @@ Required changes:
    - `BACKBONE_DEVICE` (default `cuda`)
    - `BACKBONE_EXTRA_OVERRIDES` for adapter-specific Hydra args.
 2. Select experiment recipe dynamically:
-   - `EXPERIMENT_NAME` defaulting to current JEPA recipe, override to `mvp.ltx_video.linear`.
+   - `EXPERIMENT_NAME` defaulting to current JEPA recipe, override to `mvp.ltx_video.probe`.
 3. Conditional checkpoint handling:
    - keep `CKPT` required only for JEPA families.
    - skip JEPA checkpoint assertions when `BACKBONE_NAME=ltx_video`.
@@ -298,7 +298,7 @@ python run.py extract.mvp backbone.name=ltx_video +backbone.kwargs.variant=<vari
 Full MVP recipe:
 
 ```bash
-python run.py exp.run name=mvp.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=mvp.ltx_video.probe backbone.kwargs.device=cuda
 ```
 
 Tests:

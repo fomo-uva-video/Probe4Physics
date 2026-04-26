@@ -16,8 +16,8 @@ class RunCommandTests(unittest.TestCase):
             "init.mvp",
             "eval.mvp",
             "extract.mvp",
-            "train.linear.mvp",
-            "eval.linear.mvp",
+            "train.probe.mvp",
+            "eval.probe.mvp",
             "health",
             "health.layers",
             "exp.list",
@@ -37,16 +37,16 @@ class RunCommandTests(unittest.TestCase):
 
         command_overrides = {
             "extract.mvp": run.CommandSpec("mvp", _make_handler("extract.mvp"), ""),
-            "train.linear.mvp": run.CommandSpec("mvp", _make_handler("train.linear.mvp"), ""),
-            "eval.linear.mvp": run.CommandSpec("mvp", _make_handler("eval.linear.mvp"), ""),
+            "train.probe.mvp": run.CommandSpec("mvp", _make_handler("train.probe.mvp"), ""),
+            "eval.probe.mvp": run.CommandSpec("mvp", _make_handler("eval.probe.mvp"), ""),
         }
 
         with mock.patch.dict(run.COMMANDS, command_overrides, clear=False):
             with mock.patch("run.has_valid_feature_cache", return_value=False):
-                result = run._run_exp({"name": "mvp.jepa_v1.linear"})
+                result = run._run_exp({"name": "mvp.jepa_v1.probe"})
 
-        self.assertEqual(calls, ["extract.mvp", "train.linear.mvp", "eval.linear.mvp"])
-        self.assertEqual(result["experiment"], "mvp.jepa_v1.linear")
+        self.assertEqual(calls, ["extract.mvp", "train.probe.mvp", "eval.probe.mvp"])
+        self.assertEqual(result["experiment"], "mvp.jepa_v1.probe")
         self.assertEqual(len(result["pipeline"]), 3)
 
     def test_exp_run_skips_extract_when_cache_exists(self) -> None:
@@ -61,15 +61,15 @@ class RunCommandTests(unittest.TestCase):
 
         command_overrides = {
             "extract.mvp": run.CommandSpec("mvp", _make_handler("extract.mvp"), ""),
-            "train.linear.mvp": run.CommandSpec("mvp", _make_handler("train.linear.mvp"), ""),
-            "eval.linear.mvp": run.CommandSpec("mvp", _make_handler("eval.linear.mvp"), ""),
+            "train.probe.mvp": run.CommandSpec("mvp", _make_handler("train.probe.mvp"), ""),
+            "eval.probe.mvp": run.CommandSpec("mvp", _make_handler("eval.probe.mvp"), ""),
         }
 
         with mock.patch.dict(run.COMMANDS, command_overrides, clear=False):
             with mock.patch("run.has_valid_feature_cache", return_value=True):
-                result = run._run_exp({"name": "mvp.jepa_v1.linear"})
+                result = run._run_exp({"name": "mvp.jepa_v1.probe"})
 
-        self.assertEqual(calls, ["train.linear.mvp", "eval.linear.mvp"])
+        self.assertEqual(calls, ["train.probe.mvp", "eval.probe.mvp"])
         first_step = result["pipeline"][0]
         self.assertEqual(first_step["step"], "extract.mvp")
         self.assertTrue(first_step["skipped"])
@@ -86,20 +86,20 @@ class RunCommandTests(unittest.TestCase):
 
         command_overrides = {
             "extract.mvp": run.CommandSpec("mvp", _make_handler("extract.mvp"), ""),
-            "train.linear.mvp": run.CommandSpec("mvp", _make_handler("train.linear.mvp"), ""),
-            "eval.linear.mvp": run.CommandSpec("mvp", _make_handler("eval.linear.mvp"), ""),
+            "train.probe.mvp": run.CommandSpec("mvp", _make_handler("train.probe.mvp"), ""),
+            "eval.probe.mvp": run.CommandSpec("mvp", _make_handler("eval.probe.mvp"), ""),
         }
 
         with mock.patch.dict(run.COMMANDS, command_overrides, clear=False):
             with mock.patch("run.has_valid_feature_cache", return_value=True):
                 run._run_exp(
                     {
-                        "name": "mvp.jepa_v1.linear",
+                        "name": "mvp.jepa_v1.probe",
                         "feature_cache": {"force_reextract": True},
                     }
                 )
 
-        self.assertEqual(calls, ["extract.mvp", "train.linear.mvp", "eval.linear.mvp"])
+        self.assertEqual(calls, ["extract.mvp", "train.probe.mvp", "eval.probe.mvp"])
 
 
 if __name__ == "__main__":

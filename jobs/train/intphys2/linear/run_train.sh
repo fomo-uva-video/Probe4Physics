@@ -3,7 +3,7 @@
 #
 # Expected launch style:
 #   sbatch jepa_v1.sh
-#   sbatch jepa_v2.sh linear_probe.device=cpu
+#   sbatch jepa_v2.sh probe.device=cpu
 
 set -euo pipefail
 
@@ -56,15 +56,15 @@ JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 echo "JOB_START_UTC=${JOB_START_UTC}"
 
 cmd=(
-  python run.py train.linear.intphys2
+  python run.py train.probe.intphys2
   "backbone.name=${BACKBONE_NAME}"
-  "linear_probe.epochs=${LINEAR_PROBE_EPOCHS}"
-  "linear_probe.layer=${LINEAR_PROBE_LAYER}"
-  "linear_probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}"
-  "linear_probe.device=${LINEAR_PROBE_DEVICE}"
-  "linear_probe.wandb.enabled=${ENABLE_WANDB}"
-  "linear_probe.wandb.project=${WANDB_PROJECT}"
-  "linear_probe.wandb.mode=${WANDB_MODE}"
+  "probe.epochs=${LINEAR_PROBE_EPOCHS}"
+  "probe.layer=${LINEAR_PROBE_LAYER}"
+  "probe.feature_view=${LINEAR_PROBE_FEATURE_VIEW}"
+  "probe.device=${LINEAR_PROBE_DEVICE}"
+  "probe.wandb.enabled=${ENABLE_WANDB}"
+  "probe.wandb.project=${WANDB_PROJECT}"
+  "probe.wandb.mode=${WANDB_MODE}"
 )
 
 if [[ -n "${BACKBONE_VARIANT}" ]]; then

@@ -77,9 +77,11 @@ feature_cache:
   chunk_size: 64
   lock_stale_seconds: 86400
 
-linear_probe:
-  feature_view: pooled  # pooled | tokens_mean
+probe:
+  name: linear  # linear | mlp | temporal_attn
+  feature_view: auto  # auto | pooled | tokens_mean | tokens
   layer: last           # last | <int layer id>
+  train_split: train
   epochs: 100
   lr: 0.001
   batch_size: 128
@@ -88,9 +90,19 @@ linear_probe:
   device: cpu
   output_dir: artifacts/probes/intphys2
   output_subdir: ""        # optional stable subdir for train artifacts
-  checkpoint_path: ""      # optional explicit checkpoint for eval.linear.intphys2
+  checkpoint_path: ""      # optional explicit checkpoint for eval.probe.intphys2
   eval_output_dir: artifacts/results/intphys2
-  eval_output_subdir: ""   # optional stable subdir for linear eval artifacts
+  eval_output_subdir: ""   # optional stable subdir for probe eval artifacts
+  mlp:
+    hidden_dims:
+      - 512
+    dropout: 0.0
+  temporal_attn:
+    embed_dim: null
+    num_heads: 16
+    num_self_attn_blocks: 3
+    mlp_ratio: 4.0
+    dropout: 0.0
   wandb:
     enabled: false
     project: probe4physics
@@ -104,6 +116,16 @@ linear_probe:
     dir: ""       # empty uses the train output_dir
     resume: null
     id: ""
+  optuna:
+    enabled: false
+    n_trials: 20
+    n_jobs: 1
+    timeout_seconds: 0
+    storage: ""
+    study_name: ""
+    direction: maximize
+    metric: ""
+    sampler_seed: ${seed}
 
 download:
   # HuggingFace repository to download from.
@@ -117,7 +139,7 @@ download:
   local_dir: ""
 
 experiment:
-  name: intphys2.jepa_v1.linear
+  name: intphys2.jepa_v1.probe
 
 hydra:
   run:

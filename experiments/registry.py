@@ -13,16 +13,16 @@ class ExperimentSpec:
 
 
 _EXPERIMENTS: dict[str, ExperimentSpec] = {
-    "mvp.jepa_v1.linear": ExperimentSpec(
-        name="mvp.jepa_v1.linear",
-        description="MVP frozen-feature linear probe baseline with JEPA v1.",
-        pipeline=("extract.mvp", "train.linear.mvp", "eval.linear.mvp"),
+    "mvp.jepa_v1.probe": ExperimentSpec(
+        name="mvp.jepa_v1.probe",
+        description="MVP frozen-feature probe recipe with JEPA v1.",
+        pipeline=("extract.mvp", "train.probe.mvp", "eval.probe.mvp"),
         config_overrides={},
     ),
-    "mvp.ltx_video.linear": ExperimentSpec(
-        name="mvp.ltx_video.linear",
-        description="MVP frozen-feature linear probe baseline with LTX-Video VAE features.",
-        pipeline=("extract.mvp", "train.linear.mvp", "eval.linear.mvp"),
+    "mvp.ltx_video.probe": ExperimentSpec(
+        name="mvp.ltx_video.probe",
+        description="MVP frozen-feature probe recipe with LTX-Video VAE features.",
+        pipeline=("extract.mvp", "train.probe.mvp", "eval.probe.mvp"),
         config_overrides={
             "backbone": {
                 "name": "ltx_video",
@@ -32,16 +32,16 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
-    "intphys2.jepa_v1.linear": ExperimentSpec(
-        name="intphys2.jepa_v1.linear",
-        description="IntPhys2 frozen-feature linear probe baseline with JEPA v1.",
-        pipeline=("extract.intphys2", "train.linear.intphys2", "eval.linear.intphys2"),
+    "intphys2.jepa_v1.probe": ExperimentSpec(
+        name="intphys2.jepa_v1.probe",
+        description="IntPhys2 frozen-feature probe recipe with JEPA v1.",
+        pipeline=("extract.intphys2", "train.probe.intphys2", "eval.probe.intphys2"),
         config_overrides={},
     ),
-    "intphys2.ltx_video.linear": ExperimentSpec(
-        name="intphys2.ltx_video.linear",
-        description="IntPhys2 frozen-feature linear probe baseline with LTX-Video VAE features.",
-        pipeline=("extract.intphys2", "train.linear.intphys2", "eval.linear.intphys2"),
+    "intphys2.ltx_video.probe": ExperimentSpec(
+        name="intphys2.ltx_video.probe",
+        description="IntPhys2 frozen-feature probe recipe with LTX-Video VAE features.",
+        pipeline=("extract.intphys2", "train.probe.intphys2", "eval.probe.intphys2"),
         config_overrides={
             "backbone": {
                 "name": "ltx_video",
@@ -51,16 +51,16 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
-    "ssv2.jepa_v1.linear": ExperimentSpec(
-        name="ssv2.jepa_v1.linear",
-        description="SSv2 frozen-feature 174-class linear probe baseline with JEPA v1 (control task).",
-        pipeline=("extract.ssv2", "train.linear.ssv2", "eval.linear.ssv2"),
+    "ssv2.jepa_v1.probe": ExperimentSpec(
+        name="ssv2.jepa_v1.probe",
+        description="SSv2 frozen-feature probe recipe with JEPA v1 (control task).",
+        pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
         config_overrides={},
     ),
-    "ssv2.ltx_video.linear": ExperimentSpec(
-        name="ssv2.ltx_video.linear",
-        description="SSv2 frozen-feature 174-class linear probe baseline with LTX-Video VAE features.",
-        pipeline=("extract.ssv2", "train.linear.ssv2", "eval.linear.ssv2"),
+    "ssv2.ltx_video.probe": ExperimentSpec(
+        name="ssv2.ltx_video.probe",
+        description="SSv2 frozen-feature probe recipe with LTX-Video VAE features.",
+        pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
         config_overrides={
             "backbone": {
                 "name": "ltx_video",

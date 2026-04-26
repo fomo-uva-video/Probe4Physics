@@ -1,5 +1,5 @@
 #!/bin/bash
-# Train an MVP linear probe with LTX-Video features.
+# Train an MVP probe with LTX-Video features.
 #
 # Usage:
 #   sbatch ltx_video.sh

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Train an MVP linear probe with V-JEPA v2 features.
+# Train an MVP probe with V-JEPA v2 features.
 #
 # Usage:
 #   sbatch jepa_v2.sh

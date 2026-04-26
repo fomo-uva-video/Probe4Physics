@@ -51,6 +51,10 @@ class WandbTrainLogger:
                 "checkpoint_best_path": summary.get("checkpoint_best"),
                 "output_dir": summary.get("output_dir"),
                 "feature_signature": summary.get("feature_signature"),
+                "dataset": summary.get("dataset"),
+                "probe_name": summary.get("probe_name"),
+                "feature_view": summary.get("feature_view"),
+                "layer": summary.get("layer"),
                 "n_train": summary.get("n_train"),
                 "n_val": summary.get("n_val"),
                 "input_dim": summary.get("input_dim"),
@@ -59,8 +63,10 @@ class WandbTrainLogger:
                 "seconds_per_labeled_sample": summary.get("seconds_per_labeled_sample"),
             }
         )
-        if summary.get("n_classes") is not None:
-            self.run.summary["n_classes"] = summary["n_classes"]
+        if summary.get("num_classes") is not None:
+            self.run.summary["num_classes"] = summary["num_classes"]
+        if summary.get("objective_metric") is not None:
+            self.run.summary["objective_metric"] = summary["objective_metric"]
 
     def finish(self) -> None:
         self.run.finish()
@@ -81,7 +87,7 @@ def init_wandb_train_logger(
         import wandb
     except ImportError as exc:
         raise WandbConfigError(
-            "linear_probe.wandb.enabled=true but the 'wandb' package is not installed. "
+            "probe.wandb.enabled=true but the 'wandb' package is not installed. "
             "Install dependencies from environment.yml or run `pip install wandb`."
         ) from exc
 
@@ -120,7 +126,7 @@ def _build_run_config(
         "benchmark": benchmark,
         "seed": config.get("seed", 42),
         "output_dir": str(output_dir),
-        "linear_probe": copy.deepcopy(config.get("linear_probe", {})),
+        "probe": copy.deepcopy(config.get("probe", {})),
     }
     if "backbone" in config:
         payload["backbone"] = copy.deepcopy(config.get("backbone", {}))
@@ -129,10 +135,10 @@ def _build_run_config(
     if metadata:
         payload["probe_metadata"] = copy.deepcopy(metadata)
 
-    linear_probe = payload.get("linear_probe")
-    if isinstance(linear_probe, dict):
-        linear_probe.pop("checkpoint_path", None)
-        wandb_cfg = linear_probe.get("wandb")
+    probe_cfg = payload.get("probe")
+    if isinstance(probe_cfg, dict):
+        probe_cfg.pop("checkpoint_path", None)
+        wandb_cfg = probe_cfg.get("wandb")
         if isinstance(wandb_cfg, dict):
             wandb_cfg.pop("id", None)
     return payload
@@ -153,24 +159,31 @@ def _default_run_name(
     if isinstance(experiment, dict):
         experiment_name = _optional_str(experiment.get("name", "")) or ""
     feature_view = ""
-    linear_probe = config.get("linear_probe", {})
-    if isinstance(linear_probe, dict):
-        feature_view = _optional_str(linear_probe.get("feature_view", "")) or ""
-    pieces = [piece for piece in (experiment_name, benchmark, feature_view, output_dir.name) if piece]
+    feature_view = ""
+    probe_name = ""
+    probe_cfg = config.get("probe", {})
+    if isinstance(probe_cfg, dict):
+        feature_view = _optional_str(probe_cfg.get("feature_view", "")) or ""
+        probe_name = _optional_str(probe_cfg.get("name", "")) or ""
+    pieces = [
+        piece
+        for piece in (experiment_name, benchmark, probe_name, feature_view, output_dir.name)
+        if piece
+    ]
     return "/".join(pieces)
 
 
 def _wandb_cfg(config: dict[str, Any]) -> dict[str, Any]:
-    linear_probe = config.get("linear_probe", {})
-    if linear_probe is None:
+    probe_cfg = config.get("probe", {})
+    if probe_cfg is None:
         return {}
-    if not isinstance(linear_probe, dict):
-        raise WandbConfigError("linear_probe must be a dictionary")
-    raw = linear_probe.get("wandb", {})
+    if not isinstance(probe_cfg, dict):
+        raise WandbConfigError("probe must be a dictionary")
+    raw = probe_cfg.get("wandb", {})
     if raw is None:
         return {}
     if not isinstance(raw, dict):
-        raise WandbConfigError("linear_probe.wandb must be a dictionary")
+        raise WandbConfigError("probe.wandb must be a dictionary")
     return raw
 
 

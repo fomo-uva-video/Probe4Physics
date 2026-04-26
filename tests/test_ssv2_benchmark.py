@@ -511,8 +511,8 @@ class RunCommandSSv2Tests(unittest.TestCase):
             "init.ssv2",
             "eval.ssv2",
             "extract.ssv2",
-            "train.linear.ssv2",
-            "eval.linear.ssv2",
+            "train.probe.ssv2",
+            "eval.probe.ssv2",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
 
@@ -527,19 +527,19 @@ class RunCommandSSv2Tests(unittest.TestCase):
     def test_ssv2_experiment_is_registered(self) -> None:
         from experiments.registry import get_experiment
 
-        spec = get_experiment("ssv2.jepa_v1.linear")
-        self.assertEqual(spec.name, "ssv2.jepa_v1.linear")
+        spec = get_experiment("ssv2.jepa_v1.probe")
+        self.assertEqual(spec.name, "ssv2.jepa_v1.probe")
         self.assertIn("extract.ssv2", spec.pipeline)
-        self.assertIn("train.linear.ssv2", spec.pipeline)
-        self.assertIn("eval.linear.ssv2", spec.pipeline)
+        self.assertIn("train.probe.ssv2", spec.pipeline)
+        self.assertIn("eval.probe.ssv2", spec.pipeline)
 
     def test_all_three_experiments_are_listed(self) -> None:
         from experiments.registry import list_experiments
 
         names = {spec.name for spec in list_experiments()}
-        self.assertIn("mvp.jepa_v1.linear", names)
-        self.assertIn("intphys2.jepa_v1.linear", names)
-        self.assertIn("ssv2.jepa_v1.linear", names)
+        self.assertIn("mvp.jepa_v1.probe", names)
+        self.assertIn("intphys2.jepa_v1.probe", names)
+        self.assertIn("ssv2.jepa_v1.probe", names)
 
 
 class SSv2FeatureCacheConfigTests(unittest.TestCase):

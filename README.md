@@ -5,15 +5,16 @@ This repository provides a benchmark-centric pipeline for probing frozen video b
 Current v1 scope:
 - deterministic split initialization for MVP, IntPhys2, and SSv2
 - frozen feature extraction
-- linear probe training and evaluation
+- probe training and evaluation
 - experiment recipes through `run.py`
 
-`run.py` is the single launcher for all workflows.
+`run.py` remains the project-level launcher. `run_probe.py` is the dedicated
+probe train/eval entrypoint.
 
 ## Project Layout
 - `benchmarks/`: benchmark logic (MVP, IntPhys2, SSv2 — loading/scoring/splitting)
 - `models/`: frozen backbone adapters (`jepa_v1`, `jepa_v2`, `jepa_v2_1`, `videomae`, `videomae_v2`, `ltx_video`)
-- `probes/`: probe contracts and implementations (currently `linear` runnable)
+- `probes/`: probe contracts and implementations (`linear`, `mlp`, `temporal_attn`)
 - `training/`: feature extraction + probe train/eval orchestration
 - `experiments/`: experiment registry recipes
 - `configs/mvp.yaml`: MVP runtime config
@@ -47,8 +48,8 @@ Run from repository root:
 ```bash
 python run.py init.mvp
 python run.py extract.mvp backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.linear.mvp
-python run.py eval.linear.mvp
+python run.py train.probe.mvp
+python run.py eval.probe.mvp
 ```
 
 ### Stage 1: `init.mvp`
@@ -73,20 +74,20 @@ Main outputs in `feature_cache.dir/<backbone>/<split_key>/<signature>/`:
 If videos are missing or `videos_root` is invalid, extraction writes warnings to:
 - `feature_cache.dir/extract_warnings.log`
 
-### Stage 3: `train.linear.mvp`
-Trains the linear probe from cached features (no backbone forward).
+### Stage 3: `train.probe.mvp`
+Trains the configured probe from cached features (no backbone forward).
 
-Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe_best.pt`
-- `linear_probe_last.pt`
+Main outputs in `probe.output_dir/...`:
+- `probe_best.pt`
+- `probe_last.pt`
 - `train_summary.json`
 
-### Stage 4: `eval.linear.mvp`
+### Stage 4: `eval.probe.mvp`
 Loads linear checkpoint, verifies feature signature, writes predictions, and runs official MVP scoring.
 
-Main outputs in `linear_probe.eval_output_dir/...`:
-- `linear_predictions.json`
-- `linear_eval_summary.json`
+Main outputs in `probe.eval_output_dir/...`:
+- `probe_predictions.json`
+- `probe_eval_summary.json`
 - official MVP eval artifacts (`metrics.json`, `predictions.csv`, `summary.md`, etc.)
 
 ## IntPhys2 Pipeline
@@ -98,8 +99,8 @@ The dataset is downloaded directly from HuggingFace (`facebook/IntPhys2`, CC BY-
 python run.py download.intphys2
 python run.py init.intphys2
 python run.py extract.intphys2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.linear.intphys2
-python run.py eval.linear.intphys2
+python run.py train.probe.intphys2
+python run.py eval.probe.intphys2
 ```
 
 ### Stage 0: `download.intphys2`
@@ -126,20 +127,20 @@ Runs frozen backbone forward pass and writes feature cache.
 
 Main outputs mirror the MVP cache layout under `feature_cache.dir`.
 
-### Stage 3: `train.linear.intphys2`
-Trains a binary linear probe (impossible=0, possible=1) from cached features.
+### Stage 3: `train.probe.intphys2`
+Trains the configured probe on binary plausibility targets (impossible=0, possible=1).
 
-Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe_best.pt`
-- `linear_probe_last.pt`
+Main outputs in `probe.output_dir/...`:
+- `probe_best.pt`
+- `probe_last.pt`
 - `train_summary.json`
 
-### Stage 4: `eval.linear.intphys2`
+### Stage 4: `eval.probe.intphys2`
 Loads checkpoint, computes per-video P(possible) scores via softmax, and runs IntPhys2 scoring.
 
-Main outputs in `linear_probe.eval_output_dir/...`:
-- `linear_predictions.json`
-- `linear_eval_summary.json`
+Main outputs in `probe.eval_output_dir/...`:
+- `probe_predictions.json`
+- `probe_eval_summary.json`
 - `metrics.json` (accuracy + VOE accuracy, per-condition breakdown)
 - `predictions.csv`, `summary.md`, `provenance.json`
 
@@ -151,8 +152,8 @@ Requires the official SSv2 annotation files (`train.json`, `validation.json`, `l
 ```bash
 python run.py init.ssv2
 python run.py extract.ssv2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.linear.ssv2
-python run.py eval.linear.ssv2
+python run.py train.probe.ssv2
+python run.py eval.probe.ssv2
 ```
 
 ### Stage 1: `init.ssv2`
@@ -167,20 +168,20 @@ Runs frozen backbone forward pass and writes feature cache.
 
 Main outputs mirror the MVP cache layout under `feature_cache.dir`.
 
-### Stage 3: `train.linear.ssv2`
-Trains a 174-class linear probe from cached features.
+### Stage 3: `train.probe.ssv2`
+Trains the configured 174-class probe from cached features.
 
-Main outputs in `linear_probe.output_dir/...`:
-- `linear_probe_best.pt`
-- `linear_probe_last.pt`
+Main outputs in `probe.output_dir/...`:
+- `probe_best.pt`
+- `probe_last.pt`
 - `train_summary.json`
 
-### Stage 4: `eval.linear.ssv2`
+### Stage 4: `eval.probe.ssv2`
 Loads checkpoint, computes per-class softmax scores (enables Top-5), and runs SSv2 scoring.
 
-Main outputs in `linear_probe.eval_output_dir/...`:
-- `linear_predictions.json`
-- `linear_eval_summary.json`
+Main outputs in `probe.eval_output_dir/...`:
+- `probe_predictions.json`
+- `probe_eval_summary.json`
 - `metrics.json` (top1_accuracy, top5_accuracy, per-template breakdown)
 - `predictions.csv`, `summary.md`, `provenance.json`
 
@@ -192,36 +193,36 @@ python run.py exp.list
 
 Run a full recipe (default: extract -> train.linear -> eval.linear):
 ```bash
-python run.py exp.run name=mvp.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=intphys2.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=ssv2.jepa_v1.linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=mvp.ltx_video.linear backbone.kwargs.device=cuda
-python run.py exp.run name=intphys2.ltx_video.linear backbone.kwargs.device=cuda
-python run.py exp.run name=ssv2.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=mvp.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run.py exp.run name=intphys2.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run.py exp.run name=ssv2.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run.py exp.run name=mvp.ltx_video.probe backbone.kwargs.device=cuda
+python run.py exp.run name=intphys2.ltx_video.probe backbone.kwargs.device=cuda
+python run.py exp.run name=ssv2.ltx_video.probe backbone.kwargs.device=cuda
 ```
 
 If a valid feature cache already exists, extraction is skipped automatically.
 Force re-extraction with:
 ```bash
-python run.py exp.run name=mvp.jepa_v1.linear feature_cache.force_reextract=true backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run.py exp.run name=mvp.jepa_v1.probe feature_cache.force_reextract=true backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
 ```
 
 ## Command Reference
 - `python run.py init.mvp`
 - `python run.py extract.mvp`
-- `python run.py train.linear.mvp`
-- `python run.py eval.linear.mvp`
+- `python run.py train.probe.mvp`
+- `python run.py eval.probe.mvp`
 - `python run.py eval.mvp`
 - `python run.py download.intphys2`
 - `python run.py init.intphys2`
 - `python run.py extract.intphys2`
-- `python run.py train.linear.intphys2`
-- `python run.py eval.linear.intphys2`
+- `python run.py train.probe.intphys2`
+- `python run.py eval.probe.intphys2`
 - `python run.py eval.intphys2`
 - `python run.py init.ssv2`
 - `python run.py extract.ssv2`
-- `python run.py train.linear.ssv2`
-- `python run.py eval.linear.ssv2`
+- `python run.py train.probe.ssv2`
+- `python run.py eval.probe.ssv2`
 - `python run.py eval.ssv2`
 - `python run.py exp.list`
 - `python run.py exp.run name=<experiment_id>`
@@ -240,19 +241,30 @@ python run.py extract.mvp feature_cache.split_names=[train] backbone.kwargs.chec
 python run.py extract.mvp backbone.name=ltx_video backbone.kwargs.device=cuda
 
 # train with token-mean features instead of pooled
-python run.py train.linear.mvp linear_probe.feature_view=tokens_mean
+python run.py train.probe.mvp probe.feature_view=tokens_mean
 
 # train and log probe metrics to Weights & Biases
-python run.py train.linear.mvp linear_probe.wandb.enabled=true linear_probe.wandb.project=probe4physics
+python run.py train.probe.mvp probe.wandb.enabled=true probe.wandb.project=probe4physics
+
+# run Optuna search with per-trial W&B logging
+python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.n_trials=10 probe.wandb.enabled=true
 
 # evaluate a specific split and checkpoint
-python run.py eval.linear.mvp split_name=val linear_probe.checkpoint_path=/absolute/path/to/linear_probe_best.pt
+python run.py eval.probe.mvp split_name=val probe.checkpoint_path=/absolute/path/to/probe_best.pt
 
 # download only the Debug split of IntPhys2
 python run.py download.intphys2 download.splits=[Debug]
 
 # limit SSv2 subset size
 python run.py init.ssv2 split.max_samples_per_class=50
+```
+
+Direct probe CLI:
+```bash
+python run_probe.py train --dataset mvp --probe linear backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
+python run_probe.py train --dataset intphys2 --probe mlp probe.feature_view=tokens_mean
+python run_probe.py train --dataset ssv2 --probe temporal_attn probe.feature_view=tokens
+python run_probe.py eval --dataset mvp --probe linear split_name=val probe.checkpoint_path=/absolute/path/to/probe_best.pt
 ```
 
 ## LTX-Video Notes
@@ -274,8 +286,8 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split location and ratios
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `linear_probe.*`: probe training/eval settings and output locations
-- `linear_probe.wandb.*`: optional Weights & Biases settings for `train.linear.*`
+- `probe.*`: probe training/eval settings and output locations
+- `probe.wandb.*`: optional Weights & Biases settings for `train.probe.*`
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.mvp`
 
@@ -284,7 +296,7 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split artifact location
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `linear_probe.*`: probe training/eval settings and output locations
+- `probe.*`: probe training/eval settings and output locations
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.intphys2`
 
@@ -292,6 +304,6 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split artifact location and `max_samples_per_class` subsetting
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `linear_probe.*`: probe training/eval settings and output locations
+- `probe.*`: probe training/eval settings and output locations
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.ssv2`

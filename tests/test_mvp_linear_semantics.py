@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 
 from probes.base import ProbeFitResult
-from training.mvp_linear import LinearProbeConfigError, run_mvp_train_linear
+from run_probe import ProbeConfigError, run_mvp_train_probe
 
 
 class _CapturingProbe:
@@ -131,7 +131,8 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             config = {
                 "seed": 13,
-                "linear_probe": {
+                "probe": {
+                    "name": "linear",
                     "feature_view": "pooled",
                     "layer": "last",
                     "device": "cpu",
@@ -140,14 +141,14 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
-                with mock.patch("training.mvp_linear.create_probe", return_value=fake_probe):
-                    result = run_mvp_train_linear(config)
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("run_probe.create_probe", return_value=fake_probe):
+                    result = run_mvp_train_probe(config)
 
             self.assertTrue(Path(result["checkpoint"]).exists())
             self.assertTrue(Path(result["checkpoint_last"]).exists())
             self.assertTrue(Path(result["checkpoint_best"]).exists())
-            self.assertFalse((Path(tmp) / "train_run" / "linear_probe.pt").exists())
+            self.assertFalse((Path(tmp) / "train_run" / "probe.pt").exists())
 
         self.assertEqual(result["n_train"], 2)
         self.assertEqual(result["n_val"], 1)
@@ -166,16 +167,17 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
         fake_bundle["index"] = fake_bundle["index"].drop(columns=["plausibility_label"])
 
         config = {
-            "linear_probe": {
+            "probe": {
+                "name": "linear",
                 "feature_view": "pooled",
                 "layer": "last",
                 "device": "cpu",
             }
         }
 
-        with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
-            with self.assertRaisesRegex(LinearProbeConfigError, "Re-run `python run.py extract.mvp`"):
-                run_mvp_train_linear(config)
+        with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+            with self.assertRaisesRegex(ProbeConfigError, "Re-run `python run.py extract.mvp`"):
+                run_mvp_train_probe(config)
 
     def test_train_logs_to_wandb_when_enabled(self) -> None:
         fake_probe = _CapturingProbe()
@@ -185,7 +187,8 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             config = {
                 "seed": 13,
-                "linear_probe": {
+                "probe": {
+                    "name": "linear",
                     "feature_view": "pooled",
                     "layer": "last",
                     "device": "cpu",
@@ -198,10 +201,10 @@ class MVPLinearSemanticTrainingTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
-                with mock.patch("training.mvp_linear.create_probe", return_value=fake_probe):
-                    with mock.patch("training.mvp_linear.init_wandb_train_logger", return_value=fake_logger):
-                        result = run_mvp_train_linear(config)
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("run_probe.create_probe", return_value=fake_probe):
+                    with mock.patch("run_probe.init_wandb_train_logger", return_value=fake_logger):
+                        result = run_mvp_train_probe(config)
 
         fake_logger.log_epoch.assert_called_once()
         fake_logger.log_summary.assert_called_once_with(result)

@@ -510,19 +510,19 @@ class RunCommandIntPhys2Tests(unittest.TestCase):
             "init.intphys2",
             "eval.intphys2",
             "extract.intphys2",
-            "train.linear.intphys2",
-            "eval.linear.intphys2",
+            "train.probe.intphys2",
+            "eval.probe.intphys2",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
 
     def test_intphys2_experiment_is_registered(self) -> None:
         from experiments.registry import get_experiment
 
-        spec = get_experiment("intphys2.jepa_v1.linear")
-        self.assertEqual(spec.name, "intphys2.jepa_v1.linear")
+        spec = get_experiment("intphys2.jepa_v1.probe")
+        self.assertEqual(spec.name, "intphys2.jepa_v1.probe")
         self.assertIn("extract.intphys2", spec.pipeline)
-        self.assertIn("train.linear.intphys2", spec.pipeline)
-        self.assertIn("eval.linear.intphys2", spec.pipeline)
+        self.assertIn("train.probe.intphys2", spec.pipeline)
+        self.assertIn("eval.probe.intphys2", spec.pipeline)
 
     def test_download_command_is_registered(self) -> None:
         try:

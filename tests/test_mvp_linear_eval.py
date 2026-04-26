@@ -12,7 +12,7 @@ import pandas as pd
 import torch
 
 from probes.linear import LinearProbe
-from training.mvp_linear import LinearProbeConfigError, run_mvp_eval_linear
+from run_probe import ProbeConfigError, run_mvp_eval_probe
 
 
 class _StaticProbe:
@@ -97,18 +97,19 @@ class MVPLInearEvalTests(unittest.TestCase):
 
             config = {
                 "split_name": "test",
-                "linear_probe": {
+                "probe": {
                     "feature_view": "pooled",
                     "layer": "last",
+                    "name": "linear",
                     "checkpoint_path": str(ckpt),
                     "device": "cpu",
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
-                with mock.patch("training.mvp_linear.run_mvp_eval") as mocked_eval:
-                    with self.assertRaises(LinearProbeConfigError):
-                        run_mvp_eval_linear(config)
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with mock.patch("run_probe.run_mvp_eval") as mocked_eval:
+                    with self.assertRaises(ProbeConfigError):
+                        run_mvp_eval_probe(config)
 
             mocked_eval.assert_not_called()
 
@@ -148,17 +149,18 @@ class MVPLInearEvalTests(unittest.TestCase):
 
             config = {
                 "split_name": "test",
-                "linear_probe": {
+                "probe": {
                     "feature_view": "pooled",
                     "layer": "last",
+                    "name": "linear",
                     "checkpoint_path": str(ckpt),
                     "device": "cpu",
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
-                with self.assertRaisesRegex(LinearProbeConfigError, "Re-run `python run.py extract.mvp`"):
-                    run_mvp_eval_linear(config)
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                with self.assertRaisesRegex(ProbeConfigError, "Re-run `python run.py extract.mvp`"):
+                    run_mvp_eval_probe(config)
 
     def test_eval_translates_semantic_predictions_back_to_sample_specific_choice_indices(self) -> None:
         fake_bundle = {
@@ -229,9 +231,10 @@ class MVPLInearEvalTests(unittest.TestCase):
 
             config = {
                 "split_name": "test",
-                "linear_probe": {
+                "probe": {
                     "feature_view": "pooled",
                     "layer": "last",
+                    "name": "linear",
                     "checkpoint_path": str(ckpt),
                     "device": "cpu",
                     "eval_output_dir": tmp,
@@ -239,16 +242,16 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                 with mock.patch(
-                    "training.mvp_linear.LinearProbe.load",
-                    return_value=_StaticProbe([1, 0, 1, 0]),
+                    "run_probe.load_probe_from_checkpoint",
+                    return_value=(_StaticProbe([1, 0, 1, 0]), {"metadata": {"feature_signature": "cache_sig", "target_type": "semantic_plausibility"}}),
                 ):
                     with mock.patch(
-                        "training.mvp_linear.run_mvp_eval",
+                        "run_probe.run_mvp_eval",
                         return_value={"metrics": {"accuracy": 100.0}},
                     ) as mocked_eval:
-                        summary = run_mvp_eval_linear(config)
+                        summary = run_mvp_eval_probe(config)
 
             pred_file = Path(summary["prediction_file"])
             pred_payload = json.loads(pred_file.read_text(encoding="utf-8"))
@@ -367,14 +370,14 @@ class MVPLInearEvalTests(unittest.TestCase):
             }
 
             ckpt = tmp_path / "linear.pt"
-            torch.save(
-                {
-                    "metadata": {
-                        "feature_signature": "cache_sig",
-                        "target_type": "semantic_plausibility",
-                    }
-                },
+            probe = LinearProbe(input_dim=8, num_classes=2, device="cpu")
+            probe.save(
                 ckpt,
+                metadata={
+                    "feature_signature": "cache_sig",
+                    "target_type": "semantic_plausibility",
+                    "probe_name": "linear",
+                },
             )
 
             config = {
@@ -389,22 +392,33 @@ class MVPLInearEvalTests(unittest.TestCase):
                 "seed": 7,
                 "materialize_missing": False,
                 "download_timeout_seconds": 10,
-                "linear_probe": {
+                "probe": {
                     "feature_view": "pooled",
                     "layer": "last",
+                    "name": "linear",
                     "checkpoint_path": str(ckpt),
                     "device": "cpu",
                     "eval_output_dir": str(tmp_path / "results"),
-                    "eval_output_subdir": "linear_eval",
+                    "eval_output_subdir": "probe_eval",
                 },
             }
 
-            with mock.patch("training.mvp_linear.load_feature_cache_for_config", return_value=fake_bundle):
+            with mock.patch("run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                 with mock.patch(
-                    "training.mvp_linear.LinearProbe.load",
-                    return_value=_StaticProbe([1, 0, 1, 0]),
+                    "run_probe.load_probe_from_checkpoint",
+                    return_value=(
+                        _StaticProbe([1, 0, 1, 0]),
+                        {
+                            "type": "linear",
+                            "metadata": {
+                                "feature_signature": "cache_sig",
+                                "target_type": "semantic_plausibility",
+                                "probe_name": "linear",
+                            },
+                        },
+                    ),
                 ):
-                    summary = run_mvp_eval_linear(config)
+                    summary = run_mvp_eval_probe(config)
 
             metrics = summary["base_eval"]["metrics"]
             self.assertAlmostEqual(metrics["accuracy"], 100.0)

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Train an MVP linear probe with VideoMAE v2 features.
+# Train an MVP probe with VideoMAE v2 features.
 #
 # Usage:
 #   sbatch videomae_v2.sh

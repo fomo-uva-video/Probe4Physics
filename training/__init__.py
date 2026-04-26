@@ -1,4 +1,9 @@
+from training.intphys2_extract import run_intphys2_extract
 from training.mvp_extract import run_mvp_extract
-from training.mvp_linear import run_mvp_eval_linear, run_mvp_train_linear
+from training.ssv2_extract import run_ssv2_extract
 
-__all__ = ["run_mvp_extract", "run_mvp_train_linear", "run_mvp_eval_linear"]
+__all__ = [
+    "run_mvp_extract",
+    "run_intphys2_extract",
+    "run_ssv2_extract",
+]

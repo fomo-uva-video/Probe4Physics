@@ -23,12 +23,17 @@ from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_c
 from benchmarks.ssv2.init import run_ssv2_init
 from experiments.health import run_health, run_health_features, run_health_layers
 from experiments.registry import get_experiment, list_experiments
+from run_probe import (
+    run_intphys2_eval_probe,
+    run_intphys2_train_probe,
+    run_mvp_eval_probe,
+    run_mvp_train_probe,
+    run_ssv2_eval_probe,
+    run_ssv2_train_probe,
+)
 from training.intphys2_extract import run_intphys2_extract
-from training.intphys2_linear import run_intphys2_eval_linear, run_intphys2_train_linear
 from training.mvp_extract import run_mvp_extract
-from training.mvp_linear import run_mvp_eval_linear, run_mvp_train_linear
 from training.ssv2_extract import run_ssv2_extract
-from training.ssv2_linear import run_ssv2_eval_linear, run_ssv2_train_linear
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 DEFAULT_COMMAND = "eval.mvp"
@@ -155,7 +160,7 @@ def _resolve_experiment_name(config: dict[str, Any]) -> str:
         if nested_name:
             return nested_name
 
-    return "mvp.jepa_v1.linear"
+    return "mvp.jepa_v1.probe"
 
 
 def _deep_merge_dict(base: dict[str, Any], updates: dict[str, Any]) -> dict[str, Any]:
@@ -184,15 +189,15 @@ COMMANDS = {
         handler=run_mvp_extract,
         description="Extract and cache frozen backbone features for MVP.",
     ),
-    "train.linear.mvp": CommandSpec(
+    "train.probe.mvp": CommandSpec(
         config_name="mvp",
-        handler=run_mvp_train_linear,
-        description="Train a linear probe from cached MVP features.",
+        handler=run_mvp_train_probe,
+        description="Train the selected probe from cached MVP features.",
     ),
-    "eval.linear.mvp": CommandSpec(
+    "eval.probe.mvp": CommandSpec(
         config_name="mvp",
-        handler=run_mvp_eval_linear,
-        description="Evaluate linear probe predictions with official MVP scoring.",
+        handler=run_mvp_eval_probe,
+        description="Evaluate the selected probe with official MVP scoring.",
     ),
     # --- IntPhys2 ---
     "download.intphys2": CommandSpec(
@@ -215,15 +220,15 @@ COMMANDS = {
         handler=run_intphys2_extract,
         description="Extract and cache frozen backbone features for IntPhys2.",
     ),
-    "train.linear.intphys2": CommandSpec(
+    "train.probe.intphys2": CommandSpec(
         config_name="intphys2",
-        handler=run_intphys2_train_linear,
-        description="Train a linear probe from cached IntPhys2 features.",
+        handler=run_intphys2_train_probe,
+        description="Train the selected probe from cached IntPhys2 features.",
     ),
-    "eval.linear.intphys2": CommandSpec(
+    "eval.probe.intphys2": CommandSpec(
         config_name="intphys2",
-        handler=run_intphys2_eval_linear,
-        description="Evaluate linear probe on IntPhys2 with accuracy + VOE scoring.",
+        handler=run_intphys2_eval_probe,
+        description="Evaluate the selected probe on IntPhys2 with accuracy + VOE scoring.",
     ),
     # --- SSv2 ---
     "init.ssv2": CommandSpec(
@@ -241,15 +246,15 @@ COMMANDS = {
         handler=run_ssv2_extract,
         description="Extract and cache frozen backbone features for SSv2.",
     ),
-    "train.linear.ssv2": CommandSpec(
+    "train.probe.ssv2": CommandSpec(
         config_name="ssv2",
-        handler=run_ssv2_train_linear,
-        description="Train a 174-class linear probe from cached SSv2 features.",
+        handler=run_ssv2_train_probe,
+        description="Train the selected probe from cached SSv2 features.",
     ),
-    "eval.linear.ssv2": CommandSpec(
+    "eval.probe.ssv2": CommandSpec(
         config_name="ssv2",
-        handler=run_ssv2_eval_linear,
-        description="Evaluate linear probe on SSv2 with Top-1 / Top-5 scoring.",
+        handler=run_ssv2_eval_probe,
+        description="Evaluate the selected probe on SSv2 with Top-1 / Top-5 scoring.",
     ),
     # --- Health ---
     "health": CommandSpec(
@@ -310,21 +315,21 @@ def _print_help() -> None:
         "MVP commands:",
         "  python run.py init.mvp",
         "  python run.py extract.mvp",
-        "  python run.py train.linear.mvp",
-        "  python run.py eval.linear.mvp",
+        "  python run.py train.probe.mvp",
+        "  python run.py eval.probe.mvp",
         "",
         "IntPhys2 commands:",
         "  python run.py download.intphys2",
         "  python run.py init.intphys2",
         "  python run.py extract.intphys2",
-        "  python run.py train.linear.intphys2",
-        "  python run.py eval.linear.intphys2",
+        "  python run.py train.probe.intphys2",
+        "  python run.py eval.probe.intphys2",
         "",
         "SSv2 commands:",
         "  python run.py init.ssv2",
         "  python run.py extract.ssv2",
-        "  python run.py train.linear.ssv2",
-        "  python run.py eval.linear.ssv2",
+        "  python run.py train.probe.ssv2",
+        "  python run.py eval.probe.ssv2",
         "",
         "Health command:",
         "  python run.py health",
@@ -337,12 +342,12 @@ def _print_help() -> None:
         "",
         "Experiment recipes:",
         "  python run.py exp.list",
-        "  python run.py exp.run name=mvp.jepa_v1.linear",
-        "  python run.py exp.run name=mvp.ltx_video.linear",
-        "  python run.py exp.run name=intphys2.jepa_v1.linear",
-        "  python run.py exp.run name=intphys2.ltx_video.linear",
-        "  python run.py exp.run name=ssv2.jepa_v1.linear",
-        "  python run.py exp.run name=ssv2.ltx_video.linear",
+        "  python run.py exp.run name=mvp.jepa_v1.probe",
+        "  python run.py exp.run name=mvp.ltx_video.probe",
+        "  python run.py exp.run name=intphys2.jepa_v1.probe",
+        "  python run.py exp.run name=intphys2.ltx_video.probe",
+        "  python run.py exp.run name=ssv2.jepa_v1.probe",
+        "  python run.py exp.run name=ssv2.ltx_video.probe",
         "",
         "Commands:",
     ]

@@ -8,7 +8,7 @@ strict_exit: false
 
 features:
   # CPU-only cache validation. These are the feature roots used by
-  # train.linear.mvp and train.linear.intphys2 unless overridden on the CLI.
+  # train.probe.mvp and train.probe.intphys2 unless overridden on the CLI.
   datasets:
     mvp:
       dir: /scratch-shared/scur0511/probe4physics/artifacts/features/mvp

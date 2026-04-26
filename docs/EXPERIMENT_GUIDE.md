@@ -22,8 +22,8 @@ All experiments follow this sequence:
 1. Prepare data and metadata
 2. Initialize deterministic split artifacts (`init.*`)
 3. Extract frozen backbone features (`extract.*`)
-4. Train probe (`train.linear.*`)
-5. Evaluate probe (`eval.linear.*`)
+4. Train probe (`train.probe.*`)
+5. Evaluate probe (`eval.probe.*`)
 
 You can run each stage manually, or run full recipes with `exp.run`.
 
@@ -269,38 +269,41 @@ If a valid cache already exists for the exact config signature, extraction is sk
 To force re-extraction:
 
 ```bash
-python run.py exp.run name=mvp.jepa_v1.linear feature_cache.force_reextract=true
+python run.py exp.run name=mvp.jepa_v1.probe feature_cache.force_reextract=true
 ```
 
 ---
 
 ## 7. Probe Selection, Training, and Evaluation
 
-Current pipeline commands are wired for linear probes:
-- `train.linear.<benchmark>`
-- `eval.linear.<benchmark>`
+Current pipeline commands are wired for probes:
+- `train.probe.<benchmark>`
+- `eval.probe.<benchmark>`
+
+These commands dispatch into `run_probe.py`, which now owns probe selection,
+checkpoint loading, train/eval orchestration, and optional Optuna sweeps.
 
 ### Train (MVP)
 
 ```bash
-python run.py train.linear.mvp \
+python run.py train.probe.mvp \
   feature_cache.dir=/scratch-shared/$USER/probe4physics/artifacts/features/mvp \
-  linear_probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
-  linear_probe.epochs=30 \
-  linear_probe.batch_size=128 \
-  linear_probe.device=cuda \
-  linear_probe.wandb.enabled=true \
-  linear_probe.wandb.project=probe4physics
+  probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
+  probe.epochs=30 \
+  probe.batch_size=128 \
+  probe.device=cuda \
+  probe.wandb.enabled=true \
+  probe.wandb.project=probe4physics
 ```
 
 ### Evaluate (MVP)
 
 ```bash
-python run.py eval.linear.mvp \
+python run.py eval.probe.mvp \
   split_name=val \
-  linear_probe.device=cuda \
-  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/<run_subdir>/linear_probe_best.pt \
-  linear_probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results
+  probe.device=cuda \
+  probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/<run_subdir>/probe_best.pt \
+  probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results
 ```
 
 ### Output locations
@@ -308,20 +311,29 @@ python run.py eval.linear.mvp \
 Train outputs:
 
 ```text
-linear_probe.output_dir/<timestamp_or_output_subdir>/
-  linear_probe_best.pt
-  linear_probe_last.pt
+probe.output_dir/<timestamp_or_output_subdir>/
+  probe_best.pt
+  probe_last.pt
   train_summary.json
 ```
 
-When `linear_probe.wandb.enabled=true`, `train.linear.*` also logs per-epoch loss/accuracy and final run metadata to Weights & Biases. The run name defaults to `<experiment>/<benchmark>/<feature_view>/<output_subdir>`, and can be overridden with `linear_probe.wandb.name=...`.
+When `probe.wandb.enabled=true`, `train.probe.*` also logs per-epoch loss/accuracy and final run metadata to Weights & Biases. The run name defaults to `<experiment>/<benchmark>/<feature_view>/<output_subdir>`, and can be overridden with `probe.wandb.name=...`.
+
+Optuna and W&B can be combined by enabling both:
+
+```bash
+python run.py train.probe.mvp \
+  probe.optuna.enabled=true \
+  probe.optuna.n_trials=10 \
+  probe.wandb.enabled=true
+```
 
 Eval outputs:
 
 ```text
-linear_probe.eval_output_dir/<timestamp_or_eval_output_subdir>/
-  linear_predictions.json
-  linear_eval_summary.json
+probe.eval_output_dir/<timestamp_or_eval_output_subdir>/
+  probe_predictions.json
+  probe_eval_summary.json
   metrics.json
   predictions.csv
   summary.md
@@ -337,14 +349,14 @@ linear_probe.eval_output_dir/<timestamp_or_eval_output_subdir>/
 
 ```bash
 python run.py exp.run \
-  name=mvp.jepa_v1.linear \
+  name=mvp.jepa_v1.probe \
   annotation_file=/scratch-shared/$USER/probe4physics/data/annotations/mvp_full.jsonl \
   official_repo_root=$PWD/third_party/minimal_video_pairs \
   videos_root=$PWD/third_party/minimal_video_pairs/videos \
   split.dir=/scratch-shared/$USER/probe4physics/data/splits/mvp/full_60_20_20 \
   feature_cache.dir=/scratch-shared/$USER/probe4physics/artifacts/features/mvp \
-  linear_probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
-  linear_probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results \
+  probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
+  probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results \
   +backbone.kwargs.variant=vitl16_224 \
   +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
 ```
@@ -353,32 +365,32 @@ python run.py exp.run \
 
 ```bash
 python run.py exp.run \
-  name=mvp.ltx_video.linear \
+  name=mvp.ltx_video.probe \
   backbone.kwargs.device=cuda
 ```
 
 ### IntPhys2 full recipe
 
 ```bash
-python run.py exp.run name=intphys2.jepa_v1.linear +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
+python run.py exp.run name=intphys2.jepa_v1.probe +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
 ```
 
 ### IntPhys2 LTX full recipe
 
 ```bash
-python run.py exp.run name=intphys2.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=intphys2.ltx_video.probe backbone.kwargs.device=cuda
 ```
 
 ### SSv2 full recipe
 
 ```bash
-python run.py exp.run name=ssv2.jepa_v1.linear +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
+python run.py exp.run name=ssv2.jepa_v1.probe +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
 ```
 
 ### SSv2 LTX full recipe
 
 ```bash
-python run.py exp.run name=ssv2.ltx_video.linear backbone.kwargs.device=cuda
+python run.py exp.run name=ssv2.ltx_video.probe backbone.kwargs.device=cuda
 ```
 
 ---
@@ -434,7 +446,7 @@ Cause: eval auto-discovery searches timestamped folders, but your run used a fix
 Fix: pass checkpoint explicitly:
 
 ```bash
-linear_probe.checkpoint_path=/path/to/linear_probe_best.pt
+probe.checkpoint_path=/path/to/probe_best.pt
 ```
 
 ## 10.4 FutureWarning: `torch.load(... weights_only=False)`
@@ -494,23 +506,23 @@ python run.py extract.mvp \
   +backbone.kwargs.checkpoint_path=$PWD/data/checkpoints/jepa_v1/vitl16.pth.tar
 
 # 3) Train probe
-python run.py train.linear.mvp \
+python run.py train.probe.mvp \
   feature_cache.dir=/scratch-shared/$USER/probe4physics/artifacts/features/mvp \
   feature_cache.split_names=[train,val] \
-  linear_probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
-  linear_probe.output_subdir=my_mvp_run \
-  linear_probe.epochs=5 \
-  linear_probe.device=cuda
+  probe.output_dir=/scratch-shared/$USER/probe4physics/artifacts/probes \
+  probe.output_subdir=my_mvp_run \
+  probe.epochs=5 \
+  probe.device=cuda
 
 # 4) Eval probe
-python run.py eval.linear.mvp \
+python run.py eval.probe.mvp \
   split_name=val \
   feature_cache.dir=/scratch-shared/$USER/probe4physics/artifacts/features/mvp \
   feature_cache.split_names=[train,val] \
-  linear_probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/my_mvp_run/linear_probe_best.pt \
-  linear_probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results \
-  linear_probe.eval_output_subdir=my_mvp_run \
-  linear_probe.device=cuda
+  probe.checkpoint_path=/scratch-shared/$USER/probe4physics/artifacts/probes/my_mvp_run/probe_best.pt \
+  probe.eval_output_dir=/scratch-shared/$USER/probe4physics/artifacts/results \
+  probe.eval_output_subdir=my_mvp_run \
+  probe.device=cuda
 ```
 
 ---

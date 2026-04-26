@@ -1,9 +1,9 @@
 #!/bin/bash
-# Train an IntPhys2 linear probe with VideoMAE features.
+# Train an IntPhys2 probe with VideoMAE features.
 #
 # Usage:
 #   sbatch videomae.sh
-#   sbatch videomae.sh linear_probe.device=cpu
+#   sbatch videomae.sh probe.device=cpu
 
 #SBATCH --partition=rome
 #SBATCH --job-name=intphys2_videomae_linear

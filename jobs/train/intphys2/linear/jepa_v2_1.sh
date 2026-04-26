@@ -1,9 +1,9 @@
 #!/bin/bash
-# Train an IntPhys2 linear probe with V-JEPA v2.1 features.
+# Train an IntPhys2 probe with V-JEPA v2.1 features.
 #
 # Usage:
 #   sbatch jepa_v2_1.sh
-#   sbatch jepa_v2_1.sh linear_probe.device=cpu
+#   sbatch jepa_v2_1.sh probe.device=cpu
 
 #SBATCH --partition=rome
 #SBATCH --job-name=intphys2_jepa_v2_1_linear

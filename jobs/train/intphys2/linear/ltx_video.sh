@@ -1,9 +1,9 @@
 #!/bin/bash
-# Train an IntPhys2 linear probe with LTX-Video features.
+# Train an IntPhys2 probe with LTX-Video features.
 #
 # Usage:
 #   sbatch ltx_video.sh
-#   sbatch ltx_video.sh linear_probe.device=cpu
+#   sbatch ltx_video.sh probe.device=cpu
 
 #SBATCH --partition=rome
 #SBATCH --job-name=intphys2_ltx_video_linear
