@@ -109,9 +109,10 @@ DATASET_SPECS = {
 }
 
 
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Probe4Physics probe runner")
-    parser.add_argument("mode", choices=("train", "eval"))
+    parser.add_argument("mode", choices=("train", "eval", "train_eval"))
     parser.add_argument("--dataset", required=True, choices=tuple(sorted(DATASET_SPECS)))
     parser.add_argument("--probe", required=True, choices=tuple(sorted(_SUPPORTED_PROBE_VIEWS)))
     parser.add_argument("overrides", nargs="*", help="Hydra-style key=value overrides")
@@ -126,8 +127,10 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.mode == "train":
         result = run_probe_train(args.dataset, config)
-    else:
+    elif args.mode == "eval":
         result = run_probe_eval(args.dataset, config)
+    else:
+        result = run_probe_train_eval(args.dataset, config)
 
     print(json.dumps(result, indent=2, sort_keys=True))
     if isinstance(result, dict):
@@ -160,20 +163,124 @@ def run_ssv2_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_eval("ssv2", config)
 
 
+def run_mvp_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_train_eval("mvp", config)
+
+
+def run_intphys2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_train_eval("intphys2", config)
+
+
+def run_ssv2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_train_eval("ssv2", config)
+
+
 def run_probe_train(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
     _require_dataset(dataset)
     probe_cfg = _probe_cfg(config)
-    if probe_cfg["optuna"]["enabled"]:
-        return _run_optuna_study(dataset, config, probe_cfg)
-
-    summary, _logger = _run_single_train(dataset, config, probe_cfg, finish_logger=True)
-    return summary
+    return _run_train_workflow(dataset, config, probe_cfg)
 
 
 def run_probe_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
     _require_dataset(dataset)
     probe_cfg = _probe_cfg(config)
     return _run_single_eval(dataset, config, probe_cfg)
+
+
+def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
+    _require_dataset(dataset)
+    probe_cfg = _probe_cfg(config)
+    sweep_layers = _resolve_sweep_layers(config, probe_cfg)
+    sweep_root = _resolve_train_eval_root_dir(dataset, config, probe_cfg)
+    sweep_root.mkdir(parents=True, exist_ok=True)
+    eval_split = str(config.get("split_name", DATASET_SPECS[dataset].default_eval_split))
+
+    layer_summaries: list[dict[str, Any]] = []
+    best_layer: int | str | None = None
+    best_layer_label = ""
+    best_metric: float | None = None
+
+    for layer in sweep_layers:
+        layer_label = _layer_label(layer)
+        layer_root = sweep_root / f"layer_{layer_label}"
+        train_dir = layer_root / "train"
+        eval_dir = layer_root / "eval"
+
+        layer_config = _config_for_layer(config, layer)
+        layer_config = _append_layer_run_context(layer_config, layer_label)
+        layer_probe_cfg = _probe_cfg(layer_config)
+
+        train_summary = _run_train_workflow(
+            dataset,
+            layer_config,
+            layer_probe_cfg,
+            output_dir=train_dir,
+        )
+        checkpoint_path = _summary_checkpoint_path(train_summary)
+
+        eval_config = _with_checkpoint_path(layer_config, checkpoint_path)
+        eval_probe_cfg = _probe_cfg(eval_config)
+        eval_summary = _run_single_eval(
+            dataset,
+            eval_config,
+            eval_probe_cfg,
+            output_dir=eval_dir,
+            split_name=eval_split,
+        )
+
+        objective_metric = float(eval_summary["objective_metric"])
+        layer_summary = {
+            "layer": _serialize_layer_value(layer),
+            "layer_label": layer_label,
+            "checkpoint": str(checkpoint_path),
+            "objective_metric": objective_metric,
+            "train": train_summary,
+            "eval": eval_summary,
+        }
+        layer_summaries.append(layer_summary)
+
+        if best_metric is None or objective_metric > best_metric:
+            best_metric = objective_metric
+            best_layer = layer
+            best_layer_label = layer_label
+
+    summary = {
+        "dataset": dataset,
+        "probe_name": probe_cfg["name"],
+        "feature_view": probe_cfg["feature_view"],
+        "split_name": eval_split,
+        "sweep_dir": str(sweep_root),
+        "requested_layers": [_serialize_layer_value(layer) for layer in sweep_layers],
+        "layers": layer_summaries,
+        "best_layer": None if best_layer is None else _serialize_layer_value(best_layer),
+        "best_layer_label": best_layer_label,
+        "best_objective_metric": best_metric,
+    }
+    (sweep_root / "train_eval_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return summary
+
+
+def _run_train_workflow(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    if probe_cfg["optuna"]["enabled"]:
+        return _run_optuna_study(dataset, config, probe_cfg, study_root=output_dir)
+
+    summary, _logger = _run_single_train(
+        dataset,
+        config,
+        probe_cfg,
+        output_dir=output_dir,
+        finish_logger=True,
+    )
+    return summary
 
 
 def _run_single_train(
@@ -183,6 +290,7 @@ def _run_single_train(
     *,
     output_dir: Path | None = None,
     finish_logger: bool = True,
+    epoch_callback: Callable[[dict[str, float]], None] | None = None,
 ) -> tuple[dict[str, Any], WandbTrainLogger | None]:
     wall_start = time.perf_counter()
     spec = DATASET_SPECS[dataset]
@@ -225,6 +333,14 @@ def _run_single_train(
     )
 
     train_summary: dict[str, Any] | None = None
+
+    def _fit_epoch_logger(row: dict[str, float]) -> None:
+        if logger is not None:
+            logger.log_epoch(dict(row))
+        if epoch_callback is not None:
+            epoch_callback(dict(row))
+
+    fit_epoch_logger = _fit_epoch_logger if (logger is not None or epoch_callback is not None) else None
     try:
         fit = probe.fit(
             x_train,
@@ -236,7 +352,7 @@ def _run_single_train(
             batch_size=probe_cfg["batch_size"],
             weight_decay=probe_cfg["weight_decay"],
             seed=int(config.get("seed", 42)),
-            epoch_logger=None if logger is None else logger.log_epoch,
+            epoch_logger=fit_epoch_logger,
         )
 
         checkpoint_last_path = train_output_dir / "probe_last.pt"
@@ -445,14 +561,60 @@ def _run_single_eval(
     return summary
 
 
+
+def _build_optuna_pruner(optuna: Any, probe_cfg: dict[str, Any]) -> Any:
+    pruner_cfg = probe_cfg["optuna"].get("pruner", {})
+    if not bool(pruner_cfg.get("enabled", True)):
+        return None
+
+    pruner_type = str(pruner_cfg.get("type", "median")).strip().lower() or "median"
+    if pruner_type == "median":
+        return optuna.pruners.MedianPruner(
+            n_startup_trials=int(pruner_cfg["n_startup_trials"]),
+            n_warmup_steps=int(pruner_cfg["n_warmup_steps"]),
+            interval_steps=int(pruner_cfg["interval_steps"]),
+        )
+    raise ProbeConfigError(f"Unsupported probe.optuna.pruner.type='{pruner_type}'.")
+
+
+def _make_optuna_epoch_pruning_callback(
+    optuna: Any,
+    trial: Any,
+    probe_cfg: dict[str, Any],
+) -> Callable[[dict[str, float]], None] | None:
+    pruner_cfg = probe_cfg["optuna"].get("pruner", {})
+    if not bool(pruner_cfg.get("enabled", True)):
+        return None
+
+    def _callback(row: dict[str, float]) -> None:
+        if "val_accuracy" not in row:
+            raise ProbeConfigError(
+                "Optuna pruning requires validation accuracy at each epoch. "
+                "Ensure the feature cache contains a val split and probe training uses it."
+            )
+        epoch_value = row.get("epoch")
+        if epoch_value is None:
+            raise ProbeConfigError("Epoch logger row is missing the 'epoch' field required for pruning.")
+        step = int(epoch_value)
+        metric_value = float(row["val_accuracy"])
+        trial.report(metric_value, step)
+        if trial.should_prune():
+            raise optuna.TrialPruned(f"Pruned at epoch {step} with val_accuracy={metric_value:.4f}")
+
+    return _callback
+
+
 def _run_optuna_study(
     dataset: str,
     config: dict[str, Any],
     probe_cfg: dict[str, Any],
+    *,
+    study_root: Path | None = None,
 ) -> dict[str, Any]:
     optuna = _import_optuna()
     optuna_cfg = probe_cfg["optuna"]
-    study_root = _resolve_train_output_dir(dataset, config, probe_cfg)
+    if study_root is None:
+        study_root = _resolve_train_output_dir(dataset, config, probe_cfg)
     study_root.mkdir(parents=True, exist_ok=True)
 
     study_name = str(optuna_cfg.get("study_name", "")).strip() or study_root.name
@@ -461,10 +623,12 @@ def _run_optuna_study(
         storage = f"sqlite:///{(study_root / 'optuna_study.sqlite3').resolve()}"
 
     sampler = optuna.samplers.TPESampler(seed=int(optuna_cfg["sampler_seed"]))
+    pruner = _build_optuna_pruner(optuna, probe_cfg)
     study = optuna.create_study(
         study_name=study_name,
         direction=str(optuna_cfg["direction"]),
         sampler=sampler,
+        pruner=pruner,
         storage=storage,
         load_if_exists=True,
     )
@@ -486,6 +650,7 @@ def _run_optuna_study(
                 wandb_cfg["name"] = f"{study_name}/trial_{trial.number:04d}"
 
         logger: WandbTrainLogger | None = None
+        epoch_callback = _make_optuna_epoch_pruning_callback(optuna, trial, resolved_trial_probe_cfg)
         try:
             train_summary, logger = _run_single_train(
                 dataset,
@@ -493,6 +658,7 @@ def _run_optuna_study(
                 resolved_trial_probe_cfg,
                 output_dir=trial_dir,
                 finish_logger=False,
+                epoch_callback=epoch_callback,
             )
 
             eval_cfg = copy.deepcopy(trial_cfg)
@@ -526,6 +692,13 @@ def _run_optuna_study(
                 logger.run.summary["optuna_study_name"] = study_name
                 logger.run.summary["optuna_trial_number"] = int(trial.number)
             return metric_value
+        except optuna.TrialPruned:
+            trial.set_user_attr("output_dir", str(trial_dir))
+            if logger is not None and getattr(logger, "run", None) is not None:
+                logger.run.summary["pruned"] = True
+                logger.run.summary["optuna_study_name"] = study_name
+                logger.run.summary["optuna_trial_number"] = int(trial.number)
+            raise
         finally:
             if logger is not None:
                 logger.finish()
@@ -538,10 +711,18 @@ def _run_optuna_study(
         timeout=None if timeout_seconds <= 0 else timeout_seconds,
     )
 
-    best_trial = study.best_trial
+    try:
+        best_trial = study.best_trial
+    except Exception as exc:
+        raise ProbeConfigError(
+            "Optuna completed without any non-pruned trial. "
+            "Relax the pruner settings or increase trial budget."
+        ) from exc
+    best_checkpoint = str(best_trial.user_attrs.get("checkpoint", ""))
     best_summary = {
         "dataset": dataset,
         "probe_name": probe_cfg["name"],
+        "layer": _serialize_layer_value(probe_cfg["layer"]),
         "study_name": study.study_name,
         "storage": storage,
         "direction": str(optuna_cfg["direction"]),
@@ -551,7 +732,10 @@ def _run_optuna_study(
         "best_value": float(best_trial.value),
         "best_params": dict(best_trial.params),
         "best_output_dir": str(best_trial.user_attrs.get("output_dir", "")),
-        "best_checkpoint": str(best_trial.user_attrs.get("checkpoint", "")),
+        "best_checkpoint": best_checkpoint,
+        "checkpoint": best_checkpoint,
+        "best_eval_output_dir": str(best_trial.user_attrs.get("eval_output_dir", "")),
+        "output_dir": str(study_root),
         "trials": trial_summaries,
     }
     (study_root / "optuna_summary.json").write_text(
@@ -566,6 +750,7 @@ def _run_optuna_study(
 
 
 def load_probe_from_checkpoint(
+
     checkpoint_path: str | Path,
     *,
     device: str,
@@ -750,6 +935,7 @@ def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) ->
     )
 
 
+
 def _resolve_layer(layer: int | str, payload: dict[str, Any]) -> int:
     selected_layers = [int(item) for item in payload.get("selected_layers", [])]
     if not selected_layers:
@@ -766,6 +952,40 @@ def _resolve_layer(layer: int | str, payload: dict[str, Any]) -> int:
     return resolved
 
 
+def _parse_layer_value(value: Any) -> int | str:
+    if isinstance(value, str):
+        norm = value.strip().lower()
+        if norm in {"", "auto", "last"}:
+            return "last"
+        return int(value)
+    return int(value)
+
+
+def _parse_layers_value(value: Any) -> list[int | str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        raw_items = [item.strip() for item in text.split(",") if item.strip()]
+    elif isinstance(value, (list, tuple)):
+        raw_items = list(value)
+    else:
+        raise ProbeConfigError("probe.layers must be a list or comma-separated string")
+
+    layers: list[int | str] = []
+    seen: set[str] = set()
+    for item in raw_items:
+        layer = _parse_layer_value(item)
+        key = _layer_label(layer)
+        if key in seen:
+            continue
+        seen.add(key)
+        layers.append(layer)
+    return layers
+
+
 def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
     raw = config.get("probe", {})
     if raw is None:
@@ -779,12 +999,8 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         known = ", ".join(sorted(known_probes))
         raise ProbeConfigError(f"Unknown probe '{probe_name}'. Registered probes: {known}")
 
-    layer_raw = raw.get("layer", "last")
-    if isinstance(layer_raw, str):
-        layer_norm = layer_raw.strip().lower()
-        layer: int | str = "last" if layer_norm in {"", "auto", "last"} else int(layer_raw)
-    else:
-        layer = int(layer_raw)
+    layer = _parse_layer_value(raw.get("layer", "last"))
+    layers = _parse_layers_value(raw.get("layers"))
 
     feature_view_raw = str(raw.get("feature_view", "auto")).strip().lower() or "auto"
     if feature_view_raw == "auto":
@@ -808,6 +1024,7 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "name": probe_name,
         "feature_view": feature_view,
         "layer": layer,
+        "layers": layers,
         "train_split": str(raw.get("train_split", "train")).strip() or "train",
         "epochs": int(raw.get("epochs", 30)),
         "lr": float(raw.get("lr", 1e-3)),
@@ -835,6 +1052,131 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _choice_list(raw: Any, *, cast: Callable[[Any], Any], default: list[Any], field_name: str) -> list[Any]:
+    if raw is None:
+        return list(default)
+    if not isinstance(raw, (list, tuple)) or not raw:
+        raise ProbeConfigError(f"{field_name} must be a non-empty list")
+    return [cast(item) for item in raw]
+
+
+def _hidden_dim_choices(raw: Any) -> list[list[int]]:
+    default = [[256], [512], [1024], [512, 256]]
+    if raw is None:
+        return [list(choice) for choice in default]
+    if not isinstance(raw, (list, tuple)) or not raw:
+        raise ProbeConfigError("probe.optuna.search_space.mlp.hidden_dims.choices must be a non-empty list")
+
+    choices: list[list[int]] = []
+    for choice in raw:
+        if not isinstance(choice, (list, tuple)) or not choice:
+            raise ProbeConfigError(
+                "probe.optuna.search_space.mlp.hidden_dims.choices entries must be non-empty lists"
+            )
+        choices.append([int(item) for item in choice])
+    return choices
+
+
+def _optuna_search_space_cfg(raw: Any) -> dict[str, Any]:
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise ProbeConfigError("probe.optuna.search_space must be a dictionary")
+
+    lr_raw = raw.get("lr", {}) or {}
+    wd_raw = raw.get("weight_decay", {}) or {}
+    batch_raw = raw.get("batch_size", {}) or {}
+    epochs_raw = raw.get("epochs", {}) or {}
+    mlp_raw = raw.get("mlp", {}) or {}
+    mlp_hidden_raw = mlp_raw.get("hidden_dims", {}) or {}
+    mlp_dropout_raw = mlp_raw.get("dropout", {}) or {}
+    temporal_raw = raw.get("temporal_attn", {}) or {}
+    temporal_dropout_raw = temporal_raw.get("dropout", {}) or {}
+
+    return {
+        "lr": {
+            "min": float(lr_raw.get("min", 1e-5)),
+            "max": float(lr_raw.get("max", 1e-2)),
+            "log": bool(lr_raw.get("log", True)),
+        },
+        "weight_decay": {
+            "min": float(wd_raw.get("min", 1e-8)),
+            "max": float(wd_raw.get("max", 1e-2)),
+            "log": bool(wd_raw.get("log", True)),
+        },
+        "batch_size": {
+            "choices": _choice_list(
+                batch_raw.get("choices"),
+                cast=int,
+                default=[32, 64, 128, 256],
+                field_name="probe.optuna.search_space.batch_size.choices",
+            ),
+        },
+        "epochs": {
+            "enabled": bool(epochs_raw.get("enabled", False)),
+            "choices": _choice_list(
+                epochs_raw.get("choices"),
+                cast=int,
+                default=[20, 50, 100],
+                field_name="probe.optuna.search_space.epochs.choices",
+            ),
+        },
+        "mlp": {
+            "hidden_dims": {
+                "choices": _hidden_dim_choices(mlp_hidden_raw.get("choices")),
+            },
+            "dropout": {
+                "min": float(mlp_dropout_raw.get("min", 0.0)),
+                "max": float(mlp_dropout_raw.get("max", 0.5)),
+            },
+        },
+        "temporal_attn": {
+            "num_heads": {
+                "choices": _choice_list(
+                    temporal_raw.get("num_heads", {}).get("choices") if isinstance(temporal_raw.get("num_heads", {}), dict) else None,
+                    cast=int,
+                    default=[4, 8, 16],
+                    field_name="probe.optuna.search_space.temporal_attn.num_heads.choices",
+                ),
+            },
+            "num_self_attn_blocks": {
+                "choices": _choice_list(
+                    temporal_raw.get("num_self_attn_blocks", {}).get("choices") if isinstance(temporal_raw.get("num_self_attn_blocks", {}), dict) else None,
+                    cast=int,
+                    default=[1, 2, 3],
+                    field_name="probe.optuna.search_space.temporal_attn.num_self_attn_blocks.choices",
+                ),
+            },
+            "mlp_ratio": {
+                "choices": _choice_list(
+                    temporal_raw.get("mlp_ratio", {}).get("choices") if isinstance(temporal_raw.get("mlp_ratio", {}), dict) else None,
+                    cast=float,
+                    default=[2.0, 4.0],
+                    field_name="probe.optuna.search_space.temporal_attn.mlp_ratio.choices",
+                ),
+            },
+            "dropout": {
+                "min": float(temporal_dropout_raw.get("min", 0.0)),
+                "max": float(temporal_dropout_raw.get("max", 0.3)),
+            },
+        },
+    }
+
+
+def _optuna_pruner_cfg(raw: Any) -> dict[str, Any]:
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise ProbeConfigError("probe.optuna.pruner must be a dictionary")
+    return {
+        "enabled": bool(raw.get("enabled", True)),
+        "type": str(raw.get("type", "median")).strip().lower() or "median",
+        "n_startup_trials": int(raw.get("n_startup_trials", 3)),
+        "n_warmup_steps": int(raw.get("n_warmup_steps", 5)),
+        "interval_steps": int(raw.get("interval_steps", 1)),
+    }
+
+
 def _optuna_cfg(raw: Any) -> dict[str, Any]:
     if raw is None:
         raw = {}
@@ -846,14 +1188,17 @@ def _optuna_cfg(raw: Any) -> dict[str, Any]:
         "n_jobs": int(raw.get("n_jobs", 1)),
         "timeout_seconds": int(raw.get("timeout_seconds", 0)),
         "storage": str(raw.get("storage", "")),
-        "study_name": str(raw.get("study_name", "")),
+        "study_name": str(raw.get("study_name", "")).strip(),
         "direction": str(raw.get("direction", "maximize")),
         "metric": str(raw.get("metric", "")).strip(),
         "sampler_seed": int(raw.get("sampler_seed", 42)),
+        "search_space": _optuna_search_space_cfg(raw.get("search_space")),
+        "pruner": _optuna_pruner_cfg(raw.get("pruner")),
     }
 
 
 def _resolve_train_output_dir(
+
     dataset: str,
     config: dict[str, Any],
     probe_cfg: dict[str, Any],
@@ -867,6 +1212,7 @@ def _resolve_train_output_dir(
 
     timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return root / f"{spec.train_prefix}_{probe_cfg['name']}_{_backbone_run_label(config)}_{timestamp}"
+
 
 
 def _resolve_eval_output_dir(
@@ -885,7 +1231,81 @@ def _resolve_eval_output_dir(
     return root / f"{spec.eval_prefix}_{probe_cfg['name']}_{timestamp}"
 
 
+def _resolve_train_eval_root_dir(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+) -> Path:
+    spec = DATASET_SPECS[dataset]
+    root_value = probe_cfg["output_dir"] or spec.default_train_output_dir
+    root = Path(str(root_value))
+    subdir = str(probe_cfg["output_subdir"]).strip()
+    if subdir:
+        return root / subdir
+
+    timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return root / f"{spec.train_prefix}_{probe_cfg['name']}_{_backbone_run_label(config)}_{timestamp}"
+
+
+def _resolve_sweep_layers(config: dict[str, Any], probe_cfg: dict[str, Any]) -> list[int | str]:
+    layers = list(probe_cfg.get("layers", []))
+    if layers:
+        return layers
+    return [probe_cfg["layer"]]
+
+
+def _serialize_layer_value(layer: int | str) -> int | str:
+    return str(layer) if isinstance(layer, str) else int(layer)
+
+
+def _layer_label(layer: int | str) -> str:
+    return str(_serialize_layer_value(layer))
+
+
+def _config_for_layer(config: dict[str, Any], layer: int | str) -> dict[str, Any]:
+    updated = copy.deepcopy(config)
+    probe_section = updated.setdefault("probe", {})
+    if not isinstance(probe_section, dict):
+        raise ProbeConfigError("probe must be a dictionary")
+    probe_section["layer"] = _serialize_layer_value(layer)
+    probe_section.pop("layers", None)
+    return updated
+
+
+def _append_layer_run_context(config: dict[str, Any], layer_label: str) -> dict[str, Any]:
+    updated = copy.deepcopy(config)
+    probe_section = updated.setdefault("probe", {})
+    if not isinstance(probe_section, dict):
+        raise ProbeConfigError("probe must be a dictionary")
+
+    wandb_cfg = probe_section.get("wandb")
+    if isinstance(wandb_cfg, dict):
+        group = str(wandb_cfg.get("group", "")).strip()
+        if group:
+            wandb_cfg["group"] = f"{group}_layer_{layer_label}"
+        name = str(wandb_cfg.get("name", "")).strip()
+        if name:
+            wandb_cfg["name"] = f"{name}_layer_{layer_label}"
+
+    optuna_cfg = probe_section.get("optuna")
+    if isinstance(optuna_cfg, dict):
+        study_name = str(optuna_cfg.get("study_name", "")).strip()
+        if study_name:
+            optuna_cfg["study_name"] = f"{study_name}_layer_{layer_label}"
+
+    return updated
+
+
+def _summary_checkpoint_path(summary: dict[str, Any]) -> str:
+    for key in ("checkpoint", "best_checkpoint", "checkpoint_best"):
+        value = str(summary.get(key, "")).strip()
+        if value:
+            return value
+    raise ProbeConfigError("Training summary does not expose a checkpoint path.")
+
+
 def _resolve_checkpoint_path(
+
     dataset: str,
     config: dict[str, Any],
     probe_cfg: dict[str, Any],
@@ -976,6 +1396,7 @@ def _backbone_run_label(config: dict[str, Any]) -> str:
     return f"{name}_{variant}" if variant else name
 
 
+
 def _resolve_objective_metric_name(dataset: str, probe_cfg: dict[str, Any]) -> str:
     override = str(probe_cfg["optuna"]["metric"]).strip()
     if override:
@@ -1003,37 +1424,81 @@ def _apply_trial_parameters(
     probe_cfg: dict[str, Any],
     trial: Any,
 ) -> None:
+    del dataset
     probe_section = trial_cfg.setdefault("probe", {})
     if not isinstance(probe_section, dict):
         raise ProbeConfigError("probe must be a dictionary")
 
-    probe_section["lr"] = trial.suggest_float("lr", 1e-5, 1e-2, log=True)
-    probe_section["weight_decay"] = trial.suggest_float("weight_decay", 1e-8, 1e-2, log=True)
-    probe_section["batch_size"] = trial.suggest_categorical("batch_size", [32, 64, 128, 256])
-    probe_section["epochs"] = trial.suggest_categorical("epochs", [20, 50, 100])
+    search_space = probe_cfg["optuna"]["search_space"]
+    lr_cfg = search_space["lr"]
+    weight_decay_cfg = search_space["weight_decay"]
+    batch_cfg = search_space["batch_size"]
+    epochs_cfg = search_space["epochs"]
+
+    probe_section["lr"] = trial.suggest_float(
+        "lr",
+        float(lr_cfg["min"]),
+        float(lr_cfg["max"]),
+        log=bool(lr_cfg["log"]),
+    )
+    probe_section["weight_decay"] = trial.suggest_float(
+        "weight_decay",
+        float(weight_decay_cfg["min"]),
+        float(weight_decay_cfg["max"]),
+        log=bool(weight_decay_cfg["log"]),
+    )
+    probe_section["batch_size"] = trial.suggest_categorical(
+        "batch_size",
+        list(batch_cfg["choices"]),
+    )
+    if bool(epochs_cfg["enabled"]):
+        probe_section["epochs"] = trial.suggest_categorical(
+            "epochs",
+            list(epochs_cfg["choices"]),
+        )
 
     if probe_cfg["name"] == "mlp":
         mlp_section = probe_section.setdefault("mlp", {})
         if not isinstance(mlp_section, dict):
             raise ProbeConfigError("probe.mlp must be a dictionary")
-        mlp_section["hidden_dims"] = trial.suggest_categorical(
+        mlp_space = search_space["mlp"]
+        hidden_dim_choices = [list(choice) for choice in mlp_space["hidden_dims"]["choices"]]
+        hidden_dim_labels = ["x".join(str(item) for item in choice) for choice in hidden_dim_choices]
+        selected_hidden_dims = trial.suggest_categorical(
             "hidden_dims",
-            [[256], [512], [1024], [512, 256]],
+            hidden_dim_labels,
         )
-        mlp_section["dropout"] = trial.suggest_float("dropout", 0.0, 0.5)
+        choice_by_label = dict(zip(hidden_dim_labels, hidden_dim_choices))
+        mlp_section["hidden_dims"] = list(choice_by_label[selected_hidden_dims])
+        mlp_section["dropout"] = trial.suggest_float(
+            "dropout",
+            float(mlp_space["dropout"]["min"]),
+            float(mlp_space["dropout"]["max"]),
+        )
     elif probe_cfg["name"] == "temporal_attn":
         temporal_section = probe_section.setdefault("temporal_attn", {})
         if not isinstance(temporal_section, dict):
             raise ProbeConfigError("probe.temporal_attn must be a dictionary")
-        temporal_section["num_heads"] = trial.suggest_categorical("num_heads", [4, 8, 16])
+        temporal_space = search_space["temporal_attn"]
+        temporal_section["num_heads"] = trial.suggest_categorical(
+            "num_heads",
+            list(temporal_space["num_heads"]["choices"]),
+        )
         temporal_section["num_self_attn_blocks"] = trial.suggest_categorical(
             "num_self_attn_blocks",
-            [1, 2, 3],
+            list(temporal_space["num_self_attn_blocks"]["choices"]),
         )
-        temporal_section["mlp_ratio"] = trial.suggest_categorical("mlp_ratio", [2.0, 4.0])
-        temporal_section["dropout"] = trial.suggest_float("dropout", 0.0, 0.3)
+        temporal_section["mlp_ratio"] = trial.suggest_categorical(
+            "mlp_ratio",
+            list(temporal_space["mlp_ratio"]["choices"]),
+        )
+        temporal_section["dropout"] = trial.suggest_float(
+            "dropout",
+            float(temporal_space["dropout"]["min"]),
+            float(temporal_space["dropout"]["max"]),
+        )
     probe_section.setdefault("optuna", {})
-    if dataset == "mvp" and str(probe_section.get("feature_view", "")).strip().lower() == "auto":
+    if str(probe_section.get("feature_view", "")).strip().lower() == "auto":
         probe_section["feature_view"] = "tokens" if probe_cfg["name"] == "temporal_attn" else "pooled"
 
 

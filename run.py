@@ -25,10 +25,13 @@ from experiments.health import run_health, run_health_features, run_health_layer
 from experiments.registry import get_experiment, list_experiments
 from training.run_probe import (
     run_intphys2_eval_probe,
+    run_intphys2_train_eval_probe,
     run_intphys2_train_probe,
     run_mvp_eval_probe,
+    run_mvp_train_eval_probe,
     run_mvp_train_probe,
     run_ssv2_eval_probe,
+    run_ssv2_train_eval_probe,
     run_ssv2_train_probe,
 )
 from training.intphys2_extract import run_intphys2_extract
@@ -194,6 +197,11 @@ COMMANDS = {
         handler=run_mvp_train_probe,
         description="Train the selected probe from cached MVP features.",
     ),
+    "train_eval.probe.mvp": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_train_eval_probe,
+        description="Train and then evaluate the selected probe across one or more MVP layers.",
+    ),
     "eval.probe.mvp": CommandSpec(
         config_name="mvp",
         handler=run_mvp_eval_probe,
@@ -225,6 +233,11 @@ COMMANDS = {
         handler=run_intphys2_train_probe,
         description="Train the selected probe from cached IntPhys2 features.",
     ),
+    "train_eval.probe.intphys2": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_train_eval_probe,
+        description="Train and then evaluate the selected probe across one or more IntPhys2 layers.",
+    ),
     "eval.probe.intphys2": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_eval_probe,
@@ -250,6 +263,11 @@ COMMANDS = {
         config_name="ssv2",
         handler=run_ssv2_train_probe,
         description="Train the selected probe from cached SSv2 features.",
+    ),
+    "train_eval.probe.ssv2": CommandSpec(
+        config_name="ssv2",
+        handler=run_ssv2_train_eval_probe,
+        description="Train and then evaluate the selected probe across one or more SSv2 layers.",
     ),
     "eval.probe.ssv2": CommandSpec(
         config_name="ssv2",
@@ -316,6 +334,7 @@ def _print_help() -> None:
         "  python run.py init.mvp",
         "  python run.py extract.mvp",
         "  python run.py train.probe.mvp",
+        "  python run.py train_eval.probe.mvp",
         "  python run.py eval.probe.mvp",
         "",
         "IntPhys2 commands:",
@@ -323,12 +342,14 @@ def _print_help() -> None:
         "  python run.py init.intphys2",
         "  python run.py extract.intphys2",
         "  python run.py train.probe.intphys2",
+        "  python run.py train_eval.probe.intphys2",
         "  python run.py eval.probe.intphys2",
         "",
         "SSv2 commands:",
         "  python run.py init.ssv2",
         "  python run.py extract.ssv2",
         "  python run.py train.probe.ssv2",
+        "  python run.py train_eval.probe.ssv2",
         "  python run.py eval.probe.ssv2",
         "",
         "Health command:",

@@ -48,8 +48,10 @@ Run from repository root:
 ```bash
 python run.py init.mvp
 python run.py extract.mvp backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.probe.mvp
-python run.py eval.probe.mvp
+python run.py train_eval.probe.mvp
+# or run the steps separately:
+# python run.py train.probe.mvp
+# python run.py eval.probe.mvp
 ```
 
 ### Stage 1: `init.mvp`
@@ -99,8 +101,10 @@ The dataset is downloaded directly from HuggingFace (`facebook/IntPhys2`, CC BY-
 python run.py download.intphys2
 python run.py init.intphys2
 python run.py extract.intphys2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.probe.intphys2
-python run.py eval.probe.intphys2
+python run.py train_eval.probe.intphys2
+# or run the steps separately:
+# python run.py train.probe.intphys2
+# python run.py eval.probe.intphys2
 ```
 
 ### Stage 0: `download.intphys2`
@@ -152,8 +156,10 @@ Requires the official SSv2 annotation files (`train.json`, `validation.json`, `l
 ```bash
 python run.py init.ssv2
 python run.py extract.ssv2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train.probe.ssv2
-python run.py eval.probe.ssv2
+python run.py train_eval.probe.ssv2
+# or run the steps separately:
+# python run.py train.probe.ssv2
+# python run.py eval.probe.ssv2
 ```
 
 ### Stage 1: `init.ssv2`
@@ -211,17 +217,20 @@ python run.py exp.run name=mvp.jepa_v1.probe feature_cache.force_reextract=true 
 - `python run.py init.mvp`
 - `python run.py extract.mvp`
 - `python run.py train.probe.mvp`
+- `python run.py train_eval.probe.mvp`
 - `python run.py eval.probe.mvp`
 - `python run.py eval.mvp`
 - `python run.py download.intphys2`
 - `python run.py init.intphys2`
 - `python run.py extract.intphys2`
 - `python run.py train.probe.intphys2`
+- `python run.py train_eval.probe.intphys2`
 - `python run.py eval.probe.intphys2`
 - `python run.py eval.intphys2`
 - `python run.py init.ssv2`
 - `python run.py extract.ssv2`
 - `python run.py train.probe.ssv2`
+- `python run.py train_eval.probe.ssv2`
 - `python run.py eval.probe.ssv2`
 - `python run.py eval.ssv2`
 - `python run.py exp.list`
@@ -246,8 +255,17 @@ python run.py train.probe.mvp probe.feature_view=tokens_mean
 # train and log probe metrics to Weights & Biases
 python run.py train.probe.mvp probe.wandb.enabled=true probe.wandb.project=probe4physics
 
+# train+eval several layers in one run
+python run.py train_eval.probe.mvp probe.layers=[8,16,24,last]
+
 # run Optuna search with per-trial W&B logging
 python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.n_trials=10 probe.wandb.enabled=true
+
+# keep probe.epochs fixed by default; opt in if you want Optuna to search epochs too
+python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.search_space.epochs.enabled=true probe.optuna.search_space.epochs.choices=[20,50,100]
+
+# override Optuna search ranges from Hydra
+python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.search_space.lr.min=1e-4 probe.optuna.search_space.lr.max=5e-3 probe.optuna.search_space.batch_size.choices=[64,128]
 
 # evaluate a specific split and checkpoint
 python run.py eval.probe.mvp split_name=val probe.checkpoint_path=/absolute/path/to/probe_best.pt
@@ -278,8 +296,9 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split location and ratios
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings and output locations
-- `probe.wandb.*`: optional Weights & Biases settings for `train.probe.*`
+- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
+- `probe.wandb.*`: optional Weights & Biases settings for `train.probe.*` and `train_eval.probe.*`
+- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.mvp`
 
@@ -288,7 +307,8 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split artifact location
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings and output locations
+- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
+- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.intphys2`
 
@@ -296,6 +316,7 @@ sbatch jobs/setup/ltx_smoke.sh
 - `split.*`: split artifact location and `max_samples_per_class` subsetting
 - `backbone.*`: adapter name and kwargs
 - `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings and output locations
+- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
+- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
 - `decode.*`: frame sampling/resizing settings
 - `predictor.*`: predictor mode for `eval.ssv2`

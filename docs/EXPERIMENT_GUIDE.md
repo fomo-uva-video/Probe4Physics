@@ -278,10 +278,11 @@ python run.py exp.run name=mvp.jepa_v1.probe feature_cache.force_reextract=true
 
 Current pipeline commands are wired for probes:
 - `train.probe.<benchmark>`
+- `train_eval.probe.<benchmark>`
 - `eval.probe.<benchmark>`
 
 These commands dispatch into `training/run_probe.py`, which owns probe
-selection, checkpoint loading, train/eval orchestration, and optional Optuna
+selection, checkpoint loading, train/eval orchestration, multi-layer sweeps, and optional Optuna
 sweeps.
 
 ### Train (MVP)
@@ -296,6 +297,18 @@ python run.py train.probe.mvp \
   probe.wandb.enabled=true \
   probe.wandb.project=probe4physics
 ```
+
+### Train + Evaluate Multiple Layers (MVP)
+
+```bash
+python run.py train_eval.probe.mvp \
+  probe.layers=[8,16,24,last] \
+  probe.device=cuda \
+  probe.wandb.enabled=true \
+  probe.optuna.enabled=true
+```
+
+`train_eval.probe.*` runs one train/eval cycle per requested layer. When Optuna is enabled, each layer gets its own study and W&B group suffix.
 
 ### Evaluate (MVP)
 
@@ -327,6 +340,16 @@ python run.py train.probe.mvp \
   probe.optuna.enabled=true \
   probe.optuna.n_trials=10 \
   probe.wandb.enabled=true
+```
+
+The Optuna search space is now configurable under `probe.optuna.search_space.*`.
+`probe.epochs` stays fixed unless you explicitly enable epoch search:
+
+```bash
+python run.py train.probe.mvp \
+  probe.optuna.enabled=true \
+  probe.optuna.search_space.epochs.enabled=true \
+  probe.optuna.search_space.epochs.choices=[20,50,100]
 ```
 
 Eval outputs:
