@@ -9,7 +9,7 @@
 #SBATCH --job-name=intphys2_videomae_mlp
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
+#SBATCH --time=06:00:00
 #SBATCH --output=output/training/intphys2/mlp/intphys2_videomae_mlp_layers_%j.out
 #SBATCH --error=output/training/intphys2/mlp/intphys2_videomae_mlp_layers_%j.err
 
@@ -21,7 +21,8 @@ BACKBONE_NAME="videomae"
 BACKBONE_VARIANT="vit_huge_16_224"
 PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
-PROBE_LAYERS="${PROBE_LAYER}"
+# PROBE_LAYERS="${PROBE_LAYER}"
+PROBE_LAYERS="8,16,24,32"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"
