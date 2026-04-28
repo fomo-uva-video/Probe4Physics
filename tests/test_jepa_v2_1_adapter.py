@@ -9,11 +9,7 @@ from unittest import mock
 
 import torch
 
-from models.jepa_v2_1_adapter import (
-    JEPAV2_1Adapter,
-    _hierarchical_selected_layers,
-    _HIERARCHICAL_LAYERS,
-)
+from models.jepa_v2_1_adapter import JEPAV2_1Adapter
 from models.registry import (
     create_adapter,
     enforce_single_jepa_namespace,
@@ -55,6 +51,7 @@ def _make_minimal_config(
                 "vit_giant_xformers": 40,
                 "vit_gigantic_xformers": 48,
             },
+            "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
             "variants": {
                 "vitb_384": {
                     "checkpoint_filename": "vitb.pt",
@@ -142,57 +139,6 @@ def _build_fake_vit_module(encoder_ctor) -> types.SimpleNamespace:
         vit_giant_xformers=encoder_ctor,
         vit_gigantic_xformers=encoder_ctor,
     )
-
-
-# ---------------------------------------------------------------------------
-# Hierarchical layer mapping tests
-# ---------------------------------------------------------------------------
-
-class JEPAV2_1HierarchicalLayerTests(unittest.TestCase):
-    """Verify that hierarchical layers map correctly to 1-based user-facing ids."""
-
-    def _layers(self, model_name: str, depth: int) -> tuple[int, ...]:
-        return _hierarchical_selected_layers(model_name, {model_name: depth})
-
-    def test_vit_base_depth_12(self) -> None:
-        # 0-based [2,5,8,11] → 1-based [3,6,9,12]
-        self.assertEqual(self._layers("vit_base", 12), (3, 6, 9, 12))
-
-    def test_vit_large_depth_24(self) -> None:
-        # 0-based [5,11,17,23] → 1-based [6,12,18,24]
-        self.assertEqual(self._layers("vit_large", 24), (6, 12, 18, 24))
-
-    def test_vit_giant_xformers_depth_40(self) -> None:
-        # 0-based [9,19,29,39] → 1-based [10,20,30,40]
-        self.assertEqual(self._layers("vit_giant_xformers", 40), (10, 20, 30, 40))
-
-    def test_vit_gigantic_xformers_depth_48(self) -> None:
-        # 0-based [11,23,37,47] → 1-based [12,24,38,48]
-        # Note: 75% of 48 = 36 but the architectural hierarchical index is 38.
-        self.assertEqual(self._layers("vit_gigantic_xformers", 48), (12, 24, 38, 48))
-
-    def test_all_four_depths_covered(self) -> None:
-        """_HIERARCHICAL_LAYERS must contain entries for all supported depths."""
-        for depth in (12, 24, 40, 48):
-            self.assertIn(depth, _HIERARCHICAL_LAYERS)
-
-    def test_unknown_model_raises(self) -> None:
-        with self.assertRaises(ValueError):
-            _hierarchical_selected_layers("vit_mystery", {"vit_base": 12})
-
-    def test_unsupported_depth_raises(self) -> None:
-        with self.assertRaises(ValueError):
-            _hierarchical_selected_layers("vit_custom", {"vit_custom": 16})
-
-    def test_always_four_layers(self) -> None:
-        for model_name, depth in (
-            ("vit_base", 12),
-            ("vit_large", 24),
-            ("vit_giant_xformers", 40),
-            ("vit_gigantic_xformers", 48),
-        ):
-            layers = self._layers(model_name, depth)
-            self.assertEqual(len(layers), 4, f"Expected 4 layers for depth={depth}, got {layers}")
 
 
 # ---------------------------------------------------------------------------
