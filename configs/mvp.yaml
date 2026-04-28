@@ -160,7 +160,7 @@ probe:
     storage: ""
     study_name: ""
     direction: maximize
-    metric: ""
+    metric: pair_consistency
     sampler_seed: ${seed}
     pruner:
       enabled: true

@@ -116,7 +116,7 @@ DATASET_SPECS = {
         report_splits=("train", "val", "test"),
         train_prefix="mvp_probe",
         eval_prefix="mvp_probe_eval",
-        objective_metric="accuracy",
+        objective_metric="pair_consistency",
     ),
     "intphys2": DatasetSpec(
         name="intphys2",

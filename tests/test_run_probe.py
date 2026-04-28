@@ -5,9 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
-
 import torch
-
+from omegaconf import OmegaConf
 from training import run_probe
 from probes.mlp import MLPProbe
 
@@ -91,6 +90,42 @@ class _FakeOptunaModule:
 
 
 class RunProbeTests(unittest.TestCase):
+    def test_compose_mvp_config_defaults_optuna_metric_to_pair_consistency(self) -> None:
+        cfg = run_probe._compose_config("mvp", [])
+        config = OmegaConf.to_container(cfg, resolve=True)
+        self.assertIsInstance(config, dict)
+        assert isinstance(config, dict)
+
+        self.assertEqual(config["probe"]["optuna"]["metric"], "pair_consistency")
+
+    def test_resolve_objective_metric_name_uses_mvp_pair_consistency_by_default(self) -> None:
+        probe_cfg = run_probe._probe_cfg({"probe": {"name": "linear"}})
+
+        self.assertEqual(run_probe._resolve_objective_metric_name("mvp", probe_cfg), "pair_consistency")
+
+    def test_resolve_objective_metric_name_prefers_explicit_override(self) -> None:
+        probe_cfg = run_probe._probe_cfg(
+            {
+                "probe": {
+                    "name": "linear",
+                    "optuna": {
+                        "metric": "accuracy",
+                    },
+                }
+            }
+        )
+
+        self.assertEqual(run_probe._resolve_objective_metric_name("mvp", probe_cfg), "accuracy")
+
+    def test_extract_objective_metric_uses_pair_consistency_for_mvp_default(self) -> None:
+        probe_cfg = run_probe._probe_cfg({"probe": {"name": "linear"}})
+        metrics = {
+            "accuracy": 72.0,
+            "pair_consistency": 61.5,
+        }
+
+        self.assertEqual(run_probe._extract_objective_metric("mvp", metrics, probe_cfg), 61.5)
+
     def test_probe_cfg_auto_selects_tokens_for_temporal_attn(self) -> None:
         cfg = run_probe._probe_cfg({"probe": {"name": "temporal_attn"}})
         self.assertEqual(cfg["feature_view"], "tokens")
@@ -323,6 +358,7 @@ class RunProbeTests(unittest.TestCase):
 
         self.assertEqual(summary["study_name"], "study_run")
         self.assertEqual(summary["n_trials"], 2)
+        self.assertEqual(summary["objective_metric"], "pair_consistency")
         self.assertEqual(summary["best_trial_number"], 1)
         self.assertEqual(summary["best_value"], 2.0)
         self.assertEqual(len(summary["trials"]), 2)
