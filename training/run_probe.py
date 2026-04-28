@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import csv
 import json
 import os
 import random
@@ -280,6 +281,7 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
         "probe_name": probe_cfg["name"],
         "feature_view": probe_cfg["feature_view"],
         "train_split": probe_cfg["train_split"],
+        "objective_metric_name": _resolve_objective_metric_name(dataset, probe_cfg),
         "model_selection_split": _MODEL_SELECTION_SPLIT,
         "split_name": eval_split,
         "reported_splits": reported_splits,
@@ -294,6 +296,7 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
         json.dumps(summary, indent=2, sort_keys=True),
         encoding="utf-8",
     )
+    _write_train_eval_summary_csv(sweep_root / "train_eval_summary.csv", summary)
     return summary
 
 
@@ -802,6 +805,82 @@ def _write_aggregate_eval_summary(path: Path, summary: dict[str, Any]) -> None:
 
 def _write_aggregate_eval_config_snapshot(path: Path, config: dict[str, Any]) -> None:
     path.write_text(OmegaConf.to_yaml(OmegaConf.create(config), resolve=True), encoding="utf-8")
+
+
+def _is_scalar_csv_value(value: Any) -> bool:
+    return isinstance(value, (str, int, float, bool)) and not isinstance(value, complex)
+
+
+def _scalar_metrics(metrics: Any) -> dict[str, Any]:
+    if not isinstance(metrics, dict):
+        return {}
+    return {
+        str(key): value
+        for key, value in metrics.items()
+        if value is not None and _is_scalar_csv_value(value)
+    }
+
+
+def _write_train_eval_summary_csv(path: Path, summary: dict[str, Any]) -> None:
+    report_splits = [str(item) for item in summary.get("reported_splits", [])]
+    layer_summaries = summary.get("layers", [])
+    if not isinstance(layer_summaries, list):
+        raise ProbeConfigError("train_eval summary layers must be a list")
+
+    scalar_metric_keys_by_split: dict[str, set[str]] = {split_name: set() for split_name in report_splits}
+    extra_splits: set[str] = set()
+    for layer_summary in layer_summaries:
+        if not isinstance(layer_summary, dict):
+            continue
+        eval_summary = layer_summary.get("eval", {})
+        metrics_by_split = eval_summary.get("metrics_by_split", {}) if isinstance(eval_summary, dict) else {}
+        if not isinstance(metrics_by_split, dict):
+            continue
+        for split_name, metrics in metrics_by_split.items():
+            split_label = str(split_name)
+            target = scalar_metric_keys_by_split.get(split_label)
+            if target is None:
+                extra_splits.add(split_label)
+                target = scalar_metric_keys_by_split.setdefault(split_label, set())
+            target.update(_scalar_metrics(metrics).keys())
+
+    ordered_splits = list(report_splits) + sorted(extra_splits - set(report_splits))
+    metric_columns: list[str] = []
+    for split_name in ordered_splits:
+        for metric_name in sorted(scalar_metric_keys_by_split.get(split_name, set())):
+            metric_columns.append(f"{split_name}_{metric_name}")
+
+    fieldnames = [
+        "layer",
+        "layer_label",
+        "objective_metric_name",
+        "objective_metric",
+    ] + metric_columns
+
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for layer_summary in layer_summaries:
+            if not isinstance(layer_summary, dict):
+                continue
+            train_summary = layer_summary.get("train", {})
+            eval_summary = layer_summary.get("eval", {})
+            metrics_by_split = eval_summary.get("metrics_by_split", {}) if isinstance(eval_summary, dict) else {}
+            objective_metric_name = str(summary.get("objective_metric_name", "")).strip()
+            if not objective_metric_name and isinstance(train_summary, dict):
+                objective_metric_name = str(train_summary.get("objective_metric", "")).strip()
+            row = {
+                "layer": layer_summary.get("layer", ""),
+                "layer_label": layer_summary.get("layer_label", ""),
+                "objective_metric_name": objective_metric_name,
+                "objective_metric": layer_summary.get("objective_metric", ""),
+            }
+            if isinstance(metrics_by_split, dict):
+                for split_name, metrics in metrics_by_split.items():
+                    for metric_name, metric_value in _scalar_metrics(metrics).items():
+                        row[f"{split_name}_{metric_name}"] = metric_value
+            writer.writerow(row)
 
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import tempfile
 import unittest
@@ -221,6 +222,7 @@ class RunProbeTests(unittest.TestCase):
             }
             train_calls: list[dict[str, object]] = []
             eval_calls: list[dict[str, object]] = []
+            rows: list[dict[str, str]] = []
 
             def _fake_train_workflow(dataset, cfg, probe_cfg, *, output_dir=None):
                 del dataset
@@ -253,11 +255,27 @@ class RunProbeTests(unittest.TestCase):
                     "objective_metric": metric,
                     "probe_eval_dir": str(output_dir),
                     "reported_splits": ["train", "val", "test"],
+                    "metrics_by_split": {
+                        "train": {
+                            "accuracy": metric + 10.0,
+                            "n_samples": 20,
+                        },
+                        "val": {
+                            "accuracy": metric + 20.0,
+                        },
+                        "test": {
+                            "accuracy": metric + 30.0,
+                        },
+                    },
                 }
 
             with mock.patch("training.run_probe._run_train_workflow", side_effect=_fake_train_workflow):
                 with mock.patch("training.run_probe._run_report_eval", side_effect=_fake_eval):
                     summary = run_probe.run_probe_train_eval("mvp", config)
+            csv_path = Path(tmp) / "layer_sweep" / "train_eval_summary.csv"
+            self.assertTrue(csv_path.exists())
+            with csv_path.open("r", encoding="utf-8", newline="") as handle:
+                rows = list(csv.DictReader(handle))
 
         self.assertEqual([item["layer"] for item in train_calls], [8, "last"])
         self.assertEqual([item["layer"] for item in eval_calls], [8, "last"])
@@ -274,6 +292,28 @@ class RunProbeTests(unittest.TestCase):
         self.assertIsNone(summary["best_layer"])
         self.assertIsNone(summary["best_layer_label"])
         self.assertEqual(len(summary["layers"]), 2)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(
+            list(rows[0].keys()),
+            [
+                "layer",
+                "layer_label",
+                "objective_metric_name",
+                "objective_metric",
+                "train_accuracy",
+                "train_n_samples",
+                "val_accuracy",
+                "test_accuracy",
+            ],
+        )
+        self.assertEqual(rows[0]["objective_metric_name"], "pair_consistency")
+        self.assertEqual(rows[0]["layer"], "8")
+        self.assertEqual(rows[0]["objective_metric"], "1.0")
+        self.assertEqual(rows[0]["train_accuracy"], "11.0")
+        self.assertEqual(rows[0]["val_accuracy"], "21.0")
+        self.assertEqual(rows[0]["test_accuracy"], "31.0")
+        self.assertEqual(rows[1]["layer"], "last")
+        self.assertEqual(rows[1]["test_accuracy"], "32.0")
 
     def test_make_optuna_epoch_pruning_callback_reports_val_accuracy(self) -> None:
         trial = _FakeTrial(0)
