@@ -9,7 +9,7 @@
 #SBATCH --job-name=mvp_jepa_v1_mlp
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
+#SBATCH --time=10:00:00
 #SBATCH --output=output/training/mvp/mlp/mvp_jepa_v1_mlp_layers_%j.out
 #SBATCH --error=output/training/mvp/mlp/mvp_jepa_v1_mlp_layers_%j.err
 
@@ -21,8 +21,8 @@ PROBE_NAME="mlp"
 BACKBONE_NAME="jepa_v1"
 BACKBONE_VARIANT="vith16_384"
 PROBE_EPOCHS="100"
-PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
-PROBE_LAYERS="${PROBE_LAYER}"
+PROBE_LAYER="8"  # sweep values: 8 | 16 | 24 | 32
+PROBE_LAYERS="8,16,24,32"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"
