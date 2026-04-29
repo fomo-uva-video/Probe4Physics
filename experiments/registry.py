@@ -21,7 +21,7 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
     ),
     "mvp.ltx_video.probe": ExperimentSpec(
         name="mvp.ltx_video.probe",
-        description="MVP frozen-feature probe recipe with LTX-Video VAE features.",
+        description="MVP frozen-feature probe recipe with LTX-Video diffusion transformer features.",
         pipeline=("extract.mvp", "train.probe.mvp", "eval.probe.mvp"),
         config_overrides={
             "backbone": {
@@ -40,7 +40,7 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
     ),
     "intphys2.ltx_video.probe": ExperimentSpec(
         name="intphys2.ltx_video.probe",
-        description="IntPhys2 frozen-feature probe recipe with LTX-Video VAE features.",
+        description="IntPhys2 frozen-feature probe recipe with LTX-Video diffusion transformer features.",
         pipeline=("extract.intphys2", "train.probe.intphys2", "eval.probe.intphys2"),
         config_overrides={
             "backbone": {
@@ -59,7 +59,7 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
     ),
     "ssv2.ltx_video.probe": ExperimentSpec(
         name="ssv2.ltx_video.probe",
-        description="SSv2 frozen-feature probe recipe with LTX-Video VAE features.",
+        description="SSv2 frozen-feature probe recipe with LTX-Video diffusion transformer features.",
         pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
         config_overrides={
             "backbone": {

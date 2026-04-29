@@ -7,8 +7,8 @@ The proposal for this repository treats diffusion models differently from plain
 encoder backbones: probe both multiple denoising regimes and multiple backbone
 depths. This adapter therefore:
 
-1. encodes raw clips into LTX VAE latents,
-2. injects deterministic reference noise at configured noise levels, and
+1. encodes raw clips into normalized LTX VAE latents,
+2. injects deterministic reference noise at configured sigma levels, and
 3. captures hidden states from selected LTX transformer blocks.
 
 The canonical adapter schema only supports integer layer ids, so the adapter
@@ -34,6 +34,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
 DEFAULT_NOISE_LEVELS = (0.9, 0.5, 0.1)
 DEFAULT_NOISE_SEED = 0
+DEFAULT_FRAME_RATE = 25.0
 
 
 @dataclass(frozen=True)
@@ -290,7 +291,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             variant=variant,
         )
 
-        self.model_name = str(model_name or variant_cfg.get("model_name", "ltx_transformer_28"))
+        self.model_name = str(model_name or variant_cfg.get("model_name", "ltx_transformer_48"))
         self.crop_size = int(crop_size if crop_size is not None else variant_cfg.get("crop_size", 224))
         self.frames_per_clip = int(
             frames_per_clip if frames_per_clip is not None else variant_cfg.get("frames_per_clip", 16)
@@ -338,7 +339,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             self._tokenizer,
             self._text_encoder,
         ) = self._load_components()
-        self._noise_timesteps = tuple(self._noise_fraction_to_timestep(level) for level in self.noise_levels)
+        self._noise_timesteps, self._noise_sigmas = self._resolve_noise_schedule(self.noise_levels)
         self._transformer_blocks = self._get_transformer_blocks()
         self._temporal_downsample_strides = self._collect_temporal_downsample_strides()
         self._prompt_embeds, self._prompt_attention_mask = self._encode_prompt()
@@ -523,6 +524,24 @@ class LTXVideoAdapter(VideoBackboneAdapter):
 
         return hidden_states, attention_mask
 
+    @staticmethod
+    def _pack_latents(latents: torch.Tensor, *, patch_size: int, patch_size_t: int) -> torch.Tensor:
+        batch_size, _, num_frames, height, width = latents.shape
+        post_patch_num_frames = num_frames // patch_size_t
+        post_patch_height = height // patch_size
+        post_patch_width = width // patch_size
+        latents = latents.reshape(
+            batch_size,
+            -1,
+            post_patch_num_frames,
+            patch_size_t,
+            post_patch_height,
+            patch_size,
+            post_patch_width,
+            patch_size,
+        )
+        return latents.permute(0, 2, 4, 6, 1, 3, 5, 7).flatten(4, 7).flatten(1, 3)
+
     def _expand_prompt_batch(self, batch_size: int) -> tuple[torch.Tensor, torch.Tensor]:
         prompt_embeds = self._prompt_embeds.to(device=self.device, dtype=self.model_dtype)
         prompt_mask = self._prompt_attention_mask.to(device=self.device)
@@ -530,13 +549,51 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         prompt_mask = prompt_mask.expand(batch_size, -1).contiguous()
         return prompt_embeds, prompt_mask
 
-    def _noise_fraction_to_timestep(self, noise_fraction: float) -> float:
+    def _rope_interpolation_scale(self) -> tuple[float, float, float]:
+        temporal_ratio = float(getattr(self._vae, "temporal_compression_ratio", 8))
+        spatial_ratio = float(getattr(self._vae, "spatial_compression_ratio", 32))
+        return (
+            temporal_ratio / DEFAULT_FRAME_RATE,
+            spatial_ratio,
+            spatial_ratio,
+        )
+
+    def _resolve_noise_schedule(
+        self,
+        noise_levels: Sequence[float],
+    ) -> tuple[tuple[float, ...], tuple[float, ...]]:
+        scheduler_sigmas = getattr(self._scheduler, "sigmas", None)
+        scheduler_timesteps = getattr(self._scheduler, "timesteps", None)
+        if (
+            isinstance(scheduler_sigmas, torch.Tensor)
+            and isinstance(scheduler_timesteps, torch.Tensor)
+            and scheduler_sigmas.ndim == 1
+            and scheduler_timesteps.ndim == 1
+            and scheduler_sigmas.numel() > 0
+            and scheduler_sigmas.numel() == scheduler_timesteps.numel()
+        ):
+            sigmas = scheduler_sigmas.detach().to(device="cpu", dtype=torch.float32).flatten()
+            timesteps = scheduler_timesteps.detach().to(device="cpu", dtype=torch.float32).flatten()
+            resolved_timesteps: list[float] = []
+            resolved_sigmas: list[float] = []
+            for noise_fraction in noise_levels:
+                target_sigma = torch.tensor(float(noise_fraction), dtype=sigmas.dtype)
+                nearest_index = int(torch.argmin(torch.abs(sigmas - target_sigma)).item())
+                resolved_timesteps.append(float(timesteps[nearest_index].item()))
+                resolved_sigmas.append(float(sigmas[nearest_index].item()))
+            return tuple(resolved_timesteps), tuple(resolved_sigmas)
+
         scheduler_cfg = getattr(self._scheduler, "config", None)
         total = int(getattr(scheduler_cfg, "num_train_timesteps", 1000))
-        upper = max(total - 1, 1)
-        timestep = round(float(noise_fraction) * upper)
-        timestep = max(1, min(upper, timestep))
-        return float(timestep)
+        upper = max(total, 1)
+        resolved_timesteps = []
+        resolved_sigmas = []
+        for noise_fraction in noise_levels:
+            timestep = round(float(noise_fraction) * upper)
+            timestep = max(1, min(upper, timestep))
+            resolved_timesteps.append(float(timestep))
+            resolved_sigmas.append(float(noise_fraction))
+        return tuple(resolved_timesteps), tuple(resolved_sigmas)
 
     def preprocessing_metadata(self) -> dict[str, Any]:
         """Return the raw-clip preprocessing contract used before forward."""
@@ -565,7 +622,21 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         latents = latent_dist.mode()
         if not isinstance(latents, torch.Tensor):
             raise RuntimeError(f"LTX VAE latent mode() returned non-tensor value: {type(latents)!r}")
-        return latents
+        return self._normalize_ltx_latents(latents)
+
+    def _normalize_ltx_latents(self, latents: torch.Tensor) -> torch.Tensor:
+        latents_mean = getattr(self._vae, "latents_mean", None)
+        latents_std = getattr(self._vae, "latents_std", None)
+        if not isinstance(latents_mean, torch.Tensor) or not isinstance(latents_std, torch.Tensor):
+            raise RuntimeError(
+                "Loaded LTX VAE is missing latents_mean/latents_std required for transformer conditioning."
+            )
+
+        vae_cfg = getattr(self._vae, "config", None)
+        scaling_factor = float(getattr(vae_cfg, "scaling_factor", 1.0))
+        mean = latents_mean.view(1, -1, 1, 1, 1).to(device=latents.device, dtype=latents.dtype)
+        std = latents_std.view(1, -1, 1, 1, 1).to(device=latents.device, dtype=latents.dtype)
+        return (latents - mean) * scaling_factor / std
 
     def _reference_noise(self, latents: torch.Tensor) -> torch.Tensor:
         generator = torch.Generator(device="cpu")
@@ -610,11 +681,16 @@ class LTXVideoAdapter(VideoBackboneAdapter):
                 "Expected LTX latent tensor with shape [B, C, T, H, W], "
                 f"got shape {tuple(noisy_latents.shape)}"
             )
-        hidden_states = noisy_latents.permute(0, 2, 3, 4, 1).reshape(
-            noisy_latents.shape[0], -1, noisy_latents.shape[1]
+        patch_size = int(getattr(self._transformer.config, "patch_size", self.patch_size))
+        patch_size_t = int(getattr(self._transformer.config, "patch_size_t", self.patch_size_t))
+        hidden_states = self._pack_latents(
+            noisy_latents,
+            patch_size=patch_size,
+            patch_size_t=patch_size_t,
         ).to(dtype=self.model_dtype)
         batch_size = int(hidden_states.shape[0])
         prompt_embeds, prompt_mask = self._expand_prompt_batch(batch_size)
+        rope_interpolation_scale = self._rope_interpolation_scale()
 
         captured: dict[int, torch.Tensor] = {}
         handles: list[Any] = []
@@ -657,6 +733,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
                     num_frames=int(noisy_latents.shape[2]),
                     height=int(noisy_latents.shape[3]),
                     width=int(noisy_latents.shape[4]),
+                    rope_interpolation_scale=rope_interpolation_scale,
                     return_dict=False,
                 )
         finally:
@@ -730,6 +807,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             "normalize_input": self.normalize_input,
             "noise_seed": self.noise_seed,
             "noise_levels": [float(v) for v in self.noise_levels],
+            "noise_sigmas": [float(v) for v in self._noise_sigmas],
             "noise_timesteps": [float(v) for v in self._noise_timesteps],
             "patch_size": self.patch_size,
             "patch_size_t": self.patch_size_t,

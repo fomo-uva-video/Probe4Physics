@@ -50,6 +50,9 @@ class _FakeVAE(torch.nn.Module):
         )
         self.spatial_compression_ratio = 8
         self.temporal_compression_ratio = 8
+        self.latents_mean = torch.tensor([0.25, 0.25, 0.25], dtype=torch.float32)
+        self.latents_std = torch.tensor([0.5, 0.5, 0.5], dtype=torch.float32)
+        self.config = SimpleNamespace(scaling_factor=2.0)
         self.dummy = torch.nn.Parameter(torch.zeros(1))
         self.last_input: torch.Tensor | None = None
 
@@ -62,6 +65,10 @@ class _FakeVAE(torch.nn.Module):
 class _FakeScheduler:
     def __init__(self) -> None:
         self.config = SimpleNamespace(num_train_timesteps=1000)
+        self.sigmas = torch.tensor([1.0, 0.95, 0.75, 0.5, 0.3, 0.1], dtype=torch.float32)
+        self.timesteps = torch.tensor([1000.0, 950.0, 750.0, 500.0, 300.0, 100.0], dtype=torch.float32)
+        self.last_sample: torch.Tensor | None = None
+        self.last_timestep: torch.Tensor | None = None
 
     def scale_noise(
         self,
@@ -69,6 +76,8 @@ class _FakeScheduler:
         timestep: torch.Tensor,
         noise: torch.Tensor,
     ) -> torch.Tensor:
+        self.last_sample = sample.detach().clone()
+        self.last_timestep = timestep.detach().clone()
         factor = timestep.view(-1, 1, 1, 1, 1).to(dtype=sample.dtype) / 1000.0
         return sample + noise * factor
 
@@ -91,13 +100,14 @@ class _FakeTransformerBlock(torch.nn.Module):
 
 
 class _FakeTransformer(torch.nn.Module):
-    def __init__(self, depth: int = 28) -> None:
+    def __init__(self, depth: int = 48) -> None:
         super().__init__()
         self.transformer_blocks = torch.nn.ModuleList(
             [_FakeTransformerBlock(delta=float(index + 1)) for index in range(depth)]
         )
-        self.config = SimpleNamespace(in_channels=3)
+        self.config = SimpleNamespace(in_channels=3, patch_size=1, patch_size_t=1)
         self.dummy = torch.nn.Parameter(torch.zeros(1))
+        self.last_rope_interpolation_scale: tuple[float, float, float] | None = None
 
     def forward(
         self,
@@ -108,9 +118,11 @@ class _FakeTransformer(torch.nn.Module):
         num_frames: int | None = None,
         height: int | None = None,
         width: int | None = None,
+        rope_interpolation_scale: tuple[float, float, float] | None = None,
         return_dict: bool = True,
     ):
         _ = timestep, encoder_attention_mask, num_frames, height, width
+        self.last_rope_interpolation_scale = rope_interpolation_scale
         output = hidden_states
         for block in self.transformer_blocks:
             output = block(
@@ -153,7 +165,7 @@ def _fake_load_components(
 ) -> tuple[torch.nn.Module, torch.nn.Module, object, object, torch.nn.Module]:
     return (
         _FakeVAE(),
-        _FakeTransformer(depth=28),
+        _FakeTransformer(depth=48),
         _FakeScheduler(),
         _FakeTokenizer(),
         _FakeTextEncoder(),
@@ -165,7 +177,7 @@ def _fake_load_components_temporal(
 ) -> tuple[torch.nn.Module, torch.nn.Module, object, object, torch.nn.Module]:
     return (
         _FakeVAE(temporal_strides=(1, 2, 2, 2)),
-        _FakeTransformer(depth=28),
+        _FakeTransformer(depth=48),
         _FakeScheduler(),
         _FakeTokenizer(),
         _FakeTextEncoder(),
@@ -180,12 +192,12 @@ def _make_minimal_config(tmp: Path) -> Path:
             "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
             "default_noise_levels": [0.9, 0.5, 0.1],
             "model_block_depths": {
-                "ltx_transformer_28": 28,
+                "ltx_transformer_48": 48,
             },
             "variants": {
                 "ltxv_13b_0_9_8_distilled": {
                     "hf_model_id": "Lightricks/LTX-Video-0.9.8-13B-distilled",
-                    "model_name": "ltx_transformer_28",
+                    "model_name": "ltx_transformer_48",
                     "vae_subfolder": "vae",
                     "frames_per_clip": 16,
                     "crop_size": 224,
@@ -203,11 +215,11 @@ def _make_minimal_config(tmp: Path) -> Path:
 class LTXVideoLayerMappingTests(unittest.TestCase):
     def test_default_depth_mapping(self) -> None:
         result = resolve_relative_depth_layers(
-            "ltx_transformer_28",
+            "ltx_transformer_48",
             [0.25, 0.5, 0.75, 1.0],
-            model_block_depths={"ltx_transformer_28": 28},
+            model_block_depths={"ltx_transformer_48": 48},
         )
-        self.assertEqual(result, (7, 14, 21, 28))
+        self.assertEqual(result, (12, 24, 36, 48))
 
     def test_default_noise_levels(self) -> None:
         result = resolve_noise_levels([0.9, 0.5, 0.1])
@@ -215,25 +227,25 @@ class LTXVideoLayerMappingTests(unittest.TestCase):
 
     def test_probe_layer_ids_flatten_noise_and_depth(self) -> None:
         result = resolve_probe_layer_ids(
-            "ltx_transformer_28",
+            "ltx_transformer_48",
             relative_depths=[0.25, 0.5, 0.75, 1.0],
             noise_levels=[0.9, 0.5, 0.1],
-            model_block_depths={"ltx_transformer_28": 28},
+            model_block_depths={"ltx_transformer_48": 48},
         )
         self.assertEqual(result, tuple(range(1, 13)))
 
     def test_probe_layer_specs_expose_noise_depth_mapping(self) -> None:
         specs = resolve_probe_layer_specs(
-            "ltx_transformer_28",
+            "ltx_transformer_48",
             relative_depths=[0.25, 0.5],
             noise_levels=[0.9, 0.1],
-            model_block_depths={"ltx_transformer_28": 28},
+            model_block_depths={"ltx_transformer_48": 48},
         )
         self.assertEqual(specs[0].probe_layer_id, 1)
-        self.assertEqual(specs[0].depth_layer_id, 7)
+        self.assertEqual(specs[0].depth_layer_id, 12)
         self.assertEqual(specs[0].noise_label, "noise_1")
         self.assertEqual(specs[-1].probe_layer_id, 4)
-        self.assertEqual(specs[-1].depth_layer_id, 14)
+        self.assertEqual(specs[-1].depth_layer_id, 24)
 
 
 class LTXVideoAdapterTests(unittest.TestCase):
@@ -307,12 +319,15 @@ class LTXVideoAdapterTests(unittest.TestCase):
             "frames_per_clip",
             "crop_size",
             "noise_levels",
+            "noise_sigmas",
             "noise_timesteps",
             "layer_spec_by_id",
         }
         self.assertTrue(required.issubset(features.metadata.keys()))
         self.assertEqual(features.metadata["extract_source"], "diffusion_transformer_blocks")
-        self.assertEqual(features.metadata["layer_spec_by_id"]["1"]["depth_layer_id"], 7)
+        self.assertEqual(features.metadata["layer_spec_by_id"]["1"]["depth_layer_id"], 12)
+        self.assertEqual([round(value, 2) for value in features.metadata["noise_sigmas"]], [0.95, 0.5, 0.1])
+        self.assertEqual(features.metadata["noise_timesteps"], [950.0, 500.0, 100.0])
 
     def test_extract_aligns_temporal_length_for_ltx_downsamplers(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -336,6 +351,10 @@ class LTXVideoAdapterTests(unittest.TestCase):
 
         self.assertIsNotNone(adapter._vae.last_input)
         self.assertTrue(torch.allclose(adapter._vae.last_input, torch.full_like(adapter._vae.last_input, -1.0)))
+        self.assertIsNotNone(adapter._scheduler.last_sample)
+        expected_latents = torch.full_like(adapter._scheduler.last_sample, -3.0)
+        self.assertTrue(torch.allclose(adapter._scheduler.last_sample, expected_latents))
+        self.assertEqual(adapter._transformer.last_rope_interpolation_scale, (8.0 / 25.0, 8.0, 8.0))
 
     def test_extract_can_disable_input_normalization(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

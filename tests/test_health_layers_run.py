@@ -42,8 +42,8 @@ def _backbone_cfg_fixture() -> dict[str, object]:
             "default_variant": "ltxv_13b_0_9_8_distilled",
             "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
             "default_noise_levels": [0.9, 0.5, 0.1],
-            "model_block_depths": {"ltx_transformer_28": 28},
-            "variants": {"ltxv_13b_0_9_8_distilled": {"model_name": "ltx_transformer_28"}},
+            "model_block_depths": {"ltx_transformer_48": 48},
+            "variants": {"ltxv_13b_0_9_8_distilled": {"model_name": "ltx_transformer_48"}},
         },
     }
 
@@ -77,7 +77,13 @@ class HealthLayersRunTests(unittest.TestCase):
             for item in report["variants"]
             if item.get("name") == "jepa_v2_1" and item.get("variant") == "vitG_384"
         )
+        ltx = next(
+            item
+            for item in report["variants"]
+            if item.get("name") == "ltx_video" and item.get("variant") == "ltxv_13b_0_9_8_distilled"
+        )
         self.assertEqual(jepa21["selected_layers_1_based"], [12, 24, 36, 48])
+        self.assertEqual(ltx["selected_layers_1_based"], list(range(1, 13)))
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][0], 1)
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][-1], 48)
 

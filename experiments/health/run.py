@@ -16,8 +16,8 @@ from benchmarks.ssv2.data import load_ssv2_annotations
 from models.jepa_v1_adapter import resolve_relative_depth_layers as resolve_jepa_v1_relative_depth_layers
 from models.jepa_v2_adapter import resolve_relative_depth_layers as resolve_jepa_v2_relative_depth_layers
 from models.jepa_v2_1_adapter import resolve_relative_depth_layers as resolve_jepa_v2_1_relative_depth_layers
-from models.ltx_video_adapter import resolve_relative_depth_layers as resolve_ltx_relative_depth_layers
 from models import get_registered_adapters
+from models.ltx_video_adapter import resolve_probe_layer_ids as resolve_ltx_probe_layer_ids
 from models.videomae_adapter import resolve_relative_depth_layers as resolve_videomae_relative_depth_layers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -929,6 +929,36 @@ def _check_backbone_variant_layer_mapping(
             )
         )
 
+    noise_levels: list[float] = []
+    if backbone_name == "ltx_video":
+        raw_noise_levels = section.get("default_noise_levels")
+        if isinstance(raw_noise_levels, list) and raw_noise_levels:
+            try:
+                noise_levels = [float(value) for value in raw_noise_levels]
+                checks.append(
+                    _check_result(
+                        "default_noise_levels_valid",
+                        True,
+                        f"noise_levels={noise_levels}",
+                    )
+                )
+            except Exception as exc:
+                checks.append(
+                    _check_result(
+                        "default_noise_levels_valid",
+                        False,
+                        f"Could not cast default_noise_levels to float: {exc}",
+                    )
+                )
+        else:
+            checks.append(
+                _check_result(
+                    "default_noise_levels_valid",
+                    False,
+                    "default_noise_levels is missing or empty.",
+                )
+            )
+
     if model_name and depth > 0 and depth_map:
         try:
             selected_layers = _resolve_selected_layers_for_variant(
@@ -936,6 +966,7 @@ def _check_backbone_variant_layer_mapping(
                 model_name=model_name,
                 relative_depths=relative_depths,
                 model_block_depths=depth_map,
+                noise_levels=noise_levels,
             )
             checks.append(
                 _check_result(
@@ -947,12 +978,15 @@ def _check_backbone_variant_layer_mapping(
         except Exception as exc:
             checks.append(_check_result("selected_layers_resolved", False, str(exc)))
 
-    in_bounds = bool(depth > 0 and all(1 <= layer <= depth for layer in selected_layers))
+    selected_layer_upper_bound = len(selected_layers) if backbone_name == "ltx_video" else depth
+    in_bounds = bool(
+        selected_layer_upper_bound > 0 and all(1 <= layer <= selected_layer_upper_bound for layer in selected_layers)
+    )
     checks.append(
         _check_result(
             "selected_layers_in_bounds",
             in_bounds,
-            f"depth={depth}, selected_layers={selected_layers}",
+            f"upper_bound={selected_layer_upper_bound}, selected_layers={selected_layers}",
         )
     )
 
@@ -990,6 +1024,7 @@ def _resolve_selected_layers_for_variant(
     model_name: str,
     relative_depths: list[float],
     model_block_depths: dict[str, int],
+    noise_levels: list[float] | None = None,
 ) -> list[int]:
     if backbone_name == "jepa_v1":
         return list(
@@ -1035,9 +1070,10 @@ def _resolve_selected_layers_for_variant(
         )
     if backbone_name == "ltx_video":
         return list(
-            resolve_ltx_relative_depth_layers(
+            resolve_ltx_probe_layer_ids(
                 model_name,
                 relative_depths=relative_depths,
+                noise_levels=noise_levels,
                 model_block_depths=model_block_depths,
             )
         )

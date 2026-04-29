@@ -1,0 +1,150 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#081421"/>
+      <stop offset="0.55" stop-color="#102338"/>
+      <stop offset="1" stop-color="#1B1530"/>
+    </linearGradient>
+    <linearGradient id="cardA" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#17324E"/>
+      <stop offset="1" stop-color="#0E2134"/>
+    </linearGradient>
+    <linearGradient id="cardB" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1B4E5A"/>
+      <stop offset="1" stop-color="#10303A"/>
+    </linearGradient>
+    <linearGradient id="cardC" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#573B19"/>
+      <stop offset="1" stop-color="#39250E"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#54E4FF"/>
+      <stop offset="1" stop-color="#8AF57F"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#02070C" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" markerWidth="16" markerHeight="16" refX="12" refY="8" orient="auto">
+      <path d="M2 2L12 8L2 14" stroke="#9ADFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .title { font: 700 42px Arial, sans-serif; fill: #F3FAFF; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #BCD6E8; }
+      .section { font: 700 22px Arial, sans-serif; fill: #F3FAFF; }
+      .label { font: 700 19px Arial, sans-serif; fill: #F7FBFF; }
+      .body { font: 400 16px Arial, sans-serif; fill: #D7E7F4; }
+      .small { font: 400 14px Arial, sans-serif; fill: #A9C2D6; }
+      .tiny { font: 700 13px Arial, sans-serif; fill: #B9E8FF; letter-spacing: 1.1px; }
+      .mono { font: 700 15px 'Courier New', monospace; fill: #FFFFFF; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="980" fill="url(#bg)"/>
+  <circle cx="1360" cy="130" r="170" fill="#16385A" opacity="0.35"/>
+  <circle cx="260" cy="850" r="220" fill="#164D42" opacity="0.22"/>
+  <circle cx="1490" cy="860" r="160" fill="#442062" opacity="0.18"/>
+
+  <text x="72" y="82" class="title">Probe4Physics LTX-Video Current Working Path</text>
+  <text x="72" y="116" class="subtitle">Frozen diffusion features for MVP, IntPhys2, and SSv2 probes</text>
+
+  <rect x="62" y="154" rx="22" ry="22" width="350" height="290" fill="url(#cardA)" stroke="#31597F" stroke-width="2" filter="url(#shadow)"/>
+  <text x="92" y="198" class="section">1. Clip Preparation</text>
+  <rect x="92" y="220" rx="14" ry="14" width="290" height="52" fill="#12293F" stroke="#3A678D"/>
+  <text x="110" y="252" class="label">Raw clip tensor</text>
+  <text x="258" y="252" class="mono">[B, C, T, H, W]</text>
+  <rect x="92" y="286" rx="14" ry="14" width="290" height="54" fill="#143149" stroke="#3A678D"/>
+  <text x="110" y="319" class="label">Temporal alignment</text>
+  <text x="110" y="337" class="small">repeat last frame when VAE strides require padding</text>
+  <rect x="92" y="354" rx="14" ry="14" width="290" height="54" fill="#15364F" stroke="#3A678D"/>
+  <text x="110" y="387" class="label">Pixel normalization</text>
+  <text x="110" y="405" class="small">scale RGB from [0, 1] to [-1, 1]</text>
+
+  <rect x="458" y="154" rx="22" ry="22" width="356" height="290" fill="url(#cardB)" stroke="#3A7E83" stroke-width="2" filter="url(#shadow)"/>
+  <text x="488" y="198" class="section">2. Latent Construction</text>
+  <rect x="488" y="220" rx="14" ry="14" width="296" height="54" fill="#12383D" stroke="#4F9D9F"/>
+  <text x="506" y="252" class="label">LTX VAE encode</text>
+  <text x="506" y="270" class="small">use latent_dist.mode() in no-grad mode</text>
+  <rect x="488" y="288" rx="14" ry="14" width="296" height="68" fill="#114146" stroke="#4F9D9F"/>
+  <text x="506" y="320" class="label">Latent normalization</text>
+  <text x="506" y="338" class="small">apply latents_mean, latents_std, scaling_factor</text>
+  <rect x="488" y="370" rx="14" ry="14" width="296" height="52" fill="#13484E" stroke="#4F9D9F"/>
+  <text x="506" y="401" class="label">Deterministic reference noise</text>
+  <text x="506" y="419" class="small">same seeded base noise for all requested regimes</text>
+
+  <rect x="860" y="154" rx="22" ry="22" width="318" height="290" fill="url(#cardC)" stroke="#9B7D45" stroke-width="2" filter="url(#shadow)"/>
+  <text x="890" y="198" class="section">3. Noise Regimes</text>
+  <rect x="890" y="220" rx="14" ry="14" width="258" height="60" fill="#3B2915" stroke="#B99858"/>
+  <text x="908" y="250" class="label">Scheduler-resolved</text>
+  <text x="908" y="269" class="small">map fractions to actual sigma / timestep table</text>
+  <rect x="890" y="292" rx="14" ry="14" width="258" height="42" fill="#433018" stroke="#B99858"/>
+  <text x="908" y="319" class="mono">high ~ 0.9 sigma</text>
+  <rect x="890" y="344" rx="14" ry="14" width="258" height="42" fill="#4A3519" stroke="#B99858"/>
+  <text x="908" y="371" class="mono">mid ~ 0.5 sigma</text>
+  <rect x="890" y="396" rx="14" ry="14" width="258" height="42" fill="#523B1C" stroke="#B99858"/>
+  <text x="908" y="423" class="mono">low ~ 0.1 sigma</text>
+
+  <rect x="1230" y="154" rx="22" ry="22" width="300" height="290" fill="#14263A" stroke="#4E85B7" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1260" y="198" class="section">4. Transformer Passes</text>
+  <rect x="1260" y="220" rx="14" ry="14" width="240" height="60" fill="#18324B" stroke="#5CA1E2"/>
+  <text x="1278" y="251" class="label">For each noise regime</text>
+  <text x="1278" y="269" class="small">one full LTX transformer forward pass</text>
+  <rect x="1260" y="294" rx="14" ry="14" width="240" height="56" fill="#1A3955" stroke="#5CA1E2"/>
+  <text x="1278" y="325" class="label">Pack latents + rope scale</text>
+  <text x="1278" y="343" class="small">match upstream latent token geometry</text>
+  <rect x="1260" y="364" rx="14" ry="14" width="240" height="58" fill="#1D4260" stroke="#5CA1E2"/>
+  <text x="1278" y="395" class="label">Hook depths 12, 24, 36, 48</text>
+  <text x="1278" y="413" class="small">capture hidden states without finetuning</text>
+
+  <path d="M412 299H458" stroke="#9ADFFF" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M814 299H860" stroke="#9ADFFF" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M1178 299H1230" stroke="#9ADFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="72" y="522" rx="26" ry="26" width="1456" height="376" fill="#0C1825" stroke="#243F5A" stroke-width="2" filter="url(#shadow)"/>
+  <text x="102" y="566" class="section">5. Flattened Probe Grid and Downstream Use</text>
+
+  <rect x="102" y="594" rx="18" ry="18" width="786" height="250" fill="#101F30" stroke="#2F567F" stroke-width="2"/>
+  <text x="132" y="630" class="label">Probe-slot table</text>
+  <text x="132" y="654" class="small">current default = 3 noise regimes x 4 depths = 12 user-facing layer ids</text>
+
+  <rect x="132" y="682" rx="16" ry="16" width="220" height="48" fill="#17324E" stroke="#4B85B8"/>
+  <text x="148" y="712" class="mono">slots 1-4   high noise</text>
+  <rect x="366" y="682" rx="16" ry="16" width="220" height="48" fill="#1B4E5A" stroke="#5CB7AF"/>
+  <text x="382" y="712" class="mono">slots 5-8   mid noise</text>
+  <rect x="600" y="682" rx="16" ry="16" width="220" height="48" fill="#573B19" stroke="#D1A25A"/>
+  <text x="616" y="712" class="mono">slots 9-12  low noise</text>
+
+  <rect x="132" y="748" rx="16" ry="16" width="688" height="66" fill="#13283C" stroke="#406D97"/>
+  <text x="150" y="778" class="body">within each regime: depth 12 -> 24 -> 36 -> 48</text>
+  <text x="150" y="799" class="small">selection stays compatible with the existing integer layer interface</text>
+
+  <rect x="940" y="594" rx="18" ry="18" width="558" height="250" fill="#111F2B" stroke="#38536F" stroke-width="2"/>
+  <text x="970" y="630" class="label">Feature products</text>
+  <rect x="970" y="656" rx="14" ry="14" width="240" height="64" fill="#17324E" stroke="#4F90C8"/>
+  <text x="990" y="688" class="label">tokens_by_layer</text>
+  <text x="990" y="707" class="mono">[B, N, D]</text>
+  <rect x="1228" y="656" rx="14" ry="14" width="240" height="64" fill="#1B4E5A" stroke="#5DB9B2"/>
+  <text x="1248" y="688" class="label">pooled_by_layer</text>
+  <text x="1248" y="707" class="mono">mean(tokens, dim=1) -&gt; [B, D]</text>
+
+  <rect x="970" y="738" rx="14" ry="14" width="160" height="64" fill="#17324E" stroke="#4F90C8"/>
+  <text x="990" y="776" class="label">linear</text>
+  <rect x="1140" y="738" rx="14" ry="14" width="160" height="64" fill="#1B4E5A" stroke="#5DB9B2"/>
+  <text x="1164" y="776" class="label">mlp</text>
+  <rect x="1310" y="738" rx="14" ry="14" width="160" height="64" fill="#573B19" stroke="#D1A25A"/>
+  <text x="1326" y="776" class="label">temporal_attn</text>
+
+  <path d="M784 640C885 640 888 640 940 688" stroke="url(#accent)" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1380 444V516" stroke="#9ADFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="103" y="466" rx="16" ry="16" width="448" height="40" fill="#0E2537" stroke="#2E6D90"/>
+  <text x="126" y="492" class="tiny">CURRENT EXTRACTION COST SHAPE</text>
+  <text x="356" y="492" class="small">one transformer forward per noise regime, many depth hooks per pass</text>
+
+  <rect x="570" y="466" rx="16" ry="16" width="500" height="40" fill="#163126" stroke="#4F9A70"/>
+  <text x="593" y="492" class="tiny">WHY THIS FITS THE PROBING GOAL</text>
+  <text x="823" y="492" class="small">frozen diffusion states, multi-stage access, lightweight downstream probes</text>
+
+  <rect x="1090" y="466" rx="16" ry="16" width="380" height="40" fill="#312214" stroke="#C39A56"/>
+  <text x="1113" y="492" class="tiny">FAIR DEFAULT</text>
+  <text x="1215" y="492" class="small">3 regimes x 4 depths mirrors the proposal grid</text>
+</svg>

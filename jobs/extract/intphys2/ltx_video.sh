@@ -1,5 +1,5 @@
 #!/bin/bash
-# Extract IntPhys2 features with LTX-Video VAE features.
+# Extract IntPhys2 features with LTX-Video diffusion transformer features.
 #
 # By default this wrapper follows `ltx_video.default_variant` from
 # `configs/backbones.yaml`. Override with `BACKBONE_VARIANT=<variant>` at submit

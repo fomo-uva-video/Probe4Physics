@@ -18,7 +18,7 @@ Important:
 - Parameter counts below are from local model artifacts used in this repo:
   - JEPA variants: counted from local checkpoint state dicts (`target_encoder` key)
   - VideoMAE variants: counted from local Hugging Face `model.safetensors`
-  - LTX: counted from local Hugging Face `vae/diffusion_pytorch_model.safetensors` (extractor uses VAE only)
+  - LTX: counted from local Hugging Face transformer weights; extraction runs VAE encode plus transformer-block probing
 
 ## Dataset Sample Counts
 
