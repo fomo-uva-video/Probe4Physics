@@ -46,6 +46,21 @@ class LTXProbeLayerSpec:
     depth_layer_id: int
 
 
+@dataclass(frozen=True)
+class _ResolvedLTXAdapterConfig:
+    variant: str
+    hf_model_id: str
+    model_name: str
+    crop_size: int
+    frames_per_clip: int
+    patch_size: int
+    patch_size_t: int
+    vae_subfolder: str
+    model_dtype: torch.dtype
+    noise_levels: tuple[float, ...]
+    probe_layer_specs: tuple[LTXProbeLayerSpec, ...]
+
+
 def _load_ltx_video_config(
     config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
 ) -> dict[str, Any]:
@@ -121,6 +136,77 @@ def _resolve_torch_dtype(dtype_name: str | torch.dtype | None) -> torch.dtype:
         known = ", ".join(sorted(mapping))
         raise ValueError(f"Unsupported torch_dtype '{dtype_name}'. Known values: {known}")
     return mapping[name]
+
+
+def _resolve_model_block_depths(cfg: dict[str, Any]) -> dict[str, int]:
+    raw_model_depths = cfg.get("model_block_depths")
+    if not isinstance(raw_model_depths, dict) or not raw_model_depths:
+        raise ValueError("ltx_video.model_block_depths must be a non-empty mapping.")
+    return {str(key): int(value) for key, value in raw_model_depths.items()}
+
+
+def _resolve_default_relative_depths(cfg: dict[str, Any]) -> tuple[float, ...]:
+    raw_relative_depths = cfg.get("default_relative_depths")
+    if not isinstance(raw_relative_depths, list) or not raw_relative_depths:
+        raise ValueError("ltx_video.default_relative_depths must be a non-empty list.")
+    return tuple(float(value) for value in raw_relative_depths)
+
+
+def _resolve_adapter_config(
+    cfg: dict[str, Any],
+    *,
+    variant: str | None,
+    model_name: str | None,
+    relative_depths: Sequence[float] | None,
+    noise_levels: Sequence[float] | None,
+    crop_size: int | None,
+    frames_per_clip: int | None,
+    patch_size: int | None,
+    patch_size_t: int | None,
+    vae_subfolder: str | None,
+    torch_dtype: str | torch.dtype | None,
+    config_path: str | Path,
+) -> _ResolvedLTXAdapterConfig:
+    chosen_variant, variant_cfg, hf_model_id = _resolve_variant_bundle(cfg, variant=variant)
+    model_block_depths = _resolve_model_block_depths(cfg)
+    default_relative_depths = _resolve_default_relative_depths(cfg)
+    selected_noise_levels = resolve_noise_levels(
+        noise_levels if noise_levels is not None else cfg.get("default_noise_levels", list(DEFAULT_NOISE_LEVELS)),
+        config_path=config_path,
+    )
+    selected_relative_depths = (
+        tuple(float(value) for value in relative_depths)
+        if relative_depths is not None
+        else default_relative_depths
+    )
+    resolved_model_name = str(model_name or variant_cfg.get("model_name", "ltx_transformer_48"))
+    dtype_from_cfg = variant_cfg.get("torch_dtype", "float32")
+
+    return _ResolvedLTXAdapterConfig(
+        variant=chosen_variant,
+        hf_model_id=hf_model_id,
+        model_name=resolved_model_name,
+        crop_size=int(crop_size if crop_size is not None else variant_cfg.get("crop_size", 224)),
+        frames_per_clip=int(
+            frames_per_clip if frames_per_clip is not None else variant_cfg.get("frames_per_clip", 16)
+        ),
+        patch_size=int(patch_size if patch_size is not None else variant_cfg.get("patch_size", 1)),
+        patch_size_t=int(
+            patch_size_t if patch_size_t is not None else variant_cfg.get("patch_size_t", 1)
+        ),
+        vae_subfolder=str(vae_subfolder or variant_cfg.get("vae_subfolder", "vae")),
+        model_dtype=_resolve_torch_dtype(
+            torch_dtype if torch_dtype is not None else dtype_from_cfg
+        ),
+        noise_levels=selected_noise_levels,
+        probe_layer_specs=resolve_probe_layer_specs(
+            resolved_model_name,
+            relative_depths=selected_relative_depths,
+            noise_levels=selected_noise_levels,
+            model_block_depths=model_block_depths,
+            config_path=config_path,
+        ),
+    )
 
 
 def resolve_relative_depth_layers(
@@ -286,46 +372,31 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         self.noise_seed = int(noise_seed)
 
         cfg = _load_ltx_video_config(self.config_path)
-        self.variant, variant_cfg, self.hf_model_id = _resolve_variant_bundle(
+        resolved = _resolve_adapter_config(
             cfg,
             variant=variant,
-        )
-
-        self.model_name = str(model_name or variant_cfg.get("model_name", "ltx_transformer_48"))
-        self.crop_size = int(crop_size if crop_size is not None else variant_cfg.get("crop_size", 224))
-        self.frames_per_clip = int(
-            frames_per_clip if frames_per_clip is not None else variant_cfg.get("frames_per_clip", 16)
-        )
-        self.patch_size = int(patch_size if patch_size is not None else variant_cfg.get("patch_size", 1))
-        self.patch_size_t = int(
-            patch_size_t if patch_size_t is not None else variant_cfg.get("patch_size_t", 1)
-        )
-        self.vae_subfolder = str(vae_subfolder or variant_cfg.get("vae_subfolder", "vae"))
-
-        dtype_from_cfg = variant_cfg.get("torch_dtype", "float32")
-        self.model_dtype = _resolve_torch_dtype(torch_dtype if torch_dtype is not None else dtype_from_cfg)
-
-        raw_model_depths = cfg.get("model_block_depths")
-        if not isinstance(raw_model_depths, dict) or not raw_model_depths:
-            raise ValueError("ltx_video.model_block_depths must be a non-empty mapping.")
-        model_block_depths = {str(k): int(v) for k, v in raw_model_depths.items()}
-
-        raw_rel = cfg.get("default_relative_depths")
-        if not isinstance(raw_rel, list) or not raw_rel:
-            raise ValueError("ltx_video.default_relative_depths must be a non-empty list.")
-        default_relative_depths = tuple(float(v) for v in raw_rel)
-
-        self.noise_levels = resolve_noise_levels(
-            noise_levels if noise_levels is not None else cfg.get("default_noise_levels", list(DEFAULT_NOISE_LEVELS)),
             config_path=self.config_path,
+            model_name=model_name,
+            relative_depths=relative_depths,
+            noise_levels=noise_levels,
+            crop_size=crop_size,
+            frames_per_clip=frames_per_clip,
+            patch_size=patch_size,
+            patch_size_t=patch_size_t,
+            vae_subfolder=vae_subfolder,
+            torch_dtype=torch_dtype,
         )
-        self._probe_layer_specs = resolve_probe_layer_specs(
-            self.model_name,
-            relative_depths=relative_depths if relative_depths is not None else default_relative_depths,
-            noise_levels=self.noise_levels,
-            model_block_depths=model_block_depths,
-            config_path=self.config_path,
-        )
+        self.variant = resolved.variant
+        self.hf_model_id = resolved.hf_model_id
+        self.model_name = resolved.model_name
+        self.crop_size = resolved.crop_size
+        self.frames_per_clip = resolved.frames_per_clip
+        self.patch_size = resolved.patch_size
+        self.patch_size_t = resolved.patch_size_t
+        self.vae_subfolder = resolved.vae_subfolder
+        self.model_dtype = resolved.model_dtype
+        self.noise_levels = resolved.noise_levels
+        self._probe_layer_specs = resolved.probe_layer_specs
         self._probe_specs_by_slot = {spec.probe_layer_id: spec for spec in self._probe_layer_specs}
         self.selected_layers = tuple(spec.probe_layer_id for spec in self._probe_layer_specs)
         self._depth_layers = tuple(
@@ -549,6 +620,12 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         prompt_mask = prompt_mask.expand(batch_size, -1).contiguous()
         return prompt_embeds, prompt_mask
 
+    def _resolve_transformer_patch_sizes(self) -> tuple[int, int]:
+        transformer_cfg = getattr(self._transformer, "config", None)
+        patch_size = int(getattr(transformer_cfg, "patch_size", self.patch_size))
+        patch_size_t = int(getattr(transformer_cfg, "patch_size_t", self.patch_size_t))
+        return patch_size, patch_size_t
+
     def _rope_interpolation_scale(self) -> tuple[float, float, float]:
         temporal_ratio = float(getattr(self._vae, "temporal_compression_ratio", 8))
         spatial_ratio = float(getattr(self._vae, "spatial_compression_ratio", 32))
@@ -681,8 +758,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
                 "Expected LTX latent tensor with shape [B, C, T, H, W], "
                 f"got shape {tuple(noisy_latents.shape)}"
             )
-        patch_size = int(getattr(self._transformer.config, "patch_size", self.patch_size))
-        patch_size_t = int(getattr(self._transformer.config, "patch_size_t", self.patch_size_t))
+        patch_size, patch_size_t = self._resolve_transformer_patch_sizes()
         hidden_states = self._pack_latents(
             noisy_latents,
             patch_size=patch_size,
@@ -748,6 +824,43 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             )
         return captured
 
+    def _build_layer_spec_metadata(self) -> dict[str, dict[str, Any]]:
+        return {
+            str(spec.probe_layer_id): {
+                "noise_level_index": int(spec.noise_level_index),
+                "noise_fraction": float(spec.noise_fraction),
+                "noise_label": spec.noise_label,
+                "depth_layer_id": int(spec.depth_layer_id),
+            }
+            for spec in self._probe_layer_specs
+        }
+
+    def _build_metadata(self) -> dict[str, Any]:
+        return {
+            "hf_model_id": self.hf_model_id,
+            "config_path": str(self.config_path),
+            "variant": self.variant,
+            "model_name": self.model_name,
+            "extract_source": "diffusion_transformer_blocks",
+            "vae_subfolder": self.vae_subfolder,
+            "torch_dtype": str(self.model_dtype).replace("torch.", ""),
+            "normalize_input": self.normalize_input,
+            "noise_seed": self.noise_seed,
+            "noise_levels": [float(v) for v in self.noise_levels],
+            "noise_sigmas": [float(v) for v in self._noise_sigmas],
+            "noise_timesteps": [float(v) for v in self._noise_timesteps],
+            "patch_size": self.patch_size,
+            "patch_size_t": self.patch_size_t,
+            "frames_per_clip": self.frames_per_clip,
+            "crop_size": self.crop_size,
+            "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),
+            "temporal_compression_ratio": int(getattr(self._vae, "temporal_compression_ratio", 1)),
+            "temporal_downsample_strides": [int(v) for v in self._temporal_downsample_strides],
+            "transformer_block_count": len(self._transformer_blocks),
+            "layer_spec_by_id": self._build_layer_spec_metadata(),
+            "preprocessing": self.preprocessing_metadata(),
+        }
+
     def extract(
         self,
         clips: torch.Tensor,
@@ -796,44 +909,11 @@ class LTXVideoAdapter(VideoBackboneAdapter):
                 tokens_by_layer[spec.probe_layer_id] = tokens
                 pooled_by_layer[spec.probe_layer_id] = tokens.mean(dim=1)
 
-        metadata = {
-            "hf_model_id": self.hf_model_id,
-            "config_path": str(self.config_path),
-            "variant": self.variant,
-            "model_name": self.model_name,
-            "extract_source": "diffusion_transformer_blocks",
-            "vae_subfolder": self.vae_subfolder,
-            "torch_dtype": str(self.model_dtype).replace("torch.", ""),
-            "normalize_input": self.normalize_input,
-            "noise_seed": self.noise_seed,
-            "noise_levels": [float(v) for v in self.noise_levels],
-            "noise_sigmas": [float(v) for v in self._noise_sigmas],
-            "noise_timesteps": [float(v) for v in self._noise_timesteps],
-            "patch_size": self.patch_size,
-            "patch_size_t": self.patch_size_t,
-            "frames_per_clip": self.frames_per_clip,
-            "crop_size": self.crop_size,
-            "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),
-            "temporal_compression_ratio": int(getattr(self._vae, "temporal_compression_ratio", 1)),
-            "temporal_downsample_strides": [int(v) for v in self._temporal_downsample_strides],
-            "transformer_block_count": len(self._transformer_blocks),
-            "layer_spec_by_id": {
-                str(spec.probe_layer_id): {
-                    "noise_level_index": int(spec.noise_level_index),
-                    "noise_fraction": float(spec.noise_fraction),
-                    "noise_label": spec.noise_label,
-                    "depth_layer_id": int(spec.depth_layer_id),
-                }
-                for spec in self._probe_layer_specs
-            },
-            "preprocessing": self.preprocessing_metadata(),
-        }
-
         return BackboneFeatures(
             tokens_by_layer=tokens_by_layer,
             pooled_by_layer=pooled_by_layer,
             selected_layers=requested_layers,
-            metadata=metadata,
+            metadata=self._build_metadata(),
         )
 
 
