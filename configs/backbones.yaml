@@ -180,7 +180,7 @@ ltx_video:
   default_variant: ltxv_13b_0_9_8_distilled
   # LTX adapter probes transformer blocks across fixed diffusion noise regimes.
   default_relative_depths: [0.25, 0.5, 0.75, 1.0]
-  default_noise_levels: [0.9, 0.5, 0.1]
+  default_noise_levels: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
   model_block_depths:
     ltx_transformer_48: 48
   variants:
