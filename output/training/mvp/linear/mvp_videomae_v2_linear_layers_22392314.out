@@ -1,0 +1,1854 @@
+===== TRAIN PROVENANCE =====
+Fri May  1 08:03:51 UTC 2026
+tcn108.local.snellius.surf.nl
+b334ea159cf8bc7d373321af295dde54023d8b2d
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=mvp
+PROBE_NAME=linear
+BACKBONE_NAME=videomae_v2
+BACKBONE_VARIANT=vit_giant_16_224
+PROBE_EPOCHS=<config default>
+PROBE_DEVICE=cpu
+PROBE_LAYER=last
+PROBE_LAYERS=10,20,30,40
+PROBE_FEATURE_VIEW=pooled
+ENABLE_WANDB=true
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=mvp_linear_videomae_v2_vit_giant_16_224
+ENABLE_OPTUNA=true
+OPTUNA_N_TRIALS=20
+OPTUNA_N_JOBS=1
+OPTUNA_TIMEOUT_SECONDS=0
+ENABLE_OPTUNA_PRUNER=true
+OPTUNA_PRUNER_STARTUP_TRIALS=3
+OPTUNA_PRUNER_WARMUP_STEPS=100
+OPTUNA_PRUNER_INTERVAL_STEPS=1
+OPTUNA_STUDY_NAME=mvp_linear_videomae_v2_vit_giant_16_224
+OPTUNA_SEARCH_OVERRIDES=<none>
+============================
+JOB_START_UTC=2026-05-01T08:03:51Z
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+[features.mvp] using compatible legacy cache: expected_signature=6bec17183b541269 actual_signature=7c0fab9616b3b517 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/7c0fab9616b3b517
+{
+  "best_layer": null,
+  "best_layer_label": null,
+  "best_objective_metric": null,
+  "dataset": "mvp",
+  "feature_view": "pooled",
+  "layers": [
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 62.23458038422649,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 33.46814964610718
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7c0fab9616b3b517",
+        "metrics": {
+          "accuracy": 62.23458038422649,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 33.46814964610718
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 62.23458038422649,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 33.46814964610718
+          },
+          "train": {
+            "accuracy": 65.34569983136593,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 36.99831365935919
+          },
+          "val": {
+            "accuracy": 62.08291203235592,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 32.55813953488372
+          }
+        },
+        "objective_metric": 33.46814964610718,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 62.23458038422649,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 33.46814964610718
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 62.23458038422649,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 33.46814964610718
+            },
+            "objective_metric": 33.46814964610718,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 65.34569983136593,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 36.99831365935919
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 65.34569983136593,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 36.99831365935919
+            },
+            "objective_metric": 36.99831365935919,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 62.08291203235592,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 32.55813953488372
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 62.08291203235592,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 32.55813953488372
+            },
+            "objective_metric": 32.55813953488372,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 10,
+      "layer_label": "10",
+      "objective_metric": 33.46814964610718,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.007426005343305405,
+          "weight_decay": 1.0179110443029212e-07
+        },
+        "best_trial_number": 13,
+        "best_value": 32.55813953488372,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 10,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_videomae_v2_vit_giant_16_224_layer_10",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 26.39029322548028
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 30.738119312436808
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 27.098078867542974
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 25.278058645096056
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 23.96359959555106
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 27.098078867542974
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0006",
+            "params": {
+              "batch_size": 256,
+              "epochs": 100,
+              "lr": 0.0006218704727769079,
+              "weight_decay": 0.0033981724150106006
+            },
+            "trial_number": 6,
+            "value": 28.00808897876643
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 18.6046511627907
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 27.502527805864506
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 29.726996966632964
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 31.04145601617796
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007195474801612276,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 31.850353892821033
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0013",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007426005343305405,
+              "weight_decay": 1.0179110443029212e-07
+            },
+            "trial_number": 13,
+            "value": 32.55813953488372
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0029682750850865635,
+              "weight_decay": 7.026517448810043e-06
+            },
+            "trial_number": 14,
+            "value": 25.278058645096056
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0015",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0032452493206864856,
+              "weight_decay": 1.7614007042410167e-07
+            },
+            "trial_number": 15,
+            "value": 32.25480283114257
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0027818485681011707,
+              "weight_decay": 8.186956777635556e-06
+            },
+            "trial_number": 16,
+            "value": 30.83923154701719
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0017",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.002711976903475663,
+              "weight_decay": 1.4149801312639384e-07
+            },
+            "trial_number": 17,
+            "value": 30.030333670374116
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 4.720845304099489e-05,
+              "weight_decay": 9.559574710535261e-05
+            },
+            "trial_number": 18,
+            "value": 17.492416582406474
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_10/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.004120992171330002,
+              "weight_decay": 2.7789456523824906e-06
+            },
+            "trial_number": 19,
+            "value": 30.1314459049545
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 64.0546006066734,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 37.71486349848331
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7c0fab9616b3b517",
+        "metrics": {
+          "accuracy": 64.0546006066734,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 37.71486349848331
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 64.0546006066734,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 37.71486349848331
+          },
+          "train": {
+            "accuracy": 68.61720067453626,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 44.080944350758855
+          },
+          "val": {
+            "accuracy": 64.86349848331649,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 39.53488372093023
+          }
+        },
+        "objective_metric": 37.71486349848331,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 64.0546006066734,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 37.71486349848331
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 64.0546006066734,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 37.71486349848331
+            },
+            "objective_metric": 37.71486349848331,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 68.61720067453626,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 44.080944350758855
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 68.61720067453626,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 44.080944350758855
+            },
+            "objective_metric": 44.080944350758855,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 64.86349848331649,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 39.53488372093023
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 64.86349848331649,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 39.53488372093023
+            },
+            "objective_metric": 39.53488372093023,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 20,
+      "layer_label": "20",
+      "objective_metric": 37.71486349848331,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019",
+        "best_params": {
+          "batch_size": 32,
+          "epochs": 100,
+          "lr": 0.004099626472340928,
+          "weight_decay": 2.978878852837696e-06
+        },
+        "best_trial_number": 19,
+        "best_value": 39.53488372093023,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 20,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_videomae_v2_vit_giant_16_224_layer_20",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 28.71587462082912
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 38.72598584428716
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 30.23255813953488
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 28.311425682507586
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 25.68250758341759
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 29.42366026289181
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 20.424671385237612
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 29.828109201213348
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 38.52376137512639
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 36.905965621840245
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007180892821067769,
+              "weight_decay": 1.051368030362245e-08
+            },
+            "trial_number": 12,
+            "value": 37.00707785642063
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0013",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.0027621039893601378,
+              "weight_decay": 1.0506494328895403e-07
+            },
+            "trial_number": 13,
+            "value": 37.00707785642063
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.002782261660743086,
+              "weight_decay": 1.3201173001358093e-05
+            },
+            "trial_number": 14,
+            "value": 28.412537917087967
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0015",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.0024607436246509937,
+              "weight_decay": 0.0001371575145876111
+            },
+            "trial_number": 15,
+            "value": 37.41152679474216
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0016014698680512534,
+              "weight_decay": 9.886548103443499e-08
+            },
+            "trial_number": 16,
+            "value": 35.28816986855409
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0017",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.005699647264997957,
+              "weight_decay": 5.4860547805966015e-06
+            },
+            "trial_number": 17,
+            "value": 35.38928210313448
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 4.720845304099489e-05,
+              "weight_decay": 8.125407127094649e-08
+            },
+            "trial_number": 18,
+            "value": 17.087967644084934
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_20/train/trial_0019",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.004099626472340928,
+              "weight_decay": 2.978878852837696e-06
+            },
+            "trial_number": 19,
+            "value": 39.53488372093023
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 62.89180990899899,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 35.49039433771487
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7c0fab9616b3b517",
+        "metrics": {
+          "accuracy": 62.89180990899899,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 35.49039433771487
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 62.89180990899899,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 35.49039433771487
+          },
+          "train": {
+            "accuracy": 66.070826306914,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 39.83136593591905
+          },
+          "val": {
+            "accuracy": 63.75126390293225,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 37.31041456016178
+          }
+        },
+        "objective_metric": 35.49039433771487,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 62.89180990899899,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 35.49039433771487
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 62.89180990899899,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 35.49039433771487
+            },
+            "objective_metric": 35.49039433771487,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 66.070826306914,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 39.83136593591905
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 66.070826306914,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 39.83136593591905
+            },
+            "objective_metric": 39.83136593591905,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 63.75126390293225,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 37.31041456016178
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 63.75126390293225,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 37.31041456016178
+            },
+            "objective_metric": 37.31041456016178,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 30,
+      "layer_label": "30",
+      "objective_metric": 35.49039433771487,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.0034521857958584876,
+          "weight_decay": 0.00016848373229580403
+        },
+        "best_trial_number": 16,
+        "best_value": 37.31041456016178,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 30,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_videomae_v2_vit_giant_16_224_layer_30",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 29.120323559150656
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 36.19817997977755
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 30.535894843276033
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 31.648129423660265
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 25.480283114256824
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 27.098078867542974
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0006",
+            "params": {
+              "batch_size": 256,
+              "epochs": 100,
+              "lr": 0.0006218704727769079,
+              "weight_decay": 0.0033981724150106006
+            },
+            "trial_number": 6,
+            "value": 32.861476238624874
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 18.099089989888775
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 27.603640040444894
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 36.19817997977755
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 36.804853387259854
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007195474801612276,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 33.367037411526795
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0013",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.002482076244951997,
+              "weight_decay": 1.6358579322011493e-05
+            },
+            "trial_number": 13,
+            "value": 36.400404448938325
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0032788837521139235,
+              "weight_decay": 3.5489658109439176e-05
+            },
+            "trial_number": 14,
+            "value": 26.99696663296259
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0015",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.0024805720688123923,
+              "weight_decay": 9.579538344099551e-06
+            },
+            "trial_number": 15,
+            "value": 36.29929221435793
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0034521857958584876,
+              "weight_decay": 0.00016848373229580403
+            },
+            "trial_number": 16,
+            "value": 37.31041456016178
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0017",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.009303665824129332,
+              "weight_decay": 0.0002945144931618973
+            },
+            "trial_number": 17,
+            "value": 33.77148634984833
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_30/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.003875766580714346,
+              "weight_decay": 0.0003225270949584756
+            },
+            "trial_number": 18,
+            "value": 21.840242669362993
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 61.627906976744185,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 31.951466127401417
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7c0fab9616b3b517",
+        "metrics": {
+          "accuracy": 61.627906976744185,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 31.951466127401417
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 61.627906976744185,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 31.951466127401417
+          },
+          "train": {
+            "accuracy": 64.99156829679595,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 36.458684654300164
+          },
+          "val": {
+            "accuracy": 63.4479271991911,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 34.883720930232556
+          }
+        },
+        "objective_metric": 31.951466127401417,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 61.627906976744185,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 31.951466127401417
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 61.627906976744185,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 31.951466127401417
+            },
+            "objective_metric": 31.951466127401417,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 64.99156829679595,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 36.458684654300164
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 64.99156829679595,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 36.458684654300164
+            },
+            "objective_metric": 36.458684654300164,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 63.4479271991911,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 34.883720930232556
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7c0fab9616b3b517",
+            "metrics": {
+              "accuracy": 63.4479271991911,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 34.883720930232556
+            },
+            "objective_metric": 34.883720930232556,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 40,
+      "layer_label": "40",
+      "objective_metric": 31.951466127401417,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.0036314466835073236,
+          "weight_decay": 3.821228989247768e-06
+        },
+        "best_trial_number": 16,
+        "best_value": 34.883720930232556,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 40,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_videomae_v2_vit_giant_16_224_layer_40",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 27.80586450960566
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 32.45702730030334
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 30.33367037411527
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 26.895854398382202
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 25.985844287158745
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 25.68250758341759
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 20.525783619817997
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 25.985844287158745
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 34.78260869565217
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 34.27704752275025
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00814055433678886,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 32.861476238624874
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0013",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008299786914942599,
+              "weight_decay": 1.6358579322011493e-05
+            },
+            "trial_number": 13,
+            "value": 32.25480283114257
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0030601039236885946,
+              "weight_decay": 1.1140534941420908e-08
+            },
+            "trial_number": 14,
+            "value": 24.26693629929221
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0015",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0032275860637651834,
+              "weight_decay": 1.3221004453734022e-07
+            },
+            "trial_number": 15,
+            "value": 32.45702730030334
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0036314466835073236,
+              "weight_decay": 3.821228989247768e-06
+            },
+            "trial_number": 16,
+            "value": 34.883720930232556
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0017",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0027997142476475882,
+              "weight_decay": 0.00010080304770358508
+            },
+            "trial_number": 17,
+            "value": 34.27704752275025
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 4.720845304099489e-05,
+              "weight_decay": 3.5654574389776776e-06
+            },
+            "trial_number": 18,
+            "value": 19.514661274014156
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z/layer_40/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.004148879585310986,
+              "weight_decay": 0.0001447873643831531
+            },
+            "trial_number": 19,
+            "value": 33.77148634984833
+          }
+        ]
+      }
+    }
+  ],
+  "model_selection_split": "val",
+  "objective_metric_name": "pair_consistency",
+  "probe_name": "linear",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "requested_layers": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "split_name": "test",
+  "sweep_dir": "artifacts/probes/mvp_probe_linear_videomae_v2_vit_giant_16_224_20260501T080356Z",
+  "train_split": "train"
+}
+JOB_END_UTC=2026-05-01T08:25:19Z
+JOB_ELAPSED_SECONDS=1288

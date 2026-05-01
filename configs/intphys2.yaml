@@ -35,7 +35,6 @@ split_name: test
 decode:
   backend: pyav
   num_frames: 16
-  fps: 4
   sampling: uniform
 
 materialize_missing: false
@@ -102,7 +101,7 @@ probe:
   temporal_attn:
     embed_dim: null
     num_heads: 16
-    num_self_attn_blocks: 3
+    num_self_attn_blocks: 1
     mlp_ratio: 4.0
     dropout: 0.0
   wandb:

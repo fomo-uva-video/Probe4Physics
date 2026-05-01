@@ -40,7 +40,6 @@ max_pairs: 0
 decode:
   backend: pyav
   num_frames: 16
-  fps: 4
   sampling: uniform
 
 selection:
@@ -136,7 +135,7 @@ probe:
   temporal_attn:
     embed_dim: null
     num_heads: 16
-    num_self_attn_blocks: 3
+    num_self_attn_blocks: 1
     mlp_ratio: 4.0
     dropout: 0.0
   wandb:

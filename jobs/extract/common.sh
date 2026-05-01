@@ -52,6 +52,32 @@ configure_hf_cache() {
 }
 
 
+preflight_ltx_runtime() {
+  python - <<'PY'
+import importlib.util
+import sys
+
+has_sentencepiece = importlib.util.find_spec("sentencepiece") is not None
+has_tiktoken = importlib.util.find_spec("tiktoken") is not None
+
+if has_sentencepiece or has_tiktoken:
+    raise SystemExit(0)
+
+print(
+    "ERROR: LTX-Video extraction requires tokenizer runtime support, but neither "
+    "'sentencepiece' nor 'tiktoken' is installed in the active environment.",
+    file=sys.stderr,
+)
+print(
+    "Fix the extraction environment first, for example by adding 'sentencepiece' "
+    "and 'tiktoken' to environment.yml and recreating/updating the env.",
+    file=sys.stderr,
+)
+raise SystemExit(2)
+PY
+}
+
+
 resolve_backbone_variant() {
   local repo_root="${1}"
   local backbone_name="${2}"

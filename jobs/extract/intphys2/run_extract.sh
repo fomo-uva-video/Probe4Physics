@@ -37,6 +37,10 @@ INCLUDE_POOLED="${INCLUDE_POOLED:-true}"
 INCLUDE_TOKENS="${INCLUDE_TOKENS:-true}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 
+if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
+  preflight_ltx_runtime
+fi
+
 METADATA_FILE="${METADATA_FILE:-${REPO_ROOT}/data/annotations/intphys2_metadata.csv}"
 VIDEOS_ROOT="${VIDEOS_ROOT:-${REPO_ROOT}/data/videos/intphys2}"
 SPLIT_DIR="${SPLIT_DIR:-${REPO_ROOT}/data/splits/intphys2}"

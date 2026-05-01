@@ -8,10 +8,12 @@
 #SBATCH --partition=rome
 #SBATCH --job-name=intphys2_jepa_v1_temporal_attn
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=48
+#SBATCH --mem=84G
 #SBATCH --time=02:00:00
 #SBATCH --output=output/training/intphys2/attention/intphys2_jepa_v1_attn_layers_%j.out
 #SBATCH --error=output/training/intphys2/attention/intphys2_jepa_v1_attn_layers_%j.err
+
 
 set -euo pipefail
 
@@ -21,7 +23,8 @@ BACKBONE_NAME="jepa_v1"
 BACKBONE_VARIANT="vith16_384"
 PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
-PROBE_LAYERS="${PROBE_LAYER}"
+# PROBE_LAYERS="${PROBE_LAYER}"
+PROBE_LAYERS="8,16,24,32"
 PROBE_FEATURE_VIEW="tokens"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"

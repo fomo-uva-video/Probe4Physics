@@ -1,0 +1,1826 @@
+===== TRAIN PROVENANCE =====
+Fri May  1 08:03:27 UTC 2026
+tcn75.local.snellius.surf.nl
+b334ea159cf8bc7d373321af295dde54023d8b2d
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=mvp
+PROBE_NAME=linear
+BACKBONE_NAME=jepa_v1
+BACKBONE_VARIANT=vith16_384
+PROBE_EPOCHS=<config default>
+PROBE_DEVICE=cpu
+PROBE_LAYER=last
+PROBE_LAYERS=8,16,24,32
+PROBE_FEATURE_VIEW=pooled
+ENABLE_WANDB=true
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=mvp_linear_jepa_v1_vith16_384
+ENABLE_OPTUNA=true
+OPTUNA_N_TRIALS=20
+OPTUNA_N_JOBS=1
+OPTUNA_TIMEOUT_SECONDS=0
+ENABLE_OPTUNA_PRUNER=true
+OPTUNA_PRUNER_STARTUP_TRIALS=3
+OPTUNA_PRUNER_WARMUP_STEPS=100
+OPTUNA_PRUNER_INTERVAL_STEPS=1
+OPTUNA_STUDY_NAME=mvp_linear_jepa_v1_vith16_384
+OPTUNA_SEARCH_OVERRIDES=<none>
+============================
+JOB_START_UTC=2026-05-01T08:03:27Z
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+[features.mvp] using compatible legacy cache: expected_signature=d1413668de072b44 actual_signature=0c85b927b43adb1a cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/0c85b927b43adb1a
+{
+  "best_layer": null,
+  "best_layer_label": null,
+  "best_objective_metric": null,
+  "dataset": "mvp",
+  "feature_view": "pooled",
+  "layers": [
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 64.76238624873609,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 36.905965621840245
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "0c85b927b43adb1a",
+        "metrics": {
+          "accuracy": 64.76238624873609,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 36.905965621840245
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 64.76238624873609,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 36.905965621840245
+          },
+          "train": {
+            "accuracy": 66.45868465430017,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 39.83136593591905
+          },
+          "val": {
+            "accuracy": 63.80182002022244,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 36.400404448938325
+          }
+        },
+        "objective_metric": 36.905965621840245,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 64.76238624873609,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 36.905965621840245
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 64.76238624873609,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 36.905965621840245
+            },
+            "objective_metric": 36.905965621840245,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 66.45868465430017,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 39.83136593591905
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 66.45868465430017,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 39.83136593591905
+            },
+            "objective_metric": 39.83136593591905,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 63.80182002022244,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 36.400404448938325
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 63.80182002022244,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 36.400404448938325
+            },
+            "objective_metric": 36.400404448938325,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 8,
+      "layer_label": "8",
+      "objective_metric": 36.905965621840245,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.008013349589915042,
+          "weight_decay": 1.086383341945677e-08
+        },
+        "best_trial_number": 10,
+        "best_value": 36.400404448938325,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 8,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_jepa_v1_vith16_384_layer_8",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 26.289180990899897
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 32.45702730030334
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 25.68250758341759
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 28.71587462082912
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 23.559150657229523
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 28.816986855409503
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0006",
+            "params": {
+              "batch_size": 256,
+              "epochs": 100,
+              "lr": 0.0006218704727769079,
+              "weight_decay": 0.0033981724150106006
+            },
+            "trial_number": 6,
+            "value": 28.91809908998989
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 20.525783619817997
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 27.502527805864506
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 36.400404448938325
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 33.06370070778564
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00814055433678886,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 35.99595551061678
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0013",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00828638574821265,
+              "weight_decay": 1.0179110443029212e-07
+            },
+            "trial_number": 13,
+            "value": 32.861476238624874
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0030373944696826544,
+              "weight_decay": 8.715225766565574e-06
+            },
+            "trial_number": 14,
+            "value": 26.289180990899897
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0015",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0032275860637651834,
+              "weight_decay": 1.3221004453734022e-07
+            },
+            "trial_number": 15,
+            "value": 33.46814964610718
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0036072061881871034,
+              "weight_decay": 7.009646163693992e-06
+            },
+            "trial_number": 16,
+            "value": 34.883720930232556
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0018939513785229123,
+              "weight_decay": 8.785106045849355e-08
+            },
+            "trial_number": 18,
+            "value": 26.895854398382202
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_8/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.009082898089210563,
+              "weight_decay": 3.029570961200363e-06
+            },
+            "trial_number": 19,
+            "value": 32.153690596562186
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 65.72295247724975,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 40.74823053589484
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "0c85b927b43adb1a",
+        "metrics": {
+          "accuracy": 65.72295247724975,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 40.74823053589484
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 65.72295247724975,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 40.74823053589484
+          },
+          "train": {
+            "accuracy": 69.20741989881957,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 45.59865092748735
+          },
+          "val": {
+            "accuracy": 64.86349848331649,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 39.53488372093023
+          }
+        },
+        "objective_metric": 40.74823053589484,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 65.72295247724975,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 40.74823053589484
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 65.72295247724975,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 40.74823053589484
+            },
+            "objective_metric": 40.74823053589484,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 69.20741989881957,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 45.59865092748735
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 69.20741989881957,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 45.59865092748735
+            },
+            "objective_metric": 45.59865092748735,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 64.86349848331649,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 39.53488372093023
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 64.86349848331649,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 39.53488372093023
+            },
+            "objective_metric": 39.53488372093023,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 16,
+      "layer_label": "16",
+      "objective_metric": 40.74823053589484,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019",
+        "best_params": {
+          "batch_size": 128,
+          "epochs": 100,
+          "lr": 0.009133511688595813,
+          "weight_decay": 2.7510364770821936e-06
+        },
+        "best_trial_number": 19,
+        "best_value": 39.53488372093023,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 16,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_jepa_v1_vith16_384_layer_16",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 30.1314459049545
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 36.09706774519717
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 29.524772497472195
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 31.850353892821033
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 28.816986855409503
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 33.06370070778564
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0006",
+            "params": {
+              "batch_size": 256,
+              "epochs": 100,
+              "lr": 0.0006218704727769079,
+              "weight_decay": 0.0033981724150106006
+            },
+            "trial_number": 6,
+            "value": 32.25480283114257
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 21.840242669362993
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 32.25480283114257
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 35.38928210313448
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 35.69261880687563
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007195474801612276,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 39.23154701718908
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0013",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.002482076244951997,
+              "weight_decay": 1.0179110443029212e-07
+            },
+            "trial_number": 13,
+            "value": 37.71486349848331
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0032788837521139235,
+              "weight_decay": 7.026517448810043e-06
+            },
+            "trial_number": 14,
+            "value": 27.80586450960566
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0015",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.0030852023352712877,
+              "weight_decay": 1.7614007042410167e-07
+            },
+            "trial_number": 15,
+            "value": 36.5015166835187
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.002716608873572661,
+              "weight_decay": 9.117811775086229e-06
+            },
+            "trial_number": 16,
+            "value": 36.29929221435793
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0017",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.009256182385841825,
+              "weight_decay": 8.604046704485968e-08
+            },
+            "trial_number": 17,
+            "value": 39.23154701718908
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0018",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 4.720845304099489e-05,
+              "weight_decay": 9.559574710535261e-05
+            },
+            "trial_number": 18,
+            "value": 15.874620829120323
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_16/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.009133511688595813,
+              "weight_decay": 2.7510364770821936e-06
+            },
+            "trial_number": 19,
+            "value": 39.53488372093023
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 69.8685540950455,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 48.93832153690597
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "0c85b927b43adb1a",
+        "metrics": {
+          "accuracy": 69.8685540950455,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 48.93832153690597
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 69.8685540950455,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 48.93832153690597
+          },
+          "train": {
+            "accuracy": 73.60876897133221,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 53.76053962900505
+          },
+          "val": {
+            "accuracy": 69.8685540950455,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 48.93832153690597
+          }
+        },
+        "objective_metric": 48.93832153690597,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 69.8685540950455,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 48.93832153690597
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 69.8685540950455,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 48.93832153690597
+            },
+            "objective_metric": 48.93832153690597,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 73.60876897133221,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 53.76053962900505
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 73.60876897133221,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 53.76053962900505
+            },
+            "objective_metric": 53.76053962900505,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 69.8685540950455,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 48.93832153690597
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 69.8685540950455,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 48.93832153690597
+            },
+            "objective_metric": 48.93832153690597,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 24,
+      "layer_label": "24",
+      "objective_metric": 48.93832153690597,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.008296796921936793,
+          "weight_decay": 1.7074626001153678e-08
+        },
+        "best_trial_number": 11,
+        "best_value": 48.93832153690597,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 24,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_jepa_v1_vith16_384_layer_24",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 35.38928210313448
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 46.41051567239636
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 36.29929221435793
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 37.71486349848331
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 32.76036400404449
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 37.613751263902934
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 25.68250758341759
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 36.70374115267948
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 48.43276036400405
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 48.93832153690597
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00814055433678886,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 48.837209302325576
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0013",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.007426005343305405,
+              "weight_decay": 1.0179110443029212e-07
+            },
+            "trial_number": 13,
+            "value": 47.92719919110212
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0033408845256664254,
+              "weight_decay": 8.715225766565574e-06
+            },
+            "trial_number": 14,
+            "value": 38.01820020222447
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0015",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0024805720688123923,
+              "weight_decay": 9.21402517922606e-06
+            },
+            "trial_number": 15,
+            "value": 46.51162790697674
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0035344900421447,
+              "weight_decay": 7.210935840467621e-08
+            },
+            "trial_number": 16,
+            "value": 47.01718907987866
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0017",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.009303665824129332,
+              "weight_decay": 7.5173373575249e-05
+            },
+            "trial_number": 17,
+            "value": 47.52275025278059
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_24/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 4.720845304099489e-05,
+              "weight_decay": 1.603479395972792e-07
+            },
+            "trial_number": 18,
+            "value": 23.86248736097068
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 70.02022244691608,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 48.43276036400405
+          },
+          "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "0c85b927b43adb1a",
+        "metrics": {
+          "accuracy": 70.02022244691608,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 48.43276036400405
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 70.02022244691608,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 48.43276036400405
+          },
+          "train": {
+            "accuracy": 73.97976391231028,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 54.87352445193929
+          },
+          "val": {
+            "accuracy": 70.17189079878665,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 49.646107178968656
+          }
+        },
+        "objective_metric": 48.43276036400405,
+        "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval",
+        "probe_name": "linear",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test",
+          "train": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/train",
+          "val": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 70.02022244691608,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 48.43276036400405
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 70.02022244691608,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 48.43276036400405
+            },
+            "objective_metric": 48.43276036400405,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/test",
+            "probe_name": "linear",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 73.97976391231028,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 54.87352445193929
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 73.97976391231028,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 54.87352445193929
+            },
+            "objective_metric": 54.87352445193929,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/train",
+            "probe_name": "linear",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 70.17189079878665,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 49.646107178968656
+              },
+              "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "0c85b927b43adb1a",
+            "metrics": {
+              "accuracy": 70.17189079878665,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 49.646107178968656
+            },
+            "objective_metric": 49.646107178968656,
+            "prediction_file": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/eval/val",
+            "probe_name": "linear",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 32,
+      "layer_label": "32",
+      "objective_metric": 48.43276036400405,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/val_eval",
+        "best_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012",
+        "best_params": {
+          "batch_size": 64,
+          "epochs": 100,
+          "lr": 0.00814055433678886,
+          "weight_decay": 5.666538349312614e-08
+        },
+        "best_trial_number": 12,
+        "best_value": 49.646107178968656,
+        "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 32,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train",
+        "probe_name": "linear",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/optuna_study.sqlite3",
+        "study_name": "mvp_linear_jepa_v1_vith16_384_layer_32",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 35.28816986855409
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0001",
+            "params": {
+              "batch_size": 32,
+              "epochs": 100,
+              "lr": 0.001331121608073689,
+              "weight_decay": 1.328944872286916e-08
+            },
+            "trial_number": 1,
+            "value": 45.19716885743175
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0002",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 0.00019762189340280086,
+              "weight_decay": 5.589524205217922e-07
+            },
+            "trial_number": 2,
+            "value": 36.602628918099086
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0003",
+            "params": {
+              "batch_size": 64,
+              "epochs": 50,
+              "lr": 0.0003489018845491386,
+              "weight_decay": 3.5849855803404713e-05
+            },
+            "trial_number": 3,
+            "value": 37.41152679474216
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0004",
+            "params": {
+              "batch_size": 32,
+              "epochs": 50,
+              "lr": 8.200518402245828e-05,
+              "weight_decay": 3.855073690026179e-08
+            },
+            "trial_number": 4,
+            "value": 33.16481294236603
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0005",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0009717775305059633,
+              "weight_decay": 7.417652034871823e-07
+            },
+            "trial_number": 5,
+            "value": 38.119312436804854
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "epochs": 20,
+              "lr": 0.00011756010900231849,
+              "weight_decay": 4.848496183873288e-07
+            },
+            "trial_number": 7,
+            "value": 26.39029322548028
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "epochs": 50,
+              "lr": 0.0007411299781083245,
+              "weight_decay": 9.669146694016007e-07
+            },
+            "trial_number": 9,
+            "value": 36.5015166835187
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0010",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008013349589915042,
+              "weight_decay": 1.086383341945677e-08
+            },
+            "trial_number": 10,
+            "value": 49.54499494438827
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0011",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.008296796921936793,
+              "weight_decay": 1.7074626001153678e-08
+            },
+            "trial_number": 11,
+            "value": 49.3427704752275
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0012",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00814055433678886,
+              "weight_decay": 5.666538349312614e-08
+            },
+            "trial_number": 12,
+            "value": 49.646107178968656
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0013",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.00828638574821265,
+              "weight_decay": 1.0179110443029212e-07
+            },
+            "trial_number": 13,
+            "value": 49.54499494438827
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0014",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0030373944696826544,
+              "weight_decay": 8.715225766565574e-06
+            },
+            "trial_number": 14,
+            "value": 39.635995955510616
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0015",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0032275860637651834,
+              "weight_decay": 1.3221004453734022e-07
+            },
+            "trial_number": 15,
+            "value": 44.388270980788676
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0016",
+            "params": {
+              "batch_size": 64,
+              "epochs": 100,
+              "lr": 0.0036072061881871034,
+              "weight_decay": 7.009646163693992e-06
+            },
+            "trial_number": 16,
+            "value": 45.70273003033367
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0018",
+            "params": {
+              "batch_size": 64,
+              "epochs": 20,
+              "lr": 0.0018939513785229123,
+              "weight_decay": 8.785106045849355e-08
+            },
+            "trial_number": 18,
+            "value": 36.5015166835187
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z/layer_32/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "epochs": 100,
+              "lr": 0.009082898089210563,
+              "weight_decay": 3.029570961200363e-06
+            },
+            "trial_number": 19,
+            "value": 47.4216380182002
+          }
+        ]
+      }
+    }
+  ],
+  "model_selection_split": "val",
+  "objective_metric_name": "pair_consistency",
+  "probe_name": "linear",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "requested_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "split_name": "test",
+  "sweep_dir": "artifacts/probes/mvp_probe_linear_jepa_v1_vith16_384_20260501T080331Z",
+  "train_split": "train"
+}
+JOB_END_UTC=2026-05-01T08:24:32Z
+JOB_ELAPSED_SECONDS=1265

@@ -37,6 +37,10 @@ INCLUDE_POOLED="${INCLUDE_POOLED:-true}"
 INCLUDE_TOKENS="${INCLUDE_TOKENS:-true}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 
+if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
+  preflight_ltx_runtime
+fi
+
 ANNOTATION_FILE="${ANNOTATION_FILE:-${REPO_ROOT}/data/annotations/mvp_full.jsonl}"
 OFFICIAL_REPO_ROOT="${OFFICIAL_REPO_ROOT:-${REPO_ROOT}/third_party/minimal_video_pairs}"
 VIDEOS_ROOT="${VIDEOS_ROOT:-/scratch-shared/${USER}/probe4physics/data/videos/mvp}"

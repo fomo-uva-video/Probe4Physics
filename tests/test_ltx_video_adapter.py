@@ -11,6 +11,7 @@ import yaml
 
 from models.ltx_video_adapter import (
     LTXVideoAdapter,
+    _ensure_ltx_tokenizer_runtime_support,
     resolve_noise_levels,
     resolve_probe_layer_ids,
     resolve_probe_layer_specs,
@@ -249,6 +250,11 @@ class LTXVideoLayerMappingTests(unittest.TestCase):
 
 
 class LTXVideoAdapterTests(unittest.TestCase):
+    def test_missing_tokenizer_runtime_support_raises_early(self) -> None:
+        with mock.patch("models.ltx_video_adapter.importlib.util.find_spec", return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "tokenizer dependencies are missing"):
+                _ensure_ltx_tokenizer_runtime_support()
+
     def test_missing_config_raises(self) -> None:
         with self.assertRaises(FileNotFoundError):
             with mock.patch.object(LTXVideoAdapter, "_load_components", _fake_load_components):

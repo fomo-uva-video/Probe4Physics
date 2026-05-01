@@ -1,0 +1,2330 @@
+===== TRAIN PROVENANCE =====
+Thu Apr 30 10:54:21 UTC 2026
+tcn33.local.snellius.surf.nl
+b334ea159cf8bc7d373321af295dde54023d8b2d
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=intphys2
+PROBE_NAME=mlp
+BACKBONE_NAME=jepa_v2
+BACKBONE_VARIANT=vitg_384
+PROBE_EPOCHS=100
+PROBE_DEVICE=cpu
+PROBE_LAYER=last
+PROBE_LAYERS=10,20,30,40
+PROBE_FEATURE_VIEW=pooled
+ENABLE_WANDB=true
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=intphys2_mlp_jepa_v2_vitg_384
+ENABLE_OPTUNA=true
+OPTUNA_N_TRIALS=20
+OPTUNA_N_JOBS=1
+OPTUNA_TIMEOUT_SECONDS=0
+ENABLE_OPTUNA_PRUNER=true
+OPTUNA_PRUNER_STARTUP_TRIALS=3
+OPTUNA_PRUNER_WARMUP_STEPS=100
+OPTUNA_PRUNER_INTERVAL_STEPS=1
+OPTUNA_STUDY_NAME=intphys2_mlp_jepa_v2_vitg_384
+OPTUNA_SEARCH_OVERRIDES=<none>
+============================
+JOB_START_UTC=2026-04-30T10:54:21Z
+{
+  "best_layer": null,
+  "best_layer_label": null,
+  "best_objective_metric": null,
+  "dataset": "intphys2",
+  "feature_view": "pooled",
+  "layers": [
+    {
+      "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 50.0,
+            "accuracy_by_condition": {
+              "continuity": 50.0,
+              "immutability": 50.0,
+              "permanence": 50.0,
+              "solidity": 50.0
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 13.725490196078432,
+            "voe_by_condition": {
+              "continuity": 25.0,
+              "immutability": 8.333333333333332,
+              "permanence": 0.0,
+              "solidity": 20.0
+            }
+          },
+          "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test",
+          "split_dir": "data/splits/intphys2"
+        },
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+        "dataset": "intphys2",
+        "feature_signature": "6370d2c41854f9d5",
+        "metrics": {
+          "accuracy": 50.0,
+          "accuracy_by_condition": {
+            "continuity": 50.0,
+            "immutability": 50.0,
+            "permanence": 50.0,
+            "solidity": 50.0
+          },
+          "n_samples": 204,
+          "n_scenes": 51,
+          "voe_accuracy": 13.725490196078432,
+          "voe_by_condition": {
+            "continuity": 25.0,
+            "immutability": 8.333333333333332,
+            "permanence": 0.0,
+            "solidity": 20.0
+          }
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 50.0,
+            "accuracy_by_condition": {
+              "continuity": 50.0,
+              "immutability": 50.0,
+              "permanence": 50.0,
+              "solidity": 50.0
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 13.725490196078432,
+            "voe_by_condition": {
+              "continuity": 25.0,
+              "immutability": 8.333333333333332,
+              "permanence": 0.0,
+              "solidity": 20.0
+            }
+          },
+          "train": {
+            "accuracy": 50.82781456953642,
+            "accuracy_by_condition": {
+              "continuity": 50.69444444444444,
+              "immutability": 51.388888888888886,
+              "permanence": 51.388888888888886,
+              "solidity": 50.0
+            },
+            "n_samples": 604,
+            "n_scenes": 151,
+            "voe_accuracy": 22.516556291390728,
+            "voe_by_condition": {
+              "continuity": 19.444444444444446,
+              "immutability": 22.22222222222222,
+              "permanence": 27.77777777777778,
+              "solidity": 20.930232558139537
+            }
+          },
+          "val": {
+            "accuracy": 51.470588235294116,
+            "accuracy_by_condition": {
+              "continuity": 50.0,
+              "immutability": 54.166666666666664,
+              "permanence": 50.0,
+              "solidity": 51.66666666666667
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 19.607843137254903,
+            "voe_by_condition": {
+              "continuity": 8.333333333333332,
+              "immutability": 41.66666666666667,
+              "permanence": 25.0,
+              "solidity": 6.666666666666667
+            }
+          }
+        },
+        "objective_metric": 13.725490196078432,
+        "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/train",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 50.0,
+                "accuracy_by_condition": {
+                  "continuity": 50.0,
+                  "immutability": 50.0,
+                  "permanence": 50.0,
+                  "solidity": 50.0
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 13.725490196078432,
+                "voe_by_condition": {
+                  "continuity": 25.0,
+                  "immutability": 8.333333333333332,
+                  "permanence": 0.0,
+                  "solidity": 20.0
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 50.0,
+              "accuracy_by_condition": {
+                "continuity": 50.0,
+                "immutability": 50.0,
+                "permanence": 50.0,
+                "solidity": 50.0
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 13.725490196078432,
+              "voe_by_condition": {
+                "continuity": 25.0,
+                "immutability": 8.333333333333332,
+                "permanence": 0.0,
+                "solidity": 20.0
+              }
+            },
+            "objective_metric": 13.725490196078432,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 50.82781456953642,
+                "accuracy_by_condition": {
+                  "continuity": 50.69444444444444,
+                  "immutability": 51.388888888888886,
+                  "permanence": 51.388888888888886,
+                  "solidity": 50.0
+                },
+                "n_samples": 604,
+                "n_scenes": 151,
+                "voe_accuracy": 22.516556291390728,
+                "voe_by_condition": {
+                  "continuity": 19.444444444444446,
+                  "immutability": 22.22222222222222,
+                  "permanence": 27.77777777777778,
+                  "solidity": 20.930232558139537
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/train",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 50.82781456953642,
+              "accuracy_by_condition": {
+                "continuity": 50.69444444444444,
+                "immutability": 51.388888888888886,
+                "permanence": 51.388888888888886,
+                "solidity": 50.0
+              },
+              "n_samples": 604,
+              "n_scenes": 151,
+              "voe_accuracy": 22.516556291390728,
+              "voe_by_condition": {
+                "continuity": 19.444444444444446,
+                "immutability": 22.22222222222222,
+                "permanence": 27.77777777777778,
+                "solidity": 20.930232558139537
+              }
+            },
+            "objective_metric": 22.516556291390728,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 51.470588235294116,
+                "accuracy_by_condition": {
+                  "continuity": 50.0,
+                  "immutability": 54.166666666666664,
+                  "permanence": 50.0,
+                  "solidity": 51.66666666666667
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 19.607843137254903,
+                "voe_by_condition": {
+                  "continuity": 8.333333333333332,
+                  "immutability": 41.66666666666667,
+                  "permanence": 25.0,
+                  "solidity": 6.666666666666667
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/val",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 51.470588235294116,
+              "accuracy_by_condition": {
+                "continuity": 50.0,
+                "immutability": 54.166666666666664,
+                "permanence": 50.0,
+                "solidity": 51.66666666666667
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 19.607843137254903,
+              "voe_by_condition": {
+                "continuity": 8.333333333333332,
+                "immutability": 41.66666666666667,
+                "permanence": 25.0,
+                "solidity": 6.666666666666667
+              }
+            },
+            "objective_metric": 19.607843137254903,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 10,
+      "layer_label": "10",
+      "objective_metric": 13.725490196078432,
+      "train": {
+        "best_checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/val_eval",
+        "best_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003",
+        "best_params": {
+          "batch_size": 128,
+          "dropout": 0.3875664116805573,
+          "hidden_dims": "1024x512x1024",
+          "lr": 0.00020914981329035596,
+          "weight_decay": 5.397956855996434e-08
+        },
+        "best_trial_number": 3,
+        "best_value": 19.607843137254903,
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+        "dataset": "intphys2",
+        "direction": "maximize",
+        "layer": 10,
+        "n_trials": 20,
+        "objective_metric": "voe_accuracy",
+        "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/optuna_study.sqlite3",
+        "study_name": "intphys2_mlp_jepa_v2_vitg_384_layer_10",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.41622132040021087,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0001",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3925879806965068,
+              "hidden_dims": "512",
+              "lr": 4.335281794951564e-05,
+              "weight_decay": 1.2329623163659816e-07
+            },
+            "trial_number": 1,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0002",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.34211651325607845,
+              "hidden_dims": "1024",
+              "lr": 3.972110727381908e-05,
+              "weight_decay": 1.217325250419405e-05
+            },
+            "trial_number": 2,
+            "value": 7.8431372549019605
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0003",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3875664116805573,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00020914981329035596,
+              "weight_decay": 5.397956855996434e-08
+            },
+            "trial_number": 3,
+            "value": 19.607843137254903
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0005",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.03702232586704518,
+              "hidden_dims": "1024",
+              "lr": 0.00042470585622618684,
+              "weight_decay": 7.007213496896406e-08
+            },
+            "trial_number": 5,
+            "value": 7.8431372549019605
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0006",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.05979712296915085,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0001189589673755355,
+              "weight_decay": 4.9569479327999555e-08
+            },
+            "trial_number": 6,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0007",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.2542853455823514,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0013795402040204172,
+              "weight_decay": 0.00036703737625293887
+            },
+            "trial_number": 7,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0008",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.40183603844955723,
+              "hidden_dims": "1024",
+              "lr": 0.005280796376895365,
+              "weight_decay": 3.1315069138816194e-07
+            },
+            "trial_number": 8,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0009",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.25537365128878287,
+              "hidden_dims": "1024x512x256",
+              "lr": 3.6283583803549155e-05,
+              "weight_decay": 0.0022664909586669274
+            },
+            "trial_number": 9,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0010",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.4897336959208015,
+              "hidden_dims": "256",
+              "lr": 0.0006214470800679864,
+              "weight_decay": 2.406615493983363e-06
+            },
+            "trial_number": 10,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0011",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.35363989009295443,
+              "hidden_dims": "512",
+              "lr": 1.3066991237906973e-05,
+              "weight_decay": 1.2404201083947842e-08
+            },
+            "trial_number": 11,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0012",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.4963858120676766,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00010177144759734894,
+              "weight_decay": 1.369453656731483e-06
+            },
+            "trial_number": 12,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0013",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.3229282203516206,
+              "hidden_dims": "512x256",
+              "lr": 1.65537248114985e-05,
+              "weight_decay": 2.752617495528307e-05
+            },
+            "trial_number": 13,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0014",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.17381671524829134,
+              "hidden_dims": "512",
+              "lr": 0.0014273458272148231,
+              "weight_decay": 1.1515940798049283e-08
+            },
+            "trial_number": 14,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0015",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.41382511772033487,
+              "hidden_dims": "512",
+              "lr": 4.655369766457565e-05,
+              "weight_decay": 3.390790591139899e-07
+            },
+            "trial_number": 15,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0016",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3066273921667468,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00021746110248022917,
+              "weight_decay": 6.38010832871044e-05
+            },
+            "trial_number": 16,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0017",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.43980696336325614,
+              "hidden_dims": "512x256",
+              "lr": 6.899589074560928e-05,
+              "weight_decay": 1.6210925182026607e-07
+            },
+            "trial_number": 17,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0018",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.20302011499753378,
+              "hidden_dims": "256",
+              "lr": 0.0007820833328059761,
+              "weight_decay": 1.8351857274498734e-06
+            },
+            "trial_number": 18,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_10/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.37470863504028146,
+              "hidden_dims": "512",
+              "lr": 2.2513479574604037e-05,
+              "weight_decay": 3.200201796773642e-08
+            },
+            "trial_number": 19,
+            "value": 11.76470588235294
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 50.98039215686274,
+            "accuracy_by_condition": {
+              "continuity": 50.0,
+              "immutability": 52.083333333333336,
+              "permanence": 47.91666666666667,
+              "solidity": 53.333333333333336
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 17.647058823529413,
+            "voe_by_condition": {
+              "continuity": 16.666666666666664,
+              "immutability": 25.0,
+              "permanence": 16.666666666666664,
+              "solidity": 13.333333333333334
+            }
+          },
+          "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test",
+          "split_dir": "data/splits/intphys2"
+        },
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+        "dataset": "intphys2",
+        "feature_signature": "6370d2c41854f9d5",
+        "metrics": {
+          "accuracy": 50.98039215686274,
+          "accuracy_by_condition": {
+            "continuity": 50.0,
+            "immutability": 52.083333333333336,
+            "permanence": 47.91666666666667,
+            "solidity": 53.333333333333336
+          },
+          "n_samples": 204,
+          "n_scenes": 51,
+          "voe_accuracy": 17.647058823529413,
+          "voe_by_condition": {
+            "continuity": 16.666666666666664,
+            "immutability": 25.0,
+            "permanence": 16.666666666666664,
+            "solidity": 13.333333333333334
+          }
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 50.98039215686274,
+            "accuracy_by_condition": {
+              "continuity": 50.0,
+              "immutability": 52.083333333333336,
+              "permanence": 47.91666666666667,
+              "solidity": 53.333333333333336
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 17.647058823529413,
+            "voe_by_condition": {
+              "continuity": 16.666666666666664,
+              "immutability": 25.0,
+              "permanence": 16.666666666666664,
+              "solidity": 13.333333333333334
+            }
+          },
+          "train": {
+            "accuracy": 52.980132450331126,
+            "accuracy_by_condition": {
+              "continuity": 52.083333333333336,
+              "immutability": 56.94444444444444,
+              "permanence": 49.30555555555556,
+              "solidity": 53.48837209302325
+            },
+            "n_samples": 604,
+            "n_scenes": 151,
+            "voe_accuracy": 36.423841059602644,
+            "voe_by_condition": {
+              "continuity": 36.11111111111111,
+              "immutability": 50.0,
+              "permanence": 33.33333333333333,
+              "solidity": 27.906976744186046
+            }
+          },
+          "val": {
+            "accuracy": 52.450980392156865,
+            "accuracy_by_condition": {
+              "continuity": 52.083333333333336,
+              "immutability": 50.0,
+              "permanence": 56.25,
+              "solidity": 51.66666666666667
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 23.52941176470588,
+            "voe_by_condition": {
+              "continuity": 33.33333333333333,
+              "immutability": 33.33333333333333,
+              "permanence": 16.666666666666664,
+              "solidity": 13.333333333333334
+            }
+          }
+        },
+        "objective_metric": 17.647058823529413,
+        "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/train",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 50.98039215686274,
+                "accuracy_by_condition": {
+                  "continuity": 50.0,
+                  "immutability": 52.083333333333336,
+                  "permanence": 47.91666666666667,
+                  "solidity": 53.333333333333336
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 17.647058823529413,
+                "voe_by_condition": {
+                  "continuity": 16.666666666666664,
+                  "immutability": 25.0,
+                  "permanence": 16.666666666666664,
+                  "solidity": 13.333333333333334
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 50.98039215686274,
+              "accuracy_by_condition": {
+                "continuity": 50.0,
+                "immutability": 52.083333333333336,
+                "permanence": 47.91666666666667,
+                "solidity": 53.333333333333336
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 17.647058823529413,
+              "voe_by_condition": {
+                "continuity": 16.666666666666664,
+                "immutability": 25.0,
+                "permanence": 16.666666666666664,
+                "solidity": 13.333333333333334
+              }
+            },
+            "objective_metric": 17.647058823529413,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 52.980132450331126,
+                "accuracy_by_condition": {
+                  "continuity": 52.083333333333336,
+                  "immutability": 56.94444444444444,
+                  "permanence": 49.30555555555556,
+                  "solidity": 53.48837209302325
+                },
+                "n_samples": 604,
+                "n_scenes": 151,
+                "voe_accuracy": 36.423841059602644,
+                "voe_by_condition": {
+                  "continuity": 36.11111111111111,
+                  "immutability": 50.0,
+                  "permanence": 33.33333333333333,
+                  "solidity": 27.906976744186046
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/train",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 52.980132450331126,
+              "accuracy_by_condition": {
+                "continuity": 52.083333333333336,
+                "immutability": 56.94444444444444,
+                "permanence": 49.30555555555556,
+                "solidity": 53.48837209302325
+              },
+              "n_samples": 604,
+              "n_scenes": 151,
+              "voe_accuracy": 36.423841059602644,
+              "voe_by_condition": {
+                "continuity": 36.11111111111111,
+                "immutability": 50.0,
+                "permanence": 33.33333333333333,
+                "solidity": 27.906976744186046
+              }
+            },
+            "objective_metric": 36.423841059602644,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 52.450980392156865,
+                "accuracy_by_condition": {
+                  "continuity": 52.083333333333336,
+                  "immutability": 50.0,
+                  "permanence": 56.25,
+                  "solidity": 51.66666666666667
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 23.52941176470588,
+                "voe_by_condition": {
+                  "continuity": 33.33333333333333,
+                  "immutability": 33.33333333333333,
+                  "permanence": 16.666666666666664,
+                  "solidity": 13.333333333333334
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/val",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 52.450980392156865,
+              "accuracy_by_condition": {
+                "continuity": 52.083333333333336,
+                "immutability": 50.0,
+                "permanence": 56.25,
+                "solidity": 51.66666666666667
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 23.52941176470588,
+              "voe_by_condition": {
+                "continuity": 33.33333333333333,
+                "immutability": 33.33333333333333,
+                "permanence": 16.666666666666664,
+                "solidity": 13.333333333333334
+              }
+            },
+            "objective_metric": 23.52941176470588,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 20,
+      "layer_label": "20",
+      "objective_metric": 17.647058823529413,
+      "train": {
+        "best_checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/val_eval",
+        "best_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010",
+        "best_params": {
+          "batch_size": 256,
+          "dropout": 0.4897336959208015,
+          "hidden_dims": "256",
+          "lr": 0.0006214470800679864,
+          "weight_decay": 2.406615493983363e-06
+        },
+        "best_trial_number": 10,
+        "best_value": 23.52941176470588,
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+        "dataset": "intphys2",
+        "direction": "maximize",
+        "layer": 20,
+        "n_trials": 20,
+        "objective_metric": "voe_accuracy",
+        "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/optuna_study.sqlite3",
+        "study_name": "intphys2_mlp_jepa_v2_vitg_384_layer_20",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.41622132040021087,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0001",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3925879806965068,
+              "hidden_dims": "512",
+              "lr": 4.335281794951564e-05,
+              "weight_decay": 1.2329623163659816e-07
+            },
+            "trial_number": 1,
+            "value": 19.607843137254903
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0002",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.34211651325607845,
+              "hidden_dims": "1024",
+              "lr": 3.972110727381908e-05,
+              "weight_decay": 1.217325250419405e-05
+            },
+            "trial_number": 2,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0003",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3875664116805573,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00020914981329035596,
+              "weight_decay": 5.397956855996434e-08
+            },
+            "trial_number": 3,
+            "value": 21.568627450980394
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0004/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0004/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0004",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.14046725484369038,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.006584106160121612,
+              "weight_decay": 0.002338643925620875
+            },
+            "trial_number": 4,
+            "value": 7.8431372549019605
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0005",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.03702232586704518,
+              "hidden_dims": "1024",
+              "lr": 0.00042470585622618684,
+              "weight_decay": 7.007213496896406e-08
+            },
+            "trial_number": 5,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0006",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.05979712296915085,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0001189589673755355,
+              "weight_decay": 4.9569479327999555e-08
+            },
+            "trial_number": 6,
+            "value": 13.725490196078432
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0007",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.2542853455823514,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0013795402040204172,
+              "weight_decay": 0.00036703737625293887
+            },
+            "trial_number": 7,
+            "value": 21.568627450980394
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0008",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.40183603844955723,
+              "hidden_dims": "1024",
+              "lr": 0.005280796376895365,
+              "weight_decay": 3.1315069138816194e-07
+            },
+            "trial_number": 8,
+            "value": 21.568627450980394
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0009",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.25537365128878287,
+              "hidden_dims": "1024x512x256",
+              "lr": 3.6283583803549155e-05,
+              "weight_decay": 0.0022664909586669274
+            },
+            "trial_number": 9,
+            "value": 7.8431372549019605
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0010",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.4897336959208015,
+              "hidden_dims": "256",
+              "lr": 0.0006214470800679864,
+              "weight_decay": 2.406615493983363e-06
+            },
+            "trial_number": 10,
+            "value": 23.52941176470588
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0011",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.4988222603889263,
+              "hidden_dims": "256",
+              "lr": 0.0007743930800018807,
+              "weight_decay": 2.985255030247815e-06
+            },
+            "trial_number": 11,
+            "value": 19.607843137254903
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0012",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.49621942189284585,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.0014293584268844548,
+              "weight_decay": 1.1072597607305155e-08
+            },
+            "trial_number": 12,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0013",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.32476708879563176,
+              "hidden_dims": "512x256",
+              "lr": 0.00018497140577641413,
+              "weight_decay": 3.3755228651472744e-06
+            },
+            "trial_number": 13,
+            "value": 9.803921568627452
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0014",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.4470816239258454,
+              "hidden_dims": "256",
+              "lr": 0.0004311417325073003,
+              "weight_decay": 3.888526734124553e-05
+            },
+            "trial_number": 14,
+            "value": 19.607843137254903
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0015",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3304278626461432,
+              "hidden_dims": "256",
+              "lr": 1.2611236054600708e-05,
+              "weight_decay": 6.447209585384078e-07
+            },
+            "trial_number": 15,
+            "value": 11.76470588235294
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0016",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.1807879688626538,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.002510542922743902,
+              "weight_decay": 6.413859595982319e-05
+            },
+            "trial_number": 16,
+            "value": 7.8431372549019605
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0017",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.4530822379601787,
+              "hidden_dims": "512x256",
+              "lr": 0.0002422225202188581,
+              "weight_decay": 1.1990627027317798e-08
+            },
+            "trial_number": 17,
+            "value": 15.686274509803921
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0018",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.3620313930247293,
+              "hidden_dims": "512",
+              "lr": 0.0007820833328059753,
+              "weight_decay": 5.448943363088887e-07
+            },
+            "trial_number": 18,
+            "value": 15.686274509803921
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_20/train/trial_0019",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.29673952271790277,
+              "hidden_dims": "256",
+              "lr": 7.62655318599464e-05,
+              "weight_decay": 3.866348085471619e-06
+            },
+            "trial_number": 19,
+            "value": 15.686274509803921
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 52.94117647058824,
+            "accuracy_by_condition": {
+              "continuity": 54.166666666666664,
+              "immutability": 54.166666666666664,
+              "permanence": 52.083333333333336,
+              "solidity": 51.66666666666667
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 35.294117647058826,
+            "voe_by_condition": {
+              "continuity": 33.33333333333333,
+              "immutability": 66.66666666666666,
+              "permanence": 33.33333333333333,
+              "solidity": 13.333333333333334
+            }
+          },
+          "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test",
+          "split_dir": "data/splits/intphys2"
+        },
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+        "dataset": "intphys2",
+        "feature_signature": "6370d2c41854f9d5",
+        "metrics": {
+          "accuracy": 52.94117647058824,
+          "accuracy_by_condition": {
+            "continuity": 54.166666666666664,
+            "immutability": 54.166666666666664,
+            "permanence": 52.083333333333336,
+            "solidity": 51.66666666666667
+          },
+          "n_samples": 204,
+          "n_scenes": 51,
+          "voe_accuracy": 35.294117647058826,
+          "voe_by_condition": {
+            "continuity": 33.33333333333333,
+            "immutability": 66.66666666666666,
+            "permanence": 33.33333333333333,
+            "solidity": 13.333333333333334
+          }
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 52.94117647058824,
+            "accuracy_by_condition": {
+              "continuity": 54.166666666666664,
+              "immutability": 54.166666666666664,
+              "permanence": 52.083333333333336,
+              "solidity": 51.66666666666667
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 35.294117647058826,
+            "voe_by_condition": {
+              "continuity": 33.33333333333333,
+              "immutability": 66.66666666666666,
+              "permanence": 33.33333333333333,
+              "solidity": 13.333333333333334
+            }
+          },
+          "train": {
+            "accuracy": 54.966887417218544,
+            "accuracy_by_condition": {
+              "continuity": 53.47222222222222,
+              "immutability": 54.861111111111114,
+              "permanence": 56.94444444444444,
+              "solidity": 54.65116279069767
+            },
+            "n_samples": 604,
+            "n_scenes": 151,
+            "voe_accuracy": 41.72185430463576,
+            "voe_by_condition": {
+              "continuity": 47.22222222222222,
+              "immutability": 66.66666666666666,
+              "permanence": 38.88888888888889,
+              "solidity": 18.6046511627907
+            }
+          },
+          "val": {
+            "accuracy": 53.92156862745098,
+            "accuracy_by_condition": {
+              "continuity": 54.166666666666664,
+              "immutability": 60.416666666666664,
+              "permanence": 52.083333333333336,
+              "solidity": 50.0
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 31.372549019607842,
+            "voe_by_condition": {
+              "continuity": 50.0,
+              "immutability": 58.333333333333336,
+              "permanence": 25.0,
+              "solidity": 0.0
+            }
+          }
+        },
+        "objective_metric": 35.294117647058826,
+        "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/train",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 52.94117647058824,
+                "accuracy_by_condition": {
+                  "continuity": 54.166666666666664,
+                  "immutability": 54.166666666666664,
+                  "permanence": 52.083333333333336,
+                  "solidity": 51.66666666666667
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 35.294117647058826,
+                "voe_by_condition": {
+                  "continuity": 33.33333333333333,
+                  "immutability": 66.66666666666666,
+                  "permanence": 33.33333333333333,
+                  "solidity": 13.333333333333334
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 52.94117647058824,
+              "accuracy_by_condition": {
+                "continuity": 54.166666666666664,
+                "immutability": 54.166666666666664,
+                "permanence": 52.083333333333336,
+                "solidity": 51.66666666666667
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 35.294117647058826,
+              "voe_by_condition": {
+                "continuity": 33.33333333333333,
+                "immutability": 66.66666666666666,
+                "permanence": 33.33333333333333,
+                "solidity": 13.333333333333334
+              }
+            },
+            "objective_metric": 35.294117647058826,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 54.966887417218544,
+                "accuracy_by_condition": {
+                  "continuity": 53.47222222222222,
+                  "immutability": 54.861111111111114,
+                  "permanence": 56.94444444444444,
+                  "solidity": 54.65116279069767
+                },
+                "n_samples": 604,
+                "n_scenes": 151,
+                "voe_accuracy": 41.72185430463576,
+                "voe_by_condition": {
+                  "continuity": 47.22222222222222,
+                  "immutability": 66.66666666666666,
+                  "permanence": 38.88888888888889,
+                  "solidity": 18.6046511627907
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/train",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 54.966887417218544,
+              "accuracy_by_condition": {
+                "continuity": 53.47222222222222,
+                "immutability": 54.861111111111114,
+                "permanence": 56.94444444444444,
+                "solidity": 54.65116279069767
+              },
+              "n_samples": 604,
+              "n_scenes": 151,
+              "voe_accuracy": 41.72185430463576,
+              "voe_by_condition": {
+                "continuity": 47.22222222222222,
+                "immutability": 66.66666666666666,
+                "permanence": 38.88888888888889,
+                "solidity": 18.6046511627907
+              }
+            },
+            "objective_metric": 41.72185430463576,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 53.92156862745098,
+                "accuracy_by_condition": {
+                  "continuity": 54.166666666666664,
+                  "immutability": 60.416666666666664,
+                  "permanence": 52.083333333333336,
+                  "solidity": 50.0
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 31.372549019607842,
+                "voe_by_condition": {
+                  "continuity": 50.0,
+                  "immutability": 58.333333333333336,
+                  "permanence": 25.0,
+                  "solidity": 0.0
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/val",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 53.92156862745098,
+              "accuracy_by_condition": {
+                "continuity": 54.166666666666664,
+                "immutability": 60.416666666666664,
+                "permanence": 52.083333333333336,
+                "solidity": 50.0
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 31.372549019607842,
+              "voe_by_condition": {
+                "continuity": 50.0,
+                "immutability": 58.333333333333336,
+                "permanence": 25.0,
+                "solidity": 0.0
+              }
+            },
+            "objective_metric": 31.372549019607842,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 30,
+      "layer_label": "30",
+      "objective_metric": 35.294117647058826,
+      "train": {
+        "best_checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/val_eval",
+        "best_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001",
+        "best_params": {
+          "batch_size": 128,
+          "dropout": 0.3925879806965068,
+          "hidden_dims": "512",
+          "lr": 4.335281794951564e-05,
+          "weight_decay": 1.2329623163659816e-07
+        },
+        "best_trial_number": 1,
+        "best_value": 31.372549019607842,
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+        "dataset": "intphys2",
+        "direction": "maximize",
+        "layer": 30,
+        "n_trials": 20,
+        "objective_metric": "voe_accuracy",
+        "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/optuna_study.sqlite3",
+        "study_name": "intphys2_mlp_jepa_v2_vitg_384_layer_30",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.41622132040021087,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 17.647058823529413
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0001",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3925879806965068,
+              "hidden_dims": "512",
+              "lr": 4.335281794951564e-05,
+              "weight_decay": 1.2329623163659816e-07
+            },
+            "trial_number": 1,
+            "value": 31.372549019607842
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0002",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.34211651325607845,
+              "hidden_dims": "1024",
+              "lr": 3.972110727381908e-05,
+              "weight_decay": 1.217325250419405e-05
+            },
+            "trial_number": 2,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0003",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3875664116805573,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00020914981329035596,
+              "weight_decay": 5.397956855996434e-08
+            },
+            "trial_number": 3,
+            "value": 17.647058823529413
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0005",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.03702232586704518,
+              "hidden_dims": "1024",
+              "lr": 0.00042470585622618684,
+              "weight_decay": 7.007213496896406e-08
+            },
+            "trial_number": 5,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0006",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.05979712296915085,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0001189589673755355,
+              "weight_decay": 4.9569479327999555e-08
+            },
+            "trial_number": 6,
+            "value": 23.52941176470588
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0008",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.40183603844955723,
+              "hidden_dims": "1024",
+              "lr": 0.005280796376895365,
+              "weight_decay": 3.1315069138816194e-07
+            },
+            "trial_number": 8,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0009",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.25537365128878287,
+              "hidden_dims": "1024x512x256",
+              "lr": 3.6283583803549155e-05,
+              "weight_decay": 0.0022664909586669274
+            },
+            "trial_number": 9,
+            "value": 17.647058823529413
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0010",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.49004175484611584,
+              "hidden_dims": "512",
+              "lr": 1.1890625822974641e-05,
+              "weight_decay": 2.3573161161095077e-06
+            },
+            "trial_number": 10,
+            "value": 17.647058823529413
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0011",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.0034053139454592943,
+              "hidden_dims": "256",
+              "lr": 0.0009677193907657219,
+              "weight_decay": 1.2404201083947842e-08
+            },
+            "trial_number": 11,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0012",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.17125799686887833,
+              "hidden_dims": "512x256",
+              "lr": 0.0006023982170524604,
+              "weight_decay": 1.369453656731483e-06
+            },
+            "trial_number": 12,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0013",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.3229282203516206,
+              "hidden_dims": "512",
+              "lr": 4.8992953778813396e-05,
+              "weight_decay": 2.752617495528307e-05
+            },
+            "trial_number": 13,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0014",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.17381671524829134,
+              "hidden_dims": "512",
+              "lr": 0.00040034317680581304,
+              "weight_decay": 2.7851438116777243e-07
+            },
+            "trial_number": 14,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0015",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.49516564289745335,
+              "hidden_dims": "1024",
+              "lr": 0.0020233435446609807,
+              "weight_decay": 1.0728534741759395e-08
+            },
+            "trial_number": 15,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0016",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.12156919495641351,
+              "hidden_dims": "512x256",
+              "lr": 1.2436979494051815e-05,
+              "weight_decay": 6.38010832871044e-05
+            },
+            "trial_number": 16,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0017",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.0015696481841454696,
+              "hidden_dims": "256",
+              "lr": 7.987657837993722e-05,
+              "weight_decay": 9.671126207558599e-07
+            },
+            "trial_number": 17,
+            "value": 29.411764705882355
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0018",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.3072293366231178,
+              "hidden_dims": "256",
+              "lr": 7.530764891133397e-05,
+              "weight_decay": 2.526173677091127e-06
+            },
+            "trial_number": 18,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_30/train/trial_0019",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.22427402844503805,
+              "hidden_dims": "256",
+              "lr": 2.2513479574604037e-05,
+              "weight_decay": 5.713542327993822e-07
+            },
+            "trial_number": 19,
+            "value": 19.607843137254903
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 58.333333333333336,
+            "accuracy_by_condition": {
+              "continuity": 56.25,
+              "immutability": 60.416666666666664,
+              "permanence": 64.58333333333334,
+              "solidity": 53.333333333333336
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 39.21568627450981,
+            "voe_by_condition": {
+              "continuity": 25.0,
+              "immutability": 75.0,
+              "permanence": 50.0,
+              "solidity": 13.333333333333334
+            }
+          },
+          "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test",
+          "split_dir": "data/splits/intphys2"
+        },
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+        "dataset": "intphys2",
+        "feature_signature": "6370d2c41854f9d5",
+        "metrics": {
+          "accuracy": 58.333333333333336,
+          "accuracy_by_condition": {
+            "continuity": 56.25,
+            "immutability": 60.416666666666664,
+            "permanence": 64.58333333333334,
+            "solidity": 53.333333333333336
+          },
+          "n_samples": 204,
+          "n_scenes": 51,
+          "voe_accuracy": 39.21568627450981,
+          "voe_by_condition": {
+            "continuity": 25.0,
+            "immutability": 75.0,
+            "permanence": 50.0,
+            "solidity": 13.333333333333334
+          }
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 58.333333333333336,
+            "accuracy_by_condition": {
+              "continuity": 56.25,
+              "immutability": 60.416666666666664,
+              "permanence": 64.58333333333334,
+              "solidity": 53.333333333333336
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 39.21568627450981,
+            "voe_by_condition": {
+              "continuity": 25.0,
+              "immutability": 75.0,
+              "permanence": 50.0,
+              "solidity": 13.333333333333334
+            }
+          },
+          "train": {
+            "accuracy": 58.774834437086085,
+            "accuracy_by_condition": {
+              "continuity": 59.02777777777778,
+              "immutability": 62.5,
+              "permanence": 62.5,
+              "solidity": 52.32558139534884
+            },
+            "n_samples": 604,
+            "n_scenes": 151,
+            "voe_accuracy": 43.70860927152318,
+            "voe_by_condition": {
+              "continuity": 69.44444444444444,
+              "immutability": 58.333333333333336,
+              "permanence": 41.66666666666667,
+              "solidity": 11.627906976744185
+            }
+          },
+          "val": {
+            "accuracy": 55.88235294117647,
+            "accuracy_by_condition": {
+              "continuity": 58.333333333333336,
+              "immutability": 62.5,
+              "permanence": 54.166666666666664,
+              "solidity": 50.0
+            },
+            "n_samples": 204,
+            "n_scenes": 51,
+            "voe_accuracy": 35.294117647058826,
+            "voe_by_condition": {
+              "continuity": 83.33333333333334,
+              "immutability": 41.66666666666667,
+              "permanence": 25.0,
+              "solidity": 0.0
+            }
+          }
+        },
+        "objective_metric": 39.21568627450981,
+        "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test",
+          "train": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/train",
+          "val": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 58.333333333333336,
+                "accuracy_by_condition": {
+                  "continuity": 56.25,
+                  "immutability": 60.416666666666664,
+                  "permanence": 64.58333333333334,
+                  "solidity": 53.333333333333336
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 39.21568627450981,
+                "voe_by_condition": {
+                  "continuity": 25.0,
+                  "immutability": 75.0,
+                  "permanence": 50.0,
+                  "solidity": 13.333333333333334
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 58.333333333333336,
+              "accuracy_by_condition": {
+                "continuity": 56.25,
+                "immutability": 60.416666666666664,
+                "permanence": 64.58333333333334,
+                "solidity": 53.333333333333336
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 39.21568627450981,
+              "voe_by_condition": {
+                "continuity": 25.0,
+                "immutability": 75.0,
+                "permanence": 50.0,
+                "solidity": 13.333333333333334
+              }
+            },
+            "objective_metric": 39.21568627450981,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 58.774834437086085,
+                "accuracy_by_condition": {
+                  "continuity": 59.02777777777778,
+                  "immutability": 62.5,
+                  "permanence": 62.5,
+                  "solidity": 52.32558139534884
+                },
+                "n_samples": 604,
+                "n_scenes": 151,
+                "voe_accuracy": 43.70860927152318,
+                "voe_by_condition": {
+                  "continuity": 69.44444444444444,
+                  "immutability": 58.333333333333336,
+                  "permanence": 41.66666666666667,
+                  "solidity": 11.627906976744185
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/train",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 58.774834437086085,
+              "accuracy_by_condition": {
+                "continuity": 59.02777777777778,
+                "immutability": 62.5,
+                "permanence": 62.5,
+                "solidity": 52.32558139534884
+              },
+              "n_samples": 604,
+              "n_scenes": 151,
+              "voe_accuracy": 43.70860927152318,
+              "voe_by_condition": {
+                "continuity": 69.44444444444444,
+                "immutability": 58.333333333333336,
+                "permanence": 41.66666666666667,
+                "solidity": 11.627906976744185
+              }
+            },
+            "objective_metric": 43.70860927152318,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 55.88235294117647,
+                "accuracy_by_condition": {
+                  "continuity": 58.333333333333336,
+                  "immutability": 62.5,
+                  "permanence": 54.166666666666664,
+                  "solidity": 50.0
+                },
+                "n_samples": 204,
+                "n_scenes": 51,
+                "voe_accuracy": 35.294117647058826,
+                "voe_by_condition": {
+                  "continuity": 83.33333333333334,
+                  "immutability": 41.66666666666667,
+                  "permanence": 25.0,
+                  "solidity": 0.0
+                }
+              },
+              "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/val",
+              "split_dir": "data/splits/intphys2"
+            },
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+            "dataset": "intphys2",
+            "feature_signature": "6370d2c41854f9d5",
+            "metrics": {
+              "accuracy": 55.88235294117647,
+              "accuracy_by_condition": {
+                "continuity": 58.333333333333336,
+                "immutability": 62.5,
+                "permanence": 54.166666666666664,
+                "solidity": 50.0
+              },
+              "n_samples": 204,
+              "n_scenes": 51,
+              "voe_accuracy": 35.294117647058826,
+              "voe_by_condition": {
+                "continuity": 83.33333333333334,
+                "immutability": 41.66666666666667,
+                "permanence": 25.0,
+                "solidity": 0.0
+              }
+            },
+            "objective_metric": 35.294117647058826,
+            "prediction_file": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 40,
+      "layer_label": "40",
+      "objective_metric": 39.21568627450981,
+      "train": {
+        "best_checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/val_eval",
+        "best_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013",
+        "best_params": {
+          "batch_size": 256,
+          "dropout": 0.10718581779940536,
+          "hidden_dims": "256",
+          "lr": 0.00015856510667968673,
+          "weight_decay": 1.168554246513213e-08
+        },
+        "best_trial_number": 13,
+        "best_value": 35.294117647058826,
+        "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+        "dataset": "intphys2",
+        "direction": "maximize",
+        "layer": 40,
+        "n_trials": 20,
+        "objective_metric": "voe_accuracy",
+        "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/home3/scur0511/Probe4Physics/artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/optuna_study.sqlite3",
+        "study_name": "intphys2_mlp_jepa_v2_vitg_384_layer_40",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.41622132040021087,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0001",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3925879806965068,
+              "hidden_dims": "512",
+              "lr": 4.335281794951564e-05,
+              "weight_decay": 1.2329623163659816e-07
+            },
+            "trial_number": 1,
+            "value": 21.568627450980394
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0002",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.34211651325607845,
+              "hidden_dims": "1024",
+              "lr": 3.972110727381908e-05,
+              "weight_decay": 1.217325250419405e-05
+            },
+            "trial_number": 2,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0003/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0003/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0003",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.3875664116805573,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00020914981329035596,
+              "weight_decay": 5.397956855996434e-08
+            },
+            "trial_number": 3,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0005/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0005/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0005",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.03702232586704518,
+              "hidden_dims": "1024",
+              "lr": 0.00042470585622618684,
+              "weight_decay": 7.007213496896406e-08
+            },
+            "trial_number": 5,
+            "value": 33.33333333333333
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0006",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.05979712296915085,
+              "hidden_dims": "1024x512x256",
+              "lr": 0.0001189589673755355,
+              "weight_decay": 4.9569479327999555e-08
+            },
+            "trial_number": 6,
+            "value": 29.411764705882355
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0008",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.40183603844955723,
+              "hidden_dims": "1024",
+              "lr": 0.005280796376895365,
+              "weight_decay": 3.1315069138816194e-07
+            },
+            "trial_number": 8,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0009",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.25537365128878287,
+              "hidden_dims": "1024x512x256",
+              "lr": 3.6283583803549155e-05,
+              "weight_decay": 0.0022664909586669274
+            },
+            "trial_number": 9,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0010/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0010/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0010",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.007282691609049624,
+              "hidden_dims": "256",
+              "lr": 0.0008773073596509901,
+              "weight_decay": 2.2606793572513475e-06
+            },
+            "trial_number": 10,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0011",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.00347684631337674,
+              "hidden_dims": "512x256",
+              "lr": 0.0005766656684534334,
+              "weight_decay": 1.2404201083947842e-08
+            },
+            "trial_number": 11,
+            "value": 29.411764705882355
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0012/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0012/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0012",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.10685615057375414,
+              "hidden_dims": "1024",
+              "lr": 1.3013594505165371e-05,
+              "weight_decay": 1.369453656731483e-06
+            },
+            "trial_number": 12,
+            "value": 27.450980392156865
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0013",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.10718581779940536,
+              "hidden_dims": "256",
+              "lr": 0.00015856510667968673,
+              "weight_decay": 1.168554246513213e-08
+            },
+            "trial_number": 13,
+            "value": 35.294117647058826
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0014/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0014/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0014",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.1720148477724066,
+              "hidden_dims": "256",
+              "lr": 0.0021028011967946622,
+              "weight_decay": 1.100126876586459e-08
+            },
+            "trial_number": 14,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0015/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0015/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0015",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.18997737419157273,
+              "hidden_dims": "256",
+              "lr": 0.00033161874720056487,
+              "weight_decay": 1.264759895178816e-05
+            },
+            "trial_number": 15,
+            "value": 31.372549019607842
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0016",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.0745981853425081,
+              "hidden_dims": "512x256",
+              "lr": 0.0004050136196870704,
+              "weight_decay": 9.146660194242354e-05
+            },
+            "trial_number": 16,
+            "value": 29.411764705882355
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0017/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0017/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0017",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.49800849468060676,
+              "hidden_dims": "512",
+              "lr": 8.513569413752787e-05,
+              "weight_decay": 5.003496218145977e-07
+            },
+            "trial_number": 17,
+            "value": 35.294117647058826
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0018/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0018/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0018",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.28425721018857386,
+              "hidden_dims": "512",
+              "lr": 7.882791950736558e-05,
+              "weight_decay": 6.622978105494993e-07
+            },
+            "trial_number": 18,
+            "value": 25.49019607843137
+          },
+          {
+            "checkpoint": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z/layer_40/train/trial_0019",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.4750454448031879,
+              "hidden_dims": "512",
+              "lr": 1.3677854363707686e-05,
+              "weight_decay": 4.6164873791880335e-06
+            },
+            "trial_number": 19,
+            "value": 15.686274509803921
+          }
+        ]
+      }
+    }
+  ],
+  "model_selection_split": "val",
+  "objective_metric_name": "voe_accuracy",
+  "probe_name": "mlp",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "requested_layers": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "split_name": "test",
+  "sweep_dir": "artifacts/probes/intphys2/intphys2_probe_mlp_jepa_v2_vitg_384_20260430T105425Z",
+  "train_split": "train"
+}
+JOB_END_UTC=2026-04-30T11:05:44Z
+JOB_ELAPSED_SECONDS=683

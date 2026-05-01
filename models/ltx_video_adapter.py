@@ -18,6 +18,7 @@ Metadata exposes the exact mapping for reproducibility.
 
 from collections import defaultdict
 from dataclasses import dataclass
+import importlib.util
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -341,6 +342,17 @@ def resolve_probe_layer_ids(
     )
 
 
+def _ensure_ltx_tokenizer_runtime_support() -> None:
+    has_sentencepiece = importlib.util.find_spec("sentencepiece") is not None
+    has_tiktoken = importlib.util.find_spec("tiktoken") is not None
+    if has_sentencepiece or has_tiktoken:
+        return
+    raise RuntimeError(
+        "LTX-Video tokenizer dependencies are missing. Install 'sentencepiece' or "
+        "'tiktoken' before loading the LTX pipeline."
+    )
+
+
 class LTXVideoAdapter(VideoBackboneAdapter):
     """Frozen-feature extractor for LTX diffusion transformer blocks."""
 
@@ -426,6 +438,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
     def _load_components(
         self,
     ) -> tuple[torch.nn.Module, torch.nn.Module, Any, Any, torch.nn.Module]:
+        _ensure_ltx_tokenizer_runtime_support()
         try:
             from diffusers import LTXPipeline
         except ImportError as exc:

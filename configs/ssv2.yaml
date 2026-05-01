@@ -29,7 +29,6 @@ split_name: val
 decode:
   backend: pyav
   num_frames: 16
-  fps: 4
   sampling: uniform
 
 materialize_missing: false
