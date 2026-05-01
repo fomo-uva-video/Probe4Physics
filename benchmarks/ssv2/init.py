@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import platform
 import random
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -16,6 +17,11 @@ from benchmarks.ssv2.data import (
     load_ssv2_labels,
     resolve_video_path,
     sha256_file,
+)
+from benchmarks.splitting import (
+    build_strata,
+    build_units,
+    split_units,
 )
 
 
@@ -47,20 +53,43 @@ def run_ssv2_init(config: dict[str, Any]) -> dict[str, Any]:
     seed = int(config.get("seed", 42))
     max_per_class = int(split_cfg["max_samples_per_class"])
 
-    train_norm = _normalize_rows(train_rows, label_map, split="train")
-    val_norm = _normalize_rows(val_rows, label_map, split="val")
+    # Combine official train + val, normalise, validate, then apply our own
+    # 60/20/20 stratified split so SSv2 is consistent with IntPhys2 and MVP.
+    all_norm = _normalize_rows(train_rows + val_rows, label_map)
+    _validate_normalized_rows(all_norm)
 
-    _validate_normalized_rows(train_norm, split="train")
-    _validate_normalized_rows(val_norm, split="val")
+    # Subsample first (keeps class balance), then split.
+    all_subset = _subset_by_class(all_norm, max_per_class, seed=seed)
 
-    train_subset = _subset_by_class(train_norm, max_per_class, seed=seed)
-    val_subset = _subset_by_class(val_norm, max_per_class, seed=seed)
-    all_rows = train_subset + val_subset
-
-    if not all_rows:
+    if not all_subset:
         raise InitConfigError("No samples remain after subsetting. Check max_samples_per_class.")
 
-    split_dir = _resolve_split_dir(config)
+    # Each clip is its own splitting unit; stratify by label class.
+    units = build_units(all_subset, group_key="sample_id")
+    unit_to_stratum = build_strata(
+        units,
+        keys=split_cfg["stratify_keys"],
+        rare_strata_min_units=split_cfg["rare_strata_min_units"],
+        other_label=split_cfg["rare_bucket_label"],
+    )
+    for unit in units:
+        unit["stratum"] = unit_to_stratum[unit["unit_id"]]
+
+    unit_split_map = split_units(
+        units,
+        ratios=split_cfg["ratios"],
+        seed=seed,
+        stratified=True,
+    )
+
+    # Materialise split labels back onto rows.
+    all_rows = []
+    for unit in units:
+        row = dict(unit["rows"][0])
+        row["split"] = unit_split_map[unit["unit_id"]]
+        all_rows.append(row)
+
+    split_dir = _resolve_split_dir(split_cfg)
     split_dir.mkdir(parents=True, exist_ok=True)
 
     split_clips_path = split_dir / "split_clips.parquet"
@@ -86,6 +115,7 @@ def run_ssv2_init(config: dict[str, Any]) -> dict[str, Any]:
         split_dir=str(split_dir),
         n_train=samples_by_split.get("train", 0),
         n_val=samples_by_split.get("val", 0),
+        n_test=samples_by_split.get("test", 0),
         n_classes=len(label_map),
         max_per_class=max_per_class,
     )
@@ -130,14 +160,14 @@ def _validate_label_map(label_map: dict[str, int]) -> None:
         )
 
 
-def _validate_normalized_rows(rows: list[dict[str, Any]], split: str) -> None:
+def _validate_normalized_rows(rows: list[dict[str, Any]]) -> None:
     if not rows:
-        raise InitConfigError(f"No rows found for split='{split}'.")
+        raise InitConfigError("No rows found after normalization.")
 
     invalid = [row for row in rows if row.get("label_idx", -1) < 0]
     if invalid:
         raise InitConfigError(
-            f"{len(invalid)} rows in split='{split}' have an unknown label. "
+            f"{len(invalid)} rows have an unknown label. "
             "Ensure label names in annotation JSON match labels.json exactly."
         )
 
@@ -145,22 +175,22 @@ def _validate_normalized_rows(rows: list[dict[str, Any]], split: str) -> None:
 def _normalize_rows(
     rows: list[dict[str, Any]],
     label_map: dict[str, int],
-    split: str,
 ) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for row in rows:
         sample_id = derive_sample_id(row)
-        label_name = str(row.get("label", ""))
+        # labels.json uses plain "something" but annotation templates use "[something]".
+        # Strip brackets so both forms resolve to the same key.
+        raw_template = str(row.get("template", row.get("label", "")))
+        label_name = re.sub(r"\[([^\]]+)\]", r"\1", raw_template)
         label_idx = label_map.get(label_name, -1)
-        template = str(row.get("template", label_name))
         result.append(
             {
                 "sample_id": sample_id,
                 "label_idx": label_idx,
                 "label_name": label_name,
-                "template": template,
+                "template": raw_template,
                 "video_ref": f"{sample_id}.webm",
-                "split": split,
             }
         )
     return result
@@ -190,11 +220,8 @@ def _subset_by_class(
     return result
 
 
-def _resolve_split_dir(config: dict[str, Any]) -> Path:
-    raw = config.get("split", {})
-    if not isinstance(raw, dict):
-        raise InitConfigError("split config must be a dictionary")
-    return Path(str(raw.get("dir", "data/splits/ssv2")))
+def _resolve_split_dir(split_cfg: dict[str, Any]) -> Path:
+    return Path(split_cfg["dir"])
 
 
 def _write_split_clips_parquet(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -222,7 +249,7 @@ def _build_manifest(
     samples_by_split = dict(sorted(Counter(row["split"] for row in all_rows).items()))
 
     return {
-        "version": 1,
+        "version": 2,
         "kind": "ssv2_split",
         "created_at_utc": datetime.now(tz=timezone.utc).isoformat(),
         "python": sys.version,
@@ -233,15 +260,17 @@ def _build_manifest(
             "labels": sha256_file(labels_file),
         },
         "split_config": {
-            "max_samples_per_class": split_cfg["max_samples_per_class"],
+            "ratios": split_cfg["ratios"],
             "seed": seed,
+            "max_samples_per_class": split_cfg["max_samples_per_class"],
+            "stratify_keys": split_cfg["stratify_keys"],
         },
         "stats": {
             "n_samples": len(all_rows),
             "n_classes": len(label_map),
             "samples_by_split": samples_by_split,
         },
-        "packages": _package_versions(["pandas", "pyarrow"]),
+        "packages": _package_versions(["pandas", "pyarrow", "scikit-learn"]),
     }
 
 
@@ -250,9 +279,21 @@ def _split_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise InitConfigError("split config must be a dictionary")
 
+    ratios = raw.get("ratios", {})
+    if not isinstance(ratios, dict):
+        raise InitConfigError("split.ratios must be a dictionary")
+
     return {
         "dir": str(raw.get("dir", "data/splits/ssv2")),
         "max_samples_per_class": int(raw.get("max_samples_per_class", 200)),
+        "stratify_keys": list(raw.get("stratify_keys", ["label_name"])),
+        "ratios": {
+            "train": float(ratios.get("train", 0.6)),
+            "val": float(ratios.get("val", 0.2)),
+            "test": float(ratios.get("test", 0.2)),
+        },
+        "rare_strata_min_units": int(raw.get("rare_strata_min_units", 3)),
+        "rare_bucket_label": str(raw.get("rare_bucket_label", "OTHER")),
     }
 
 

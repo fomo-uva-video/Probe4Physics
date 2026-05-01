@@ -21,9 +21,18 @@ seed: 42
 
 split:
   dir: data/splits/ssv2
-  max_samples_per_class: 200  # keeps dataset tractable (~29k clips across 174 classes)
+  max_samples_per_class: 200  # keeps dataset tractable (~35k clips across 174 classes)
+  ratios:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+  seed: 42
+  stratify_keys:
+    - label_name
+  rare_strata_min_units: 3
+  rare_bucket_label: OTHER
 
-# Which predefined split to evaluate on: train | val
+# Which split to evaluate on: train | val | test
 split_name: val
 
 decode:
@@ -39,17 +48,12 @@ predictor:
   prediction_file: ""
 
 output_dir: artifacts/results/ssv2
-output_subdir: ""  # optional stable subdir; empty means timestamped folder
-
-# Used by `python run.py exp.run name=<experiment_id>`
+output_subdir: ""
 name: ""
 
 backbone:
   name: jepa_v1
   kwargs:
-    # Example override from CLI:
-    # backbone.kwargs.variant=vitl16_224
-    # backbone.kwargs.device=cuda
     device: cpu
 
 feature_cache:
@@ -57,7 +61,8 @@ feature_cache:
   split_names:
     - train
     - val
-  layer_ids: []  # empty uses adapter defaults (25/50/75/100% depths)
+    - test
+  layer_ids: []
   include_pooled: true
   include_tokens: true
   force_reextract: false
@@ -66,7 +71,7 @@ probe:
   name: linear  # linear | mlp | temporal_attn
   feature_view: auto  # auto | pooled | tokens_mean | tokens
   layer: last           # last | <int layer id>
-  layers: [] # optional list for train_eval.probe.* sweeps
+  layers: []
   train_split: train
   epochs: 100
   lr: 0.001
@@ -74,12 +79,11 @@ probe:
   eval_batch_size: 1024
   weight_decay: 0.0
   device: cpu
-  deterministic: false  # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/ssv2
-  output_subdir: ""        # optional stable subdir for train artifacts
-  checkpoint_path: ""      # optional explicit checkpoint for eval.probe.ssv2
+  output_subdir: ""
+  checkpoint_path: ""
   eval_output_dir: artifacts/results/ssv2
-  eval_output_subdir: ""   # optional stable subdir for probe eval artifacts
+  eval_output_subdir: ""
   mlp:
     hidden_dims:
       - 512
@@ -99,8 +103,8 @@ probe:
     job_type: probe_train
     tags: []
     notes: ""
-    mode: online  # online | offline | disabled
-    dir: ""       # empty uses the train output_dir
+    mode: online
+    dir: ""
     resume: null
     id: ""
   optuna:
