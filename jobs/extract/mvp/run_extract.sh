@@ -32,9 +32,9 @@ MAX_SAMPLES="${MAX_SAMPLES:-}"
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
-FORCE_REEXTRACT="${FORCE_REEXTRACT:-false}"
-INCLUDE_POOLED="${INCLUDE_POOLED:-true}"
-INCLUDE_TOKENS="${INCLUDE_TOKENS:-true}"
+FORCE_REEXTRACT="${FORCE_REEXTRACT:-}"
+INCLUDE_POOLED="${INCLUDE_POOLED:-}"
+INCLUDE_TOKENS="${INCLUDE_TOKENS:-}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 
 if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
@@ -46,7 +46,7 @@ OFFICIAL_REPO_ROOT="${OFFICIAL_REPO_ROOT:-${REPO_ROOT}/third_party/minimal_video
 VIDEOS_ROOT="${VIDEOS_ROOT:-/scratch-shared/${USER}/probe4physics/data/videos/mvp}"
 CACHE_DIR="${CACHE_DIR:-${REPO_ROOT}/data/cache/videos}"
 SPLIT_DIR="${SPLIT_DIR:-${REPO_ROOT}/data/splits/mvp/full_60_20_20}"
-FEATURE_DIR="${FEATURE_DIR:-${REPO_ROOT}/artifacts/features/mvp}"
+FEATURE_DIR="${FEATURE_DIR:-}"
 
 if [[ ! -f "${ANNOTATION_FILE}" ]]; then
   echo "ERROR: MVP annotation file not found: ${ANNOTATION_FILE}" >&2
@@ -81,7 +81,10 @@ else
   exit 2
 fi
 
-mkdir -p "${FEATURE_DIR}" "${CACHE_DIR}"
+mkdir -p "${CACHE_DIR}"
+if [[ -n "${FEATURE_DIR}" ]]; then
+  mkdir -p "${FEATURE_DIR}"
+fi
 
 echo "===== PROVENANCE ====="
 date -u
@@ -100,7 +103,7 @@ echo "OFFICIAL_REPO_ROOT=${OFFICIAL_REPO_ROOT}"
 echo "VIDEOS_ROOT=${VIDEOS_ROOT}"
 echo "CACHE_DIR=${CACHE_DIR}"
 echo "SPLIT_DIR=${SPLIT_DIR}"
-echo "FEATURE_DIR=${FEATURE_DIR}"
+echo "FEATURE_DIR=${FEATURE_DIR:-<config default>}"
 echo "HF_HOME=${HF_HOME}"
 echo "======================"
 
@@ -112,16 +115,28 @@ cmd=(
   "cache_dir=${CACHE_DIR}"
   "split.dir=${SPLIT_DIR}"
   "annotations.auto_download=false"
-  "feature_cache.dir=${FEATURE_DIR}"
-  "feature_cache.include_pooled=${INCLUDE_POOLED}"
-  "feature_cache.include_tokens=${INCLUDE_TOKENS}"
-  "feature_cache.force_reextract=${FORCE_REEXTRACT}"
   "backbone.name=${BACKBONE_NAME}"
   "backbone.kwargs.device=${BACKBONE_DEVICE}"
 )
 
 if [[ -n "${BACKBONE_VARIANT}" ]]; then
   cmd+=("+backbone.kwargs.variant=${BACKBONE_VARIANT}")
+fi
+
+if [[ -n "${FEATURE_DIR}" ]]; then
+  cmd+=("feature_cache.dir=${FEATURE_DIR}")
+fi
+
+if [[ -n "${INCLUDE_POOLED}" ]]; then
+  cmd+=("feature_cache.include_pooled=${INCLUDE_POOLED}")
+fi
+
+if [[ -n "${INCLUDE_TOKENS}" ]]; then
+  cmd+=("feature_cache.include_tokens=${INCLUDE_TOKENS}")
+fi
+
+if [[ -n "${FORCE_REEXTRACT}" ]]; then
+  cmd+=("feature_cache.force_reextract=${FORCE_REEXTRACT}")
 fi
 
 if [[ -n "${MAX_SAMPLES_OVERRIDE}" ]]; then

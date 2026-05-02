@@ -5,11 +5,13 @@
 #   sbatch videomae_v2.sh
 #   sbatch videomae_v2.sh probe.device=cpu
 
-#SBATCH --partition=rome
+#SBATCH --partition=gpu_h100
 #SBATCH --job-name=intphys2_videomae_v2_temporal_attn
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task=9
+#SBATCH --mem=128G
+#SBATCH --time=10:00:00
 #SBATCH --output=output/training/intphys2/attention/intphys2_videomae_v2_attn_layers_%j.out
 #SBATCH --error=output/training/intphys2/attention/intphys2_videomae_v2_attn_layers_%j.err
 
@@ -24,7 +26,7 @@ PROBE_LAYER="last"  # possible values: last | 10 | 20 | 30 | 40
 # PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_LAYERS="10,20,30,40"
 PROBE_FEATURE_VIEW="tokens"
-PROBE_DEVICE="cpu"
+PROBE_DEVICE="cuda"
 ENABLE_WANDB="true"
 WANDB_PROJECT="probe4physics"
 WANDB_MODE="online"
@@ -36,7 +38,7 @@ ENABLE_OPTUNA_PRUNER="true"
 OPTUNA_PRUNER_STARTUP_TRIALS="3"
 OPTUNA_PRUNER_WARMUP_STEPS="100"
 OPTUNA_PRUNER_INTERVAL_STEPS="1"
-OPTUNA_SEARCH_OVERRIDES=""
+OPTUNA_SEARCH_OVERRIDES="probe.eval_batch_size=1 probe.optuna.search_space.batch_size.choices=[1,2,4]"
 export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_LAYERS PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS ENABLE_OPTUNA_PRUNER OPTUNA_PRUNER_STARTUP_TRIALS OPTUNA_PRUNER_WARMUP_STEPS OPTUNA_PRUNER_INTERVAL_STEPS OPTUNA_SEARCH_OVERRIDES
 
 JOB_COMMAND=""

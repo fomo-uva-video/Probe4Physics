@@ -10,9 +10,11 @@
 #SBATCH --job-name=mvp_jepa_v1_extract
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=08:00:00
+#SBATCH --time=10:00:00
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
+
+
 
 set -euo pipefail
 

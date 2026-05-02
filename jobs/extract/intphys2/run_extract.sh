@@ -32,9 +32,9 @@ MAX_SAMPLES="${MAX_SAMPLES:-}"
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
 BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
-FORCE_REEXTRACT="${FORCE_REEXTRACT:-false}"
-INCLUDE_POOLED="${INCLUDE_POOLED:-true}"
-INCLUDE_TOKENS="${INCLUDE_TOKENS:-true}"
+FORCE_REEXTRACT="${FORCE_REEXTRACT:-}"
+INCLUDE_POOLED="${INCLUDE_POOLED:-}"
+INCLUDE_TOKENS="${INCLUDE_TOKENS:-}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 
 if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
@@ -44,7 +44,7 @@ fi
 METADATA_FILE="${METADATA_FILE:-${REPO_ROOT}/data/annotations/intphys2_metadata.csv}"
 VIDEOS_ROOT="${VIDEOS_ROOT:-${REPO_ROOT}/data/videos/intphys2}"
 SPLIT_DIR="${SPLIT_DIR:-${REPO_ROOT}/data/splits/intphys2}"
-FEATURE_DIR="${FEATURE_DIR:-${REPO_ROOT}/artifacts/features/intphys2}"
+FEATURE_DIR="${FEATURE_DIR:-}"
 
 if [[ ! -f "${METADATA_FILE}" ]]; then
   echo "ERROR: IntPhys2 metadata file not found: ${METADATA_FILE}" >&2
@@ -73,7 +73,9 @@ else
   exit 2
 fi
 
-mkdir -p "${FEATURE_DIR}"
+if [[ -n "${FEATURE_DIR}" ]]; then
+  mkdir -p "${FEATURE_DIR}"
+fi
 
 echo "===== PROVENANCE ====="
 date -u
@@ -90,7 +92,7 @@ echo "BACKBONE_DEVICE=${BACKBONE_DEVICE}"
 echo "METADATA_FILE=${METADATA_FILE}"
 echo "VIDEOS_ROOT=${VIDEOS_ROOT}"
 echo "SPLIT_DIR=${SPLIT_DIR}"
-echo "FEATURE_DIR=${FEATURE_DIR}"
+echo "FEATURE_DIR=${FEATURE_DIR:-<config default>}"
 echo "HF_HOME=${HF_HOME}"
 echo "======================"
 
@@ -99,16 +101,28 @@ cmd=(
   "metadata_file=${METADATA_FILE}"
   "videos_root=${VIDEOS_ROOT}"
   "split.dir=${SPLIT_DIR}"
-  "feature_cache.dir=${FEATURE_DIR}"
-  "feature_cache.include_pooled=${INCLUDE_POOLED}"
-  "feature_cache.include_tokens=${INCLUDE_TOKENS}"
-  "feature_cache.force_reextract=${FORCE_REEXTRACT}"
   "backbone.name=${BACKBONE_NAME}"
   "backbone.kwargs.device=${BACKBONE_DEVICE}"
 )
 
 if [[ -n "${BACKBONE_VARIANT}" ]]; then
   cmd+=("+backbone.kwargs.variant=${BACKBONE_VARIANT}")
+fi
+
+if [[ -n "${FEATURE_DIR}" ]]; then
+  cmd+=("feature_cache.dir=${FEATURE_DIR}")
+fi
+
+if [[ -n "${INCLUDE_POOLED}" ]]; then
+  cmd+=("feature_cache.include_pooled=${INCLUDE_POOLED}")
+fi
+
+if [[ -n "${INCLUDE_TOKENS}" ]]; then
+  cmd+=("feature_cache.include_tokens=${INCLUDE_TOKENS}")
+fi
+
+if [[ -n "${FORCE_REEXTRACT}" ]]; then
+  cmd+=("feature_cache.force_reextract=${FORCE_REEXTRACT}")
 fi
 
 if [[ -n "${MAX_SAMPLES_OVERRIDE}" ]]; then
