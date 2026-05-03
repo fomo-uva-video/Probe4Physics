@@ -13,6 +13,7 @@ from typing import Any, Sequence
 
 import torch
 
+from .cache_metadata import _HIERARCHICAL_LAYERS
 from .registry import (
     BackboneFeatures,
     VideoBackboneAdapter,
@@ -20,7 +21,6 @@ from .registry import (
     register_adapter,
 )
 from .preprocessing import imagenet_preprocessing_metadata, normalize_rgb_imagenet
-from .jepa_v2_adapter import resolve_relative_depth_layers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
@@ -123,6 +123,42 @@ def _import_vjepa2_1_vit_module(repo_root: Path) -> Any:
     return importlib.import_module("app.vjepa_2_1.models.vision_transformer")
 
 
+def resolve_relative_depth_layers(
+    model_name: str,
+    relative_depths: Sequence[float] | None = None,
+    *,
+    model_block_depths: dict[str, int] | None = None,
+    config_path: str | Path = DEFAULT_BACKBONES_CONFIG_PATH,
+) -> tuple[int, ...]:
+    """Resolve the official V-JEPA 2.1 hierarchical feature layers.
+
+    The upstream 2.1 ViT does not expose generic quartile outputs for every
+    depth. It hardcodes one zero-based hierarchical layer list per supported
+    model depth and only accepts those indices as ``out_layers``.
+    """
+
+    if model_block_depths is None:
+        cfg = _load_jepa_v2_1_config(config_path)
+        raw_depths = cfg.get("model_block_depths")
+        if not isinstance(raw_depths, dict) or not raw_depths:
+            raise ValueError("jepa_v2_1.model_block_depths must be a non-empty mapping.")
+        model_block_depths = {str(k): int(v) for k, v in raw_depths.items()}
+
+    if model_name not in model_block_depths:
+        known = ", ".join(sorted(model_block_depths))
+        raise ValueError(f"Unsupported model_name='{model_name}'. Known: {known}")
+
+    depth = model_block_depths[model_name]
+    hierarchical = _HIERARCHICAL_LAYERS.get(depth)
+    if not hierarchical:
+        raise ValueError(
+            f"Unsupported jepa_v2_1 model depth {depth} for model_name='{model_name}'. "
+            f"Known hierarchical depths: {sorted(_HIERARCHICAL_LAYERS)}"
+        )
+
+    return tuple(layer + 1 for layer in hierarchical)
+
+
 # ---------------------------------------------------------------------------
 # Adapter
 # ---------------------------------------------------------------------------
@@ -135,10 +171,9 @@ class JEPAV2_1Adapter(VideoBackboneAdapter):
     and returns per-layer tokens and mean-pooled clip embeddings through
     ``BackboneFeatures``.
 
-    Feature extraction is fixed to the four hierarchical layers of the network
-    (25 / 50 / 75 / 100 % depth).  These are the only positions at which the
-    V-JEPA 2.1 ViT applies layer normalisation during a forward pass without
-    masking.  Requesting arbitrary intermediate layers is not supported.
+    Feature extraction is fixed to the four hierarchical layers exposed by the
+    official V-JEPA 2.1 ViT for the chosen model depth. Requesting arbitrary
+    intermediate layers is not supported.
 
     V-JEPA 2.1 uses RoPE positional encoding (``use_rope=True``) and a
     modality embedding that distinguishes image from video tokens
@@ -216,15 +251,9 @@ class JEPAV2_1Adapter(VideoBackboneAdapter):
             raise ValueError("jepa_v2_1.model_block_depths must be a non-empty mapping.")
         model_block_depths = {str(k): int(v) for k, v in raw_depths.items()}
 
-        raw_rel = cfg.get("default_relative_depths")
-        if not isinstance(raw_rel, list) or not raw_rel:
-            raise ValueError("jepa_v2_1.default_relative_depths must be a non-empty list.")
-        config_relative_depths = tuple(float(v) for v in raw_rel)
-
-        # V-JEPA 2.1 is always probed at all four hierarchical layers (25/50/75/100% depth).
+        # V-JEPA 2.1 only supports the upstream hierarchical outputs for each depth.
         self.selected_layers = resolve_relative_depth_layers(
             self.model_name,
-            config_relative_depths,
             model_block_depths=model_block_depths,
             config_path=self.config_path,
         )

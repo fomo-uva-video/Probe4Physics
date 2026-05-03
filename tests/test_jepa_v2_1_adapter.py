@@ -71,6 +71,15 @@ def _make_minimal_config(
                     "frames_per_clip": 16,
                     "tubelet_size": 2,
                 },
+                "vitG_384": {
+                    "checkpoint_filename": "vitG.pt",
+                    "model_name": "vit_gigantic_xformers",
+                    "checkpoint_key": "target_encoder",
+                    "crop_size": 384,
+                    "patch_size": 16,
+                    "frames_per_clip": 16,
+                    "tubelet_size": 2,
+                },
             },
         }
     }
@@ -350,6 +359,29 @@ class JEPAV2_1AdapterTests(unittest.TestCase):
                 )
         # depth=40 hierarchical layers → 1-based [10, 20, 30, 40]
         self.assertEqual(adapter.selected_layers, (10, 20, 30, 40))
+
+    def test_selected_layers_are_hierarchical_for_vit_gigantic_xformers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            _write_fake_repo_layout(tmp_path / "repo")
+            config_path = _make_minimal_config(tmp_path, default_variant="vitG_384")
+            checkpoint = tmp_path / "checkpoints" / "vitG.pt"
+            _write_fake_checkpoint(checkpoint, key="target_encoder")
+            fake_vit = _build_fake_vit_module(_FakeV2_1Encoder)
+
+            with mock.patch(
+                "models.jepa_v2_1_adapter._import_vjepa2_1_vit_module",
+                return_value=fake_vit,
+            ):
+                adapter = JEPAV2_1Adapter(
+                    repo_root=tmp_path / "repo",
+                    checkpoint_path=checkpoint,
+                    config_path=config_path,
+                    model_name="vit_gigantic_xformers",
+                    checkpoint_key="target_encoder",
+                )
+        # depth=48 hierarchical layers → 1-based [12, 24, 38, 48]
+        self.assertEqual(adapter.selected_layers, (12, 24, 38, 48))
 
     def test_extract_tokens_shape(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
