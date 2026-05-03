@@ -20,7 +20,6 @@ DATASET_NAME="mvp"
 PROBE_NAME="linear"
 BACKBONE_NAME="ltx_video"
 BACKBONE_VARIANT="ltxv_13b_0_9_8_dev"
-PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 1 | 2 | 4 | 5
 PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_FEATURE_VIEW="pooled"

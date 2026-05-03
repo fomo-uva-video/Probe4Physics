@@ -22,7 +22,6 @@ DATASET_NAME="intphys2"
 PROBE_NAME="temporal_attn"
 BACKBONE_NAME="jepa_v1"
 BACKBONE_VARIANT="vith16_384"
-PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
 # PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_LAYERS="8,16,24,32"

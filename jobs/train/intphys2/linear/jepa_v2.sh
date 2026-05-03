@@ -20,7 +20,6 @@ DATASET_NAME="intphys2"
 PROBE_NAME="linear"
 BACKBONE_NAME="jepa_v2"
 BACKBONE_VARIANT="vitg_384"
-PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 10 | 20 | 30 | 40
 # PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_LAYERS="10,20,30,40"

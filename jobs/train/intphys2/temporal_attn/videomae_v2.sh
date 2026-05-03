@@ -21,7 +21,6 @@ DATASET_NAME="intphys2"
 PROBE_NAME="temporal_attn"
 BACKBONE_NAME="videomae_v2"
 BACKBONE_VARIANT="vit_giant_16_224"
-PROBE_EPOCHS="100"
 PROBE_LAYER="last"  # possible values: last | 10 | 20 | 30 | 40
 # PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_LAYERS="10,20,30,40"
