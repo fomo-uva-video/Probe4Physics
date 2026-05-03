@@ -39,6 +39,7 @@ class Probe(Protocol):
         epochs: int = 10,
         lr: float = 1e-3,
         batch_size: int = 128,
+        eval_batch_size: int | None = None,
         weight_decay: float = 0.0,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
@@ -104,15 +105,35 @@ class BaseClassifierProbe(ABC):
         x_val: torch.Tensor,
         y_val: torch.Tensor,
         criterion: nn.Module,
+        *,
+        batch_size: int | None = None,
     ) -> tuple[float, float]:
         self.model.eval()
+        x_val = self._validate_and_cast_input(x_val)
+        targets = y_val.to(dtype=torch.long)
+        resolved_batch_size = int(batch_size) if batch_size is not None else int(x_val.shape[0])
+        resolved_batch_size = max(resolved_batch_size, 1)
+
+        total_loss = 0.0
+        total_correct = 0
+        total_seen = 0
         with torch.no_grad():
-            logits = self.model(self._validate_and_cast_input(x_val).to(self.device))
-            targets = y_val.to(self.device, dtype=torch.long)
-            loss = criterion(logits, targets)
-            preds = logits.argmax(dim=1)
-            accuracy = ((preds == targets).float().mean() * 100.0).item()
-        return float(loss.detach().cpu()), float(accuracy)
+            for start in range(0, int(x_val.shape[0]), resolved_batch_size):
+                end = start + resolved_batch_size
+                xb = x_val[start:end].to(self.device)
+                yb = targets[start:end].to(self.device)
+                logits = self.model(xb)
+                loss = criterion(logits, yb)
+                preds = logits.argmax(dim=1)
+
+                batch_seen = int(yb.shape[0])
+                total_loss += float(loss.detach().cpu()) * batch_seen
+                total_correct += int((preds == yb).sum().item())
+                total_seen += batch_seen
+
+        mean_loss = total_loss / max(total_seen, 1)
+        accuracy = (total_correct / max(total_seen, 1)) * 100.0
+        return float(mean_loss), float(accuracy)
 
     def fit(
         self,
@@ -124,6 +145,7 @@ class BaseClassifierProbe(ABC):
         epochs: int = 10,
         lr: float = 1e-3,
         batch_size: int = 128,
+        eval_batch_size: int | None = None,
         weight_decay: float = 0.0,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
@@ -183,7 +205,12 @@ class BaseClassifierProbe(ABC):
             }
 
             if x_val is not None and y_val is not None:
-                val_loss, val_accuracy = self._compute_loss_accuracy(x_val, y_val, criterion)
+                val_loss, val_accuracy = self._compute_loss_accuracy(
+                    x_val,
+                    y_val,
+                    criterion,
+                    batch_size=eval_batch_size if eval_batch_size is not None else batch_size,
+                )
                 row["val_loss"] = float(val_loss)
                 row["val_accuracy"] = float(val_accuracy)
                 if (

@@ -6,9 +6,13 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
+from types import SimpleNamespace
+
+import pandas as pd
 import torch
 from omegaconf import OmegaConf
 from training import run_probe
+from probes.linear import LinearProbe
 from probes.mlp import MLPProbe
 
 
@@ -152,6 +156,61 @@ class RunProbeTests(unittest.TestCase):
 
         self.assertEqual(payload["type"], "mlp")
         self.assertEqual(tuple(loaded.predict(x).shape), (8,))
+
+    def test_run_single_train_forwards_eval_batch_size_to_probe_fit(self) -> None:
+        class _CapturingLinearProbe(LinearProbe):
+            def __init__(self, *args, **kwargs) -> None:
+                super().__init__(*args, **kwargs)
+                self.seen_eval_batch_size: int | None = None
+
+            def fit(self, *args, eval_batch_size=None, **kwargs):
+                self.seen_eval_batch_size = eval_batch_size
+                return super().fit(*args, eval_batch_size=eval_batch_size, **kwargs)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = {
+                "seed": 7,
+                "probe": {
+                    "name": "linear",
+                    "batch_size": 8,
+                    "eval_batch_size": 3,
+                    "epochs": 2,
+                    "wandb": {"enabled": False},
+                    "optuna": {"enabled": False},
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+            bundle = {
+                "paths": SimpleNamespace(cache_dir=Path(tmp)),
+                "manifest": {"signature": "sig", "stats": {"n_classes": 2}},
+                "index": pd.DataFrame(
+                    [
+                        {"feature_index": 0, "split": "train", "label_idx": 0},
+                        {"feature_index": 1, "split": "train", "label_idx": 1},
+                        {"feature_index": 2, "split": "train", "label_idx": 0},
+                        {"feature_index": 3, "split": "val", "label_idx": 1},
+                        {"feature_index": 4, "split": "val", "label_idx": 0},
+                    ]
+                ),
+                "pooled": {"selected_layers": [8], "by_layer": {8: torch.randn(5, 4)}},
+                "tokens": None,
+            }
+            probe = _CapturingLinearProbe(input_dim=4, num_classes=2, device="cpu")
+            fake_spec = SimpleNamespace(load_bundle=lambda cfg, view: bundle, report_splits=())
+
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"ssv2": fake_spec}, clear=False):
+                with mock.patch("training.run_probe._create_probe_instance", return_value=probe):
+                    with mock.patch("training.run_probe.init_wandb_train_logger", return_value=None):
+                        summary, _logger = run_probe._run_single_train(
+                            "ssv2",
+                            config,
+                            probe_cfg,
+                            output_dir=Path(tmp) / "train",
+                        )
+
+        self.assertEqual(probe.seen_eval_batch_size, 3)
+        self.assertEqual(summary["fit"]["n_epochs"], 2)
+        self.assertIsNotNone(summary["fit"]["best_val_accuracy"])
 
     def test_apply_trial_parameters_keeps_fixed_epochs_when_epoch_search_disabled(self) -> None:
         probe_cfg = run_probe._probe_cfg(

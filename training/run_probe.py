@@ -390,6 +390,7 @@ def _run_single_train(
             epochs=probe_cfg["epochs"],
             lr=probe_cfg["lr"],
             batch_size=probe_cfg["batch_size"],
+            eval_batch_size=probe_cfg["eval_batch_size"],
             weight_decay=probe_cfg["weight_decay"],
             seed=seed,
             epoch_logger=fit_epoch_logger,

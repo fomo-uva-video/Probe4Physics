@@ -169,6 +169,40 @@ class TemporalAttentiveProbeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             probe.fit(x_bad, y, epochs=1)
 
+    def test_fit_supports_batched_validation(self) -> None:
+        probe = TemporalAttentiveProbe(
+            input_dim=8,
+            num_classes=2,
+            embed_dim=8,
+            num_heads=2,
+            num_self_attn_blocks=1,
+            mlp_ratio=2.0,
+            dropout=0.0,
+            device="cpu",
+        )
+
+        x = torch.randn(24, 5, 8)
+        y = (x[:, :, 0].mean(dim=1) > 0).long()
+
+        fit = probe.fit(
+            x,
+            y,
+            x_val=x,
+            y_val=y,
+            epochs=2,
+            lr=1e-2,
+            batch_size=6,
+            eval_batch_size=4,
+            seed=7,
+        )
+
+        self.assertEqual(fit.n_epochs, 2)
+        self.assertEqual(len(fit.history), 2)
+        self.assertTrue(all("val_loss" in row for row in fit.history))
+        self.assertTrue(all("val_accuracy" in row for row in fit.history))
+        self.assertIsNotNone(fit.best_epoch)
+        self.assertIsNotNone(fit.best_val_accuracy)
+
 
 if __name__ == "__main__":
     unittest.main()

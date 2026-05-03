@@ -32,11 +32,12 @@ class _CapturingProbe:
         epochs: int = 10,
         lr: float = 1e-3,
         batch_size: int = 128,
+        eval_batch_size: int | None = None,
         weight_decay: float = 0.0,
         seed: int = 42,
         epoch_logger=None,
     ) -> ProbeFitResult:
-        del epochs, lr, batch_size, weight_decay, seed
+        del epochs, lr, batch_size, eval_batch_size, weight_decay, seed
         self.x_train = x_train.clone()
         self.y_train = y_train.clone()
         self.x_val = None if x_val is None else x_val.clone()
