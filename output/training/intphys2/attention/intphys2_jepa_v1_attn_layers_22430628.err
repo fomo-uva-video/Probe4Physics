@@ -23,3 +23,4 @@ wandb: Run `wandb offline` to turn off syncing.
 wandb: Syncing run intphys2_temporal_attn_jepa_v1_vith16_384_layer_8/trial_0000
 wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
 wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/3iobynfd
+[2026-05-03T10:05:54.389] error: *** JOB 22430628 ON gcn118 CANCELLED AT 2026-05-03T10:05:54 DUE to SIGNAL Terminated ***
