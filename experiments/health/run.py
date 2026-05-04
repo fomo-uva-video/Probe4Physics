@@ -481,6 +481,7 @@ def _check_feature_cache_dir(
                 cache_dir,
                 files,
                 features_meta,
+                manifest,
                 n_rows,
                 allow_full_tensor_load=allow_full_tensor_load,
             )
@@ -611,6 +612,7 @@ def _check_feature_tensor_payloads(
     cache_dir: Path,
     files: dict[str, Any],
     features_meta: dict[str, Any],
+    manifest: dict[str, Any],
     n_rows: int,
     *,
     allow_full_tensor_load: bool,
@@ -621,6 +623,16 @@ def _check_feature_tensor_payloads(
         included = bool(features_meta.get(include_key, False))
         filename = str(files.get(key, "") or "").strip()
         if not filename:
+            if key == "tokens" and included:
+                checks.extend(
+                    _check_chunked_token_payloads(
+                        cache_dir,
+                        manifest,
+                        n_rows,
+                        allow_full_tensor_load=allow_full_tensor_load,
+                    )
+                )
+                continue
             checks.append(
                 _check_result(
                     f"{key}_tensor_present",
@@ -642,6 +654,131 @@ def _check_feature_tensor_payloads(
             continue
         checks.append(_check_result(f"{key}_tensor_readable", True, "loaded metadata without full tensor materialization"))
         checks.extend(_check_single_tensor_payload(key, payload, n_rows, expected_ndim))
+    return checks
+
+
+def _check_chunked_token_payloads(
+    cache_dir: Path,
+    manifest: dict[str, Any],
+    n_rows: int,
+    *,
+    allow_full_tensor_load: bool,
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    storage = manifest.get("storage", {}) if isinstance(manifest.get("storage", {}), dict) else {}
+    tokens_cfg = storage.get("tokens", {}) if isinstance(storage.get("tokens", {}), dict) else {}
+    if str(tokens_cfg.get("format", "")).strip().lower() != "chunked_resume":
+        checks.append(
+            _check_result(
+                "tokens_tensor_present",
+                False,
+                "manifest marks include_tokens=true but neither monolithic file nor chunked token storage is declared",
+            )
+        )
+        return checks
+
+    state_ref = str(tokens_cfg.get("state", "")).strip()
+    chunks_ref = str(tokens_cfg.get("chunks_dir", "")).strip()
+    state_path = (cache_dir / state_ref).resolve() if state_ref and not Path(state_ref).is_absolute() else Path(state_ref)
+    chunks_dir = (cache_dir / chunks_ref).resolve() if chunks_ref and not Path(chunks_ref).is_absolute() else Path(chunks_ref)
+
+    checks.append(_check_result("tokens_tensor_present", bool(state_ref and chunks_ref), f"state={state_ref} chunks_dir={chunks_ref}"))
+    checks.append(_check_result("tokens_chunk_state_present", state_path.exists(), str(state_path)))
+    checks.append(_check_result("tokens_chunk_dir_present", chunks_dir.exists(), str(chunks_dir)))
+    if not state_path.exists() or not chunks_dir.exists():
+        return checks
+
+    try:
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        checks.append(_check_result("tokens_chunk_state_readable", False, f"state read failed: {exc}"))
+        return checks
+    checks.append(
+        _check_result(
+            "tokens_chunk_state_readable",
+            True,
+            f"status={state.get('status', '')} completed_samples={state.get('n_completed_samples', 0)}",
+        )
+    )
+    completed_chunks = sorted(
+        list(state.get("completed_chunks", [])),
+        key=lambda item: int(item.get("start_offset", 0)),
+    )
+    covered = 0
+    token_chunk_path: Path | None = None
+    for chunk in completed_chunks:
+        start = int(chunk.get("start_offset", 0))
+        end = int(chunk.get("end_offset", 0))
+        if start != covered:
+            break
+        raw_path = Path(str(chunk.get("tokens_path", "")))
+        token_chunk_path = raw_path if raw_path.is_absolute() else (cache_dir / raw_path).resolve()
+        if not token_chunk_path.exists():
+            token_chunk_path = None
+            break
+        covered = end
+        if covered >= n_rows:
+            break
+
+    checks.append(_check_result("tokens_chunk_coverage", covered >= n_rows, f"covered={covered} expected_rows={n_rows}"))
+    if token_chunk_path is None or not token_chunk_path.exists():
+        checks.append(_check_result("tokens_tensor_readable", False, "no readable token chunk found"))
+        return checks
+
+    try:
+        payload = _torch_load_feature_payload(token_chunk_path, allow_full_load=allow_full_tensor_load)
+    except Exception as exc:
+        checks.append(_check_result("tokens_tensor_readable", False, f"torch.load failed on chunk: {exc}"))
+        return checks
+    checks.append(
+        _check_result(
+            "tokens_tensor_readable",
+            True,
+            f"loaded chunk metadata from {token_chunk_path.name} without full tensor materialization",
+        )
+    )
+    if not isinstance(payload, dict):
+        checks.append(
+            _check_result(
+                "tokens_tensor_payload_valid",
+                False,
+                f"expected dict, got {type(payload)!r}",
+            )
+        )
+        return checks
+
+    raw_layers = payload.get("selected_layers", [])
+    try:
+        selected_layers = [int(value) for value in raw_layers]
+    except Exception:
+        selected_layers = []
+    by_layer = payload.get("by_layer", {})
+    checks.append(
+        _check_result(
+            "tokens_selected_layers_present",
+            bool(selected_layers) and isinstance(by_layer, dict),
+            f"selected_layers={selected_layers}",
+        )
+    )
+    if not selected_layers or not isinstance(by_layer, dict):
+        return checks
+
+    bad_layers: list[str] = []
+    for layer in selected_layers:
+        tensor = _lookup_layer_tensor(by_layer, layer)
+        if tensor is None:
+            bad_layers.append(f"{layer}:missing")
+            continue
+        shape = tuple(int(dim) for dim in getattr(tensor, "shape", ()))
+        if len(shape) != 3:
+            bad_layers.append(f"{layer}:ndim={len(shape)} shape={shape}")
+    checks.append(
+        _check_result(
+            "tokens_tensor_shapes_match_index",
+            not bad_layers,
+            f"chunk_sampled_layers={selected_layers}, problems={bad_layers}",
+        )
+    )
     return checks
 
 

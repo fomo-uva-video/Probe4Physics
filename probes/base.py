@@ -52,6 +52,22 @@ class Probe(Protocol):
     def predict_logits(self, x: torch.Tensor, *, batch_size: int = 1024) -> torch.Tensor:
         ...
 
+    def fit_loader(
+        self,
+        train_loader: DataLoader,
+        *,
+        val_loader: DataLoader | None = None,
+        epochs: int = 10,
+        lr: float = 1e-3,
+        weight_decay: float = 0.0,
+        seed: int = 42,
+        epoch_logger: Callable[[dict[str, float]], None] | None = None,
+    ) -> ProbeFitResult:
+        ...
+
+    def predict_logits_loader(self, loader: DataLoader) -> torch.Tensor:
+        ...
+
     def save(self, path: str, metadata: dict[str, Any] | None = None) -> None:
         ...
 
@@ -135,6 +151,65 @@ class BaseClassifierProbe(ABC):
         accuracy = (total_correct / max(total_seen, 1)) * 100.0
         return float(mean_loss), float(accuracy)
 
+    def _compute_loss_accuracy_loader(
+        self,
+        loader: DataLoader,
+        criterion: nn.Module,
+    ) -> tuple[float, float]:
+        self.model.eval()
+
+        total_loss = 0.0
+        total_correct = 0
+        total_seen = 0
+        with torch.no_grad():
+            for batch in loader:
+                xb, yb = self._unpack_training_batch(batch)
+                xb = self._validate_and_cast_input(xb).to(self.device)
+                yb = yb.to(dtype=torch.long, device=self.device)
+                logits = self.model(xb)
+                loss = criterion(logits, yb)
+                preds = logits.argmax(dim=1)
+
+                batch_seen = int(yb.shape[0])
+                total_loss += float(loss.detach().cpu()) * batch_seen
+                total_correct += int((preds == yb).sum().item())
+                total_seen += batch_seen
+
+        mean_loss = total_loss / max(total_seen, 1)
+        accuracy = (total_correct / max(total_seen, 1)) * 100.0
+        return float(mean_loss), float(accuracy)
+
+    def _unpack_training_batch(self, batch: Any) -> tuple[torch.Tensor, torch.Tensor]:
+        if isinstance(batch, (list, tuple)):
+            if len(batch) != 2:
+                raise ValueError(
+                    "Training batches must contain exactly two items: (features, labels)."
+                )
+            xb, yb = batch
+        else:
+            raise TypeError(
+                f"Training loader must yield (features, labels) tuples, got {type(batch)!r}."
+            )
+        if not isinstance(xb, torch.Tensor) or not isinstance(yb, torch.Tensor):
+            raise TypeError("Training loader must yield tensor features and tensor labels.")
+        return xb, yb
+
+    def _unpack_inference_batch(self, batch: Any) -> torch.Tensor:
+        if isinstance(batch, torch.Tensor):
+            return batch
+        if isinstance(batch, (list, tuple)):
+            if not batch:
+                raise ValueError("Inference loader yielded an empty batch.")
+            xb = batch[0]
+            if not isinstance(xb, torch.Tensor):
+                raise TypeError(
+                    f"Inference loader must yield tensor features, got {type(xb)!r}."
+                )
+            return xb
+        raise TypeError(
+            f"Inference loader must yield a tensor or tuple/list with tensor first element, got {type(batch)!r}."
+        )
+
     def fit(
         self,
         x_train: torch.Tensor,
@@ -157,6 +232,37 @@ class BaseClassifierProbe(ABC):
 
         dataset = TensorDataset(x_train, y_train)
         loader = DataLoader(dataset, batch_size=int(batch_size), shuffle=True)
+        val_loader = None
+        if x_val is not None and y_val is not None:
+            x_val = self._validate_and_cast_input(x_val)
+            y_val = y_val.to(dtype=torch.long)
+            val_loader = DataLoader(
+                TensorDataset(x_val, y_val),
+                batch_size=int(eval_batch_size) if eval_batch_size is not None else int(batch_size),
+                shuffle=False,
+            )
+        return self.fit_loader(
+            loader,
+            val_loader=val_loader,
+            epochs=epochs,
+            lr=lr,
+            weight_decay=weight_decay,
+            seed=seed,
+            epoch_logger=epoch_logger,
+        )
+
+    def fit_loader(
+        self,
+        train_loader: DataLoader,
+        *,
+        val_loader: DataLoader | None = None,
+        epochs: int = 10,
+        lr: float = 1e-3,
+        weight_decay: float = 0.0,
+        seed: int = 42,
+        epoch_logger: Callable[[dict[str, float]], None] | None = None,
+    ) -> ProbeFitResult:
+        torch.manual_seed(int(seed))
 
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.AdamW(
@@ -174,15 +280,20 @@ class BaseClassifierProbe(ABC):
         best_state_dict: dict[str, Any] | None = None
 
         for epoch_idx in range(int(epochs)):
+            batch_sampler = getattr(train_loader, "batch_sampler", None)
+            if batch_sampler is not None and hasattr(batch_sampler, "set_epoch"):
+                batch_sampler.set_epoch(epoch_idx)
+
             self.model.train()
             running = 0.0
             n_batches = 0
             n_correct = 0
             n_seen = 0
 
-            for xb, yb in loader:
-                xb = xb.to(self.device)
-                yb = yb.to(self.device)
+            for batch in train_loader:
+                xb, yb = self._unpack_training_batch(batch)
+                xb = self._validate_and_cast_input(xb).to(self.device)
+                yb = yb.to(dtype=torch.long, device=self.device)
 
                 optimizer.zero_grad(set_to_none=True)
                 logits = self.model(xb)
@@ -204,12 +315,10 @@ class BaseClassifierProbe(ABC):
                 "train_accuracy": float(final_train_accuracy),
             }
 
-            if x_val is not None and y_val is not None:
-                val_loss, val_accuracy = self._compute_loss_accuracy(
-                    x_val,
-                    y_val,
+            if val_loader is not None:
+                val_loss, val_accuracy = self._compute_loss_accuracy_loader(
+                    val_loader,
                     criterion,
-                    batch_size=eval_batch_size if eval_batch_size is not None else batch_size,
                 )
                 row["val_loss"] = float(val_loss)
                 row["val_accuracy"] = float(val_accuracy)
@@ -267,6 +376,21 @@ class BaseClassifierProbe(ABC):
             for start in range(0, x.shape[0], int(batch_size)):
                 end = start + int(batch_size)
                 xb = x[start:end].to(self.device)
+                logits = self.model(xb)
+                outputs.append(logits.cpu())
+
+        if not outputs:
+            return torch.empty((0, self.num_classes), dtype=torch.float32)
+        return torch.cat(outputs, dim=0)
+
+    def predict_logits_loader(self, loader: DataLoader) -> torch.Tensor:
+        self.model.eval()
+
+        outputs: list[torch.Tensor] = []
+        with torch.no_grad():
+            for batch in loader:
+                xb = self._unpack_inference_batch(batch)
+                xb = self._validate_and_cast_input(xb).to(self.device)
                 logits = self.model(xb)
                 outputs.append(logits.cpu())
 

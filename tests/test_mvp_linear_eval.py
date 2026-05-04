@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import hashlib
 import json
 import tempfile
@@ -12,6 +13,7 @@ import pandas as pd
 import torch
 
 from probes.linear import LinearProbe
+import training.run_probe as run_probe
 from training.run_probe import ProbeConfigError, run_mvp_eval_probe
 
 
@@ -207,11 +209,31 @@ class MVPLInearEvalTests(unittest.TestCase):
                         "yes_choice_idx": 1,
                         "no_choice_idx": 0,
                     },
+                    {
+                        "feature_index": 4,
+                        "sample_id": "train_anchor",
+                        "pair_id": "pair_train",
+                        "split": "train",
+                        "answer_idx": 0,
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 5,
+                        "sample_id": "val_anchor",
+                        "pair_id": "pair_val",
+                        "split": "val",
+                        "answer_idx": 1,
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
                 ]
             ),
             "pooled": {
                 "selected_layers": [24],
-                "by_layer": {24: torch.randn(4, 8)},
+                "by_layer": {24: torch.randn(6, 8)},
             },
             "tokens": None,
             "paths": SimpleNamespace(cache_dir=Path("/tmp/fake")),
@@ -242,16 +264,18 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
-                with mock.patch(
-                    "training.run_probe.load_probe_from_checkpoint",
-                    return_value=(_StaticProbe([1, 0, 1, 0]), {"metadata": {"feature_signature": "cache_sig", "target_type": "semantic_plausibility"}}),
-                ):
+            single_split_spec = replace(run_probe.DATASET_SPECS["mvp"], report_splits=("test",))
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"mvp": single_split_spec}, clear=False):
+                with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
                     with mock.patch(
-                        "training.run_probe.run_mvp_eval",
-                        return_value={"metrics": {"accuracy": 100.0}},
-                    ) as mocked_eval:
-                        summary = run_mvp_eval_probe(config)
+                        "training.run_probe.load_probe_from_checkpoint",
+                        return_value=(_StaticProbe([1, 0, 1, 0]), {"metadata": {"feature_signature": "cache_sig", "target_type": "semantic_plausibility"}}),
+                    ):
+                        with mock.patch(
+                            "training.run_probe.run_mvp_eval",
+                            return_value={"metrics": {"accuracy": 100.0, "pair_consistency": 100.0}},
+                        ) as mocked_eval:
+                            summary = run_mvp_eval_probe(config)
 
             pred_file = Path(summary["prediction_file"])
             pred_payload = json.loads(pred_file.read_text(encoding="utf-8"))
@@ -359,11 +383,31 @@ class MVPLInearEvalTests(unittest.TestCase):
                             "yes_choice_idx": 1,
                             "no_choice_idx": 0,
                         },
+                        {
+                            "feature_index": 4,
+                            "sample_id": "pair_gamma_0",
+                            "pair_id": "pair_gamma",
+                            "split": "val",
+                            "answer_idx": 0,
+                            "plausibility_label": 1,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                        {
+                            "feature_index": 5,
+                            "sample_id": "pair_delta_0",
+                            "pair_id": "pair_delta",
+                            "split": "test",
+                            "answer_idx": 1,
+                            "plausibility_label": 0,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
                     ]
                 ),
                 "pooled": {
                     "selected_layers": [24],
-                    "by_layer": {24: torch.randn(4, 8)},
+                    "by_layer": {24: torch.randn(6, 8)},
                 },
                 "tokens": None,
                 "paths": SimpleNamespace(cache_dir=Path("/tmp/fake")),
@@ -403,22 +447,24 @@ class MVPLInearEvalTests(unittest.TestCase):
                 },
             }
 
-            with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
-                with mock.patch(
-                    "training.run_probe.load_probe_from_checkpoint",
-                    return_value=(
-                        _StaticProbe([1, 0, 1, 0]),
-                        {
-                            "type": "linear",
-                            "metadata": {
-                                "feature_signature": "cache_sig",
-                                "target_type": "semantic_plausibility",
-                                "probe_name": "linear",
+            single_split_spec = replace(run_probe.DATASET_SPECS["mvp"], report_splits=("train",))
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"mvp": single_split_spec}, clear=False):
+                with mock.patch("training.run_probe.load_mvp_feature_cache", return_value=fake_bundle):
+                    with mock.patch(
+                        "training.run_probe.load_probe_from_checkpoint",
+                        return_value=(
+                            _StaticProbe([1, 0, 1, 0]),
+                            {
+                                "type": "linear",
+                                "metadata": {
+                                    "feature_signature": "cache_sig",
+                                    "target_type": "semantic_plausibility",
+                                    "probe_name": "linear",
+                                },
                             },
-                        },
-                    ),
-                ):
-                    summary = run_mvp_eval_probe(config)
+                        ),
+                    ):
+                        summary = run_mvp_eval_probe(config)
 
             metrics = summary["base_eval"]["metrics"]
             self.assertAlmostEqual(metrics["accuracy"], 100.0)

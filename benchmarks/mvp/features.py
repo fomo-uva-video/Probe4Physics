@@ -16,6 +16,8 @@ settings, and requested layers all agree with the current config.
 
 from __future__ import annotations
 
+from bisect import bisect_right
+from collections import OrderedDict
 import hashlib
 import json
 import os
@@ -80,6 +82,198 @@ class ResumePaths:
     state_path: Path
     events_path: Path
     lock_path: Path
+
+
+@dataclass(frozen=True)
+class ChunkedTokenStoragePaths:
+    state_path: Path
+    chunks_dir: Path
+
+
+@dataclass(frozen=True)
+class ChunkedTokenChunk:
+    chunk_id: int
+    start_offset: int
+    end_offset: int
+    tokens_path: Path
+
+
+class MVPChunkedTokenStore:
+    """Lazy reader for chunked MVP token caches.
+
+    The store exposes per-sample token tensors from completed resume chunks
+    without materializing a monolithic ``features_tokens.pt`` file.
+    """
+
+    def __init__(
+        self,
+        *,
+        cache_dir: Path,
+        manifest: dict[str, Any],
+        index: Any,
+        max_cached_chunks: int = 2,
+    ) -> None:
+        storage = _resolve_chunked_token_storage(manifest, cache_dir)
+        if storage is None:
+            raise FeatureCacheError("Manifest does not describe chunked token storage.")
+
+        features_meta = manifest.get("features", {})
+        self.selected_layers = tuple(int(layer) for layer in features_meta.get("selected_layers", []))
+        if not self.selected_layers:
+            raise FeatureCacheError("Chunked token cache manifest is missing selected_layers.")
+
+        self.cache_dir = Path(cache_dir).resolve()
+        self.storage = storage
+        self.n_rows = int(len(index))
+        self._max_cached_chunks = max(1, int(max_cached_chunks))
+        self._chunk_cache: OrderedDict[int, dict[str, Any]] = OrderedDict()
+
+        state = _load_resume_state(storage.state_path)
+        if state is None:
+            raise FeatureCacheError(f"Missing chunked token resume state: {storage.state_path}")
+        if str(state.get("status", "")) != "complete":
+            raise FeatureCacheError(
+                f"Chunked token resume state is not complete: {storage.state_path}"
+            )
+
+        completed_chunks = sorted(
+            list(state.get("completed_chunks", [])),
+            key=lambda chunk: int(chunk.get("start_offset", 0)),
+        )
+        if not completed_chunks:
+            raise FeatureCacheError("Chunked token resume state has no completed chunks.")
+
+        self._chunks: list[ChunkedTokenChunk] = []
+        expected_start = 0
+        for raw_chunk in completed_chunks:
+            start_offset = int(raw_chunk.get("start_offset", 0))
+            end_offset = int(raw_chunk.get("end_offset", 0))
+            if start_offset != expected_start:
+                raise FeatureCacheError(
+                    "Chunked token resume state has a gap or overlap in coverage: "
+                    f"expected_start={expected_start}, chunk_start={start_offset}"
+                )
+            tokens_path = Path(str(raw_chunk.get("tokens_path", "")))
+            if not tokens_path.is_absolute():
+                tokens_path = (self.cache_dir / tokens_path).resolve()
+            if not tokens_path.exists():
+                raise FeatureCacheError(f"Missing chunk token payload: {tokens_path}")
+            self._chunks.append(
+                ChunkedTokenChunk(
+                    chunk_id=int(raw_chunk.get("chunk_id", len(self._chunks))),
+                    start_offset=start_offset,
+                    end_offset=end_offset,
+                    tokens_path=tokens_path,
+                )
+            )
+            expected_start = end_offset
+            if expected_start >= self.n_rows:
+                break
+
+        if expected_start < self.n_rows:
+            raise FeatureCacheError(
+                "Chunked token cache does not cover the manifest row count: "
+                f"covered={expected_start}, expected={self.n_rows}"
+            )
+
+        self._chunk_end_offsets = [chunk.end_offset for chunk in self._chunks]
+
+    def __len__(self) -> int:
+        return self.n_rows
+
+    def layer_sample_shape(self, layer: int) -> tuple[int, ...]:
+        payload = self._load_chunk_payload(0)
+        tensor = _lookup_layer_tensor(payload.get("by_layer", {}), int(layer))
+        if tensor is None or not isinstance(tensor, torch.Tensor):
+            raise FeatureCacheError(f"Chunked token payload missing tensor for layer {layer}.")
+        return tuple(int(dim) for dim in tensor.shape[1:])
+
+    def input_dim(self, layer: int) -> int:
+        shape = self.layer_sample_shape(layer)
+        if not shape:
+            raise FeatureCacheError(f"Chunked token layer {layer} has invalid sample shape {shape}.")
+        return int(shape[-1])
+
+    def chunk_id_for_feature_index(self, feature_index: int) -> int:
+        chunk_position = self._chunk_position_for_feature_index(feature_index)
+        return int(self._chunks[chunk_position].chunk_id)
+
+    def read_feature(
+        self,
+        feature_index: int,
+        *,
+        layer: int,
+        reduction: str = "tokens",
+    ) -> torch.Tensor:
+        chunk_position = self._chunk_position_for_feature_index(feature_index)
+        chunk = self._chunks[chunk_position]
+        payload = self._load_chunk_payload(chunk_position)
+        tensor = _lookup_layer_tensor(payload.get("by_layer", {}), int(layer))
+        if tensor is None or not isinstance(tensor, torch.Tensor):
+            raise FeatureCacheError(f"Chunked token payload missing layer {layer} in {chunk.tokens_path}.")
+
+        local_index = int(feature_index) - int(chunk.start_offset)
+        if local_index < 0 or local_index >= int(tensor.shape[0]):
+            raise FeatureCacheError(
+                "Chunked token local index out of bounds: "
+                f"feature_index={feature_index}, local_index={local_index}, "
+                f"chunk_rows={int(tensor.shape[0])}"
+            )
+
+        sample = tensor[local_index].detach().clone()
+        if reduction == "tokens":
+            return sample
+        if reduction == "tokens_mean":
+            return sample.mean(dim=0)
+        raise FeatureCacheError(f"Unsupported chunked token reduction '{reduction}'.")
+
+    def _chunk_position_for_feature_index(self, feature_index: int) -> int:
+        resolved_index = int(feature_index)
+        if resolved_index < 0 or resolved_index >= self.n_rows:
+            raise FeatureCacheError(
+                f"Chunked token feature_index {resolved_index} is out of bounds for n_rows={self.n_rows}."
+            )
+        chunk_position = bisect_right(self._chunk_end_offsets, resolved_index)
+        if chunk_position >= len(self._chunks):
+            raise FeatureCacheError(
+                f"Chunked token feature_index {resolved_index} is not covered by any chunk."
+            )
+        chunk = self._chunks[chunk_position]
+        if not (chunk.start_offset <= resolved_index < chunk.end_offset):
+            raise FeatureCacheError(
+                "Chunked token chunk lookup mismatch: "
+                f"feature_index={resolved_index}, chunk=({chunk.start_offset}, {chunk.end_offset})"
+            )
+        return chunk_position
+
+    def _load_chunk_payload(self, chunk_position: int) -> dict[str, Any]:
+        if chunk_position in self._chunk_cache:
+            payload = self._chunk_cache.pop(chunk_position)
+            self._chunk_cache[chunk_position] = payload
+            return payload
+
+        payload = torch.load(
+            str(self._chunks[chunk_position].tokens_path),
+            map_location="cpu",
+            weights_only=False,
+        )
+        if not isinstance(payload, dict):
+            raise FeatureCacheError(
+                f"Chunked token payload must be a dict, got {type(payload)!r}."
+            )
+        self._chunk_cache[chunk_position] = payload
+        while len(self._chunk_cache) > self._max_cached_chunks:
+            self._chunk_cache.popitem(last=False)
+        return payload
+
+
+def _lookup_layer_tensor(by_layer: dict[Any, Any], layer: int) -> torch.Tensor | None:
+    if layer in by_layer and isinstance(by_layer[layer], torch.Tensor):
+        return by_layer[layer]
+    layer_key = str(int(layer))
+    if layer_key in by_layer and isinstance(by_layer[layer_key], torch.Tensor):
+        return by_layer[layer_key]
+    return None
 
 
 def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
@@ -384,7 +578,7 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
         index_rows, pooled_by_layer, tokens_by_layer = _materialize_from_chunks(
             state=state,
             include_pooled=bool(feature_cfg["include_pooled"]),
-            include_tokens=bool(feature_cfg["include_tokens"]),
+            include_tokens=False,
             selected_layers=tuple(selected_layers),
             target_samples=len(ordered_records),
         )
@@ -400,11 +594,6 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             _torch_save_atomic(
                 paths.pooled_path,
                 {"selected_layers": list(selected_layers), "by_layer": pooled_by_layer},
-            )
-        if feature_cfg["include_tokens"]:
-            _torch_save_atomic(
-                paths.tokens_path,
-                {"selected_layers": list(selected_layers), "by_layer": tokens_by_layer},
             )
 
         raw_reused_samples = int(state.get("n_completed_samples_initial", 0))
@@ -615,7 +804,12 @@ def has_valid_feature_cache(config: dict[str, Any]) -> bool:
         return False
 
 
-def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
+def load_feature_cache_for_config(
+    config: dict[str, Any],
+    *,
+    feature_view: str | None = None,
+    layer: int | str | None = None,
+) -> dict[str, Any]:
     """Load the feature cache requested by `config`.
 
     This is the consumer-facing helper used by training code. It checks the
@@ -653,11 +847,23 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
 
     pooled_payload: dict[str, Any] | None = None
     tokens_payload: dict[str, Any] | None = None
+    token_store: MVPChunkedTokenStore | None = None
 
-    if str(manifest.get("files", {}).get("pooled", "")):
+    view = str(feature_view or "").strip().lower()
+    load_pooled = view in {"", "pooled"}
+    load_tokens = view in {"", "tokens_mean", "tokens"}
+
+    if load_pooled and str(manifest.get("files", {}).get("pooled", "")):
         pooled_payload = torch.load(str(paths.pooled_path), map_location="cpu", weights_only=False)
-    if str(manifest.get("files", {}).get("tokens", "")):
+    if load_tokens and str(manifest.get("files", {}).get("tokens", "")):
         tokens_payload = torch.load(str(paths.tokens_path), map_location="cpu", weights_only=False)
+    elif load_tokens and _resolve_chunked_token_storage(manifest, paths.cache_dir) is not None:
+        token_store = MVPChunkedTokenStore(cache_dir=paths.cache_dir, manifest=manifest, index=frame)
+        if layer is not None:
+            _resolve_requested_layer_from_selected_layers(
+                layer,
+                token_store.selected_layers,
+            )
 
     _validate_loaded_feature_payloads(
         manifest=manifest,
@@ -672,6 +878,7 @@ def load_feature_cache_for_config(config: dict[str, Any]) -> dict[str, Any]:
         "index": frame,
         "pooled": pooled_payload,
         "tokens": tokens_payload,
+        "token_store": token_store,
     }
 
 
@@ -1726,7 +1933,18 @@ def _build_manifest(
         "files": {
             "index": paths.index_path.name,
             "pooled": paths.pooled_path.name if feature_cfg["include_pooled"] else "",
-            "tokens": paths.tokens_path.name if feature_cfg["include_tokens"] else "",
+            "tokens": "",
+        },
+        "storage": {
+            "tokens": (
+                {
+                    "format": "chunked_resume",
+                    "state": str(resume_paths.state_path.relative_to(paths.cache_dir)),
+                    "chunks_dir": str(resume_paths.chunks_dir.relative_to(paths.cache_dir)),
+                }
+                if feature_cfg["include_tokens"]
+                else {}
+            ),
         },
     }
 
@@ -1825,6 +2043,93 @@ def _validate_loaded_feature_payloads(
         )
 
 
+def _resolve_requested_layer_from_selected_layers(
+    layer: int | str,
+    selected_layers: tuple[int, ...],
+) -> int:
+    if not selected_layers:
+        raise FeatureCacheError("No selected layers found in MVP feature cache.")
+    if isinstance(layer, str) and layer == "last":
+        return int(selected_layers[-1])
+    resolved = int(layer)
+    if resolved not in set(int(item) for item in selected_layers):
+        raise FeatureCacheError(
+            f"Requested layer {resolved} not in cache layers {list(selected_layers)}."
+        )
+    return resolved
+
+
+def _resolve_chunked_token_storage(
+    manifest: dict[str, Any],
+    cache_dir: Path,
+) -> ChunkedTokenStoragePaths | None:
+    storage = manifest.get("storage", {})
+    if not isinstance(storage, dict):
+        return None
+    tokens_cfg = storage.get("tokens", {})
+    if not isinstance(tokens_cfg, dict):
+        return None
+    if str(tokens_cfg.get("format", "")).strip().lower() != "chunked_resume":
+        return None
+
+    state_ref = str(tokens_cfg.get("state", "")).strip()
+    chunks_ref = str(tokens_cfg.get("chunks_dir", "")).strip()
+    if not state_ref or not chunks_ref:
+        return None
+
+    state_path = Path(state_ref)
+    if not state_path.is_absolute():
+        state_path = (cache_dir / state_path).resolve()
+    chunks_dir = Path(chunks_ref)
+    if not chunks_dir.is_absolute():
+        chunks_dir = (cache_dir / chunks_dir).resolve()
+    return ChunkedTokenStoragePaths(state_path=state_path, chunks_dir=chunks_dir)
+
+
+def _chunked_token_storage_is_valid(
+    manifest: dict[str, Any],
+    cache_dir: Path,
+) -> bool:
+    storage = _resolve_chunked_token_storage(manifest, cache_dir)
+    if storage is None:
+        return False
+    if not storage.state_path.exists() or not storage.chunks_dir.exists():
+        return False
+
+    state = _load_resume_state(storage.state_path)
+    if state is None:
+        return False
+    if str(state.get("status", "")) != "complete":
+        return False
+
+    target_rows = int(manifest.get("features", {}).get("n_samples", 0))
+    if target_rows <= 0:
+        return False
+
+    completed_chunks = sorted(
+        list(state.get("completed_chunks", [])),
+        key=lambda chunk: int(chunk.get("start_offset", 0)),
+    )
+    if not completed_chunks:
+        return False
+
+    covered = 0
+    for chunk in completed_chunks:
+        start_offset = int(chunk.get("start_offset", 0))
+        end_offset = int(chunk.get("end_offset", 0))
+        if start_offset != covered:
+            return False
+        tokens_path = Path(str(chunk.get("tokens_path", "")))
+        if not tokens_path.is_absolute():
+            tokens_path = (cache_dir / tokens_path).resolve()
+        if not tokens_path.exists():
+            return False
+        covered = end_offset
+        if covered >= target_rows:
+            return True
+    return False
+
+
 def _validate_feature_payload(
     *,
     payload: dict[str, Any],
@@ -1887,10 +2192,14 @@ def _is_valid_cache(paths: FeatureCachePaths) -> bool:
     files_cfg = manifest.get("files", {})
     pooled_name = str(files_cfg.get("pooled", ""))
     tokens_name = str(files_cfg.get("tokens", ""))
+    features_meta = manifest.get("features", {})
+    include_tokens = bool(features_meta.get("include_tokens", False))
 
     if pooled_name and not paths.pooled_path.exists():
         return False
     if tokens_name and not paths.tokens_path.exists():
+        return False
+    if include_tokens and not tokens_name and not _chunked_token_storage_is_valid(manifest, paths.cache_dir):
         return False
 
     return True

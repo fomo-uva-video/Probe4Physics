@@ -17,13 +17,17 @@ import torch
 from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
+from torch.utils.data import DataLoader, Dataset, Sampler
 
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import (
     load_feature_cache_for_config as load_intphys2_feature_cache,
 )
 from benchmarks.mvp.eval import run_mvp_eval
-from benchmarks.mvp.features import load_feature_cache_for_config as load_mvp_feature_cache
+from benchmarks.mvp.features import (
+    MVPChunkedTokenStore,
+    load_feature_cache_for_config as load_mvp_feature_cache,
+)
 from benchmarks.ssv2.data import SSV2_NUM_CLASSES
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import load_feature_cache_for_config as load_ssv2_feature_cache
@@ -106,10 +110,92 @@ class EvalContext:
     current_signature: str
 
 
+@dataclass(frozen=True)
+class ChunkedTokenSelection:
+    store: MVPChunkedTokenStore
+    layer: int
+    reduction: str
+
+
+class _ChunkedTokenDataset(Dataset):
+    def __init__(
+        self,
+        store: MVPChunkedTokenStore,
+        feature_indices: list[int],
+        *,
+        layer: int,
+        reduction: str,
+        labels: torch.Tensor | None = None,
+    ) -> None:
+        self.store = store
+        self.feature_indices = [int(item) for item in feature_indices]
+        self.layer = int(layer)
+        self.reduction = str(reduction)
+        self.labels = labels.clone() if labels is not None else None
+        if self.labels is not None and int(self.labels.shape[0]) != len(self.feature_indices):
+            raise ProbeConfigError(
+                "Chunked token dataset labels length does not match feature indices length."
+            )
+
+    def __len__(self) -> int:
+        return len(self.feature_indices)
+
+    def __getitem__(self, item: int) -> Any:
+        feature = self.store.read_feature(
+            int(self.feature_indices[item]),
+            layer=self.layer,
+            reduction=self.reduction,
+        ).to(dtype=torch.float32)
+        if self.labels is None:
+            return feature
+        return feature, self.labels[item]
+
+
+class _ChunkedTokenBatchSampler(Sampler[list[int]]):
+    def __init__(
+        self,
+        store: MVPChunkedTokenStore,
+        feature_indices: list[int],
+        *,
+        batch_size: int,
+        seed: int,
+    ) -> None:
+        self.batch_size = max(1, int(batch_size))
+        self.seed = int(seed)
+        self.epoch = 0
+        self._groups: list[list[int]] = []
+        grouped: dict[int, list[int]] = {}
+        for dataset_pos, feature_index in enumerate(feature_indices):
+            chunk_id = store.chunk_id_for_feature_index(int(feature_index))
+            grouped.setdefault(int(chunk_id), []).append(int(dataset_pos))
+        self._groups = list(grouped.values())
+
+    def __iter__(self):
+        rng = random.Random(self.seed + self.epoch)
+        groups = [list(group) for group in self._groups]
+        rng.shuffle(groups)
+        for group in groups:
+            rng.shuffle(group)
+            for start in range(0, len(group), self.batch_size):
+                yield group[start : start + self.batch_size]
+
+    def __len__(self) -> int:
+        total = 0
+        for group in self._groups:
+            total += (len(group) + self.batch_size - 1) // self.batch_size
+        return total
+
+    def set_epoch(self, epoch: int) -> None:
+        self.epoch = int(epoch)
+
+
 DATASET_SPECS = {
     "mvp": DatasetSpec(
         name="mvp",
-        load_bundle=lambda config, _feature_view: load_mvp_feature_cache(config),
+        load_bundle=lambda config, feature_view: load_mvp_feature_cache(
+            config,
+            feature_view=feature_view,
+        ),
         eval_runner=lambda config: run_mvp_eval(config),
         default_train_output_dir="artifacts/probes",
         default_eval_output_dir="artifacts/results",
@@ -346,20 +432,16 @@ def _run_single_train(
 
     train_idx = torch.tensor(train_mask.to_numpy())
     val_idx = torch.tensor(val_mask.to_numpy())
-
-    x_train = features[train_idx]
-    y_train = labels[train_idx]
-
-    x_val = None
-    y_val = None
-    if val_mask.any():
-        x_val = features[val_idx]
-        y_val = labels[val_idx]
-
-    input_dim = int(x_train.shape[-1])
     num_classes = _resolve_num_classes(dataset, labels, manifest)
     seed = int(config.get("seed", 42))
     _seed_training_runtime(seed, deterministic=bool(probe_cfg["deterministic"]))
+
+    x_train = None
+    if isinstance(features, ChunkedTokenSelection):
+        input_dim = int(features.store.input_dim(features.layer))
+    else:
+        x_train = features[train_idx]
+        input_dim = int(x_train.shape[-1])
     probe = _create_probe_instance(probe_cfg, input_dim=input_dim, num_classes=num_classes)
 
     train_output_dir = output_dir or _resolve_train_output_dir(dataset, config, probe_cfg)
@@ -382,19 +464,73 @@ def _run_single_train(
 
     fit_epoch_logger = _fit_epoch_logger if (logger is not None or epoch_callback is not None) else None
     try:
-        fit = probe.fit(
-            x_train,
-            y_train,
-            x_val=x_val,
-            y_val=y_val,
-            epochs=probe_cfg["epochs"],
-            lr=probe_cfg["lr"],
-            batch_size=probe_cfg["batch_size"],
-            eval_batch_size=probe_cfg["eval_batch_size"],
-            weight_decay=probe_cfg["weight_decay"],
-            seed=seed,
-            epoch_logger=fit_epoch_logger,
-        )
+        if isinstance(features, ChunkedTokenSelection):
+            feature_indices = index["feature_index"].astype(int)
+            train_feature_indices = feature_indices.loc[train_mask].tolist()
+            train_labels = labels[train_idx]
+            train_dataset = _ChunkedTokenDataset(
+                features.store,
+                train_feature_indices,
+                layer=features.layer,
+                reduction=features.reduction,
+                labels=train_labels,
+            )
+            train_loader = DataLoader(
+                train_dataset,
+                batch_sampler=_ChunkedTokenBatchSampler(
+                    features.store,
+                    train_feature_indices,
+                    batch_size=probe_cfg["batch_size"],
+                    seed=seed,
+                ),
+            )
+
+            val_loader = None
+            if val_mask.any():
+                val_feature_indices = feature_indices.loc[val_mask].tolist()
+                val_labels = labels[val_idx]
+                val_dataset = _ChunkedTokenDataset(
+                    features.store,
+                    val_feature_indices,
+                    layer=features.layer,
+                    reduction=features.reduction,
+                    labels=val_labels,
+                )
+                val_loader = DataLoader(
+                    val_dataset,
+                    batch_size=int(probe_cfg["eval_batch_size"]),
+                    shuffle=False,
+                )
+
+            fit = probe.fit_loader(
+                train_loader,
+                val_loader=val_loader,
+                epochs=probe_cfg["epochs"],
+                lr=probe_cfg["lr"],
+                weight_decay=probe_cfg["weight_decay"],
+                seed=seed,
+                epoch_logger=fit_epoch_logger,
+            )
+        else:
+            y_train = labels[train_idx]
+            x_val = None
+            y_val = None
+            if val_mask.any():
+                x_val = features[val_idx]
+                y_val = labels[val_idx]
+            fit = probe.fit(
+                x_train,
+                y_train,
+                x_val=x_val,
+                y_val=y_val,
+                epochs=probe_cfg["epochs"],
+                lr=probe_cfg["lr"],
+                batch_size=probe_cfg["batch_size"],
+                eval_batch_size=probe_cfg["eval_batch_size"],
+                weight_decay=probe_cfg["weight_decay"],
+                seed=seed,
+                epoch_logger=fit_epoch_logger,
+            )
 
         checkpoint_last_path = train_output_dir / "probe_last.pt"
         checkpoint_best_path = train_output_dir / "probe_best.pt"
@@ -589,16 +725,40 @@ def _run_single_eval_from_context(
             f"No samples found for split_name='{eval_split}' in cache index."
         )
 
-    split_idx = torch.tensor(split_mask.to_numpy())
-    x_eval = features[split_idx]
     split_frame = index.loc[split_mask].copy()
+    x_eval = None
+    eval_loader = None
+    if isinstance(features, ChunkedTokenSelection):
+        if not hasattr(probe, "predict_logits_loader"):
+            raise ProbeConfigError(
+                "Chunked MVP token evaluation requires loader-based probe inference support."
+            )
+        eval_dataset = _ChunkedTokenDataset(
+            features.store,
+            split_frame["feature_index"].astype(int).tolist(),
+            layer=features.layer,
+            reduction=features.reduction,
+            labels=None,
+        )
+        eval_loader = DataLoader(
+            eval_dataset,
+            batch_size=int(probe_cfg["eval_batch_size"]),
+            shuffle=False,
+        )
+    else:
+        split_idx = torch.tensor(split_mask.to_numpy())
+        x_eval = features[split_idx]
 
     eval_output_dir = output_dir or _resolve_eval_output_dir(dataset, config, probe_cfg)
     eval_output_dir.mkdir(parents=True, exist_ok=True)
     pred_file = eval_output_dir / "probe_predictions.json"
 
     if dataset == "mvp":
-        semantic_pred = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+            semantic_pred = logits.argmax(dim=1).tolist()
+        else:
+            semantic_pred = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
         pred_idx = _semantic_predictions_to_choice_indices(split_frame, semantic_pred)
         sample_ids = split_frame["sample_id"].tolist()
         if len(sample_ids) != len(pred_idx):
@@ -611,7 +771,10 @@ def _run_single_eval_from_context(
             for sample_id, pred in zip(sample_ids, pred_idx)
         }
     elif dataset == "intphys2":
-        logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+        else:
+            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
         probs = torch.softmax(logits, dim=1)
         pred_payload = {
             str(sample_id): {
@@ -625,7 +788,10 @@ def _run_single_eval_from_context(
             )
         }
     elif dataset == "ssv2":
-        logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+        else:
+            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
         probs = torch.softmax(logits, dim=1)
         pred_payload = {
             str(sample_id): {
@@ -1206,7 +1372,7 @@ def _create_probe_instance(
     return create_probe(probe_cfg["name"], **kwargs)
 
 
-def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) -> torch.Tensor:
+def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) -> torch.Tensor | ChunkedTokenSelection:
     probe_name = probe_cfg["name"]
     feature_view = probe_cfg["feature_view"]
     allowed_views = _SUPPORTED_PROBE_VIEWS.get(probe_name)
@@ -1225,6 +1391,7 @@ def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) ->
     layer = probe_cfg["layer"]
     pooled = bundle.get("pooled")
     tokens = bundle.get("tokens")
+    token_store = bundle.get("token_store")
 
     if feature_view == "pooled":
         if pooled is None:
@@ -1236,6 +1403,13 @@ def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) ->
         return tensor.to(dtype=torch.float32)
 
     if feature_view == "tokens_mean":
+        if token_store is not None:
+            selected = _resolve_chunked_store_layer(layer, token_store)
+            return ChunkedTokenSelection(
+                store=token_store,
+                layer=selected,
+                reduction="tokens_mean",
+            )
         if tokens is None:
             raise ProbeConfigError("Token features are not available in cache.")
         selected = _resolve_layer(layer, tokens)
@@ -1245,6 +1419,13 @@ def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) ->
         return tensor.mean(dim=1).to(dtype=torch.float32)
 
     if feature_view == "tokens":
+        if token_store is not None:
+            selected = _resolve_chunked_store_layer(layer, token_store)
+            return ChunkedTokenSelection(
+                store=token_store,
+                layer=selected,
+                reduction="tokens",
+            )
         if tokens is None:
             raise ProbeConfigError("Token features are not available in cache.")
         selected = _resolve_layer(layer, tokens)
@@ -1257,6 +1438,19 @@ def _select_feature_tensor(bundle: dict[str, Any], probe_cfg: dict[str, Any]) ->
         f"Unsupported probe.feature_view='{feature_view}'. Use pooled|tokens_mean|tokens."
     )
 
+
+def _resolve_chunked_store_layer(layer: int | str, store: MVPChunkedTokenStore) -> int:
+    selected_layers = [int(item) for item in store.selected_layers]
+    if not selected_layers:
+        raise ProbeConfigError("No layers found in chunked token store.")
+
+    if isinstance(layer, str) and layer == "last":
+        return int(selected_layers[-1])
+
+    resolved = int(layer)
+    if resolved not in selected_layers:
+        raise ProbeConfigError(f"Requested layer {resolved} not in cache layers {selected_layers}")
+    return resolved
 
 
 def _resolve_layer(layer: int | str, payload: dict[str, Any]) -> int:
