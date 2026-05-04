@@ -36,6 +36,7 @@ DEFAULT_BACKBONES_CONFIG_PATH = PROJECT_ROOT / "configs" / "backbones.yaml"
 DEFAULT_NOISE_LEVELS = (0.9, 0.5, 0.1)
 DEFAULT_NOISE_SEED = 0
 DEFAULT_FRAME_RATE = 25.0
+_VALID_FRAME_RATES = frozenset({8.0, 12.0, 15.0, 24.0, 25.0, 29.97, 30.0, 60.0})
 
 
 @dataclass(frozen=True)
@@ -375,6 +376,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         normalize_input: bool = True,
         enable_vae_tiling: bool = False,
         noise_seed: int = DEFAULT_NOISE_SEED,
+        frame_rate: float = DEFAULT_FRAME_RATE,
     ) -> None:
         self.config_path = Path(config_path).resolve()
         self.device = torch.device(device)
@@ -382,6 +384,10 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         self.normalize_input = bool(normalize_input)
         self.enable_vae_tiling = bool(enable_vae_tiling)
         self.noise_seed = int(noise_seed)
+        frame_rate_f = float(frame_rate)
+        if frame_rate_f <= 0.0:
+            raise ValueError(f"frame_rate must be positive, got {frame_rate!r}.")
+        self.frame_rate = frame_rate_f
 
         cfg = _load_ltx_video_config(self.config_path)
         resolved = _resolve_adapter_config(
@@ -517,6 +523,15 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         encoder = getattr(self._vae, "encoder", None)
         down_blocks = getattr(encoder, "down_blocks", None)
         if not isinstance(down_blocks, torch.nn.ModuleList):
+            import warnings
+
+            warnings.warn(
+                "LTX VAE does not expose encoder.down_blocks as a ModuleList. "
+                "Temporal-length alignment is disabled — VAE encode() may fail if the clip "
+                "frame count does not satisfy the model's downsampling constraints.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
             return ()
 
         strides: list[int] = []
@@ -611,6 +626,16 @@ class LTXVideoAdapter(VideoBackboneAdapter):
     @staticmethod
     def _pack_latents(latents: torch.Tensor, *, patch_size: int, patch_size_t: int) -> torch.Tensor:
         batch_size, _, num_frames, height, width = latents.shape
+        if num_frames % patch_size_t != 0:
+            raise ValueError(
+                f"Latent temporal dimension ({num_frames}) not divisible by patch_size_t ({patch_size_t}). "
+                "Ensure frames_per_clip and VAE temporal compression produce a compatible latent length."
+            )
+        if height % patch_size != 0 or width % patch_size != 0:
+            raise ValueError(
+                f"Latent spatial dimensions ({height}x{width}) not divisible by patch_size ({patch_size}). "
+                "Ensure crop_size and VAE spatial compression produce a compatible latent resolution."
+            )
         post_patch_num_frames = num_frames // patch_size_t
         post_patch_height = height // patch_size
         post_patch_width = width // patch_size
@@ -643,7 +668,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         temporal_ratio = float(getattr(self._vae, "temporal_compression_ratio", 8))
         spatial_ratio = float(getattr(self._vae, "spatial_compression_ratio", 32))
         return (
-            temporal_ratio / DEFAULT_FRAME_RATE,
+            temporal_ratio / self.frame_rate,
             spatial_ratio,
             spatial_ratio,
         )
@@ -673,6 +698,17 @@ class LTXVideoAdapter(VideoBackboneAdapter):
                 resolved_sigmas.append(float(sigmas[nearest_index].item()))
             return tuple(resolved_timesteps), tuple(resolved_sigmas)
 
+        import warnings
+
+        warnings.warn(
+            "LTX scheduler does not expose pre-populated .sigmas/.timesteps tensors "
+            "(call scheduler.set_timesteps() before building the adapter, or use a "
+            "flow-matching scheduler). Falling back to linear approximation: "
+            "sigma ≈ noise_fraction, timestep ≈ noise_fraction * num_train_timesteps. "
+            "This is correct only for flow-matching schedulers.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
         scheduler_cfg = getattr(self._scheduler, "config", None)
         total = int(getattr(scheduler_cfg, "num_train_timesteps", 1000))
         upper = max(total, 1)
@@ -693,6 +729,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             noise_levels=self.noise_levels,
             prompt_mode="empty_string",
             noise_policy="fixed_reference_noise",
+            frame_rate=self.frame_rate,
         )
 
     def _encode_clips_to_latents(self, clips: torch.Tensor) -> torch.Tensor:
@@ -729,6 +766,9 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         return (latents - mean) * scaling_factor / std
 
     def _reference_noise(self, latents: torch.Tensor) -> torch.Tensor:
+        # Single noise realization shared across the batch (deterministic reference).
+        # All items in a batch see identical noise; per-sample variance would change
+        # probe targets across batches and break reproducibility.
         generator = torch.Generator(device="cpu")
         generator.manual_seed(self.noise_seed)
         base_noise = torch.randn(
@@ -849,6 +889,7 @@ class LTXVideoAdapter(VideoBackboneAdapter):
         }
 
     def _build_metadata(self) -> dict[str, Any]:
+        actual_patch_size, actual_patch_size_t = self._resolve_transformer_patch_sizes()
         return {
             "hf_model_id": self.hf_model_id,
             "config_path": str(self.config_path),
@@ -859,11 +900,12 @@ class LTXVideoAdapter(VideoBackboneAdapter):
             "torch_dtype": str(self.model_dtype).replace("torch.", ""),
             "normalize_input": self.normalize_input,
             "noise_seed": self.noise_seed,
+            "frame_rate": self.frame_rate,
             "noise_levels": [float(v) for v in self.noise_levels],
             "noise_sigmas": [float(v) for v in self._noise_sigmas],
             "noise_timesteps": [float(v) for v in self._noise_timesteps],
-            "patch_size": self.patch_size,
-            "patch_size_t": self.patch_size_t,
+            "patch_size": actual_patch_size,
+            "patch_size_t": actual_patch_size_t,
             "frames_per_clip": self.frames_per_clip,
             "crop_size": self.crop_size,
             "spatial_compression_ratio": int(getattr(self._vae, "spatial_compression_ratio", 1)),

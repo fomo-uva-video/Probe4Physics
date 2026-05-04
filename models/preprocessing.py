@@ -8,6 +8,7 @@ import torch
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 PREPROCESSING_VERSION = 1
+DEFAULT_FRAME_RATE = 25.0
 
 
 def normalize_rgb_imagenet(clips: torch.Tensor) -> torch.Tensor:
@@ -51,6 +52,7 @@ def ltx_diffusion_preprocessing_metadata(
     noise_levels: Sequence[float],
     prompt_mode: str,
     noise_policy: str,
+    frame_rate: float = DEFAULT_FRAME_RATE,
 ) -> dict[str, Any]:
     return {
         "version": PREPROCESSING_VERSION,
@@ -63,4 +65,5 @@ def ltx_diffusion_preprocessing_metadata(
         "noise_levels": [float(v) for v in noise_levels],
         "prompt_mode": str(prompt_mode),
         "noise_policy": str(noise_policy),
+        "frame_rate": float(frame_rate),
     }
