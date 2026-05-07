@@ -18,6 +18,8 @@ dependencies:
   - diffusers>=0.37
   - accelerate>=0.30
   - safetensors>=0.4
+  - sentencepiece
+  - tiktoken
   - timm>=1.0
   - easydict>=1.13
   - einops>=0.8
