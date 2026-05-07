@@ -180,6 +180,13 @@ class MVPFeatureSemanticIndexTests(unittest.TestCase):
 
             self.assertEqual(manifest["version"], 2)
             self.assertEqual(manifest["targets"]["type"], "semantic_plausibility")
+            self.assertEqual(manifest["storage"]["tokens"]["format"], "chunked_resume")
+            self.assertEqual(manifest["files"]["tokens"], "")
+            self.assertIsNone(bundle["tokens"])
+            self.assertIsNotNone(bundle["token_store"])
+            store = bundle["token_store"]
+            sample = store.read_feature(0, layer=12, reduction="tokens")
+            self.assertEqual(tuple(sample.shape), (2, 4))
             self.assertIn("timing", manifest)
             self.assertIn("elapsed_seconds", manifest["timing"])
             self.assertIn("seconds_per_processed_sample", manifest["timing"])

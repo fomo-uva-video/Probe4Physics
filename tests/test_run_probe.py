@@ -94,6 +94,38 @@ class _FakeOptunaModule:
         return _FakeStudy(study_name)
 
 
+class _FakeChunkedTokenStore:
+    def __init__(self, *, token_length: int = 2, feature_dim: int = 4) -> None:
+        self.selected_layers = (12,)
+        self._token_length = int(token_length)
+        self._feature_dim = int(feature_dim)
+
+    def input_dim(self, layer: int) -> int:
+        self._assert_layer(layer)
+        return self._feature_dim
+
+    def chunk_id_for_feature_index(self, feature_index: int) -> int:
+        return int(feature_index) // 2
+
+    def read_feature(self, feature_index: int, *, layer: int, reduction: str = "tokens") -> torch.Tensor:
+        self._assert_layer(layer)
+        base = float(int(feature_index) + 1)
+        tokens = torch.full(
+            (self._token_length, self._feature_dim),
+            base,
+            dtype=torch.float32,
+        )
+        if reduction == "tokens":
+            return tokens
+        if reduction == "tokens_mean":
+            return tokens.mean(dim=0)
+        raise ValueError(f"Unsupported reduction: {reduction}")
+
+    def _assert_layer(self, layer: int) -> None:
+        if int(layer) not in self.selected_layers:
+            raise ValueError(f"Unsupported layer: {layer}")
+
+
 class RunProbeTests(unittest.TestCase):
     def test_compose_mvp_config_defaults_optuna_metric_to_pair_consistency(self) -> None:
         cfg = run_probe._compose_config("mvp", [])
@@ -211,6 +243,166 @@ class RunProbeTests(unittest.TestCase):
         self.assertEqual(probe.seen_eval_batch_size, 3)
         self.assertEqual(summary["fit"]["n_epochs"], 2)
         self.assertIsNotNone(summary["fit"]["best_val_accuracy"])
+
+    def test_run_single_train_streams_chunked_mvp_tokens_mean(self) -> None:
+        class _CapturingLinearProbe(LinearProbe):
+            def __init__(self, *args, **kwargs) -> None:
+                super().__init__(*args, **kwargs)
+                self.fit_loader_called = False
+
+            def fit_loader(self, train_loader, **kwargs):
+                self.fit_loader_called = True
+                return super().fit_loader(train_loader, **kwargs)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = {
+                "seed": 7,
+                "probe": {
+                    "name": "linear",
+                    "feature_view": "tokens_mean",
+                    "layer": 12,
+                    "batch_size": 2,
+                    "eval_batch_size": 2,
+                    "epochs": 2,
+                    "wandb": {"enabled": False},
+                    "optuna": {"enabled": False},
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+            bundle = {
+                "paths": SimpleNamespace(cache_dir=Path(tmp)),
+                "manifest": {"signature": "sig", "stats": {"n_classes": 2}},
+                "index": pd.DataFrame(
+                    [
+                        {
+                            "feature_index": 0,
+                            "split": "train",
+                            "plausibility_label": 0,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                        {
+                            "feature_index": 1,
+                            "split": "train",
+                            "plausibility_label": 1,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                        {
+                            "feature_index": 2,
+                            "split": "train",
+                            "plausibility_label": 0,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                        {
+                            "feature_index": 3,
+                            "split": "val",
+                            "plausibility_label": 1,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                    ]
+                ),
+                "pooled": None,
+                "tokens": None,
+                "token_store": _FakeChunkedTokenStore(token_length=2, feature_dim=4),
+            }
+            probe = _CapturingLinearProbe(input_dim=4, num_classes=2, device="cpu")
+            fake_spec = SimpleNamespace(load_bundle=lambda cfg, view: bundle, report_splits=("train", "val"))
+
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"mvp": fake_spec}, clear=False):
+                with mock.patch("training.run_probe._create_probe_instance", return_value=probe):
+                    with mock.patch("training.run_probe.init_wandb_train_logger", return_value=None):
+                        summary, _logger = run_probe._run_single_train(
+                            "mvp",
+                            config,
+                            probe_cfg,
+                            output_dir=Path(tmp) / "train",
+                        )
+
+        self.assertTrue(probe.fit_loader_called)
+        self.assertEqual(summary["input_dim"], 4)
+        self.assertEqual(summary["fit"]["n_epochs"], 2)
+
+    def test_run_single_eval_streams_chunked_mvp_tokens(self) -> None:
+        class _StaticChunkedProbe:
+            def predict_logits_loader(self, loader):
+                rows = 0
+                for batch in loader:
+                    xb = batch[0] if isinstance(batch, (list, tuple)) else batch
+                    rows += int(xb.shape[0])
+                return torch.tensor(
+                    [[0.1, 0.9], [0.9, 0.1]][:rows],
+                    dtype=torch.float32,
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            context = run_probe.EvalContext(
+                spec=run_probe.DATASET_SPECS["mvp"],
+                manifest={"signature": "sig"},
+                index=pd.DataFrame(
+                    [
+                        {
+                            "feature_index": 0,
+                            "sample_id": "s0",
+                            "pair_id": "p0",
+                            "split": "test",
+                            "answer_idx": 0,
+                            "plausibility_label": 1,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                        {
+                            "feature_index": 1,
+                            "sample_id": "s1",
+                            "pair_id": "p1",
+                            "split": "test",
+                            "answer_idx": 1,
+                            "plausibility_label": 0,
+                            "yes_choice_idx": 0,
+                            "no_choice_idx": 1,
+                        },
+                    ]
+                ),
+                features=run_probe.ChunkedTokenSelection(
+                    store=_FakeChunkedTokenStore(token_length=2, feature_dim=4),
+                    layer=12,
+                    reduction="tokens",
+                ),
+                probe=_StaticChunkedProbe(),
+                checkpoint_path=Path(tmp) / "probe_best.pt",
+                current_signature="sig",
+            )
+            config = {
+                "split_name": "test",
+                "probe": {
+                    "name": "temporal_attn",
+                    "feature_view": "tokens",
+                    "layer": 12,
+                    "device": "cpu",
+                    "eval_batch_size": 2,
+                    "eval_output_dir": tmp,
+                    "eval_output_subdir": "eval_run",
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+
+            with mock.patch(
+                "training.run_probe.run_mvp_eval",
+                return_value={"metrics": {"pair_consistency": 100.0}},
+            ) as mocked_eval:
+                summary = run_probe._run_single_eval_from_context(
+                    "mvp",
+                    config,
+                    probe_cfg,
+                    context,
+                    output_dir=Path(tmp) / "eval_run",
+                    split_name="test",
+                )
+                pred_payload = json.loads(Path(summary["prediction_file"]).read_text(encoding="utf-8"))
+                self.assertEqual(pred_payload, {"s0": 0, "s1": 1})
+                mocked_eval.assert_called_once()
 
     def test_apply_trial_parameters_keeps_fixed_epochs_when_epoch_search_disabled(self) -> None:
         probe_cfg = run_probe._probe_cfg(
