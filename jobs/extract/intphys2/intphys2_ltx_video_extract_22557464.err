@@ -52,3 +52,5 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 Loading weights:  91%|█████████ | 199/219 [00:07<00:00, 35.78it/s][A
 Loading weights:  93%|█████████▎| 204/219 [00:07<00:00, 36.34it/s][ALoading weights: 100%|██████████| 219/219 [00:07<00:00, 29.24it/s]
 Loading pipeline components...: 100%|██████████| 5/5 [02:27<00:00, 20.60s/it]Loading pipeline components...: 100%|██████████| 5/5 [02:27<00:00, 29.45s/it]
+/gpfs/home3/scur0511/Probe4Physics/jobs/extract/intphys2/run_extract.sh: line 136: 798577 Killed                  "${cmd[@]}"
+[2026-05-07T16:36:08.207] error: Detected 1 oom_kill event in StepId=22557464.batch. Some of the step tasks have been OOM Killed.

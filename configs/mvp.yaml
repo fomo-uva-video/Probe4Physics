@@ -123,7 +123,7 @@ probe:
   weight_decay: 0.0
   device: cpu
   deterministic: false # enable stricter reproducibility at some performance cost
-  output_dir: artifacts/probes
+  output_dir: artifacts/probes/mvp
   output_subdir: "" # optional stable subdir for train artifacts
   checkpoint_path: "" # optional explicit checkpoint for eval.probe.mvp
   eval_output_dir: artifacts/results
