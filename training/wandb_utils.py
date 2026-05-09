@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from models.cache_metadata import resolve_backbone_cache_metadata, resolve_backbone_layer_label
+
 
 class WandbConfigError(RuntimeError):
     pass
@@ -154,23 +156,51 @@ def _default_run_name(
     if explicit:
         return explicit
 
-    experiment = config.get("experiment", {})
-    experiment_name = ""
-    if isinstance(experiment, dict):
-        experiment_name = _optional_str(experiment.get("name", "")) or ""
-    feature_view = ""
     feature_view = ""
     probe_name = ""
     probe_cfg = config.get("probe", {})
     if isinstance(probe_cfg, dict):
         feature_view = _optional_str(probe_cfg.get("feature_view", "")) or ""
         probe_name = _optional_str(probe_cfg.get("name", "")) or ""
+        layer_label = resolve_backbone_layer_label(
+            _backbone_name(config),
+            _backbone_kwargs(config),
+            probe_cfg.get("layer", "last"),
+        )
+    else:
+        layer_label = ""
+    backbone_label = _backbone_run_label(config)
     pieces = [
         piece
-        for piece in (experiment_name, benchmark, probe_name, feature_view, output_dir.name)
+        for piece in (benchmark, probe_name, backbone_label, feature_view, layer_label or output_dir.name)
         if piece
     ]
     return "/".join(pieces)
+
+
+def _backbone_run_label(config: dict[str, Any]) -> str:
+    name = _backbone_name(config)
+    kwargs = _backbone_kwargs(config)
+    metadata = resolve_backbone_cache_metadata(name, kwargs)
+    variant = str(metadata.get("variant") or kwargs.get("variant", "")).strip()
+    return f"{name}_{variant}" if variant else name
+
+
+def _backbone_name(config: dict[str, Any]) -> str:
+    raw = config.get("backbone", {})
+    if not isinstance(raw, dict):
+        return "backbone"
+    return str(raw.get("name", "backbone")).strip() or "backbone"
+
+
+def _backbone_kwargs(config: dict[str, Any]) -> dict[str, Any]:
+    raw = config.get("backbone", {})
+    if not isinstance(raw, dict):
+        return {}
+    kwargs = raw.get("kwargs", {})
+    if not isinstance(kwargs, dict):
+        return {}
+    return kwargs
 
 
 def _wandb_cfg(config: dict[str, Any]) -> dict[str, Any]:

@@ -1,0 +1,30 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]Loading pipeline components...:  20%|██        | 1/5 [00:07<00:30,  7.59s/it]Loading pipeline components...:  60%|██████    | 3/5 [00:07<00:04,  2.02s/it]
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s][A
+Loading checkpoint shards:  17%|█▋        | 1/6 [00:20<01:43, 20.63s/it][A
+Loading checkpoint shards:  33%|███▎      | 2/6 [00:40<01:19, 19.93s/it][A
+Loading checkpoint shards:  50%|█████     | 3/6 [01:02<01:03, 21.22s/it][A
+Loading checkpoint shards:  67%|██████▋   | 4/6 [01:22<00:41, 20.72s/it][A
+Loading checkpoint shards:  83%|████████▎ | 5/6 [01:45<00:21, 21.35s/it][A
+Loading checkpoint shards: 100%|██████████| 6/6 [01:50<00:00, 16.00s/it][ALoading checkpoint shards: 100%|██████████| 6/6 [01:50<00:00, 18.48s/it]
+Loading pipeline components...:  80%|████████  | 4/5 [01:58<00:39, 39.78s/it]
+Loading weights:   0%|          | 0/219 [00:00<?, ?it/s][A
+Loading weights:  46%|████▌     | 101/219 [00:00<00:00, 735.20it/s][A
+Loading weights:  80%|███████▉  | 175/219 [00:02<00:00, 59.54it/s] [A
+Loading weights:  95%|█████████▍| 208/219 [00:04<00:00, 32.47it/s][ALoading weights: 100%|██████████| 219/219 [00:04<00:00, 44.15it/s]
+Loading pipeline components...: 100%|██████████| 5/5 [02:03<00:00, 28.29s/it]Loading pipeline components...: 100%|██████████| 5/5 [02:03<00:00, 24.79s/it]

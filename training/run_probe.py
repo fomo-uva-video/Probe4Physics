@@ -31,7 +31,7 @@ from benchmarks.mvp.features import (
 from benchmarks.ssv2.data import SSV2_NUM_CLASSES
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import load_feature_cache_for_config as load_ssv2_feature_cache
-from models.cache_metadata import resolve_backbone_cache_metadata
+from models.cache_metadata import resolve_backbone_cache_metadata, resolve_backbone_layer_label
 from probes import (
     LinearProbe,
     MLPProbe,
@@ -325,7 +325,7 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
     layer_summaries: list[dict[str, Any]] = []
 
     for layer in sweep_layers:
-        layer_label = _layer_label(layer)
+        layer_label = _run_layer_label(config, layer)
         layer_root = sweep_root / f"layer_{layer_label}"
         train_dir = layer_root / "train"
         eval_dir = layer_root / "eval"
@@ -1778,6 +1778,17 @@ def _serialize_layer_value(layer: int | str) -> int | str:
 
 def _layer_label(layer: int | str) -> str:
     return str(_serialize_layer_value(layer))
+
+
+def _run_layer_label(config: dict[str, Any], layer: int | str) -> str:
+    raw = config.get("backbone", {})
+    if not isinstance(raw, dict):
+        return _layer_label(layer)
+    name = str(raw.get("name", "")).strip()
+    kwargs = raw.get("kwargs", {})
+    if not isinstance(kwargs, dict):
+        kwargs = {}
+    return resolve_backbone_layer_label(name, kwargs, layer)
 
 
 def _config_for_layer(config: dict[str, Any], layer: int | str) -> dict[str, Any]:

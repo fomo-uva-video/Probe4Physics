@@ -12,6 +12,7 @@ import pandas as pd
 import torch
 from omegaconf import OmegaConf
 from training import run_probe
+from training import wandb_utils
 from probes.linear import LinearProbe
 from probes.mlp import MLPProbe
 
@@ -166,6 +167,32 @@ class RunProbeTests(unittest.TestCase):
     def test_probe_cfg_auto_selects_tokens_for_temporal_attn(self) -> None:
         cfg = run_probe._probe_cfg({"probe": {"name": "temporal_attn"}})
         self.assertEqual(cfg["feature_view"], "tokens")
+
+    def test_default_wandb_run_name_uses_backbone_label(self) -> None:
+        config = {
+            "experiment": {"name": "intphys2.jepa_v1.probe"},
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {"variant": "ltxv_13b_0_9_8_distilled"},
+            },
+            "probe": {
+                "name": "linear",
+                "feature_view": "pooled",
+                "layer": 17,
+            },
+        }
+
+        run_name = wandb_utils._default_run_name(
+            config,
+            benchmark="intphys2",
+            output_dir=Path("/tmp/train"),
+            raw={},
+        )
+
+        self.assertEqual(
+            run_name,
+            "intphys2/linear/ltx_video_ltxv_13b_0_9_8_distilled/pooled/noise_0.6_block_12",
+        )
 
     def test_load_probe_from_checkpoint_roundtrip_for_mlp(self) -> None:
         probe = MLPProbe(
