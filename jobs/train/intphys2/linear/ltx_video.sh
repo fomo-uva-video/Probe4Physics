@@ -24,8 +24,8 @@ BACKBONE_VARIANT=""  # empty uses configs/backbones.yaml default (currently dist
 # Keep PROBE_LAYERS as the authoritative sweep list; for a single-slot smoke run,
 # override both PROBE_LAYER and PROBE_LAYERS together.
 PROBE_LAYER="1"
-# PROBE_LAYERS="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40"
-PROBE_LAYERS="1,2,3,4,5,6,7,8,9,10"
+PROBE_LAYERS="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40"
+# PROBE_LAYERS="1,2,3,4,5,6,7,8,9,10"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"

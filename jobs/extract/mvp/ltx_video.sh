@@ -9,14 +9,14 @@
 #   sbatch ltx_video.sh
 #   MODE=smoke sbatch ltx_video.sh
 
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --gpus=1
 #SBATCH --job-name=mvp_ltx_video_extract
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=08:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --time=24:00:00
+#SBATCH --output=%out/ltx_extract_%x_%j.out
+#SBATCH --error=%out/ltx_extract_%x_%j.err
 
 set -euo pipefail
 
