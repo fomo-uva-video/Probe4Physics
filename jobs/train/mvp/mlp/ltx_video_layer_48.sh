@@ -1,30 +1,30 @@
 #!/bin/bash
-# Train a MVP linear probe with ltx_video features.
+# Train a MVP mlp probe with ltx_video features.
 #
 # Usage:
 #   sbatch ltx_video.sh
 #   sbatch ltx_video.sh probe.device=cpu
 
-#SBATCH --partition=rome
-#SBATCH --job-name=mvp_ltx_video_linear
+#SBATCH --partition=gpu_mig
+#SBATCH --job-name=mvp_ltx_video_mlp
+#SBATCH --gpus=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
-#SBATCH --output=output/training/mvp/linear/mvp_ltx_linear_layers_%j.out
-#SBATCH --error=output/training/mvp/linear/mvp_ltx_linear_layers_%j.err
-
+#SBATCH --time=24:00:00
+#SBATCH --output=output/training/mvp/mlp/mvp_ltx_mlp_layer_48_%j.out
+#SBATCH --error=output/training/mvp/mlp/mvp_ltx_mlp_layer_48_%j.err
 
 set -euo pipefail
 
 DATASET_NAME="mvp"
-PROBE_NAME="linear"
+PROBE_NAME="mlp"
 BACKBONE_NAME="ltx_video"
 BACKBONE_VARIANT=""  # empty uses configs/backbones.yaml default (currently distilled)
-PROBE_LAYER="last"  # possible values: last | 1..40 for the default LTX slot grid
-PROBE_LAYERS="${PROBE_LAYER}"
+PROBE_LAYER="1"  # sweep values: 1..40 for the default LTX slot grid
+PROBE_LAYERS="4, 8, 12, 16, 20, 24, 28, 32, 36, 40"  # subset of layers to train probes on
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
-ENABLE_WANDB="true"
+ENABLE_WANDB="false"
 WANDB_PROJECT="probe4physics"
 WANDB_MODE="online"
 ENABLE_OPTUNA="true"

@@ -113,13 +113,15 @@ def run_intphys2_eval(config: dict[str, Any]) -> dict[str, Any]:
     _log_eval("Generated predictions", n_predictions=len(predictions))
 
     metrics = benchmark.evaluate(samples, predictions)
-    _log_eval(
-        "Scoring complete",
-        accuracy=f"{metrics.accuracy:.4f}",
-        voe_accuracy=f"{metrics.voe_accuracy:.4f}",
-        n_scenes=metrics.n_scenes,
-        n_samples=metrics.n_samples,
-    )
+    log_fields: dict[str, Any] = {
+        "accuracy": f"{metrics.accuracy:.4f}",
+        "voe_accuracy": f"{metrics.voe_accuracy:.4f}",
+        "n_scenes": metrics.n_scenes,
+        "n_samples": metrics.n_samples,
+    }
+    if metrics.roc_auc is not None:
+        log_fields["roc_auc"] = f"{metrics.roc_auc:.6f}"
+    _log_eval("Scoring complete", **log_fields)
 
     output_dir = _resolve_output_dir(config)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -305,6 +307,10 @@ def _write_summary(path: Path, metrics, config: dict[str, Any]) -> None:
         "| Metric | Value |",
         "|---|---:|",
         f"| Accuracy (%) | {metrics.accuracy:.4f} |",
+    ]
+    if metrics.roc_auc is not None:
+        lines.append(f"| ROC AUC | {metrics.roc_auc:.6f} |")
+    lines += [
         f"| VOE Accuracy (%) | {metrics.voe_accuracy:.4f} |",
     ]
     if metrics.accuracy_by_condition:

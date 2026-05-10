@@ -231,6 +231,7 @@ class IntPhys2BenchmarkEvaluateTests(unittest.TestCase):
         ]
         metrics = IntPhys2Benchmark().evaluate(samples, predictions)
         self.assertAlmostEqual(metrics.voe_accuracy, 100.0)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 1.0)
 
     def test_inverted_scores_give_0_voe(self) -> None:
         samples = self._make_samples()
@@ -244,6 +245,20 @@ class IntPhys2BenchmarkEvaluateTests(unittest.TestCase):
         ]
         metrics = IntPhys2Benchmark().evaluate(samples, predictions)
         self.assertAlmostEqual(metrics.voe_accuracy, 0.0)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 0.0)
+
+    def test_tied_scores_give_50_roc_auc(self) -> None:
+        samples = self._make_samples()
+        predictions = [
+            IntPhys2Prediction(
+                sample_id=s.sample_id,
+                pred_idx=s.plausibility,
+                score=0.5,
+            )
+            for s in samples
+        ]
+        metrics = IntPhys2Benchmark().evaluate(samples, predictions)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 0.5)
 
     def test_n_scenes_is_correct(self) -> None:
         samples = self._make_samples()
@@ -410,6 +425,7 @@ class IntPhys2EvalTests(unittest.TestCase):
             metrics = result["metrics"]
 
             self.assertAlmostEqual(metrics["accuracy"], 100.0)
+            self.assertAlmostEqual(metrics["roc_auc"], 1.0)
             self.assertGreater(metrics["n_samples"], 0)
             self.assertGreater(metrics["n_scenes"], 0)
 
@@ -513,6 +529,7 @@ class RunCommandIntPhys2Tests(unittest.TestCase):
             "extract.intphys2",
             "train.probe.intphys2",
             "eval.probe.intphys2",
+            "backfill.intphys2.roc_auc",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
 

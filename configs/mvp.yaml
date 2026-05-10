@@ -103,7 +103,7 @@ feature_cache:
   max_samples: 0 # 0 means unlimited; smoke jobs override this to 2
   layer_ids: [] # empty uses adapter defaults (e.g., 25/50/75/100% depths)
   include_pooled: true
-  include_tokens: false
+  include_tokens: true
   force_reextract: false
   resume_enabled: true
   resume_strict: true
