@@ -5,7 +5,7 @@
 #   sbatch ltx_video.sh
 #   sbatch ltx_video.sh probe.device=cpu
 
-#SBATCH --partition=gpu_mig
+#SBATCH --partition=gpu_a100
 #SBATCH --job-name=mvp_ltx_video_mlp
 #SBATCH --gpus=1
 #SBATCH --ntasks=1
