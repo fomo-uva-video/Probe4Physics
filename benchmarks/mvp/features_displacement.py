@@ -8,12 +8,12 @@ from uuid import uuid4
 
 import torch
 
-from benchmarks.intphys2.baseline_config import with_intphys2_baseline_test_config
-from benchmarks.intphys2.features import (
+from benchmarks.mvp.baseline_config import with_mvp_baseline_test_config
+from benchmarks.mvp.features import (
     _decode_video_clip,
     has_valid_feature_cache,
     resolve_expected_feature_cache_paths,
-    run_intphys2_feature_extraction,
+    run_mvp_feature_extraction,
 )
 
 _BASELINE_TAG = "displacement"
@@ -32,20 +32,18 @@ def _make_displacement_clip_fn():
         clip = _decode_video_clip(record["video_path"], num_frames, crop_size)
         d = _displacement_for_sample(str(record["sample_id"]), num_frames)
         return torch.roll(clip, shifts=d, dims=2)
+
     return clip_fn
 
 
-def run_intphys2_displacement_extraction(config: dict[str, Any]) -> dict[str, Any]:
-    config = with_intphys2_baseline_test_config(config, _BASELINE_TAG)
+def run_mvp_displacement_extraction(config: dict[str, Any]) -> dict[str, Any]:
+    config = with_mvp_baseline_test_config(config, _BASELINE_TAG)
+    result = run_mvp_feature_extraction(config, clip_fn=_make_displacement_clip_fn())
 
-    clip_fn = _make_displacement_clip_fn()
-    result = run_intphys2_feature_extraction(config, clip_fn=clip_fn)
-
-    # Write baseline_metadata.json with per-sample displacement values.
-    # Computed deterministically from the index, so it works after resume/skip too.
     paths = resolve_expected_feature_cache_paths(config)
     if paths.index_path.exists():
         import pandas as pd
+
         index = pd.read_parquet(paths.index_path)
         num_frames = int(config.get("decode", {}).get("num_frames", 16))
         displacements = {
@@ -73,4 +71,4 @@ def run_intphys2_displacement_extraction(config: dict[str, Any]) -> dict[str, An
 
 
 def has_valid_displacement_cache(config: dict[str, Any]) -> bool:
-    return has_valid_feature_cache(with_intphys2_baseline_test_config(config, _BASELINE_TAG))
+    return has_valid_feature_cache(with_mvp_baseline_test_config(config, _BASELINE_TAG))

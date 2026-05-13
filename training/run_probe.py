@@ -19,10 +19,12 @@ from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset, Sampler
 
+from benchmarks.intphys2.baseline_config import with_intphys2_baseline_test_config
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import (
     load_feature_cache_for_config as load_intphys2_feature_cache,
 )
+from benchmarks.mvp.baseline_config import with_mvp_baseline_test_config
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import (
     MVPChunkedTokenStore,
@@ -205,6 +207,40 @@ DATASET_SPECS = {
         eval_prefix="mvp_probe_eval",
         objective_metric="pair_consistency",
     ),
+    "mvp_displacement": DatasetSpec(
+        name="mvp_displacement",
+        load_bundle=lambda config, feature_view: load_mvp_feature_cache(
+            with_mvp_baseline_test_config(config, "displacement"),
+            feature_view=feature_view,
+        ),
+        eval_runner=lambda config: run_mvp_eval(
+            with_mvp_baseline_test_config(config, "displacement")
+        ),
+        default_train_output_dir="artifacts/probes",
+        default_eval_output_dir="artifacts/results/mvp_displacement",
+        default_eval_split="test",
+        report_splits=(),
+        train_prefix="mvp_displacement_probe",
+        eval_prefix="mvp_displacement_probe_eval",
+        objective_metric="pair_consistency",
+    ),
+    "mvp_single_frame": DatasetSpec(
+        name="mvp_single_frame",
+        load_bundle=lambda config, feature_view: load_mvp_feature_cache(
+            with_mvp_baseline_test_config(config, "single_frame"),
+            feature_view=feature_view,
+        ),
+        eval_runner=lambda config: run_mvp_eval(
+            with_mvp_baseline_test_config(config, "single_frame")
+        ),
+        default_train_output_dir="artifacts/probes",
+        default_eval_output_dir="artifacts/results/mvp_single_frame",
+        default_eval_split="test",
+        report_splits=(),
+        train_prefix="mvp_single_frame_probe",
+        eval_prefix="mvp_single_frame_probe_eval",
+        objective_metric="pair_consistency",
+    ),
     "intphys2": DatasetSpec(
         name="intphys2",
         load_bundle=lambda config, feature_view: load_intphys2_feature_cache(
@@ -223,14 +259,16 @@ DATASET_SPECS = {
     "intphys2_displacement": DatasetSpec(
         name="intphys2_displacement",
         load_bundle=lambda config, feature_view: load_intphys2_feature_cache(
-            {**config, "baseline_tag": "displacement"},
+            with_intphys2_baseline_test_config(config, "displacement"),
             feature_view=feature_view,
         ),
-        eval_runner=lambda config: run_intphys2_eval(config),
-        default_train_output_dir="artifacts/probes/intphys2_displacement",
+        eval_runner=lambda config: run_intphys2_eval(
+            with_intphys2_baseline_test_config(config, "displacement")
+        ),
+        default_train_output_dir="artifacts/probes/intphys2",
         default_eval_output_dir="artifacts/results/intphys2_displacement",
         default_eval_split="test",
-        report_splits=("train", "val", "test"),
+        report_splits=(),
         train_prefix="intphys2_displacement_probe",
         eval_prefix="intphys2_displacement_probe_eval",
         objective_metric="voe_accuracy",
@@ -238,11 +276,13 @@ DATASET_SPECS = {
     "intphys2_single_frame": DatasetSpec(
         name="intphys2_single_frame",
         load_bundle=lambda config, feature_view: load_intphys2_feature_cache(
-            {**config, "baseline_tag": "single_frame"},
+            with_intphys2_baseline_test_config(config, "single_frame"),
             feature_view=feature_view,
         ),
-        eval_runner=lambda config: run_intphys2_eval(config),
-        default_train_output_dir="artifacts/probes/intphys2_single_frame",
+        eval_runner=lambda config: run_intphys2_eval(
+            with_intphys2_baseline_test_config(config, "single_frame")
+        ),
+        default_train_output_dir="artifacts/probes/intphys2",
         default_eval_output_dir="artifacts/results/intphys2_single_frame",
         default_eval_split="test",
         report_splits=(),
@@ -303,6 +343,21 @@ def run_mvp_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_eval("mvp", config)
 
 
+def run_mvp_displacement_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_eval(
+        "mvp_displacement",
+        with_mvp_baseline_test_config(config, "displacement"),
+    )
+
+
+def run_mvp_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return _run_single_frame_label_scenarios(
+        dataset="mvp_single_frame",
+        config=with_mvp_baseline_test_config(config, "single_frame"),
+        primary_mode="all_true",
+    )
+
+
 def run_intphys2_train_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train("intphys2", config)
 
@@ -332,19 +387,40 @@ def run_ssv2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_intphys2_displacement_train_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_train("intphys2_displacement", config)
+    raise ProbeConfigError(
+        "IntPhys2 displacement baseline is test-only. "
+        "Train the normal IntPhys2 probe, then run eval.probe.intphys2.displacement."
+    )
 
 
 def run_intphys2_displacement_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_eval("intphys2_displacement", config)
+    return run_probe_eval(
+        "intphys2_displacement",
+        with_intphys2_baseline_test_config(config, "displacement"),
+    )
 
 
 def run_intphys2_displacement_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_train_eval("intphys2_displacement", config)
+    raise ProbeConfigError(
+        "IntPhys2 displacement baseline is test-only. "
+        "Train/eval is disabled; run eval.probe.intphys2.displacement with a normal IntPhys2 checkpoint."
+    )
 
 
 def run_intphys2_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    dataset = "intphys2_single_frame"
+    return _run_single_frame_label_scenarios(
+        dataset="intphys2_single_frame",
+        config=with_intphys2_baseline_test_config(config, "single_frame"),
+        primary_mode="all_true",
+    )
+
+
+def _run_single_frame_label_scenarios(
+    *,
+    dataset: str,
+    config: dict[str, Any],
+    primary_mode: str,
+) -> dict[str, Any]:
     _require_dataset(dataset)
     probe_cfg = _probe_cfg(config)
     context = _load_eval_context(dataset, config, probe_cfg)
@@ -392,8 +468,8 @@ def run_intphys2_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, An
         scenario_summaries[label_mode] = scenario_summary
         metrics_by_label_mode[label_mode] = metrics
 
-    primary_mode = "all_true"
     primary_metrics = metrics_by_label_mode[primary_mode]
+    metric_name = getattr(context.spec, "objective_metric", "voe_accuracy")
     summary = {
         "probe_eval_dir": str(eval_root),
         "checkpoint": str(context.checkpoint_path),
@@ -402,7 +478,8 @@ def run_intphys2_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, An
         "dataset": dataset,
         "probe_name": probe_cfg["name"],
         "split_name": eval_split,
-        "objective_metric": float(primary_metrics.get("voe_accuracy", 0.0)),
+        "objective_metric": float(primary_metrics.get(metric_name, 0.0)),
+        "objective_metric_name": metric_name,
         "metrics": primary_metrics,
         "metrics_by_label_mode": metrics_by_label_mode,
         "single_frame_evals": scenario_summaries,
@@ -776,7 +853,12 @@ def _load_eval_context(
     ckpt_meta = ckpt_payload.get("metadata", {}) if isinstance(ckpt_payload, dict) else {}
     checkpoint_signature = str(ckpt_meta.get("feature_signature", ""))
     current_signature = str(manifest.get("signature", ""))
-    allow_signature_mismatch = dataset == "intphys2_single_frame"
+    allow_signature_mismatch = dataset in {
+        "intphys2_displacement",
+        "intphys2_single_frame",
+        "mvp_displacement",
+        "mvp_single_frame",
+    }
     if (
         checkpoint_signature
         and checkpoint_signature != current_signature
@@ -1437,6 +1519,8 @@ def _require_dataset(dataset: str) -> None:
 def _dataset_family(dataset: str) -> str:
     if dataset.startswith("intphys2"):
         return "intphys2"
+    if dataset.startswith("mvp"):
+        return "mvp"
     return dataset
 
 
@@ -2004,9 +2088,14 @@ def _resolve_checkpoint_path(
         if candidates:
             break
     if not candidates:
+        checkpoint_dataset = (
+            "intphys2" if dataset.startswith("intphys2_")
+            else "mvp" if dataset.startswith("mvp_")
+            else dataset
+        )
         raise FileNotFoundError(
             "No probe checkpoint found automatically. "
-            f"Set probe.checkpoint_path explicitly or run train.probe.{dataset} first."
+            f"Set probe.checkpoint_path explicitly or run train.probe.{checkpoint_dataset} first."
         )
     return candidates[-1]
 

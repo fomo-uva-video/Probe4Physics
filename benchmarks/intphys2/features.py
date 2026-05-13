@@ -519,8 +519,9 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
         },
         "split_dir": str(split_dir),
         "split_manifest_metadata_sha256": str(split_manifest.get("metadata_sha256", "")),
-        "baseline_tag": baseline_tag,
     }
+    if baseline_tag:
+        payload["baseline_tag"] = baseline_tag
     signature = _sha256_json(payload)[:16]
 
     variant = str(backbone_metadata.get("variant") or backbone_kwargs.get("variant", "")).strip()
@@ -1029,7 +1030,7 @@ def _resume_config_payload(
     decode_cfg: dict[str, Any],
     baseline_tag: str = "",
 ) -> dict[str, Any]:
-    return {
+    payload = {
         "mode": "extract.intphys2",
         "metadata_file": str(metadata_file),
         "split_dir": str(split_dir),
@@ -1042,8 +1043,10 @@ def _resume_config_payload(
         "backbone_kwargs": dict(backbone_kwargs),
         "decode": dict(decode_cfg),
         "videos_root": str(config.get("videos_root", "")),
-        "baseline_tag": str(baseline_tag),
     }
+    if baseline_tag:
+        payload["baseline_tag"] = str(baseline_tag)
+    return payload
 
 
 def _new_resume_state(

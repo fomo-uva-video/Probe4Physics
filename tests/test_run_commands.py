@@ -19,9 +19,15 @@ class RunCommandTests(unittest.TestCase):
             "train.probe.mvp",
             "train_eval.probe.mvp",
             "eval.probe.mvp",
+            "extract.mvp.single_frame",
+            "eval.probe.mvp.single_frame",
+            "extract.mvp.displacement",
+            "eval.probe.mvp.displacement",
             "train_eval.probe.intphys2",
             "extract.intphys2.single_frame",
             "eval.probe.intphys2.single_frame",
+            "extract.intphys2.displacement",
+            "eval.probe.intphys2.displacement",
             "train_eval.probe.ssv2",
             "health",
             "health.layers",
@@ -29,6 +35,8 @@ class RunCommandTests(unittest.TestCase):
             "exp.run",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
+        self.assertNotIn("train.probe.intphys2.displacement", run.COMMANDS)
+        self.assertNotIn("train_eval.probe.intphys2.displacement", run.COMMANDS)
 
     def test_exp_run_executes_pipeline_in_order(self) -> None:
         calls: list[str] = []

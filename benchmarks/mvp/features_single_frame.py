@@ -8,12 +8,12 @@ from uuid import uuid4
 
 import torch
 
-from benchmarks.intphys2.baseline_config import with_intphys2_baseline_test_config
-from benchmarks.intphys2.features import (
+from benchmarks.mvp.baseline_config import with_mvp_baseline_test_config
+from benchmarks.mvp.features import (
     _decode_video_clip,
     has_valid_feature_cache,
     resolve_expected_feature_cache_paths,
-    run_intphys2_feature_extraction,
+    run_mvp_feature_extraction,
 )
 
 _BASELINE_TAG = "single_frame"
@@ -68,9 +68,9 @@ def _write_single_frame_metadata(config: dict[str, Any]) -> None:
     os.replace(tmp, metadata_path)
 
 
-def run_intphys2_single_frame_extraction(config: dict[str, Any]) -> dict[str, Any]:
-    config = with_intphys2_baseline_test_config(config, _BASELINE_TAG)
-    result = run_intphys2_feature_extraction(
+def run_mvp_single_frame_extraction(config: dict[str, Any]) -> dict[str, Any]:
+    config = with_mvp_baseline_test_config(config, _BASELINE_TAG)
+    result = run_mvp_feature_extraction(
         config,
         clip_fn=_make_single_frame_clip_fn(),
     )
@@ -79,4 +79,4 @@ def run_intphys2_single_frame_extraction(config: dict[str, Any]) -> dict[str, An
 
 
 def has_valid_single_frame_cache(config: dict[str, Any]) -> bool:
-    return has_valid_feature_cache(with_intphys2_baseline_test_config(config, _BASELINE_TAG))
+    return has_valid_feature_cache(with_mvp_baseline_test_config(config, _BASELINE_TAG))

@@ -276,7 +276,11 @@ def _lookup_layer_tensor(by_layer: dict[Any, Any], layer: int) -> torch.Tensor |
     return None
 
 
-def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
+def run_mvp_feature_extraction(
+    config: dict[str, Any],
+    *,
+    clip_fn: Any = None,
+) -> dict[str, Any]:
     """Build or reuse an MVP feature cache for the requested config.
 
     Parameters
@@ -369,6 +373,7 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             backbone_name=backbone_name,
             backbone_kwargs=backbone_kwargs,
             decode_cfg=decode_cfg,
+            baseline_tag=str(config.get("baseline_tag", "")).strip(),
         )
     )
     ordered_sample_ids_all = [str(row["sample_id"]) for row in ordered_records_all]
@@ -499,6 +504,7 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
                 adapter=adapter,
                 requested_layer_ids=requested_layer_ids,
                 decode_cfg=decode_cfg,
+                clip_fn=clip_fn,
                 include_pooled=bool(feature_cfg["include_pooled"]),
                 include_tokens=bool(feature_cfg["include_tokens"]),
             )
@@ -647,6 +653,7 @@ def run_mvp_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             aggregated_processed_samples=aggregated_processed_samples,
             aggregated_seconds_per_processed_sample=aggregated_seconds_per_processed_sample,
             aggregated_seconds_per_total_sample=aggregated_seconds_per_total_sample,
+            baseline_tag=str(config.get("baseline_tag", "")).strip(),
         )
         _write_json_atomic(paths.manifest_path, manifest)
 
@@ -739,6 +746,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     backbone_name, backbone_kwargs = _backbone_cfg(config)
     feature_cfg = _feature_cfg(config)
     backbone_metadata = resolve_backbone_cache_metadata(backbone_name, backbone_kwargs)
+    baseline_tag = str(config.get("baseline_tag", "")).strip()
 
     payload = {
         "annotation_file": str(config.get("annotation_file", "")),
@@ -762,6 +770,8 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
         "split_manifest_annotation_sha256": str(split_manifest.get("annotation_sha256", "")),
         "split_manifest_selection_sha256": str(split_manifest.get("selection_sha256", "")),
     }
+    if baseline_tag:
+        payload["baseline_tag"] = baseline_tag
     signature = _sha256_json(payload)[:16]
 
     variant = str(backbone_metadata.get("variant") or backbone_kwargs.get("variant", "")).strip()
@@ -913,6 +923,7 @@ def _find_compatible_feature_cache(
         else [int(v) for v in backbone_metadata.get("selected_layers", [])]
     )
     decode_cfg = _signature_decode_cfg(config, backbone_metadata)
+    baseline_tag = str(config.get("baseline_tag", "")).strip()
 
     matches: list[tuple[float, FeatureCachePaths]] = []
     for manifest_path in root.glob("*/manifest.json"):
@@ -934,6 +945,7 @@ def _find_compatible_feature_cache(
             expected_variant=variant,
             expected_layers=expected_layers,
             decode_cfg=decode_cfg,
+            baseline_tag=baseline_tag,
         ):
             continue
         if not _index_matches_current_mvp_semantics(
@@ -959,8 +971,9 @@ def _manifest_matches_compatible_request(
     expected_variant: str,
     expected_layers: list[int],
     decode_cfg: dict[str, Any],
+    baseline_tag: str = "",
 ) -> bool:
-    if str(manifest.get("kind", "")) != "mvp_feature_cache":
+    if str(manifest.get("kind", "")) != _manifest_kind(baseline_tag):
         return False
 
     targets = manifest.get("targets", {})
@@ -1063,6 +1076,12 @@ def _feature_cache_paths(cache_dir: Path) -> FeatureCachePaths:
         tokens_path=cache_dir / "features_tokens.pt",
         signature=cache_dir.name,
     )
+
+
+def _manifest_kind(baseline_tag: str) -> str:
+    if baseline_tag:
+        return f"mvp_{baseline_tag}_feature_cache"
+    return "mvp_feature_cache"
 
 
 def _validate_extract_config(config: dict[str, Any]) -> None:
@@ -1449,8 +1468,9 @@ def _resume_config_payload(
     backbone_name: str,
     backbone_kwargs: dict[str, Any],
     decode_cfg: dict[str, Any],
+    baseline_tag: str = "",
 ) -> dict[str, Any]:
-    return {
+    payload = {
         "mode": "extract.mvp",
         "annotation_file": str(annotation_file),
         "split_dir": str(split_dir),
@@ -1466,6 +1486,9 @@ def _resume_config_payload(
         "official_repo_root": str(config.get("official_repo_root", "")),
         "videos_root": str(config.get("videos_root", "")),
     }
+    if baseline_tag:
+        payload["baseline_tag"] = str(baseline_tag)
+    return payload
 
 
 def _new_resume_state(
@@ -1708,6 +1731,7 @@ def _extract_chunk_records(
     decode_cfg: dict[str, Any],
     include_pooled: bool,
     include_tokens: bool,
+    clip_fn: Any = None,
 ) -> tuple[
     list[dict[str, Any]],
     dict[int, torch.Tensor],
@@ -1722,11 +1746,18 @@ def _extract_chunk_records(
     adapter_metadata: dict[str, Any] = {}
 
     for local_index, record in enumerate(records):
-        clip = _decode_video_clip(
-            video_path=record["video_path"],
-            num_frames=int(decode_cfg["num_frames"]),
-            crop_size=int(decode_cfg["crop_size"]),
-        )
+        if clip_fn is None:
+            clip = _decode_video_clip(
+                video_path=record["video_path"],
+                num_frames=int(decode_cfg["num_frames"]),
+                crop_size=int(decode_cfg["crop_size"]),
+            )
+        else:
+            clip = clip_fn(
+                record,
+                int(decode_cfg["num_frames"]),
+                int(decode_cfg["crop_size"]),
+            )
         with torch.no_grad():
             features = adapter.extract(clip, layer_ids=requested_layer_ids)
 
@@ -1863,10 +1894,11 @@ def _build_manifest(
     aggregated_processed_samples: int,
     aggregated_seconds_per_processed_sample: float,
     aggregated_seconds_per_total_sample: float,
+    baseline_tag: str = "",
 ) -> dict[str, Any]:
-    return {
+    manifest = {
         "version": 2,
-        "kind": "mvp_feature_cache",
+        "kind": _manifest_kind(baseline_tag),
         "signature": paths.signature,
         "created_at_utc": datetime.now(tz=timezone.utc).isoformat(),
         "python": sys.version,
@@ -1947,6 +1979,9 @@ def _build_manifest(
             ),
         },
     }
+    if baseline_tag:
+        manifest["baseline"] = {"tag": str(baseline_tag)}
+    return manifest
 
 
 def _load_split_pairs(path: Path) -> list[dict[str, Any]]:

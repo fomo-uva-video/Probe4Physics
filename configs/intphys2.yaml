@@ -18,6 +18,7 @@ seed: 42
 # Leave empty for the standard extraction. Set to "displacement" or
 # "single_frame" when running the control-baseline commands.
 # Do not set this manually — the baseline commands inject it automatically.
+# Baseline commands also force feature_cache.split_names=[test].
 baseline_tag: ""
 
 split:

@@ -19,6 +19,8 @@ from benchmarks.intphys2.features_single_frame import has_valid_single_frame_cac
 from benchmarks.intphys2.init import run_intphys2_init
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import has_valid_feature_cache
+from benchmarks.mvp.features_displacement import has_valid_displacement_cache as has_valid_mvp_displacement_cache
+from benchmarks.mvp.features_single_frame import has_valid_single_frame_cache as has_valid_mvp_single_frame_cache
 from benchmarks.mvp.init import run_mvp_init
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_cache
@@ -27,13 +29,13 @@ from experiments.health import run_health, run_health_features, run_health_layer
 from experiments.registry import get_experiment, list_experiments
 from training.run_probe import (
     run_intphys2_displacement_eval_probe,
-    run_intphys2_displacement_train_eval_probe,
-    run_intphys2_displacement_train_probe,
     run_intphys2_eval_probe,
     run_intphys2_single_frame_eval_probe,
     run_intphys2_train_eval_probe,
     run_intphys2_train_probe,
+    run_mvp_displacement_eval_probe,
     run_mvp_eval_probe,
+    run_mvp_single_frame_eval_probe,
     run_mvp_train_eval_probe,
     run_mvp_train_probe,
     run_ssv2_eval_probe,
@@ -43,7 +45,9 @@ from training.run_probe import (
 from training.intphys2_displacement_extract import run_intphys2_displacement_extract
 from training.intphys2_extract import run_intphys2_extract
 from training.intphys2_single_frame_extract import run_intphys2_single_frame_extract
+from training.mvp_displacement_extract import run_mvp_displacement_extract
 from training.mvp_extract import run_mvp_extract
+from training.mvp_single_frame_extract import run_mvp_single_frame_extract
 from training.ssv2_extract import run_ssv2_extract
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
@@ -136,6 +140,8 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
 
         _is_extract_cached = (
             (step == "extract.mvp" and has_valid_feature_cache(merged_config))
+            or (step == "extract.mvp.displacement" and has_valid_mvp_displacement_cache(merged_config))
+            or (step == "extract.mvp.single_frame" and has_valid_mvp_single_frame_cache(merged_config))
             or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
             or (step == "extract.intphys2.displacement" and has_valid_intphys2_displacement_cache(merged_config))
             or (step == "extract.intphys2.single_frame" and has_valid_intphys2_single_frame_cache(merged_config))
@@ -217,6 +223,28 @@ COMMANDS = {
         handler=run_mvp_eval_probe,
         description="Evaluate the selected probe with official MVP scoring.",
     ),
+    # --- MVP displacement baseline ---
+    "extract.mvp.displacement": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_displacement_extract,
+        description="Extract test-only displacement baseline features for MVP.",
+    ),
+    "eval.probe.mvp.displacement": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_displacement_eval_probe,
+        description="Evaluate an existing probe on the test-only MVP displacement baseline.",
+    ),
+    # --- MVP single-frame baseline ---
+    "extract.mvp.single_frame": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_single_frame_extract,
+        description="Extract test-only single-frame repeated baseline features for MVP.",
+    ),
+    "eval.probe.mvp.single_frame": CommandSpec(
+        config_name="mvp",
+        handler=run_mvp_single_frame_eval_probe,
+        description="Evaluate an existing probe on MVP single-frame baseline (all_true + all_false).",
+    ),
     # --- IntPhys2 ---
     "download.intphys2": CommandSpec(
         config_name="intphys2",
@@ -257,28 +285,18 @@ COMMANDS = {
     "extract.intphys2.displacement": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_displacement_extract,
-        description="Extract displacement baseline features for IntPhys2.",
-    ),
-    "train.probe.intphys2.displacement": CommandSpec(
-        config_name="intphys2",
-        handler=run_intphys2_displacement_train_probe,
-        description="Train a probe from displacement IntPhys2 features.",
-    ),
-    "train_eval.probe.intphys2.displacement": CommandSpec(
-        config_name="intphys2",
-        handler=run_intphys2_displacement_train_eval_probe,
-        description="Train and evaluate probe on displacement IntPhys2 features across layers.",
+        description="Extract test-only displacement baseline features for IntPhys2.",
     ),
     "eval.probe.intphys2.displacement": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_displacement_eval_probe,
-        description="Evaluate probe on IntPhys2 displacement baseline (accuracy + VOE).",
+        description="Evaluate an existing probe on the test-only IntPhys2 displacement baseline.",
     ),
     # --- IntPhys2 single-frame baseline ---
     "extract.intphys2.single_frame": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_single_frame_extract,
-        description="Extract single-frame repeated baseline features for IntPhys2.",
+        description="Extract test-only single-frame repeated baseline features for IntPhys2.",
     ),
     "eval.probe.intphys2.single_frame": CommandSpec(
         config_name="intphys2",
@@ -341,7 +359,7 @@ COMMANDS = {
     "exp.run": CommandSpec(
         config_name="mvp",
         handler=_run_exp,
-        description="Run an experiment recipe (extract -> train -> eval).",
+        description="Run an experiment recipe.",
     ),
 }
 
@@ -379,6 +397,14 @@ def _print_help() -> None:
         "  python run.py train_eval.probe.mvp",
         "  python run.py eval.probe.mvp",
         "",
+        "MVP displacement baseline commands:",
+        "  python run.py extract.mvp.displacement",
+        "  python run.py eval.probe.mvp.displacement",
+        "",
+        "MVP single-frame baseline commands:",
+        "  python run.py extract.mvp.single_frame",
+        "  python run.py eval.probe.mvp.single_frame",
+        "",
         "IntPhys2 commands:",
         "  python run.py download.intphys2",
         "  python run.py init.intphys2",
@@ -389,8 +415,6 @@ def _print_help() -> None:
         "",
         "IntPhys2 displacement baseline commands:",
         "  python run.py extract.intphys2.displacement",
-        "  python run.py train.probe.intphys2.displacement",
-        "  python run.py train_eval.probe.intphys2.displacement",
         "  python run.py eval.probe.intphys2.displacement",
         "",
         "IntPhys2 single-frame baseline commands:",
