@@ -15,6 +15,7 @@ from benchmarks.intphys2.download import run_intphys2_download
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import has_valid_feature_cache as has_valid_intphys2_cache
 from benchmarks.intphys2.features_displacement import has_valid_displacement_cache as has_valid_intphys2_displacement_cache
+from benchmarks.intphys2.features_single_frame import has_valid_single_frame_cache as has_valid_intphys2_single_frame_cache
 from benchmarks.intphys2.init import run_intphys2_init
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import has_valid_feature_cache
@@ -29,6 +30,7 @@ from training.run_probe import (
     run_intphys2_displacement_train_eval_probe,
     run_intphys2_displacement_train_probe,
     run_intphys2_eval_probe,
+    run_intphys2_single_frame_eval_probe,
     run_intphys2_train_eval_probe,
     run_intphys2_train_probe,
     run_mvp_eval_probe,
@@ -40,6 +42,7 @@ from training.run_probe import (
 )
 from training.intphys2_displacement_extract import run_intphys2_displacement_extract
 from training.intphys2_extract import run_intphys2_extract
+from training.intphys2_single_frame_extract import run_intphys2_single_frame_extract
 from training.mvp_extract import run_mvp_extract
 from training.ssv2_extract import run_ssv2_extract
 
@@ -135,6 +138,7 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
             (step == "extract.mvp" and has_valid_feature_cache(merged_config))
             or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
             or (step == "extract.intphys2.displacement" and has_valid_intphys2_displacement_cache(merged_config))
+            or (step == "extract.intphys2.single_frame" and has_valid_intphys2_single_frame_cache(merged_config))
             or (step == "extract.ssv2" and has_valid_ssv2_cache(merged_config))
         )
         if _is_extract_cached and not force_reextract:
@@ -270,6 +274,17 @@ COMMANDS = {
         handler=run_intphys2_displacement_eval_probe,
         description="Evaluate probe on IntPhys2 displacement baseline (accuracy + VOE).",
     ),
+    # --- IntPhys2 single-frame baseline ---
+    "extract.intphys2.single_frame": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_single_frame_extract,
+        description="Extract single-frame repeated baseline features for IntPhys2.",
+    ),
+    "eval.probe.intphys2.single_frame": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_single_frame_eval_probe,
+        description="Evaluate an existing probe on IntPhys2 single-frame baseline (all_true + all_false).",
+    ),
     # --- SSv2 ---
     "init.ssv2": CommandSpec(
         config_name="ssv2",
@@ -378,6 +393,10 @@ def _print_help() -> None:
         "  python run.py train_eval.probe.intphys2.displacement",
         "  python run.py eval.probe.intphys2.displacement",
         "",
+        "IntPhys2 single-frame baseline commands:",
+        "  python run.py extract.intphys2.single_frame",
+        "  python run.py eval.probe.intphys2.single_frame",
+        "",
         "SSv2 commands:",
         "  python run.py init.ssv2",
         "  python run.py extract.ssv2",
@@ -402,6 +421,8 @@ def _print_help() -> None:
         "  python run.py exp.run name=intphys2.ltx_video.probe",
         "  python run.py exp.run name=intphys2.jepa_v1.displacement",
         "  python run.py exp.run name=intphys2.ltx_video.displacement",
+        "  python run.py exp.run name=intphys2.jepa_v1.single_frame",
+        "  python run.py exp.run name=intphys2.ltx_video.single_frame",
         "  python run.py exp.run name=ssv2.jepa_v1.probe",
         "  python run.py exp.run name=ssv2.ltx_video.probe",
         "",

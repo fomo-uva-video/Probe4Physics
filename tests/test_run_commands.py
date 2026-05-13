@@ -20,6 +20,8 @@ class RunCommandTests(unittest.TestCase):
             "train_eval.probe.mvp",
             "eval.probe.mvp",
             "train_eval.probe.intphys2",
+            "extract.intphys2.single_frame",
+            "eval.probe.intphys2.single_frame",
             "train_eval.probe.ssv2",
             "health",
             "health.layers",

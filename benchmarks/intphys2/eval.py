@@ -105,6 +105,12 @@ def run_intphys2_eval(config: dict[str, Any]) -> dict[str, Any]:
         )
 
     selected_rows = [row_by_sample[sid] for sid in ordered_sample_ids]
+    label_override = _label_override(config)
+    if label_override is not None:
+        selected_rows = [
+            {**row, "plausibility": int(label_override)}
+            for row in selected_rows
+        ]
 
     benchmark = IntPhys2Benchmark()
     samples = benchmark.load_samples(selected_rows, split=split_name)
@@ -116,6 +122,7 @@ def run_intphys2_eval(config: dict[str, Any]) -> dict[str, Any]:
     _log_eval(
         "Scoring complete",
         accuracy=f"{metrics.accuracy:.4f}",
+        roc_auc="n/a" if metrics.roc_auc is None else f"{metrics.roc_auc:.6f}",
         voe_accuracy=f"{metrics.voe_accuracy:.4f}",
         n_scenes=metrics.n_scenes,
         n_samples=metrics.n_samples,
@@ -166,6 +173,16 @@ def _split_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise ConfigError("split config must be a dictionary")
     return {"dir": str(raw.get("dir", "data/splits/intphys2"))}
+
+
+def _label_override(config: dict[str, Any]) -> int | None:
+    raw = config.get("label_override", None)
+    if raw is None or raw == "":
+        return None
+    value = int(raw)
+    if value not in (0, 1):
+        raise ConfigError("label_override must be 0, 1, or empty.")
+    return value
 
 
 def _predict(samples, config: dict[str, Any]) -> list[IntPhys2Prediction]:
@@ -299,12 +316,14 @@ def _write_summary(path: Path, metrics, config: dict[str, Any]) -> None:
         "",
         f"- Split: `{config['split_name']}`",
         f"- Seed: `{config['seed']}`",
+        f"- Label override: `{config.get('label_override', '')}`",
         f"- Samples: `{metrics.n_samples}`",
         f"- Scenes: `{metrics.n_scenes}`",
         "",
         "| Metric | Value |",
         "|---|---:|",
         f"| Accuracy (%) | {metrics.accuracy:.4f} |",
+        f"| ROC AUC | {'n/a' if metrics.roc_auc is None else f'{metrics.roc_auc:.6f}'} |",
         f"| VOE Accuracy (%) | {metrics.voe_accuracy:.4f} |",
     ]
     if metrics.accuracy_by_condition:
@@ -330,6 +349,7 @@ def _write_provenance(
         "python": sys.version,
         "seed": int(config["seed"]),
         "split_name": str(config["split_name"]),
+        "label_override": config.get("label_override", ""),
         "split_dir": str(split_dir),
         "manifest": str(manifest_path),
         "git": {

@@ -229,6 +229,7 @@ class IntPhys2BenchmarkEvaluateTests(unittest.TestCase):
             for s in samples
         ]
         metrics = IntPhys2Benchmark().evaluate(samples, predictions)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 1.0)
         self.assertAlmostEqual(metrics.voe_accuracy, 100.0)
 
     def test_inverted_scores_give_0_voe(self) -> None:
