@@ -98,7 +98,6 @@ class IntPhys2Benchmark:
             if total_by_condition.get(cond, 0) > 0
         }
 
-        roc_auc = self._compute_roc_auc(samples, pred_by_id)
         voe_accuracy, voe_by_condition = self._compute_voe(samples, pred_by_id)
         roc_auc = self._compute_roc_auc(samples, pred_by_id)
         n_scenes = len({sample.scene_id for sample in samples})
@@ -107,7 +106,6 @@ class IntPhys2Benchmark:
             accuracy=accuracy,
             roc_auc=roc_auc,
             voe_accuracy=voe_accuracy,
-            roc_auc=roc_auc,
             n_samples=n_samples,
             n_scenes=n_scenes,
             accuracy_by_condition=accuracy_by_condition,
