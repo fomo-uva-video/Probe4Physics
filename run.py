@@ -14,6 +14,7 @@ from omegaconf import OmegaConf
 from benchmarks.intphys2.download import run_intphys2_download
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import has_valid_feature_cache as has_valid_intphys2_cache
+from benchmarks.intphys2.features_displacement import has_valid_displacement_cache as has_valid_intphys2_displacement_cache
 from benchmarks.intphys2.init import run_intphys2_init
 from benchmarks.mvp.eval import run_mvp_eval
 from benchmarks.mvp.features import has_valid_feature_cache
@@ -24,6 +25,9 @@ from benchmarks.ssv2.init import run_ssv2_init
 from experiments.health import run_health, run_health_features, run_health_layers
 from experiments.registry import get_experiment, list_experiments
 from training.run_probe import (
+    run_intphys2_displacement_eval_probe,
+    run_intphys2_displacement_train_eval_probe,
+    run_intphys2_displacement_train_probe,
     run_intphys2_eval_probe,
     run_intphys2_train_eval_probe,
     run_intphys2_train_probe,
@@ -34,6 +38,7 @@ from training.run_probe import (
     run_ssv2_train_eval_probe,
     run_ssv2_train_probe,
 )
+from training.intphys2_displacement_extract import run_intphys2_displacement_extract
 from training.intphys2_extract import run_intphys2_extract
 from training.mvp_extract import run_mvp_extract
 from training.ssv2_extract import run_ssv2_extract
@@ -129,6 +134,7 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
         _is_extract_cached = (
             (step == "extract.mvp" and has_valid_feature_cache(merged_config))
             or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
+            or (step == "extract.intphys2.displacement" and has_valid_intphys2_displacement_cache(merged_config))
             or (step == "extract.ssv2" and has_valid_ssv2_cache(merged_config))
         )
         if _is_extract_cached and not force_reextract:
@@ -243,6 +249,27 @@ COMMANDS = {
         handler=run_intphys2_eval_probe,
         description="Evaluate the selected probe on IntPhys2 with accuracy + VOE scoring.",
     ),
+    # --- IntPhys2 displacement baseline ---
+    "extract.intphys2.displacement": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_displacement_extract,
+        description="Extract displacement baseline features for IntPhys2.",
+    ),
+    "train.probe.intphys2.displacement": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_displacement_train_probe,
+        description="Train a probe from displacement IntPhys2 features.",
+    ),
+    "train_eval.probe.intphys2.displacement": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_displacement_train_eval_probe,
+        description="Train and evaluate probe on displacement IntPhys2 features across layers.",
+    ),
+    "eval.probe.intphys2.displacement": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_displacement_eval_probe,
+        description="Evaluate probe on IntPhys2 displacement baseline (accuracy + VOE).",
+    ),
     # --- SSv2 ---
     "init.ssv2": CommandSpec(
         config_name="ssv2",
@@ -345,6 +372,12 @@ def _print_help() -> None:
         "  python run.py train_eval.probe.intphys2",
         "  python run.py eval.probe.intphys2",
         "",
+        "IntPhys2 displacement baseline commands:",
+        "  python run.py extract.intphys2.displacement",
+        "  python run.py train.probe.intphys2.displacement",
+        "  python run.py train_eval.probe.intphys2.displacement",
+        "  python run.py eval.probe.intphys2.displacement",
+        "",
         "SSv2 commands:",
         "  python run.py init.ssv2",
         "  python run.py extract.ssv2",
@@ -367,6 +400,8 @@ def _print_help() -> None:
         "  python run.py exp.run name=mvp.ltx_video.probe",
         "  python run.py exp.run name=intphys2.jepa_v1.probe",
         "  python run.py exp.run name=intphys2.ltx_video.probe",
+        "  python run.py exp.run name=intphys2.jepa_v1.displacement",
+        "  python run.py exp.run name=intphys2.ltx_video.displacement",
         "  python run.py exp.run name=ssv2.jepa_v1.probe",
         "  python run.py exp.run name=ssv2.ltx_video.probe",
         "",

@@ -14,6 +14,12 @@ cache_dir: data/cache/intphys2
 
 seed: 42
 
+# Baseline tag used to namespace feature caches for control baselines.
+# Leave empty for the standard extraction. Set to "displacement" when running
+# the displacement baseline commands (extract.intphys2.displacement, etc.).
+# Do not set this manually — the baseline commands inject it automatically.
+baseline_tag: ""
+
 split:
   dir: data/splits/intphys2
   # 60/20/20 train/val/test applied to the Main split only (debug is dropped).

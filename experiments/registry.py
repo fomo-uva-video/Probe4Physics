@@ -51,6 +51,33 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
+    "intphys2.jepa_v1.displacement": ExperimentSpec(
+        name="intphys2.jepa_v1.displacement",
+        description="IntPhys2 displacement baseline probe recipe with JEPA v1.",
+        pipeline=(
+            "extract.intphys2.displacement",
+            "train.probe.intphys2.displacement",
+            "eval.probe.intphys2.displacement",
+        ),
+        config_overrides={},
+    ),
+    "intphys2.ltx_video.displacement": ExperimentSpec(
+        name="intphys2.ltx_video.displacement",
+        description="IntPhys2 displacement baseline probe recipe with LTX-Video diffusion transformer features.",
+        pipeline=(
+            "extract.intphys2.displacement",
+            "train.probe.intphys2.displacement",
+            "eval.probe.intphys2.displacement",
+        ),
+        config_overrides={
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
     "ssv2.jepa_v1.probe": ExperimentSpec(
         name="ssv2.jepa_v1.probe",
         description="SSv2 frozen-feature probe recipe with JEPA v1 (control task).",
