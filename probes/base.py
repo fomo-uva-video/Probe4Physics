@@ -23,6 +23,8 @@ class ProbeFitResult:
     best_epoch: int | None = None
     best_val_loss: float | None = None
     best_val_accuracy: float | None = None
+    early_stopped: bool = False
+    early_stopping_patience: int | None = None
     history: list[dict[str, float]] = field(default_factory=list)
 
 
@@ -41,6 +43,7 @@ class Probe(Protocol):
         batch_size: int = 128,
         eval_batch_size: int | None = None,
         weight_decay: float = 0.0,
+        early_stopping_patience: int | None = None,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
@@ -60,6 +63,7 @@ class Probe(Protocol):
         epochs: int = 10,
         lr: float = 1e-3,
         weight_decay: float = 0.0,
+        early_stopping_patience: int | None = None,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
@@ -222,6 +226,7 @@ class BaseClassifierProbe(ABC):
         batch_size: int = 128,
         eval_batch_size: int | None = None,
         weight_decay: float = 0.0,
+        early_stopping_patience: int | None = None,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
@@ -247,6 +252,7 @@ class BaseClassifierProbe(ABC):
             epochs=epochs,
             lr=lr,
             weight_decay=weight_decay,
+            early_stopping_patience=early_stopping_patience,
             seed=seed,
             epoch_logger=epoch_logger,
         )
@@ -259,6 +265,7 @@ class BaseClassifierProbe(ABC):
         epochs: int = 10,
         lr: float = 1e-3,
         weight_decay: float = 0.0,
+        early_stopping_patience: int | None = None,
         seed: int = 42,
         epoch_logger: Callable[[dict[str, float]], None] | None = None,
     ) -> ProbeFitResult:
@@ -278,6 +285,9 @@ class BaseClassifierProbe(ABC):
         best_val_loss: float | None = None
         best_val_accuracy: float | None = None
         best_state_dict: dict[str, Any] | None = None
+        patience = None if early_stopping_patience is None else max(1, int(early_stopping_patience))
+        epochs_without_improvement = 0
+        early_stopped = False
 
         for epoch_idx in range(int(epochs)):
             batch_sampler = getattr(train_loader, "batch_sampler", None)
@@ -337,13 +347,23 @@ class BaseClassifierProbe(ABC):
                     best_val_loss = float(val_loss)
                     best_val_accuracy = float(val_accuracy)
                     best_state_dict = copy.deepcopy(self.model.state_dict())
+                    epochs_without_improvement = 0
+                elif patience is not None:
+                    epochs_without_improvement += 1
 
             history.append(row)
             if epoch_logger is not None:
                 epoch_logger(dict(row))
+            if (
+                val_loader is not None
+                and patience is not None
+                and epochs_without_improvement >= patience
+            ):
+                early_stopped = True
+                break
 
         if best_state_dict is None:
-            best_epoch = int(epochs)
+            best_epoch = len(history) if history else int(epochs)
             best_state_dict = copy.deepcopy(self.model.state_dict())
 
         self._last_fit_best_state_dict = best_state_dict
@@ -356,10 +376,12 @@ class BaseClassifierProbe(ABC):
             train_accuracy=float(final_train_accuracy),
             val_loss=history[-1].get("val_loss") if history else None,
             val_accuracy=history[-1].get("val_accuracy") if history else None,
-            n_epochs=int(epochs),
+            n_epochs=len(history),
             best_epoch=best_epoch,
             best_val_loss=best_val_loss,
             best_val_accuracy=best_val_accuracy,
+            early_stopped=early_stopped,
+            early_stopping_patience=patience,
             history=history,
         )
 

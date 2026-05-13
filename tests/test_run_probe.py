@@ -168,6 +168,26 @@ class RunProbeTests(unittest.TestCase):
         cfg = run_probe._probe_cfg({"probe": {"name": "temporal_attn"}})
         self.assertEqual(cfg["feature_view"], "tokens")
 
+    def test_probe_cfg_defaults_early_stopping_to_disabled_with_patience_five(self) -> None:
+        cfg = run_probe._probe_cfg({"probe": {"name": "linear"}})
+
+        self.assertEqual(cfg["early_stopping"], {"enabled": False, "patience": 5})
+
+    def test_probe_cfg_accepts_early_stopping_override(self) -> None:
+        cfg = run_probe._probe_cfg(
+            {
+                "probe": {
+                    "name": "linear",
+                    "early_stopping": {
+                        "enabled": True,
+                        "patience": 5,
+                    },
+                }
+            }
+        )
+
+        self.assertEqual(cfg["early_stopping"], {"enabled": True, "patience": 5})
+
     def test_default_wandb_run_name_uses_backbone_label(self) -> None:
         config = {
             "experiment": {"name": "intphys2.jepa_v1.probe"},

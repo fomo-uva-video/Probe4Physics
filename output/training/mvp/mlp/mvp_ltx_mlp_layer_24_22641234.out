@@ -1,0 +1,1400 @@
+===== TRAIN PROVENANCE =====
+Mon May 11 22:55:47 UTC 2026
+gcn62.local.snellius.surf.nl
+f26df985262d47ceceeeb0db027fdde8087059f1
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=mvp
+PROBE_NAME=mlp
+BACKBONE_NAME=ltx_video
+BACKBONE_VARIANT=<config default>
+PROBE_EPOCHS=<config default>
+PROBE_DEVICE=cpu
+PROBE_LAYER=1
+PROBE_LAYERS=2, 6, 10, 14, 18, 22, 26, 30, 34, 38
+PROBE_FEATURE_VIEW=pooled
+ENABLE_WANDB=false
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=mvp_mlp_ltx_video
+ENABLE_OPTUNA=true
+OPTUNA_N_TRIALS=20
+OPTUNA_N_JOBS=1
+OPTUNA_TIMEOUT_SECONDS=0
+ENABLE_OPTUNA_PRUNER=true
+OPTUNA_PRUNER_STARTUP_TRIALS=3
+OPTUNA_PRUNER_WARMUP_STEPS=100
+OPTUNA_PRUNER_INTERVAL_STEPS=1
+OPTUNA_STUDY_NAME=mvp_mlp_ltx_video
+OPTUNA_SEARCH_OVERRIDES=<none>
+============================
+JOB_START_UTC=2026-05-11T22:55:47Z
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+[features.mvp] using compatible legacy cache: expected_signature=b8e742eb048177da actual_signature=7a044c58a91d3409 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/ltx_video_ltxv_13b_0_9_8_distilled/train-val-test/7a044c58a91d3409
+{
+  "best_layer": null,
+  "best_layer_label": null,
+  "best_objective_metric": null,
+  "dataset": "mvp",
+  "feature_view": "pooled",
+  "layers": [
+    {
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 81.85035389282103,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 67.64408493427705
+          },
+          "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7a044c58a91d3409",
+        "metrics": {
+          "accuracy": 81.85035389282103,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 67.64408493427705
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 81.85035389282103,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 67.64408493427705
+          },
+          "train": {
+            "accuracy": 98.98819561551433,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 97.97639123102867
+          },
+          "val": {
+            "accuracy": 83.61981799797775,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 70.57633973710819
+          }
+        },
+        "objective_metric": 67.64408493427705,
+        "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/train",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 81.85035389282103,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 67.64408493427705
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 81.85035389282103,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 67.64408493427705
+            },
+            "objective_metric": 67.64408493427705,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 98.98819561551433,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 97.97639123102867
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 98.98819561551433,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 97.97639123102867
+            },
+            "objective_metric": 97.97639123102867,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 83.61981799797775,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 70.57633973710819
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 83.61981799797775,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 70.57633973710819
+            },
+            "objective_metric": 70.57633973710819,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 26,
+      "layer_label": "noise_0.4_block_24",
+      "objective_metric": 67.64408493427705,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/val_eval",
+        "best_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000",
+        "best_params": {
+          "batch_size": 32,
+          "dropout": 0.21597250932105788,
+          "epochs": 2000,
+          "hidden_dims": "256",
+          "lr": 0.0001329291894316216,
+          "weight_decay": 0.005061576888752304
+        },
+        "best_trial_number": 0,
+        "best_value": 70.57633973710819,
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 26,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/scratch1/shared/scur0511/probe4physics/artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/optuna_study.sqlite3",
+        "study_name": "mvp_mlp_ltx_video_layer_noise_0.4_block_24",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.21597250932105788,
+              "epochs": 2000,
+              "hidden_dims": "256",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 70.57633973710819
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0001",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.048836057003191935,
+              "epochs": 20,
+              "hidden_dims": "512x256",
+              "lr": 7.476312062252303e-05,
+              "weight_decay": 4.689400963537693e-05
+            },
+            "trial_number": 1,
+            "value": 31.04145601617796
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0002",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.04424625102595975,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 0.0011290133559092666,
+              "weight_decay": 4.374364439939069e-06
+            },
+            "trial_number": 2,
+            "value": 31.749241658240646
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0006",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.0599326836668414,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 0.000794714742465374,
+              "weight_decay": 0.0016934155410667966
+            },
+            "trial_number": 6,
+            "value": 42.669362992922146
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.11978094533348621,
+              "epochs": 20,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00010300196600986775,
+              "weight_decay": 0.0045442082254883295
+            },
+            "trial_number": 7,
+            "value": 23.96359959555106
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0008",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.3387821809211412,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 2.7207248059486674e-05,
+              "weight_decay": 8.64403589520682e-06
+            },
+            "trial_number": 8,
+            "value": 41.45601617795754
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.12092614545022584,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 1.1214075785991125e-05,
+              "weight_decay": 1.1818390883060214e-05
+            },
+            "trial_number": 9,
+            "value": 33.367037411526795
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.4_block_24/train/trial_0011",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.23036595192387704,
+              "epochs": 100,
+              "hidden_dims": "1024",
+              "lr": 0.000381663861962904,
+              "weight_decay": 0.00821160806524291
+            },
+            "trial_number": 11,
+            "value": 49.03943377148635
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 80.63700707785641,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.43073811931244
+          },
+          "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7a044c58a91d3409",
+        "metrics": {
+          "accuracy": 80.63700707785641,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 66.43073811931244
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 80.63700707785641,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.43073811931244
+          },
+          "train": {
+            "accuracy": 98.27993254637437,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 96.62731871838112
+          },
+          "val": {
+            "accuracy": 83.06370070778564,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 69.36299292214359
+          }
+        },
+        "objective_metric": 66.43073811931244,
+        "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/train",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 80.63700707785641,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 66.43073811931244
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 80.63700707785641,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 66.43073811931244
+            },
+            "objective_metric": 66.43073811931244,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 98.27993254637437,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 96.62731871838112
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 98.27993254637437,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 96.62731871838112
+            },
+            "objective_metric": 96.62731871838112,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 83.06370070778564,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 69.36299292214359
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 83.06370070778564,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 69.36299292214359
+            },
+            "objective_metric": 69.36299292214359,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 30,
+      "layer_label": "noise_0.3_block_24",
+      "objective_metric": 66.43073811931244,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/val_eval",
+        "best_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000",
+        "best_params": {
+          "batch_size": 32,
+          "dropout": 0.21597250932105788,
+          "epochs": 2000,
+          "hidden_dims": "256",
+          "lr": 0.0001329291894316216,
+          "weight_decay": 0.005061576888752304
+        },
+        "best_trial_number": 0,
+        "best_value": 69.36299292214359,
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 30,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/scratch1/shared/scur0511/probe4physics/artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/optuna_study.sqlite3",
+        "study_name": "mvp_mlp_ltx_video_layer_noise_0.3_block_24",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.21597250932105788,
+              "epochs": 2000,
+              "hidden_dims": "256",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 69.36299292214359
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0001",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.048836057003191935,
+              "epochs": 20,
+              "hidden_dims": "512x256",
+              "lr": 7.476312062252303e-05,
+              "weight_decay": 4.689400963537693e-05
+            },
+            "trial_number": 1,
+            "value": 30.63700707785642
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0002",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.04424625102595975,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 0.0011290133559092666,
+              "weight_decay": 4.374364439939069e-06
+            },
+            "trial_number": 2,
+            "value": 39.130434782608695
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0006",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.0599326836668414,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 0.000794714742465374,
+              "weight_decay": 0.0016934155410667966
+            },
+            "trial_number": 6,
+            "value": 41.55712841253792
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.11978094533348621,
+              "epochs": 20,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00010300196600986775,
+              "weight_decay": 0.0045442082254883295
+            },
+            "trial_number": 7,
+            "value": 22.345803842264914
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0008",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.3387821809211412,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 2.7207248059486674e-05,
+              "weight_decay": 8.64403589520682e-06
+            },
+            "trial_number": 8,
+            "value": 39.02932254802831
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.12092614545022584,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 1.1214075785991125e-05,
+              "weight_decay": 1.1818390883060214e-05
+            },
+            "trial_number": 9,
+            "value": 34.17593528816987
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.3_block_24/train/trial_0011",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.23036595192387704,
+              "epochs": 100,
+              "hidden_dims": "1024",
+              "lr": 0.000381663861962904,
+              "weight_decay": 0.00821160806524291
+            },
+            "trial_number": 11,
+            "value": 46.00606673407482
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 81.29423660262893,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.73407482305359
+          },
+          "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7a044c58a91d3409",
+        "metrics": {
+          "accuracy": 81.29423660262893,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 66.73407482305359
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 81.29423660262893,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.73407482305359
+          },
+          "train": {
+            "accuracy": 99.02192242833053,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 98.07757166947724
+          },
+          "val": {
+            "accuracy": 82.35591506572295,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 68.35187057633973
+          }
+        },
+        "objective_metric": 66.73407482305359,
+        "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/train",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 81.29423660262893,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 66.73407482305359
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 81.29423660262893,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 66.73407482305359
+            },
+            "objective_metric": 66.73407482305359,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 99.02192242833053,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 98.07757166947724
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 99.02192242833053,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 98.07757166947724
+            },
+            "objective_metric": 98.07757166947724,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 82.35591506572295,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 68.35187057633973
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 82.35591506572295,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 68.35187057633973
+            },
+            "objective_metric": 68.35187057633973,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 34,
+      "layer_label": "noise_0.2_block_24",
+      "objective_metric": 66.73407482305359,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/val_eval",
+        "best_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000",
+        "best_params": {
+          "batch_size": 32,
+          "dropout": 0.21597250932105788,
+          "epochs": 2000,
+          "hidden_dims": "256",
+          "lr": 0.0001329291894316216,
+          "weight_decay": 0.005061576888752304
+        },
+        "best_trial_number": 0,
+        "best_value": 68.35187057633973,
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 34,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/scratch1/shared/scur0511/probe4physics/artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/optuna_study.sqlite3",
+        "study_name": "mvp_mlp_ltx_video_layer_noise_0.2_block_24",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.21597250932105788,
+              "epochs": 2000,
+              "hidden_dims": "256",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 68.35187057633973
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0001",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.048836057003191935,
+              "epochs": 20,
+              "hidden_dims": "512x256",
+              "lr": 7.476312062252303e-05,
+              "weight_decay": 4.689400963537693e-05
+            },
+            "trial_number": 1,
+            "value": 28.61476238624874
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0002",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.04424625102595975,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 0.0011290133559092666,
+              "weight_decay": 4.374364439939069e-06
+            },
+            "trial_number": 2,
+            "value": 34.883720930232556
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0006",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.0599326836668414,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 0.000794714742465374,
+              "weight_decay": 0.0016934155410667966
+            },
+            "trial_number": 6,
+            "value": 40.849342770475225
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.11978094533348621,
+              "epochs": 20,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00010300196600986775,
+              "weight_decay": 0.0045442082254883295
+            },
+            "trial_number": 7,
+            "value": 21.334681496461073
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0008",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.3387821809211412,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 2.7207248059486674e-05,
+              "weight_decay": 8.64403589520682e-06
+            },
+            "trial_number": 8,
+            "value": 38.92821031344793
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.12092614545022584,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 1.1214075785991125e-05,
+              "weight_decay": 1.1818390883060214e-05
+            },
+            "trial_number": 9,
+            "value": 33.9737108190091
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0011/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0011/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0011",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.23036595192387704,
+              "epochs": 100,
+              "hidden_dims": "1024",
+              "lr": 0.000381663861962904,
+              "weight_decay": 0.00821160806524291
+            },
+            "trial_number": 11,
+            "value": 45.19716885743175
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0013/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0013/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0013",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.17669806916348033,
+              "epochs": 100,
+              "hidden_dims": "1024",
+              "lr": 0.000159754267808109,
+              "weight_decay": 0.0003465800417093877
+            },
+            "trial_number": 13,
+            "value": 45.90495449949444
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.2_block_24/train/trial_0019",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.1700709346815521,
+              "epochs": 100,
+              "hidden_dims": "1024",
+              "lr": 0.0027623800704545468,
+              "weight_decay": 0.0013550362932783224
+            },
+            "trial_number": 19,
+            "value": 48.129423660262894
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 80.99089989888778,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.93629929221436
+          },
+          "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "7a044c58a91d3409",
+        "metrics": {
+          "accuracy": 80.99089989888778,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 66.93629929221436
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 80.99089989888778,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 66.93629929221436
+          },
+          "train": {
+            "accuracy": 98.41483979763912,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 96.82967959527825
+          },
+          "val": {
+            "accuracy": 81.79979777553083,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 67.54297269969666
+          }
+        },
+        "objective_metric": 66.93629929221436,
+        "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test/probe_predictions.json",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/train/probe_predictions.json",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval",
+        "probe_name": "mlp",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test",
+          "train": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/train",
+          "val": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 80.99089989888778,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 66.93629929221436
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 80.99089989888778,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 66.93629929221436
+            },
+            "objective_metric": 66.93629929221436,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/test",
+            "probe_name": "mlp",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 98.41483979763912,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 96.82967959527825
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 98.41483979763912,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 96.82967959527825
+            },
+            "objective_metric": 96.82967959527825,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/train/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/train",
+            "probe_name": "mlp",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 81.79979777553083,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 67.54297269969666
+              },
+              "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "7a044c58a91d3409",
+            "metrics": {
+              "accuracy": 81.79979777553083,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 67.54297269969666
+            },
+            "objective_metric": 67.54297269969666,
+            "prediction_file": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/val/probe_predictions.json",
+            "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/eval/val",
+            "probe_name": "mlp",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 38,
+      "layer_label": "noise_0.1_block_24",
+      "objective_metric": 66.93629929221436,
+      "train": {
+        "best_checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+        "best_eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/val_eval",
+        "best_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000",
+        "best_params": {
+          "batch_size": 32,
+          "dropout": 0.21597250932105788,
+          "epochs": 2000,
+          "hidden_dims": "256",
+          "lr": 0.0001329291894316216,
+          "weight_decay": 0.005061576888752304
+        },
+        "best_trial_number": 0,
+        "best_value": 67.54297269969666,
+        "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+        "dataset": "mvp",
+        "direction": "maximize",
+        "layer": 38,
+        "n_trials": 20,
+        "objective_metric": "pair_consistency",
+        "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train",
+        "probe_name": "mlp",
+        "storage": "sqlite:////gpfs/scratch1/shared/scur0511/probe4physics/artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/optuna_study.sqlite3",
+        "study_name": "mvp_mlp_ltx_video_layer_noise_0.1_block_24",
+        "trials": [
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0000",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.21597250932105788,
+              "epochs": 2000,
+              "hidden_dims": "256",
+              "lr": 0.0001329291894316216,
+              "weight_decay": 0.005061576888752304
+            },
+            "trial_number": 0,
+            "value": 67.54297269969666
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0001/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0001/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0001",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.048836057003191935,
+              "epochs": 20,
+              "hidden_dims": "512x256",
+              "lr": 7.476312062252303e-05,
+              "weight_decay": 4.689400963537693e-05
+            },
+            "trial_number": 1,
+            "value": 27.603640040444894
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0002/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0002/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0002",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.04424625102595975,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 0.0011290133559092666,
+              "weight_decay": 4.374364439939069e-06
+            },
+            "trial_number": 2,
+            "value": 30.1314459049545
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0006/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0006/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0006",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.0599326836668414,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 0.000794714742465374,
+              "weight_decay": 0.0016934155410667966
+            },
+            "trial_number": 6,
+            "value": 34.681496461071795
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0007/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0007/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0007",
+            "params": {
+              "batch_size": 128,
+              "dropout": 0.11978094533348621,
+              "epochs": 20,
+              "hidden_dims": "1024x512x1024",
+              "lr": 0.00010300196600986775,
+              "weight_decay": 0.0045442082254883295
+            },
+            "trial_number": 7,
+            "value": 20.323559150657232
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0008/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0008/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0008",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.3387821809211412,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 2.7207248059486674e-05,
+              "weight_decay": 8.64403589520682e-06
+            },
+            "trial_number": 8,
+            "value": 38.01820020222447
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0009/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0009/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0009",
+            "params": {
+              "batch_size": 256,
+              "dropout": 0.12092614545022584,
+              "epochs": 50,
+              "hidden_dims": "256",
+              "lr": 1.1214075785991125e-05,
+              "weight_decay": 1.1818390883060214e-05
+            },
+            "trial_number": 9,
+            "value": 32.355915065722954
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0016/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0016/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0016",
+            "params": {
+              "batch_size": 32,
+              "dropout": 0.4519718911709637,
+              "epochs": 50,
+              "hidden_dims": "512x256",
+              "lr": 0.0001718440878518453,
+              "weight_decay": 0.00619480551610472
+            },
+            "trial_number": 16,
+            "value": 29.828109201213348
+          },
+          {
+            "checkpoint": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0019/probe_best.pt",
+            "eval_output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0019/val_eval",
+            "output_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511/layer_noise_0.1_block_24/train/trial_0019",
+            "params": {
+              "batch_size": 64,
+              "dropout": 0.2884745869448389,
+              "epochs": 50,
+              "hidden_dims": "512",
+              "lr": 9.112084128938676e-05,
+              "weight_decay": 6.867691807016495e-05
+            },
+            "trial_number": 19,
+            "value": 38.82709807886754
+          }
+        ]
+      }
+    }
+  ],
+  "model_selection_split": "val",
+  "objective_metric_name": "pair_consistency",
+  "probe_name": "mlp",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "requested_layers": [
+    26,
+    30,
+    34,
+    38
+  ],
+  "split_name": "test",
+  "sweep_dir": "artifacts/probes/mvp/mvp_probe_mlp_ltx_video_retry_missing_20260511",
+  "train_split": "train"
+}
+JOB_END_UTC=2026-05-12T13:24:52Z
+JOB_ELAPSED_SECONDS=52145

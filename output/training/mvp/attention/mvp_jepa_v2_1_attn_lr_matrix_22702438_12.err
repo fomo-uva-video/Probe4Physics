@@ -1,0 +1,70 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/scur0511/.netrc.
+wandb: Currently logged in as: caselli-niccolo-developer (caselli-niccolo-developer-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /gpfs/home3/scur0511/Probe4Physics/wandb/run-20260513_085349-4fc4vza8
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run mvp_jepa_v2_1_layer_48_lr_5e-4
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/4fc4vza8
+wandb: updating run metadata
+wandb: uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▁▂▂▂▂▃▃▃▃▄▄▄▄▅▅▅▅▆▆▆▆▇▇▇▇███
+wandb: train_accuracy ▁█████████████████████████████
+wandb:   val_accuracy ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:             +2 ...
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 1
+wandb:    best_val_accuracy 50
+wandb: checkpoint_best_path artifacts/probes/mvp...
+wandb: checkpoint_last_path artifacts/probes/mvp...
+wandb:      checkpoint_path artifacts/probes/mvp...
+wandb:              dataset mvp
+wandb:      elapsed_seconds 28243.69456
+wandb:                epoch 30
+wandb:    feature_signature 719e3e8eb79b9580
+wandb:         feature_view tokens
+wandb:                  +16 ...
+wandb: 
+wandb: 🚀 View run mvp_jepa_v2_1_layer_48_lr_5e-4 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/4fc4vza8
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260513_085349-4fc4vza8/logs
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 388, in <module>
+    main()
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 84, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/run_probe.py", line 273, in run_mvp_eval_probe
+    return run_probe_eval("mvp", config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/run_probe.py", line 313, in run_probe_eval
+    return _run_report_eval(dataset, config, probe_cfg)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/run_probe.py", line 624, in _run_report_eval
+    context = _load_eval_context(dataset, config, probe_cfg)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/run_probe.py", line 656, in _load_eval_context
+    checkpoint_path = _resolve_checkpoint_path(dataset, config, probe_cfg)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/run_probe.py", line 1846, in _resolve_checkpoint_path
+    raise FileNotFoundError(f"probe.checkpoint_path not found: {path}")
+FileNotFoundError: probe.checkpoint_path not found: /gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_5e-4/train/probe_best.pt

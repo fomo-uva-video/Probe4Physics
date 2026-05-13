@@ -1,0 +1,290 @@
+===== TRAIN PROVENANCE =====
+Wed May 13 06:53:16 UTC 2026
+gcn11.local.snellius.surf.nl
+f26df985262d47ceceeeb0db027fdde8087059f1
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+GROUP_SUBDIR=mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix
+RUN_SUBDIR=mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5
+PROBE_LAYER=48
+LR_VALUE=1e-5
+PROBE_EPOCHS=30
+PROBE_BATCH_SIZE=1
+PROBE_EVAL_BATCH_SIZE=1
+PROBE_WEIGHT_DECAY=0.01
+TEMPORAL_NUM_HEADS=16
+TEMPORAL_NUM_SELF_ATTN_BLOCKS=1
+TEMPORAL_MLP_RATIO=2.0
+TEMPORAL_DROPOUT=0.2
+ENABLE_WANDB=true
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=mvp_temporal_attn_jepa_v2_1_lr_matrix
+WANDB_NAME=mvp_jepa_v2_1_layer_48_lr_1e-5
+============================
+JOB_START_UTC=2026-05-13T06:53:16Z
+==> Launching training command:
+  python  run.py  train.probe.mvp  backbone.name=jepa_v2_1  +backbone.kwargs.variant=vitG_384  probe.name=temporal_attn  probe.device=cuda  probe.layer=48  probe.feature_view=tokens  probe.epochs=30  probe.lr=1e-5  probe.weight_decay=0.01  probe.batch_size=1  probe.eval_batch_size=1  probe.temporal_attn.num_heads=16  probe.temporal_attn.num_self_attn_blocks=1  probe.temporal_attn.mlp_ratio=2.0  probe.temporal_attn.dropout=0.2  probe.output_subdir=mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train  probe.wandb.enabled=true  probe.wandb.project=probe4physics  probe.wandb.mode=online  probe.wandb.group=mvp_temporal_attn_jepa_v2_1_lr_matrix  probe.wandb.name=mvp_jepa_v2_1_layer_48_lr_1e-5  probe.wandb.tags=\[mvp\,jepa_v2_1\,temporal_attn\,lr_matrix\,layer_48\,lr_1e-5\]  probe.optuna.enabled=false  feature_cache.include_tokens=true
+[features.mvp] using compatible legacy cache: expected_signature=4c051926fb41744c actual_signature=719e3e8eb79b9580 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v2_1_vitG_384/train-val-test/719e3e8eb79b9580
+{
+  "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train/probe_best.pt",
+  "checkpoint_best": "artifacts/probes/mvp/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train/probe_best.pt",
+  "checkpoint_last": "artifacts/probes/mvp/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train/probe_last.pt",
+  "dataset": "mvp",
+  "elapsed_seconds": 28238.29530886002,
+  "feature_signature": "719e3e8eb79b9580",
+  "feature_view": "tokens",
+  "fit": {
+    "best_epoch": 25,
+    "best_val_accuracy": 96.51162790697676,
+    "best_val_loss": 0.07142825350812179,
+    "history": [
+      {
+        "epoch": 1.0,
+        "train_accuracy": 47.70657672849916,
+        "train_loss": 0.745917036169496,
+        "val_accuracy": 50.0,
+        "val_loss": 0.7139898198529611
+      },
+      {
+        "epoch": 2.0,
+        "train_accuracy": 50.70826306913997,
+        "train_loss": 0.6964018614394951,
+        "val_accuracy": 55.05561172901922,
+        "val_loss": 0.6823676651620557
+      },
+      {
+        "epoch": 3.0,
+        "train_accuracy": 62.79932546374367,
+        "train_loss": 0.5852999432545927,
+        "val_accuracy": 59.35288169868554,
+        "val_loss": 0.8425372821520676
+      },
+      {
+        "epoch": 4.0,
+        "train_accuracy": 67.77403035413153,
+        "train_loss": 0.49110112635755676,
+        "val_accuracy": 68.6046511627907,
+        "val_loss": 0.657238720227828
+      },
+      {
+        "epoch": 5.0,
+        "train_accuracy": 71.73693086003374,
+        "train_loss": 0.4243898622896921,
+        "val_accuracy": 73.35692618806875,
+        "val_loss": 0.41452622442368114
+      },
+      {
+        "epoch": 6.0,
+        "train_accuracy": 73.45699831365935,
+        "train_loss": 0.39141423573939305,
+        "val_accuracy": 75.42972699696662,
+        "val_loss": 0.39784228954105455
+      },
+      {
+        "epoch": 7.0,
+        "train_accuracy": 75.56492411467116,
+        "train_loss": 0.36976907446626456,
+        "val_accuracy": 76.49140546006066,
+        "val_loss": 0.3909213239578675
+      },
+      {
+        "epoch": 8.0,
+        "train_accuracy": 77.48735244519392,
+        "train_loss": 0.340034513324176,
+        "val_accuracy": 76.39029322548029,
+        "val_loss": 0.4044908456145193
+      },
+      {
+        "epoch": 9.0,
+        "train_accuracy": 89.30860033726813,
+        "train_loss": 0.20489314472278583,
+        "val_accuracy": 89.58543983822042,
+        "val_loss": 0.1773570812064957
+      },
+      {
+        "epoch": 10.0,
+        "train_accuracy": 92.79932546374367,
+        "train_loss": 0.14725662391380676,
+        "val_accuracy": 90.64711830131445,
+        "val_loss": 0.19212083168921737
+      },
+      {
+        "epoch": 11.0,
+        "train_accuracy": 95.21079258010118,
+        "train_loss": 0.10108106314682559,
+        "val_accuracy": 93.22548028311427,
+        "val_loss": 0.13654306851322176
+      },
+      {
+        "epoch": 12.0,
+        "train_accuracy": 95.90219224283305,
+        "train_loss": 0.08077128259002911,
+        "val_accuracy": 93.02325581395348,
+        "val_loss": 0.16033768763002973
+      },
+      {
+        "epoch": 13.0,
+        "train_accuracy": 95.95278246205734,
+        "train_loss": 0.07528775649951001,
+        "val_accuracy": 95.19716885743175,
+        "val_loss": 0.10220530636984981
+      },
+      {
+        "epoch": 14.0,
+        "train_accuracy": 96.03709949409782,
+        "train_loss": 0.07228299945992069,
+        "val_accuracy": 94.64105156723963,
+        "val_loss": 0.11477800743327794
+      },
+      {
+        "epoch": 15.0,
+        "train_accuracy": 96.20573355817875,
+        "train_loss": 0.07022931259062716,
+        "val_accuracy": 94.8432760364004,
+        "val_loss": 0.09933466058041841
+      },
+      {
+        "epoch": 16.0,
+        "train_accuracy": 96.77908937605396,
+        "train_loss": 0.06646848091586906,
+        "val_accuracy": 95.09605662285136,
+        "val_loss": 0.08571387546552296
+      },
+      {
+        "epoch": 17.0,
+        "train_accuracy": 96.84654300168634,
+        "train_loss": 0.05854316216754279,
+        "val_accuracy": 95.70273003033367,
+        "val_loss": 0.08583559403827337
+      },
+      {
+        "epoch": 18.0,
+        "train_accuracy": 96.39123102866779,
+        "train_loss": 0.055742073154743936,
+        "val_accuracy": 95.14661274014156,
+        "val_loss": 0.095307358000028
+      },
+      {
+        "epoch": 19.0,
+        "train_accuracy": 96.81281618887016,
+        "train_loss": 0.06351456600945013,
+        "val_accuracy": 95.75328614762387,
+        "val_loss": 0.09012978805710574
+      },
+      {
+        "epoch": 20.0,
+        "train_accuracy": 97.31871838111299,
+        "train_loss": 0.04578406531520428,
+        "val_accuracy": 95.65217391304348,
+        "val_loss": 0.09388183583186929
+      },
+      {
+        "epoch": 21.0,
+        "train_accuracy": 96.72849915682968,
+        "train_loss": 0.05854207384631933,
+        "val_accuracy": 95.44994944388272,
+        "val_loss": 0.11700415486109032
+      },
+      {
+        "epoch": 22.0,
+        "train_accuracy": 96.93086003372682,
+        "train_loss": 0.049316836218931834,
+        "val_accuracy": 96.05662285136502,
+        "val_loss": 0.07725972522003678
+      },
+      {
+        "epoch": 23.0,
+        "train_accuracy": 97.18381112984822,
+        "train_loss": 0.055098573539941145,
+        "val_accuracy": 95.65217391304348,
+        "val_loss": 0.10006254452873681
+      },
+      {
+        "epoch": 24.0,
+        "train_accuracy": 97.2512647554806,
+        "train_loss": 0.048511997458088575,
+        "val_accuracy": 92.82103134479271,
+        "val_loss": 0.23360388805200313
+      },
+      {
+        "epoch": 25.0,
+        "train_accuracy": 97.38617200674537,
+        "train_loss": 0.04846445982802938,
+        "val_accuracy": 96.51162790697676,
+        "val_loss": 0.07142825350812179
+      },
+      {
+        "epoch": 26.0,
+        "train_accuracy": 97.2681281618887,
+        "train_loss": 0.04734825559455945,
+        "val_accuracy": 96.35995955510617,
+        "val_loss": 0.09239388927693067
+      },
+      {
+        "epoch": 27.0,
+        "train_accuracy": 97.5548060708263,
+        "train_loss": 0.047173082709334443,
+        "val_accuracy": 96.41051567239636,
+        "val_loss": 0.07966215608130503
+      },
+      {
+        "epoch": 28.0,
+        "train_accuracy": 98.02698145025295,
+        "train_loss": 0.03811080457824285,
+        "val_accuracy": 95.80384226491405,
+        "val_loss": 0.13960355568132674
+      },
+      {
+        "epoch": 29.0,
+        "train_accuracy": 97.70657672849916,
+        "train_loss": 0.03950720066855988,
+        "val_accuracy": 95.90495449949444,
+        "val_loss": 0.13008376687955372
+      },
+      {
+        "epoch": 30.0,
+        "train_accuracy": 97.94266441821247,
+        "train_loss": 0.038306722520375126,
+        "val_accuracy": 94.28715874620829,
+        "val_loss": 0.1551756671754319
+      }
+    ],
+    "n_epochs": 30,
+    "train_accuracy": 97.94266441821247,
+    "train_loss": 0.038306722520375126,
+    "val_accuracy": 94.28715874620829,
+    "val_loss": 0.1551756671754319
+  },
+  "input_dim": 1664,
+  "layer": 48,
+  "n_train": 5930,
+  "n_val": 1978,
+  "num_classes": 2,
+  "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train",
+  "probe_hparams": {
+    "batch_size": 1,
+    "deterministic": false,
+    "device": "cuda",
+    "dropout": 0.2,
+    "embed_dim": null,
+    "epochs": 30,
+    "eval_batch_size": 1,
+    "feature_view": "tokens",
+    "layer": 48,
+    "lr": 1e-05,
+    "mlp_ratio": 2.0,
+    "name": "temporal_attn",
+    "num_classes": 2,
+    "num_heads": 16,
+    "num_self_attn_blocks": 1,
+    "weight_decay": 0.01
+  },
+  "probe_name": "temporal_attn",
+  "seconds_per_labeled_sample": 3.570851708252405,
+  "seconds_per_train_sample": 4.76193850065093
+}
+==> Launching evaluation command:
+  python  run.py  eval.probe.mvp  backbone.name=jepa_v2_1  +backbone.kwargs.variant=vitG_384  probe.name=temporal_attn  probe.device=cuda  probe.layer=48  probe.feature_view=tokens  probe.checkpoint_path=/gpfs/home3/scur0511/Probe4Physics/artifacts/probes/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/train/probe_best.pt  probe.eval_output_subdir=mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/layer_48/lr_1e-5/eval  probe.eval_batch_size=1  feature_cache.include_tokens=true
+[features.mvp] using compatible legacy cache: expected_signature=4c051926fb41744c actual_signature=719e3e8eb79b9580 cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v2_1_vitG_384/train-val-test/719e3e8eb79b9580

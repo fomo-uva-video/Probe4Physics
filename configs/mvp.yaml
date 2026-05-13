@@ -121,6 +121,9 @@ probe:
   batch_size: 128
   eval_batch_size: 1024
   weight_decay: 0.0
+  early_stopping:
+    enabled: false
+    patience: 5
   device: cpu
   deterministic: false # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/mvp
