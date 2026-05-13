@@ -84,6 +84,11 @@ output_subdir: "" # optional stable subdir; empty means timestamped folder
 # Used by `python run.py exp.run name=<experiment_id>`
 name: ""
 
+# Baseline tag used to namespace feature caches for control baselines.
+# Do not set this manually; baseline commands inject it and force
+# feature_cache.split_names=[test].
+baseline_tag: ""
+
 backbone:
   name: jepa_v1
   kwargs:

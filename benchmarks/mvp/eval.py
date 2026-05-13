@@ -107,6 +107,9 @@ def run_mvp_eval(config: dict[str, Any]) -> dict[str, Any]:
 
     benchmark = MVPBenchmark(official_repo_root=config["official_repo_root"])
     samples = benchmark.load_samples(selected_rows, split=split_name)
+    label_override = _label_override(config)
+    if label_override is not None:
+        samples = [_apply_label_override(sample, label_override) for sample in samples]
     n_pairs_before_trim = len({sample.pair_id for sample in samples})
     n_samples_before_trim = len(samples)
     samples = _trim_to_max_pairs(samples, int(config["max_pairs"]))
@@ -153,6 +156,7 @@ def run_mvp_eval(config: dict[str, Any]) -> dict[str, Any]:
         "Scoring complete",
         accuracy=f"{metrics.accuracy:.4f}",
         pair_consistency=f"{metrics.pair_consistency:.4f}",
+        label_override="none" if label_override is None else label_override,
         n_pairs=metrics.n_pairs,
         n_samples=metrics.n_samples,
     )
@@ -171,6 +175,7 @@ def run_mvp_eval(config: dict[str, Any]) -> dict[str, Any]:
         "output_dir": str(output_dir),
         "split_dir": str(split_dir),
         "metrics": asdict_metrics(metrics),
+        "label_override": label_override,
     }
 
 
@@ -202,6 +207,37 @@ def _validate_config(config: dict[str, Any]) -> None:
     missing = [key for key in required if key not in config]
     if missing:
         raise ConfigError(f"Missing config keys: {missing}")
+
+
+def _label_override(config: dict[str, Any]) -> int | None:
+    raw = config.get("label_override", None)
+    if raw is None or str(raw).strip() == "":
+        return None
+    value = int(raw)
+    if value not in (0, 1):
+        raise ConfigError(f"label_override must be 0 or 1, got {value}")
+    return value
+
+
+def _apply_label_override(sample, label_value: int):
+    if sample.yes_choice_idx is None or sample.no_choice_idx is None:
+        raise ConfigError(
+            "label_override requires MVP samples with yes/no plausibility semantics."
+        )
+    answer_idx = sample.yes_choice_idx if int(label_value) == 1 else sample.no_choice_idx
+    return sample.__class__(
+        sample_id=sample.sample_id,
+        pair_id=sample.pair_id,
+        question=sample.question,
+        choices=sample.choices,
+        answer_idx=int(answer_idx),
+        plausibility_label=int(label_value),
+        yes_choice_idx=sample.yes_choice_idx,
+        no_choice_idx=sample.no_choice_idx,
+        video_a_ref=sample.video_a_ref,
+        video_b_ref=sample.video_b_ref,
+        split=sample.split,
+    )
 
 
 def _annotations_cfg(config: dict[str, Any]) -> dict[str, Any]:
@@ -390,6 +426,7 @@ def _write_summary(path: Path, metrics, config: dict[str, Any]) -> None:
         "",
         f"- Split: `{config['split_name']}`",
         f"- Seed: `{config['seed']}`",
+        f"- Label override: `{config.get('label_override', 'none')}`",
         f"- Samples: `{metrics.n_samples}`",
         f"- Pairs: `{metrics.n_pairs}`",
         "",
@@ -411,6 +448,7 @@ def _write_provenance(path: Path, config: dict[str, Any], split_dir: Path, manif
         "python": sys.version,
         "seed": int(config["seed"]),
         "split_name": str(config["split_name"]),
+        "label_override": config.get("label_override", None),
         "split_dir": str(split_dir),
         "manifest": str(manifest_path),
         "git": {
