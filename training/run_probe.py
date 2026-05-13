@@ -220,6 +220,21 @@ DATASET_SPECS = {
         eval_prefix="intphys2_probe_eval",
         objective_metric="voe_accuracy",
     ),
+    "intphys2_displacement": DatasetSpec(
+        name="intphys2_displacement",
+        load_bundle=lambda config, feature_view: load_intphys2_feature_cache(
+            {**config, "baseline_tag": "displacement"},
+            feature_view=feature_view,
+        ),
+        eval_runner=lambda config: run_intphys2_eval(config),
+        default_train_output_dir="artifacts/probes/intphys2_displacement",
+        default_eval_output_dir="artifacts/results/intphys2_displacement",
+        default_eval_split="test",
+        report_splits=("train", "val", "test"),
+        train_prefix="intphys2_displacement_probe",
+        eval_prefix="intphys2_displacement_probe_eval",
+        objective_metric="voe_accuracy",
+    ),
     "ssv2": DatasetSpec(
         name="ssv2",
         load_bundle=lambda config, _feature_view: load_ssv2_feature_cache(config),
@@ -299,6 +314,18 @@ def run_intphys2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
 
 def run_ssv2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train_eval("ssv2", config)
+
+
+def run_intphys2_displacement_train_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_train("intphys2_displacement", config)
+
+
+def run_intphys2_displacement_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_eval("intphys2_displacement", config)
+
+
+def run_intphys2_displacement_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    return run_probe_train_eval("intphys2_displacement", config)
 
 
 def run_probe_train(dataset: str, config: dict[str, Any]) -> dict[str, Any]:

@@ -235,7 +235,11 @@ class IntPhys2ChunkedTokenStore:
         return payload
 
 
-def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
+def run_intphys2_feature_extraction(
+    config: dict[str, Any],
+    *,
+    clip_fn: Any = None,
+) -> dict[str, Any]:
     _validate_extract_config(config)
 
     paths = resolve_expected_feature_cache_paths(config)
@@ -308,6 +312,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             backbone_name=backbone_name,
             backbone_kwargs=backbone_kwargs,
             decode_cfg=decode_cfg,
+            baseline_tag=str(config.get("baseline_tag", "")).strip(),
         )
     )
     ordered_sample_ids_all = [str(row["sample_id"]) for row in ordered_records_all]
@@ -440,6 +445,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
                 decode_cfg=decode_cfg,
                 include_pooled=bool(feature_cfg["include_pooled"]),
                 include_tokens=bool(feature_cfg["include_tokens"]),
+                clip_fn=clip_fn,
             )
 
             if not selected_layers:
@@ -555,6 +561,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             if index_rows
             else 0.0
         )
+        baseline_tag = str(config.get("baseline_tag", "")).strip()
         manifest = _build_manifest(
             paths=paths,
             split_dir=split_dir,
@@ -586,6 +593,7 @@ def run_intphys2_feature_extraction(config: dict[str, Any]) -> dict[str, Any]:
             aggregated_processed_samples=aggregated_processed_samples,
             aggregated_seconds_per_processed_sample=aggregated_seconds_per_processed_sample,
             aggregated_seconds_per_total_sample=aggregated_seconds_per_total_sample,
+            baseline_tag=baseline_tag,
         )
         _write_json_atomic(paths.manifest_path, manifest)
 
@@ -666,6 +674,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     backbone_name, backbone_kwargs = _backbone_cfg(config)
     feature_cfg = _feature_cfg(config)
     backbone_metadata = resolve_backbone_cache_metadata(backbone_name, backbone_kwargs)
+    baseline_tag = str(config.get("baseline_tag", "")).strip()
 
     payload = {
         "metadata_file": str(config.get("metadata_file", "")),
@@ -686,6 +695,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
         },
         "split_dir": str(split_dir),
         "split_manifest_metadata_sha256": str(split_manifest.get("metadata_sha256", "")),
+        "baseline_tag": baseline_tag,
     }
     signature = _sha256_json(payload)[:16]
 
@@ -706,6 +716,7 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
     if exact_paths.manifest_path.exists():
         return exact_paths
 
+    expected_kind = _manifest_kind(baseline_tag)
     compatible = _find_compatible_feature_cache(
         base_dir=base_dir,
         backbone_id=backbone_id,
@@ -715,8 +726,15 @@ def resolve_expected_feature_cache_paths(config: dict[str, Any]) -> FeatureCache
         backbone_name=backbone_name,
         backbone_metadata=backbone_metadata,
         decode_cfg=payload["decode"],
+        expected_kind=expected_kind,
     )
     return compatible or exact_paths
+
+
+def _manifest_kind(baseline_tag: str) -> str:
+    if baseline_tag:
+        return f"intphys2_{baseline_tag}_feature_cache"
+    return "intphys2_feature_cache"
 
 
 def _find_compatible_feature_cache(
@@ -729,6 +747,7 @@ def _find_compatible_feature_cache(
     backbone_name: str,
     backbone_metadata: dict[str, Any],
     decode_cfg: dict[str, Any],
+    expected_kind: str = "intphys2_feature_cache",
 ) -> FeatureCachePaths | None:
     root = base_dir / backbone_id / split_key
     if not root.exists():
@@ -756,6 +775,7 @@ def _find_compatible_feature_cache(
             expected_variant=expected_variant,
             expected_layers=expected_layers,
             decode_cfg=decode_cfg,
+            expected_kind=expected_kind,
         ):
             continue
         matches.append((manifest_path.stat().st_mtime, _feature_cache_paths(cache_dir)))
@@ -775,8 +795,9 @@ def _manifest_matches_requested_cache(
     expected_variant: str,
     expected_layers: list[int],
     decode_cfg: dict[str, Any],
+    expected_kind: str = "intphys2_feature_cache",
 ) -> bool:
-    if str(manifest.get("kind", "")) != "intphys2_feature_cache":
+    if str(manifest.get("kind", "")) != expected_kind:
         return False
 
     split = manifest.get("split", {})
@@ -1186,6 +1207,7 @@ def _resume_config_payload(
     backbone_name: str,
     backbone_kwargs: dict[str, Any],
     decode_cfg: dict[str, Any],
+    baseline_tag: str = "",
 ) -> dict[str, Any]:
     return {
         "mode": "extract.intphys2",
@@ -1200,6 +1222,7 @@ def _resume_config_payload(
         "backbone_kwargs": dict(backbone_kwargs),
         "decode": dict(decode_cfg),
         "videos_root": str(config.get("videos_root", "")),
+        "baseline_tag": str(baseline_tag),
     }
 
 
@@ -1485,6 +1508,7 @@ def _extract_chunk_records(
     decode_cfg: dict[str, Any],
     include_pooled: bool,
     include_tokens: bool,
+    clip_fn: Any = None,
 ) -> tuple[
     list[dict[str, Any]],
     dict[int, torch.Tensor],
@@ -1499,11 +1523,14 @@ def _extract_chunk_records(
     adapter_metadata: dict[str, Any] = {}
 
     for local_index, record in enumerate(records):
-        clip = _decode_video_clip(
-            video_path=record["video_path"],
-            num_frames=int(decode_cfg["num_frames"]),
-            crop_size=int(decode_cfg["crop_size"]),
-        )
+        if clip_fn is not None:
+            clip = clip_fn(record, int(decode_cfg["num_frames"]), int(decode_cfg["crop_size"]))
+        else:
+            clip = _decode_video_clip(
+                video_path=record["video_path"],
+                num_frames=int(decode_cfg["num_frames"]),
+                crop_size=int(decode_cfg["crop_size"]),
+            )
         with torch.no_grad():
             features = adapter.extract(clip, layer_ids=requested_layer_ids)
 
@@ -1638,10 +1665,11 @@ def _build_manifest(
     aggregated_processed_samples: int,
     aggregated_seconds_per_processed_sample: float,
     aggregated_seconds_per_total_sample: float,
+    baseline_tag: str = "",
 ) -> dict[str, Any]:
     return {
         "version": 2,
-        "kind": "intphys2_feature_cache",
+        "kind": _manifest_kind(baseline_tag),
         "signature": paths.signature,
         "created_at_utc": datetime.now(tz=timezone.utc).isoformat(),
         "python": sys.version,
