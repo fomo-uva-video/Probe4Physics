@@ -135,6 +135,8 @@ if [[ -n "${OPTUNA_SEARCH_OVERRIDES}" ]]; then
 fi
 
 cmd+=("$@")
+cmd+=("probe.early_stopping.enabled=true")
+cmd+=("probe.early_stopping.patience=5")
 "${cmd[@]}"
 
 JOB_END_EPOCH="$(date +%s)"

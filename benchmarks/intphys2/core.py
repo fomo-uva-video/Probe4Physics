@@ -29,6 +29,7 @@ class IntPhys2Prediction:
 class IntPhys2Metrics:
     accuracy: float
     voe_accuracy: float
+    roc_auc: float | None
     n_samples: int
     n_scenes: int
     accuracy_by_condition: dict[str, float]
@@ -97,11 +98,13 @@ class IntPhys2Benchmark:
         }
 
         voe_accuracy, voe_by_condition = self._compute_voe(samples, pred_by_id)
+        roc_auc = self._compute_roc_auc(samples, pred_by_id)
         n_scenes = len({sample.scene_id for sample in samples})
 
         return IntPhys2Metrics(
             accuracy=accuracy,
             voe_accuracy=voe_accuracy,
+            roc_auc=roc_auc,
             n_samples=n_samples,
             n_scenes=n_scenes,
             accuracy_by_condition=accuracy_by_condition,
@@ -139,16 +142,8 @@ class IntPhys2Benchmark:
             conditions = {s.condition for s in scene_samples}
             cond = next(iter(conditions)) if len(conditions) == 1 else "mixed"
 
-            def _score(sample: IntPhys2Sample) -> float:
-                pred = pred_by_id.get(sample.sample_id)
-                if pred is None:
-                    return 0.5
-                if pred.score is not None:
-                    return float(pred.score)
-                return float(pred.pred_idx)
-
-            min_possible = min(_score(s) for s in possible)
-            max_impossible = max(_score(s) for s in impossible)
+            min_possible = min(self._prediction_score(s, pred_by_id) for s in possible)
+            max_impossible = max(self._prediction_score(s, pred_by_id) for s in impossible)
             is_correct = int(min_possible > max_impossible)
 
             voe_correct_total += is_correct
@@ -166,6 +161,61 @@ class IntPhys2Benchmark:
         }
 
         return voe_accuracy, voe_by_condition
+
+    def _compute_roc_auc(
+        self,
+        samples: list[IntPhys2Sample],
+        pred_by_id: dict[str, IntPhys2Prediction],
+    ) -> float | None:
+        labels = [int(sample.plausibility) for sample in samples]
+        scores = [self._prediction_score(sample, pred_by_id) for sample in samples]
+        return compute_binary_roc_auc(labels, scores)
+
+    @staticmethod
+    def _prediction_score(
+        sample: IntPhys2Sample,
+        pred_by_id: dict[str, IntPhys2Prediction],
+    ) -> float:
+        pred = pred_by_id.get(sample.sample_id)
+        if pred is None:
+            return 0.5
+        if pred.score is not None:
+            return float(pred.score)
+        return float(pred.pred_idx)
+
+
+def compute_binary_roc_auc(labels: list[int], scores: list[float]) -> float | None:
+    if len(labels) != len(scores):
+        raise ValueError(
+            "ROC AUC requires label and score lists of the same length. "
+            f"Got n_labels={len(labels)}, n_scores={len(scores)}."
+        )
+
+    if not labels:
+        return None
+
+    n_pos = sum(1 for label in labels if int(label) == 1)
+    n_neg = sum(1 for label in labels if int(label) == 0)
+    if n_pos == 0 or n_neg == 0:
+        return None
+
+    order = sorted(range(len(scores)), key=lambda idx: float(scores[idx]))
+    sum_positive_ranks = 0.0
+    i = 0
+    while i < len(order):
+        j = i + 1
+        score = float(scores[order[i]])
+        while j < len(order) and float(scores[order[j]]) == score:
+            j += 1
+        avg_rank = (i + 1 + j) / 2.0
+        for rank_idx in range(i, j):
+            if int(labels[order[rank_idx]]) == 1:
+                sum_positive_ranks += avg_rank
+        i = j
+
+    return (
+        sum_positive_ranks - float(n_pos * (n_pos + 1)) / 2.0
+    ) / float(n_pos * n_neg)
 
 
 def asdict_metrics(metrics: IntPhys2Metrics) -> dict[str, Any]:

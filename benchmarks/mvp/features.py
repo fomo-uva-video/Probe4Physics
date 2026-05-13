@@ -24,6 +24,7 @@ import os
 import platform
 import shutil
 import socket
+import subprocess
 import sys
 import time
 from contextlib import contextmanager
@@ -1656,6 +1657,11 @@ def _is_stale_lock(lock_path: Path, *, stale_seconds: int) -> bool:
         return True
     try:
         payload = json.loads(lock_path.read_text(encoding="utf-8"))
+        slurm_job_active = _lock_owner_slurm_job_is_active(payload)
+        if slurm_job_active is True:
+            return False
+        if slurm_job_active is False:
+            return True
         created = str(payload.get("created_at_utc", ""))
         if not created:
             return True
@@ -1664,6 +1670,43 @@ def _is_stale_lock(lock_path: Path, *, stale_seconds: int) -> bool:
         return age > float(stale_seconds)
     except Exception:
         return True
+
+
+def _lock_owner_slurm_job_is_active(payload: dict[str, Any]) -> bool | None:
+    job_id = str(payload.get("job_id", "")).strip()
+    if not job_id:
+        return None
+
+    try:
+        result = subprocess.run(
+            ["sacct", "-j", job_id, "--noheader", "--parsable2", "--format=State"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except Exception:
+        return None
+
+    if result.returncode != 0:
+        return None
+
+    states = [line.strip().upper() for line in result.stdout.splitlines() if line.strip()]
+    if not states:
+        return False
+
+    active_states = {
+        "PENDING",
+        "RUNNING",
+        "CONFIGURING",
+        "COMPLETING",
+        "RESIZING",
+        "SIGNALING",
+        "STAGE_OUT",
+        "STOPPED",
+        "SUSPENDED",
+    }
+    return any(state in active_states for state in states)
 
 
 def _append_resume_event(

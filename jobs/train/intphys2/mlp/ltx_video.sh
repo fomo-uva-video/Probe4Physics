@@ -9,7 +9,7 @@
 #SBATCH --job-name=intphys2_ltx_video_mlp
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=02:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=output/training/intphys2/mlp/intphys2_ltx_mlp_layers_%j.out
 #SBATCH --error=output/training/intphys2/mlp/intphys2_ltx_mlp_layers_%j.err
 
@@ -18,9 +18,12 @@ set -euo pipefail
 DATASET_NAME="intphys2"
 PROBE_NAME="mlp"
 BACKBONE_NAME="ltx_video"
-BACKBONE_VARIANT="ltxv_13b_0_9_8_dev"
-PROBE_LAYER="last"  # possible values: last | 1 | 2 | 4 | 5
-PROBE_LAYERS="${PROBE_LAYER}"
+BACKBONE_VARIANT=""  # empty uses configs/backbones.yaml default (currently distilled, 40-slot cache)
+# The default distilled LTX cache flattens 10 noise levels x 4 depths into 40 probe slots.
+# Keep PROBE_LAYERS as the authoritative sweep list; for a single-slot smoke run,
+# override both PROBE_LAYER and PROBE_LAYERS together.
+PROBE_LAYER="1"
+PROBE_LAYERS="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"
 ENABLE_WANDB="true"
@@ -34,6 +37,8 @@ ENABLE_OPTUNA_PRUNER="true"
 OPTUNA_PRUNER_STARTUP_TRIALS="3"
 OPTUNA_PRUNER_WARMUP_STEPS="100"
 OPTUNA_PRUNER_INTERVAL_STEPS="1"
+# Match the other IntPhys2 MLP wrappers: keep the expanded epoch search enabled.
+# OPTUNA_SEARCH_OVERRIDES="probe.optuna.search_space.epochs.enabled=true probe.optuna.search_space.epochs.choices=[20,50,100,500,1000,2000]"
 OPTUNA_SEARCH_OVERRIDES=""
 export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_LAYERS PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS ENABLE_OPTUNA_PRUNER OPTUNA_PRUNER_STARTUP_TRIALS OPTUNA_PRUNER_WARMUP_STEPS OPTUNA_PRUNER_INTERVAL_STEPS OPTUNA_SEARCH_OVERRIDES
 

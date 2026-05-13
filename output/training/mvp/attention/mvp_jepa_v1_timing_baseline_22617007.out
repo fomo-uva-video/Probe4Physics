@@ -1,0 +1,29 @@
+===== TIMING PROVENANCE =====
+Sun May 10 12:11:18 PM UTC 2026
+gcn43.local.snellius.surf.nl
+548189e89ff58a78b96a2838603163a54c850825
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+EXPERIMENT_MODE=baseline
+TIMING_GROUP=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z
+RUN_STEM=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z_baseline_22617007
+FIXED_LAYER=32
+PROBE_EPOCHS=10
+TRAIN_BATCH_SIZE=1
+EVAL_BATCH_SIZE=1
+STORAGE_STRATEGY=shared_cache_default_signature
+SHARED_FEATURE_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/features/mvp
+SHARED_PROBE_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing
+SHARED_RESULT_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/results/mvp_timing
+TMPDIR=/scratch-node/scur0511.22617007
+LOCAL_FEATURE_ROOT=/scratch-node/scur0511.22617007/scur0511_probe4physics_features_mvp_22617007
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+=============================
+JOB_START_UTC=2026-05-10T12:11:18Z
+SOURCE_CACHE_DIR=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e
+SOURCE_SIGNATURE=195f8fef90088d1e
+CACHE_PREP_ELAPSED_SECONDS=13
+==> Launching training command:
+  python  run.py  train_eval.probe.mvp  backbone.name=jepa_v1  +backbone.kwargs.variant=vith16_384  backbone.kwargs.device=cuda  probe.name=temporal_attn  probe.device=cuda  probe.layer=32  probe.feature_view=tokens  probe.epochs=10  probe.lr=5.9750279999602906e-05  probe.weight_decay=9.44351568796269e-05  probe.batch_size=1  probe.eval_batch_size=1  probe.temporal_attn.num_heads=16  probe.temporal_attn.num_self_attn_blocks=2  probe.temporal_attn.mlp_ratio=2.0  probe.temporal_attn.dropout=0.17936999364332554  probe.output_dir=/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing  probe.output_subdir=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z_baseline_22617007  probe.eval_output_dir=/scratch-shared/scur0511/probe4physics/artifacts/results/mvp_timing  probe.eval_output_subdir=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z_baseline_22617007  probe.wandb.enabled=true  probe.wandb.project=probe4physics  probe.wandb.mode=online  probe.wandb.group=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z  probe.wandb.name=mvp_temporal_attn_jepa_v1_timing_20260510T121100Z_baseline_22617007  probe.wandb.tags=\[timing\,snellius\,scratch-node\,mvp\,jepa_v1\,temporal_attn\,baseline\]  probe.optuna.enabled=false  feature_cache.dir=/scratch-shared/scur0511/probe4physics/artifacts/features/mvp  feature_cache.layer_ids=\[\]  feature_cache.include_pooled=true  feature_cache.include_tokens=true

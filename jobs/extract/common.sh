@@ -70,7 +70,9 @@ print(
 )
 print(
     "Fix the extraction environment first, for example by adding 'sentencepiece' "
-    "and 'tiktoken' to environment.yml and recreating/updating the env.",
+    "and 'tiktoken' to the environment file used for the active conda env "
+    "(for GPU extraction jobs in this repo: environment-gpu.yml) and "
+    "recreating/updating the env.",
     file=sys.stderr,
 )
 raise SystemExit(2)

@@ -1,0 +1,32 @@
+===== TRAIN PROVENANCE =====
+Tue May 12 15:51:52 UTC 2026
+tcn227.local.snellius.surf.nl
+f26df985262d47ceceeeb0db027fdde8087059f1
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=mvp
+PROBE_NAME=mlp
+BACKBONE_NAME=ltx_video
+BACKBONE_VARIANT=<config default>
+PROBE_EPOCHS=<config default>
+PROBE_DEVICE=cpu
+PROBE_LAYER=1
+PROBE_LAYERS=1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
+PROBE_FEATURE_VIEW=pooled
+ENABLE_WANDB=false
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+WANDB_GROUP=mvp_mlp_ltx_video
+ENABLE_OPTUNA=true
+OPTUNA_N_TRIALS=20
+OPTUNA_N_JOBS=1
+OPTUNA_TIMEOUT_SECONDS=0
+ENABLE_OPTUNA_PRUNER=true
+OPTUNA_PRUNER_STARTUP_TRIALS=3
+OPTUNA_PRUNER_WARMUP_STEPS=100
+OPTUNA_PRUNER_INTERVAL_STEPS=1
+OPTUNA_STUDY_NAME=mvp_mlp_ltx_video
+OPTUNA_SEARCH_OVERRIDES=<none>
+============================
+JOB_START_UTC=2026-05-12T15:51:53Z

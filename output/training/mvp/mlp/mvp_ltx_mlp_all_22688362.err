@@ -1,0 +1,273 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+[I 2026-05-12 17:53:05,222] A new study created in RDB with name: mvp_mlp_ltx_video_layer_noise_1.0_block_12
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0000/val_eval
+[I 2026-05-12 20:03:24,131] Trial 0 finished with value: 0.0 and parameters: {'lr': 0.0001329291894316216, 'weight_decay': 0.005061576888752304, 'batch_size': 32, 'epochs': 2000, 'hidden_dims': '256', 'dropout': 0.21597250932105788}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0001/val_eval
+[I 2026-05-12 20:07:11,718] Trial 1 finished with value: 0.0 and parameters: {'lr': 7.476312062252303e-05, 'weight_decay': 4.689400963537693e-05, 'batch_size': 256, 'epochs': 20, 'hidden_dims': '512x256', 'dropout': 0.048836057003191935}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0002/val_eval
+[I 2026-05-12 20:13:12,887] Trial 2 finished with value: 0.0 and parameters: {'lr': 0.0011290133559092666, 'weight_decay': 4.374364439939069e-06, 'batch_size': 256, 'epochs': 50, 'hidden_dims': '256', 'dropout': 0.04424625102595975}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0003/val_eval
+[I 2026-05-12 21:20:53,861] Trial 3 finished with value: 0.0 and parameters: {'lr': 3.872118032174584e-05, 'weight_decay': 1.8679434894556277e-08, 'batch_size': 256, 'epochs': 1000, 'hidden_dims': '256', 'dropout': 0.36450358402049365}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0004/val_eval
+[I 2026-05-12 22:13:05,359] Trial 4 finished with value: 0.0 and parameters: {'lr': 0.0020597335357437196, 'weight_decay': 2.781428564375744e-08, 'batch_size': 128, 'epochs': 1000, 'hidden_dims': '256', 'dropout': 0.3854835899772805}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0005/val_eval
+[I 2026-05-12 23:08:01,092] Trial 5 finished with value: 0.0 and parameters: {'lr': 0.00030296104428212476, 'weight_decay': 1.3689795993592185e-05, 'batch_size': 32, 'epochs': 500, 'hidden_dims': '1024x512x1024', 'dropout': 0.4040601897822085}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0006/val_eval
+[I 2026-05-12 23:12:16,205] Trial 6 finished with value: 0.0 and parameters: {'lr': 0.000794714742465374, 'weight_decay': 0.0016934155410667966, 'batch_size': 128, 'epochs': 50, 'hidden_dims': '512', 'dropout': 0.0599326836668414}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0007/val_eval
+[I 2026-05-12 23:14:36,572] Trial 7 finished with value: 0.0 and parameters: {'lr': 0.00010300196600986775, 'weight_decay': 0.0045442082254883295, 'batch_size': 128, 'epochs': 20, 'hidden_dims': '1024x512x1024', 'dropout': 0.11978094533348621}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0008/val_eval
+[I 2026-05-12 23:18:26,277] Trial 8 finished with value: 0.0 and parameters: {'lr': 2.7207248059486674e-05, 'weight_decay': 8.64403589520682e-06, 'batch_size': 32, 'epochs': 50, 'hidden_dims': '512', 'dropout': 0.3387821809211412}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0009/val_eval
+[I 2026-05-12 23:22:47,284] Trial 9 finished with value: 0.0 and parameters: {'lr': 1.1214075785991125e-05, 'weight_decay': 1.1818390883060214e-05, 'batch_size': 256, 'epochs': 50, 'hidden_dims': '256', 'dropout': 0.12092614545022584}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0010/val_eval
+[I 2026-05-13 01:36:30,952] Trial 10 finished with value: 0.0 and parameters: {'lr': 0.006845570267272932, 'weight_decay': 0.00037892283271019823, 'batch_size': 64, 'epochs': 2000, 'hidden_dims': '1024x512x256', 'dropout': 0.2312029776945603}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0011/val_eval
+[I 2026-05-13 01:38:17,882] Trial 11 finished with value: 0.0 and parameters: {'lr': 0.0001507761241861534, 'weight_decay': 0.0001952636185461836, 'batch_size': 32, 'epochs': 20, 'hidden_dims': '512x256', 'dropout': 0.23223351992491975}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0012/val_eval
+[I 2026-05-13 03:30:56,210] Trial 12 finished with value: 0.0 and parameters: {'lr': 7.203821205189768e-05, 'weight_decay': 5.668012417261051e-07, 'batch_size': 64, 'epochs': 2000, 'hidden_dims': '512x256', 'dropout': 0.4750490740265187}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0013/val_eval
+[I 2026-05-13 03:38:53,430] Trial 13 finished with value: 0.0 and parameters: {'lr': 0.0003961817591154835, 'weight_decay': 0.00014128462010415776, 'batch_size': 256, 'epochs': 100, 'hidden_dims': '1024', 'dropout': 0.16015259254014208}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0014/val_eval
+[I 2026-05-13 05:47:46,406] Trial 14 finished with value: 0.0 and parameters: {'lr': 0.0002092430331581472, 'weight_decay': 0.0074583969888723615, 'batch_size': 32, 'epochs': 2000, 'hidden_dims': '512x256', 'dropout': 0.004025636918016162}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0015/val_eval
+[I 2026-05-13 05:49:51,343] Trial 15 finished with value: 0.0 and parameters: {'lr': 4.9637104669171204e-05, 'weight_decay': 4.78570419845307e-07, 'batch_size': 256, 'epochs': 20, 'hidden_dims': '1024', 'dropout': 0.30072403876432674}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0016/val_eval
+[I 2026-05-13 06:00:06,674] Trial 16 finished with value: 0.0 and parameters: {'lr': 1.8341349739604664e-05, 'weight_decay': 0.0008270437502580537, 'batch_size': 32, 'epochs': 100, 'hidden_dims': '1024x512x256', 'dropout': 0.16591704146800457}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0017/val_eval
+[I 2026-05-13 06:28:52,694] Trial 17 finished with value: 0.0 and parameters: {'lr': 0.0005099960310593632, 'weight_decay': 5.987455150398208e-05, 'batch_size': 64, 'epochs': 500, 'hidden_dims': '512x256', 'dropout': 0.16609879452672588}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0018/val_eval
+[I 2026-05-13 08:02:48,876] Trial 18 finished with value: 0.0 and parameters: {'lr': 0.00010950675105959596, 'weight_decay': 1.285671298605995e-06, 'batch_size': 256, 'epochs': 2000, 'hidden_dims': '512x256', 'dropout': 0.27910334106487344}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/train/trial_0019/val_eval
+[I 2026-05-13 08:04:36,724] Trial 19 finished with value: 0.0 and parameters: {'lr': 0.0027623800704545468, 'weight_decay': 5.444458216778845e-05, 'batch_size': 32, 'epochs': 20, 'hidden_dims': '256', 'dropout': 0.09151650142522019}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=train split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=2965 split_samples=5930
+[eval.mvp] Prepared samples | n_pairs_before_trim=2965 n_samples_before_trim=5930 n_pairs_after_trim=2965 n_samples_after_trim=5930 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=5930
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=2965 n_samples=5930
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/eval/train
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/eval/val
+[eval.mvp] Starting eval | split_name=test split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_12/eval/test
+[I 2026-05-13 08:05:37,864] A new study created in RDB with name: mvp_mlp_ltx_video_layer_noise_1.0_block_24
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0000/val_eval
+[I 2026-05-13 09:49:52,633] Trial 0 finished with value: 0.0 and parameters: {'lr': 0.0001329291894316216, 'weight_decay': 0.005061576888752304, 'batch_size': 32, 'epochs': 2000, 'hidden_dims': '256', 'dropout': 0.21597250932105788}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0001/val_eval
+[I 2026-05-13 09:54:04,486] Trial 1 finished with value: 0.0 and parameters: {'lr': 7.476312062252303e-05, 'weight_decay': 4.689400963537693e-05, 'batch_size': 256, 'epochs': 20, 'hidden_dims': '512x256', 'dropout': 0.048836057003191935}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0002/val_eval
+[I 2026-05-13 09:57:34,313] Trial 2 finished with value: 0.0 and parameters: {'lr': 0.0011290133559092666, 'weight_decay': 4.374364439939069e-06, 'batch_size': 256, 'epochs': 50, 'hidden_dims': '256', 'dropout': 0.04424625102595975}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0003/val_eval
+[I 2026-05-13 10:45:54,483] Trial 3 finished with value: 0.0 and parameters: {'lr': 3.872118032174584e-05, 'weight_decay': 1.8679434894556277e-08, 'batch_size': 256, 'epochs': 1000, 'hidden_dims': '256', 'dropout': 0.36450358402049365}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0004/val_eval
+[I 2026-05-13 11:45:46,192] Trial 4 finished with value: 0.0 and parameters: {'lr': 0.0020597335357437196, 'weight_decay': 2.781428564375744e-08, 'batch_size': 128, 'epochs': 1000, 'hidden_dims': '256', 'dropout': 0.3854835899772805}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0005/val_eval
+[I 2026-05-13 12:38:55,174] Trial 5 finished with value: 0.0 and parameters: {'lr': 0.00030296104428212476, 'weight_decay': 1.3689795993592185e-05, 'batch_size': 32, 'epochs': 500, 'hidden_dims': '1024x512x1024', 'dropout': 0.4040601897822085}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0006/val_eval
+[I 2026-05-13 12:44:07,025] Trial 6 finished with value: 0.0 and parameters: {'lr': 0.000794714742465374, 'weight_decay': 0.0016934155410667966, 'batch_size': 128, 'epochs': 50, 'hidden_dims': '512', 'dropout': 0.0599326836668414}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0007/val_eval
+[I 2026-05-13 12:47:29,268] Trial 7 finished with value: 0.0 and parameters: {'lr': 0.00010300196600986775, 'weight_decay': 0.0045442082254883295, 'batch_size': 128, 'epochs': 20, 'hidden_dims': '1024x512x1024', 'dropout': 0.11978094533348621}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0008/val_eval
+[I 2026-05-13 12:53:31,657] Trial 8 finished with value: 0.0 and parameters: {'lr': 2.7207248059486674e-05, 'weight_decay': 8.64403589520682e-06, 'batch_size': 32, 'epochs': 50, 'hidden_dims': '512', 'dropout': 0.3387821809211412}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0009/val_eval
+[I 2026-05-13 12:58:01,748] Trial 9 finished with value: 0.0 and parameters: {'lr': 1.1214075785991125e-05, 'weight_decay': 1.1818390883060214e-05, 'batch_size': 256, 'epochs': 50, 'hidden_dims': '256', 'dropout': 0.12092614545022584}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0010/val_eval
+[I 2026-05-13 15:20:43,408] Trial 10 finished with value: 0.0 and parameters: {'lr': 0.006845570267272932, 'weight_decay': 0.00037892283271019823, 'batch_size': 64, 'epochs': 2000, 'hidden_dims': '1024x512x256', 'dropout': 0.2312029776945603}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0011/val_eval
+[I 2026-05-13 15:22:48,943] Trial 11 finished with value: 0.0 and parameters: {'lr': 0.0001507761241861534, 'weight_decay': 0.0001952636185461836, 'batch_size': 32, 'epochs': 20, 'hidden_dims': '512x256', 'dropout': 0.23223351992491975}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0012/val_eval
+[I 2026-05-13 17:39:25,873] Trial 12 finished with value: 0.0 and parameters: {'lr': 7.203821205189768e-05, 'weight_decay': 5.668012417261051e-07, 'batch_size': 64, 'epochs': 2000, 'hidden_dims': '512x256', 'dropout': 0.4750490740265187}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0013/val_eval
+[I 2026-05-13 17:47:30,417] Trial 13 finished with value: 0.0 and parameters: {'lr': 0.0003961817591154835, 'weight_decay': 0.00014128462010415776, 'batch_size': 256, 'epochs': 100, 'hidden_dims': '1024', 'dropout': 0.16015259254014208}. Best is trial 0 with value: 0.0.

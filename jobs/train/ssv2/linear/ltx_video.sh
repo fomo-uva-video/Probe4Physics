@@ -19,9 +19,9 @@ set -euo pipefail
 DATASET_NAME="ssv2"
 PROBE_NAME="linear"
 BACKBONE_NAME="ltx_video"
-BACKBONE_VARIANT="ltxv_13b_0_9_8_dev"
+BACKBONE_VARIANT=""  # empty uses configs/backbones.yaml default (currently distilled)
 PROBE_EPOCHS="100"
-PROBE_LAYER="last"  # possible values: last | 1 | 2 | 4 | 5
+PROBE_LAYER="last"  # possible values: last | 1..40 for the default LTX slot grid
 PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_FEATURE_VIEW="pooled"
 PROBE_DEVICE="cpu"

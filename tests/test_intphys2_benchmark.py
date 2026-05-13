@@ -23,6 +23,7 @@ from benchmarks.intphys2.data import (
 from benchmarks.intphys2.eval import ConfigError, run_intphys2_eval
 from benchmarks.intphys2.features import (
     FeatureConfigError,
+    _is_stale_lock,
     load_feature_cache_for_config,
     resolve_expected_feature_cache_paths,
     run_intphys2_feature_extraction,
@@ -230,6 +231,7 @@ class IntPhys2BenchmarkEvaluateTests(unittest.TestCase):
         ]
         metrics = IntPhys2Benchmark().evaluate(samples, predictions)
         self.assertAlmostEqual(metrics.voe_accuracy, 100.0)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 1.0)
 
     def test_inverted_scores_give_0_voe(self) -> None:
         samples = self._make_samples()
@@ -243,6 +245,20 @@ class IntPhys2BenchmarkEvaluateTests(unittest.TestCase):
         ]
         metrics = IntPhys2Benchmark().evaluate(samples, predictions)
         self.assertAlmostEqual(metrics.voe_accuracy, 0.0)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 0.0)
+
+    def test_tied_scores_give_50_roc_auc(self) -> None:
+        samples = self._make_samples()
+        predictions = [
+            IntPhys2Prediction(
+                sample_id=s.sample_id,
+                pred_idx=s.plausibility,
+                score=0.5,
+            )
+            for s in samples
+        ]
+        metrics = IntPhys2Benchmark().evaluate(samples, predictions)
+        self.assertAlmostEqual(metrics.roc_auc or 0.0, 0.5)
 
     def test_n_scenes_is_correct(self) -> None:
         samples = self._make_samples()
@@ -409,6 +425,7 @@ class IntPhys2EvalTests(unittest.TestCase):
             metrics = result["metrics"]
 
             self.assertAlmostEqual(metrics["accuracy"], 100.0)
+            self.assertAlmostEqual(metrics["roc_auc"], 1.0)
             self.assertGreater(metrics["n_samples"], 0)
             self.assertGreater(metrics["n_scenes"], 0)
 
@@ -512,6 +529,7 @@ class RunCommandIntPhys2Tests(unittest.TestCase):
             "extract.intphys2",
             "train.probe.intphys2",
             "eval.probe.intphys2",
+            "backfill.intphys2.roc_auc",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
 
@@ -796,10 +814,17 @@ class IntPhys2FeatureCacheConfigTests(unittest.TestCase):
             capped_bundle = load_feature_cache_for_config(capped_cfg)
             capped_index = capped_bundle["index"].sort_values("feature_index").reset_index(drop=True)
             manifest = capped_bundle["manifest"]
+            token_store = capped_bundle["token_store"]
 
             self.assertGreater(len(full_index), 2)
             self.assertEqual(len(capped_index), 2)
             self.assertEqual(manifest["features"]["max_samples"], 2)
+            self.assertEqual(manifest["storage"]["tokens"]["format"], "chunked_resume")
+            self.assertEqual(manifest["files"]["tokens"], "")
+            self.assertIsNone(capped_bundle["tokens"])
+            self.assertIsNotNone(token_store)
+            self.assertEqual(tuple(token_store.read_feature(0, layer=12, reduction="tokens").shape), (2, 4))
+            self.assertFalse(Path(capped_bundle["paths"].tokens_path).exists())
             self.assertIn("timing", manifest)
             self.assertIn("elapsed_seconds", manifest["timing"])
             self.assertIn("seconds_per_processed_sample", manifest["timing"])
@@ -916,6 +941,50 @@ class NormalizeRowHFAliasTests(unittest.TestCase):
         row = {"video_path": "v.mp4", "scene_id": "1", "condition": "solidity", "plausibility": 1, "split": "main", "Camera": "Moving"}
         norm = normalize_intphys2_row(row)
         self.assertEqual(norm["camera"], "Moving")
+
+
+class IntPhys2ResumeLockTests(unittest.TestCase):
+    def test_lock_is_stale_when_owner_slurm_job_is_not_active(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            lock_path = Path(tmp) / "lock"
+            lock_path.write_text(
+                json.dumps(
+                    {
+                        "created_at_utc": "2026-05-07T14:34:47+00:00",
+                        "hostname": "gcn124.local.snellius.surf.nl",
+                        "job_id": "22557464",
+                        "pid": 798577,
+                        "token": "fixture",
+                    },
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
+
+            completed = mock.Mock(returncode=0, stdout="", stderr="")
+            with mock.patch("benchmarks.intphys2.features.subprocess.run", return_value=completed):
+                self.assertTrue(_is_stale_lock(lock_path, stale_seconds=86400))
+
+    def test_lock_is_not_stale_when_owner_slurm_job_is_running(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            lock_path = Path(tmp) / "lock"
+            lock_path.write_text(
+                json.dumps(
+                    {
+                        "created_at_utc": "2026-05-07T14:34:47+00:00",
+                        "hostname": "gcn124.local.snellius.surf.nl",
+                        "job_id": "22557464",
+                        "pid": 798577,
+                        "token": "fixture",
+                    },
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
+
+            active = mock.Mock(returncode=0, stdout="RUNNING\n", stderr="")
+            with mock.patch("benchmarks.intphys2.features.subprocess.run", return_value=active):
+                self.assertFalse(_is_stale_lock(lock_path, stale_seconds=86400))
 
 
 if __name__ == "__main__":

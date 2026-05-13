@@ -31,7 +31,7 @@ from benchmarks.mvp.features import (
 from benchmarks.ssv2.data import SSV2_NUM_CLASSES
 from benchmarks.ssv2.eval import run_ssv2_eval
 from benchmarks.ssv2.features import load_feature_cache_for_config as load_ssv2_feature_cache
-from models.cache_metadata import resolve_backbone_cache_metadata
+from models.cache_metadata import resolve_backbone_cache_metadata, resolve_backbone_layer_label
 from probes import (
     LinearProbe,
     MLPProbe,
@@ -325,7 +325,7 @@ def run_probe_train_eval(dataset: str, config: dict[str, Any]) -> dict[str, Any]
     layer_summaries: list[dict[str, Any]] = []
 
     for layer in sweep_layers:
-        layer_label = _layer_label(layer)
+        layer_label = _run_layer_label(config, layer)
         layer_root = sweep_root / f"layer_{layer_label}"
         train_dir = layer_root / "train"
         eval_dir = layer_root / "eval"
@@ -508,6 +508,11 @@ def _run_single_train(
                 epochs=probe_cfg["epochs"],
                 lr=probe_cfg["lr"],
                 weight_decay=probe_cfg["weight_decay"],
+                early_stopping_patience=(
+                    probe_cfg["early_stopping"]["patience"]
+                    if probe_cfg["early_stopping"]["enabled"]
+                    else None
+                ),
                 seed=seed,
                 epoch_logger=fit_epoch_logger,
             )
@@ -528,6 +533,11 @@ def _run_single_train(
                 batch_size=probe_cfg["batch_size"],
                 eval_batch_size=probe_cfg["eval_batch_size"],
                 weight_decay=probe_cfg["weight_decay"],
+                early_stopping_patience=(
+                    probe_cfg["early_stopping"]["patience"]
+                    if probe_cfg["early_stopping"]["enabled"]
+                    else None
+                ),
                 seed=seed,
                 epoch_logger=fit_epoch_logger,
             )
@@ -576,6 +586,8 @@ def _run_single_train(
                 "best_epoch": fit.best_epoch,
                 "best_val_loss": fit.best_val_loss,
                 "best_val_accuracy": fit.best_val_accuracy,
+                "early_stopped": fit.early_stopped,
+                "early_stopping_patience": fit.early_stopping_patience,
                 "history": fit.history,
             },
             "n_train": int(train_mask.sum()),
@@ -1537,6 +1549,12 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(temporal_raw, dict):
         raise ProbeConfigError("probe.temporal_attn must be a dictionary")
 
+    early_stopping_raw = raw.get("early_stopping", {})
+    if early_stopping_raw is None:
+        early_stopping_raw = {}
+    if not isinstance(early_stopping_raw, dict):
+        raise ProbeConfigError("probe.early_stopping must be a dictionary")
+
     return {
         "name": probe_name,
         "feature_view": feature_view,
@@ -1548,6 +1566,10 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "batch_size": int(raw.get("batch_size", 128)),
         "eval_batch_size": int(raw.get("eval_batch_size", 1024)),
         "weight_decay": float(raw.get("weight_decay", 0.0)),
+        "early_stopping": {
+            "enabled": bool(early_stopping_raw.get("enabled", False)),
+            "patience": int(early_stopping_raw.get("patience", 5)),
+        },
         "device": str(raw.get("device", "cpu")),
         "deterministic": bool(raw.get("deterministic", False)),
         "output_dir": str(raw.get("output_dir", "")),
@@ -1780,6 +1802,17 @@ def _layer_label(layer: int | str) -> str:
     return str(_serialize_layer_value(layer))
 
 
+def _run_layer_label(config: dict[str, Any], layer: int | str) -> str:
+    raw = config.get("backbone", {})
+    if not isinstance(raw, dict):
+        return _layer_label(layer)
+    name = str(raw.get("name", "")).strip()
+    kwargs = raw.get("kwargs", {})
+    if not isinstance(kwargs, dict):
+        kwargs = {}
+    return resolve_backbone_layer_label(name, kwargs, layer)
+
+
 def _config_for_layer(config: dict[str, Any], layer: int | str) -> dict[str, Any]:
     updated = copy.deepcopy(config)
     probe_section = updated.setdefault("probe", {})
@@ -1892,6 +1925,7 @@ def _probe_hparam_summary(probe_cfg: dict[str, Any], num_classes: int) -> dict[s
         "batch_size": probe_cfg["batch_size"],
         "eval_batch_size": probe_cfg["eval_batch_size"],
         "weight_decay": probe_cfg["weight_decay"],
+        "early_stopping": dict(probe_cfg["early_stopping"]),
         "device": probe_cfg["device"],
         "deterministic": bool(probe_cfg["deterministic"]),
         "num_classes": int(num_classes),

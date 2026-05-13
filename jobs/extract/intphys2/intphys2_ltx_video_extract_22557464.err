@@ -1,0 +1,56 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s][A
+Loading checkpoint shards:  17%|█▋        | 1/6 [00:28<02:22, 28.52s/it][A
+Loading checkpoint shards:  33%|███▎      | 2/6 [00:58<01:58, 29.63s/it][A
+Loading checkpoint shards:  50%|█████     | 3/6 [01:21<01:19, 26.43s/it][A
+Loading checkpoint shards:  67%|██████▋   | 4/6 [01:43<00:49, 24.50s/it][A
+Loading checkpoint shards:  83%|████████▎ | 5/6 [02:03<00:22, 22.89s/it][A
+Loading checkpoint shards: 100%|██████████| 6/6 [02:09<00:00, 17.29s/it][ALoading checkpoint shards: 100%|██████████| 6/6 [02:09<00:00, 21.59s/it]
+Loading pipeline components...:  40%|████      | 2/5 [02:09<03:14, 64.90s/it]Loading pipeline components...:  60%|██████    | 3/5 [02:09<01:15, 37.93s/it]Loading pipeline components...:  80%|████████  | 4/5 [02:18<00:27, 27.04s/it]
+Loading weights:   0%|          | 0/219 [00:00<?, ?it/s][A
+Loading weights:   5%|▌         | 11/219 [00:00<00:02, 74.77it/s][A
+Loading weights:  10%|█         | 22/219 [00:00<00:02, 70.06it/s][A
+Loading weights:  14%|█▎        | 30/219 [00:00<00:06, 31.14it/s][A
+Loading weights:  16%|█▌        | 35/219 [00:01<00:07, 25.06it/s][A
+Loading weights:  18%|█▊        | 39/219 [00:01<00:09, 18.95it/s][A
+Loading weights:  19%|█▉        | 42/219 [00:01<00:11, 14.97it/s][A
+Loading weights:  20%|██        | 44/219 [00:02<00:18,  9.45it/s][A
+Loading weights:  21%|██        | 46/219 [00:02<00:16, 10.25it/s][A
+Loading weights:  22%|██▏       | 48/219 [00:03<00:16, 10.36it/s][A
+Loading weights:  23%|██▎       | 50/219 [00:03<00:26,  6.48it/s][A
+Loading weights:  24%|██▎       | 52/219 [00:03<00:23,  7.00it/s][A
+Loading weights:  45%|████▍     | 98/219 [00:04<00:02, 47.69it/s][A
+Loading weights:  47%|████▋     | 104/219 [00:04<00:02, 39.43it/s][A
+Loading weights:  50%|████▉     | 109/219 [00:04<00:02, 39.09it/s][A
+Loading weights:  52%|█████▏    | 114/219 [00:04<00:02, 36.48it/s][A
+Loading weights:  57%|█████▋    | 124/219 [00:05<00:02, 35.65it/s][A
+Loading weights:  58%|█████▊    | 128/219 [00:05<00:03, 28.95it/s][A
+Loading weights:  62%|██████▏   | 135/219 [00:05<00:02, 29.18it/s][A
+Loading weights:  63%|██████▎   | 139/219 [00:05<00:03, 22.67it/s][A
+Loading weights:  65%|██████▍   | 142/219 [00:06<00:03, 19.32it/s][A
+Loading weights:  66%|██████▌   | 145/219 [00:06<00:04, 15.27it/s][A
+Loading weights:  72%|███████▏  | 157/219 [00:06<00:02, 27.52it/s][A
+Loading weights:  82%|████████▏ | 180/219 [00:06<00:00, 50.42it/s][A
+Loading weights:  85%|████████▌ | 187/219 [00:07<00:00, 46.41it/s][A
+Loading weights:  88%|████████▊ | 193/219 [00:07<00:00, 47.24it/s][A
+Loading weights:  91%|█████████ | 199/219 [00:07<00:00, 35.78it/s][A
+Loading weights:  93%|█████████▎| 204/219 [00:07<00:00, 36.34it/s][ALoading weights: 100%|██████████| 219/219 [00:07<00:00, 29.24it/s]
+Loading pipeline components...: 100%|██████████| 5/5 [02:27<00:00, 20.60s/it]Loading pipeline components...: 100%|██████████| 5/5 [02:27<00:00, 29.45s/it]
+/gpfs/home3/scur0511/Probe4Physics/jobs/extract/intphys2/run_extract.sh: line 136: 798577 Killed                  "${cmd[@]}"
+[2026-05-07T16:36:08.207] error: Detected 1 oom_kill event in StepId=22557464.batch. Some of the step tasks have been OOM Killed.

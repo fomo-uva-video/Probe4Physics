@@ -87,6 +87,9 @@ probe:
   batch_size: 128
   eval_batch_size: 1024
   weight_decay: 0.0
+  early_stopping:
+    enabled: false
+    patience: 5
   device: cpu
   deterministic: false  # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/intphys2
@@ -146,7 +149,7 @@ probe:
         choices: [32, 64, 128, 256]
       epochs:
         enabled: true
-        choices: [20, 50, 100, ]
+        choices: [20,50,100,500,1000,2000]
       mlp:
         hidden_dims:
           choices:

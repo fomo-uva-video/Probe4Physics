@@ -35,6 +35,7 @@ from training.run_probe import (
     run_ssv2_train_probe,
 )
 from training.intphys2_extract import run_intphys2_extract
+from training.intphys2_postprocess import run_intphys2_backfill_roc_auc
 from training.mvp_extract import run_mvp_extract
 from training.ssv2_extract import run_ssv2_extract
 
@@ -237,6 +238,11 @@ COMMANDS = {
         config_name="intphys2",
         handler=run_intphys2_train_eval_probe,
         description="Train and then evaluate the selected probe across one or more IntPhys2 layers.",
+    ),
+    "backfill.intphys2.roc_auc": CommandSpec(
+        config_name="intphys2",
+        handler=run_intphys2_backfill_roc_auc,
+        description="Backfill ROC AUC into saved IntPhys2 evaluation artifacts and summary CSVs.",
     ),
     "eval.probe.intphys2": CommandSpec(
         config_name="intphys2",

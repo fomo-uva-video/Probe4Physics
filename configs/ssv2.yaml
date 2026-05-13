@@ -78,6 +78,9 @@ probe:
   batch_size: 128
   eval_batch_size: 1024
   weight_decay: 0.0
+  early_stopping:
+    enabled: false
+    patience: 5
   device: cpu
   output_dir: artifacts/probes/ssv2
   output_subdir: ""

@@ -5,7 +5,7 @@ from typing import Any, Sequence
 
 import yaml
 
-from .ltx_video_adapter import resolve_noise_levels, resolve_probe_layer_ids
+from .ltx_video_adapter import resolve_noise_levels, resolve_probe_layer_ids, resolve_probe_layer_specs
 from .preprocessing import imagenet_preprocessing_metadata, ltx_diffusion_preprocessing_metadata
 
 
@@ -72,6 +72,63 @@ def resolve_backbone_cache_metadata(name: str, kwargs: dict[str, Any]) -> dict[s
     if "patch_size_t" in kwargs or "patch_size_t" in variant_cfg:
         metadata["patch_size_t"] = _int_setting(kwargs, variant_cfg, "patch_size_t")
     return metadata
+
+
+def resolve_backbone_layer_label(name: str, kwargs: dict[str, Any], layer: int | str) -> str:
+    if isinstance(layer, str):
+        return str(layer)
+
+    resolved_layer = int(layer)
+    key = str(name).strip()
+    if key != "ltx_video":
+        return str(resolved_layer)
+
+    path = Path(str(kwargs.get("config_path", DEFAULT_BACKBONES_CONFIG_PATH))).expanduser()
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    path = path.resolve()
+    if not path.exists():
+        return str(resolved_layer)
+
+    with path.open("r", encoding="utf-8") as handle:
+        payload = yaml.safe_load(handle) or {}
+
+    section = payload.get(key)
+    if not isinstance(section, dict):
+        return str(resolved_layer)
+
+    variants = section.get("variants", {})
+    chosen = str(kwargs.get("variant", "") or section.get("default_variant", "")).strip()
+    variant_cfg = variants.get(chosen, {}) if isinstance(variants, dict) else {}
+    if not isinstance(variant_cfg, dict):
+        variant_cfg = {}
+
+    model_name = str(kwargs.get("model_name", "") or variant_cfg.get("model_name", ""))
+    relative_depths = kwargs.get("relative_depths")
+    if relative_depths is None:
+        relative_depths = section.get("default_relative_depths", [])
+    noise_levels = kwargs.get("noise_levels")
+    if noise_levels is None:
+        noise_levels = section.get("default_noise_levels", [])
+    model_block_depths = section.get("model_block_depths", {})
+    if not model_name or not isinstance(model_block_depths, dict):
+        return str(resolved_layer)
+
+    try:
+        specs = resolve_probe_layer_specs(
+            model_name,
+            relative_depths=relative_depths,
+            noise_levels=noise_levels,
+            model_block_depths={str(k): int(v) for k, v in model_block_depths.items()},
+            config_path=path,
+        )
+    except Exception:
+        return str(resolved_layer)
+
+    for spec in specs:
+        if int(spec.probe_layer_id) == resolved_layer:
+            return f"noise_{spec.noise_fraction:.1f}_block_{int(spec.depth_layer_id)}"
+    return str(resolved_layer)
 
 
 def _int_setting(kwargs: dict[str, Any], variant_cfg: dict[str, Any], key: str) -> int | None:

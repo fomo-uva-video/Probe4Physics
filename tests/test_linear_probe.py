@@ -113,6 +113,42 @@ class LinearProbeTests(unittest.TestCase):
         self.assertIsNotNone(fit.best_epoch)
         self.assertIsNotNone(fit.best_val_accuracy)
 
+    def test_fit_loader_supports_early_stopping_patience(self) -> None:
+        class _FlatValLinearProbe(LinearProbe):
+            def _compute_loss_accuracy_loader(self, loader, criterion):
+                del loader, criterion
+                return 1.0, 50.0
+
+        probe = _FlatValLinearProbe(input_dim=4, num_classes=2, device="cpu")
+
+        x = torch.zeros(32, 4)
+        y = torch.zeros(32, dtype=torch.long)
+        train_loader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(x, y),
+            batch_size=8,
+            shuffle=False,
+        )
+        val_loader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(x, y),
+            batch_size=8,
+            shuffle=False,
+        )
+
+        fit = probe.fit_loader(
+            train_loader,
+            val_loader=val_loader,
+            epochs=10,
+            lr=1e-2,
+            early_stopping_patience=2,
+            seed=7,
+        )
+
+        self.assertTrue(fit.early_stopped)
+        self.assertEqual(fit.early_stopping_patience, 2)
+        self.assertEqual(fit.n_epochs, 3)
+        self.assertEqual(len(fit.history), 3)
+        self.assertEqual(fit.best_epoch, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,17 +1,19 @@
 #!/bin/bash
-# Train a MVP temporal_attn probe with jepa_v1 features.
+# Train a MVP temporal_attn probe with jepa_v1 features using the light attentive regime.
 #
 # Usage:
 #   sbatch jepa_v1.sh
-#   sbatch jepa_v1.sh probe.device=cpu
+#   sbatch jepa_v1.sh probe.layer=24
+#
+# Only probe.layer overrides are accepted by this wrapper.
 
-#SBATCH --partition=gpu_mig
+#SBATCH --partition=gpu_h100
 #SBATCH --job-name=mvp_jepa_v1_temporal_attn
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=9
 #SBATCH --mem=192G
-#SBATCH --time=10:00:00
+#SBATCH --time=20:00:00
 #SBATCH --output=output/training/mvp/attention/mvp_jepa_v1_attn_layers_%j.out
 #SBATCH --error=output/training/mvp/attention/mvp_jepa_v1_attn_layers_%j.err
 
@@ -21,24 +23,37 @@ DATASET_NAME="mvp"
 PROBE_NAME="temporal_attn"
 BACKBONE_NAME="jepa_v1"
 BACKBONE_VARIANT="vith16_384"
-PROBE_EPOCHS="100"
+PROBE_EPOCHS="20"
 PROBE_LAYER="last"  # possible values: last | 8 | 16 | 24 | 32
-# PROBE_LAYERS="${PROBE_LAYER}"
-PROBE_LAYERS="8,16,24,32"
+PROBE_LAYERS="${PROBE_LAYER}"
 PROBE_FEATURE_VIEW="tokens"
 PROBE_DEVICE="cuda"
 ENABLE_WANDB="true"
 WANDB_PROJECT="probe4physics"
 WANDB_MODE="online"
 ENABLE_OPTUNA="true"
-OPTUNA_N_TRIALS="20"
+OPTUNA_N_TRIALS="5"
 OPTUNA_N_JOBS="1"
 OPTUNA_TIMEOUT_SECONDS="0"
 ENABLE_OPTUNA_PRUNER="true"
 OPTUNA_PRUNER_STARTUP_TRIALS="3"
-OPTUNA_PRUNER_WARMUP_STEPS="100"
+OPTUNA_PRUNER_WARMUP_STEPS="5"
 OPTUNA_PRUNER_INTERVAL_STEPS="1"
-OPTUNA_SEARCH_OVERRIDES="probe.eval_batch_size=1 probe.optuna.search_space.batch_size.choices=[1,2,4]"
+OPTUNA_SEARCH_OVERRIDES="probe.eval_batch_size=1 probe.optuna.search_space.batch_size.choices=[1]"
+
+for arg in "$@"; do
+  case "$arg" in
+    probe.layer=*)
+      PROBE_LAYER="${arg#probe.layer=}"
+      PROBE_LAYERS="${PROBE_LAYER}"
+      ;;
+    *)
+      echo "Unsupported override '$arg'. Only probe.layer=<last|8|16|24|32> is allowed for this job." >&2
+      exit 2
+      ;;
+  esac
+done
+
 export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_LAYERS PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS ENABLE_OPTUNA_PRUNER OPTUNA_PRUNER_STARTUP_TRIALS OPTUNA_PRUNER_WARMUP_STEPS OPTUNA_PRUNER_INTERVAL_STEPS OPTUNA_SEARCH_OVERRIDES
 
 JOB_COMMAND=""
@@ -53,4 +68,4 @@ if [[ -n "${JOB_COMMAND}" ]]; then
 else
   SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
 fi
-exec "${SCRIPT_DIR}/run_train.sh" "$@"
+exec "${SCRIPT_DIR}/run_train.sh"

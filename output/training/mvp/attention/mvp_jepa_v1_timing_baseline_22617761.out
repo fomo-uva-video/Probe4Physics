@@ -1,0 +1,287 @@
+===== TIMING PROVENANCE =====
+Sun May 10 01:33:02 PM UTC 2026
+gcn73.local.snellius.surf.nl
+548189e89ff58a78b96a2838603163a54c850825
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/home/scur0511/Probe4Physics
+EXPERIMENT_MODE=baseline
+TIMING_GROUP=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z
+RUN_STEM=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761
+FIXED_LAYER=32
+PROBE_EPOCHS=5
+TRAIN_BATCH_SIZE=1
+EVAL_BATCH_SIZE=1
+STORAGE_STRATEGY=shared_cache_default_signature
+SHARED_FEATURE_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/features/mvp
+SHARED_PROBE_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing
+SHARED_RESULT_ROOT=/scratch-shared/scur0511/probe4physics/artifacts/results/mvp_timing
+TMPDIR=/scratch-node/scur0511.22617761
+LOCAL_FEATURE_ROOT=/scratch-node/scur0511.22617761/scur0511_probe4physics_features_mvp_22617761
+WANDB_PROJECT=probe4physics
+WANDB_MODE=online
+=============================
+JOB_START_UTC=2026-05-10T13:33:02Z
+SOURCE_CACHE_DIR=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e
+SOURCE_SIGNATURE=195f8fef90088d1e
+CACHE_PREP_ELAPSED_SECONDS=13
+==> Launching training command:
+  python  run.py  train_eval.probe.mvp  backbone.name=jepa_v1  +backbone.kwargs.variant=vith16_384  backbone.kwargs.device=cuda  probe.name=temporal_attn  probe.device=cuda  probe.layer=32  probe.feature_view=tokens  probe.epochs=5  probe.lr=5.9750279999602906e-05  probe.weight_decay=9.44351568796269e-05  probe.batch_size=1  probe.eval_batch_size=1  probe.temporal_attn.num_heads=16  probe.temporal_attn.num_self_attn_blocks=2  probe.temporal_attn.mlp_ratio=2.0  probe.temporal_attn.dropout=0.17936999364332554  probe.output_dir=/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing  probe.output_subdir=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761  probe.eval_output_dir=/scratch-shared/scur0511/probe4physics/artifacts/results/mvp_timing  probe.eval_output_subdir=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761  probe.wandb.enabled=true  probe.wandb.project=probe4physics  probe.wandb.mode=online  probe.wandb.group=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z  probe.wandb.name=mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761  probe.wandb.tags=\[timing\,snellius\,scratch-node\,mvp\,jepa_v1\,temporal_attn\,baseline\]  probe.optuna.enabled=false  feature_cache.dir=/scratch-shared/scur0511/probe4physics/artifacts/features/mvp  feature_cache.layer_ids=\[\]  feature_cache.include_pooled=true  feature_cache.include_tokens=true
+[features.mvp] using compatible legacy cache: expected_signature=27b17a3c58f8a2d7 actual_signature=195f8fef90088d1e cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e
+[features.mvp] using compatible legacy cache: expected_signature=27b17a3c58f8a2d7 actual_signature=195f8fef90088d1e cache_dir=/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/195f8fef90088d1e
+{
+  "best_layer": null,
+  "best_layer_label": null,
+  "best_objective_metric": null,
+  "dataset": "mvp",
+  "feature_view": "tokens",
+  "layers": [
+    {
+      "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+      "eval": {
+        "base_eval": {
+          "metrics": {
+            "accuracy": 69.81799797775531,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 40.74823053589484
+          },
+          "output_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test",
+          "split_dir": "data/splits/mvp/full_60_20_20"
+        },
+        "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+        "dataset": "mvp",
+        "feature_signature": "195f8fef90088d1e",
+        "metrics": {
+          "accuracy": 69.81799797775531,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 40.74823053589484
+        },
+        "metrics_by_split": {
+          "test": {
+            "accuracy": 69.81799797775531,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 40.74823053589484
+          },
+          "train": {
+            "accuracy": 70.10118043844857,
+            "n_pairs": 2965,
+            "n_samples": 5930,
+            "pair_consistency": 41.045531197301855
+          },
+          "val": {
+            "accuracy": 69.11021233569262,
+            "n_pairs": 989,
+            "n_samples": 1978,
+            "pair_consistency": 39.43377148634985
+          }
+        },
+        "objective_metric": 40.74823053589484,
+        "prediction_file": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test/probe_predictions.json",
+        "prediction_files": {
+          "test": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test/probe_predictions.json",
+          "train": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/train/probe_predictions.json",
+          "val": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/val/probe_predictions.json"
+        },
+        "probe_eval_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval",
+        "probe_name": "temporal_attn",
+        "reported_splits": [
+          "train",
+          "val",
+          "test"
+        ],
+        "split_eval_dirs": {
+          "test": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test",
+          "train": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/train",
+          "val": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/val"
+        },
+        "split_evals": {
+          "test": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 69.81799797775531,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 40.74823053589484
+              },
+              "output_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "195f8fef90088d1e",
+            "metrics": {
+              "accuracy": 69.81799797775531,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 40.74823053589484
+            },
+            "objective_metric": 40.74823053589484,
+            "prediction_file": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test/probe_predictions.json",
+            "probe_eval_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/test",
+            "probe_name": "temporal_attn",
+            "split_name": "test"
+          },
+          "train": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 70.10118043844857,
+                "n_pairs": 2965,
+                "n_samples": 5930,
+                "pair_consistency": 41.045531197301855
+              },
+              "output_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/train",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "195f8fef90088d1e",
+            "metrics": {
+              "accuracy": 70.10118043844857,
+              "n_pairs": 2965,
+              "n_samples": 5930,
+              "pair_consistency": 41.045531197301855
+            },
+            "objective_metric": 41.045531197301855,
+            "prediction_file": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/train/probe_predictions.json",
+            "probe_eval_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/train",
+            "probe_name": "temporal_attn",
+            "split_name": "train"
+          },
+          "val": {
+            "base_eval": {
+              "metrics": {
+                "accuracy": 69.11021233569262,
+                "n_pairs": 989,
+                "n_samples": 1978,
+                "pair_consistency": 39.43377148634985
+              },
+              "output_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/val",
+              "split_dir": "data/splits/mvp/full_60_20_20"
+            },
+            "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+            "dataset": "mvp",
+            "feature_signature": "195f8fef90088d1e",
+            "metrics": {
+              "accuracy": 69.11021233569262,
+              "n_pairs": 989,
+              "n_samples": 1978,
+              "pair_consistency": 39.43377148634985
+            },
+            "objective_metric": 39.43377148634985,
+            "prediction_file": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/val/probe_predictions.json",
+            "probe_eval_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/eval/val",
+            "probe_name": "temporal_attn",
+            "split_name": "val"
+          }
+        },
+        "split_name": "test"
+      },
+      "layer": 32,
+      "layer_label": "32",
+      "objective_metric": 40.74823053589484,
+      "train": {
+        "checkpoint": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+        "checkpoint_best": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_best.pt",
+        "checkpoint_last": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train/probe_last.pt",
+        "dataset": "mvp",
+        "elapsed_seconds": 2938.1001436549996,
+        "feature_signature": "195f8fef90088d1e",
+        "feature_view": "tokens",
+        "fit": {
+          "best_epoch": 4,
+          "best_val_accuracy": 69.11021233569262,
+          "best_val_loss": 0.7334602059739939,
+          "history": [
+            {
+              "epoch": 1.0,
+              "train_accuracy": 50.75885328836425,
+              "train_loss": 0.7236582295955877,
+              "val_accuracy": 50.202224469160775,
+              "val_loss": 0.6924363905667535
+            },
+            {
+              "epoch": 2.0,
+              "train_accuracy": 53.87858347386172,
+              "train_loss": 0.6696709172831458,
+              "val_accuracy": 55.965621840242676,
+              "val_loss": 0.6837269821711811
+            },
+            {
+              "epoch": 3.0,
+              "train_accuracy": 60.320404721753796,
+              "train_loss": 0.6144740883901534,
+              "val_accuracy": 66.582406471183,
+              "val_loss": 0.5636301696888115
+            },
+            {
+              "epoch": 4.0,
+              "train_accuracy": 68.29679595278246,
+              "train_loss": 0.5100298898945843,
+              "val_accuracy": 69.11021233569262,
+              "val_loss": 0.7334602059739939
+            },
+            {
+              "epoch": 5.0,
+              "train_accuracy": 73.20404721753793,
+              "train_loss": 0.4305490224549047,
+              "val_accuracy": 68.09908998988877,
+              "val_loss": 0.5248529327428534
+            }
+          ],
+          "n_epochs": 5,
+          "train_accuracy": 73.20404721753793,
+          "train_loss": 0.4305490224549047,
+          "val_accuracy": 68.09908998988877,
+          "val_loss": 0.5248529327428534
+        },
+        "input_dim": 1280,
+        "layer": 32,
+        "n_train": 5930,
+        "n_val": 1978,
+        "num_classes": 2,
+        "output_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761/layer_32/train",
+        "probe_hparams": {
+          "batch_size": 1,
+          "deterministic": false,
+          "device": "cuda",
+          "dropout": 0.17936999364332554,
+          "embed_dim": null,
+          "epochs": 5,
+          "eval_batch_size": 1,
+          "feature_view": "tokens",
+          "layer": 32,
+          "lr": 5.9750279999602906e-05,
+          "mlp_ratio": 2.0,
+          "name": "temporal_attn",
+          "num_classes": 2,
+          "num_heads": 16,
+          "num_self_attn_blocks": 2,
+          "weight_decay": 9.44351568796269e-05
+        },
+        "probe_name": "temporal_attn",
+        "seconds_per_labeled_sample": 0.37153517243993417,
+        "seconds_per_train_sample": 0.495463767901349
+      }
+    }
+  ],
+  "model_selection_split": "val",
+  "objective_metric_name": "pair_consistency",
+  "probe_name": "temporal_attn",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "requested_layers": [
+    32
+  ],
+  "split_name": "test",
+  "sweep_dir": "/scratch-shared/scur0511/probe4physics/artifacts/probes/mvp_timing/mvp_temporal_attn_jepa_v1_timing_20260510T133242Z_baseline_22617761",
+  "train_split": "train"
+}
+TRAIN_ELAPSED_SECONDS=3364
+JOB_END_UTC=2026-05-10T14:29:19Z
+JOB_ELAPSED_SECONDS=3377

@@ -103,7 +103,7 @@ feature_cache:
   max_samples: 0 # 0 means unlimited; smoke jobs override this to 2
   layer_ids: [] # empty uses adapter defaults (e.g., 25/50/75/100% depths)
   include_pooled: true
-  include_tokens: false
+  include_tokens: true
   force_reextract: false
   resume_enabled: true
   resume_strict: true
@@ -121,9 +121,12 @@ probe:
   batch_size: 128
   eval_batch_size: 1024
   weight_decay: 0.0
+  early_stopping:
+    enabled: false
+    patience: 5
   device: cpu
   deterministic: false # enable stricter reproducibility at some performance cost
-  output_dir: artifacts/probes
+  output_dir: artifacts/probes/mvp
   output_subdir: "" # optional stable subdir for train artifacts
   checkpoint_path: "" # optional explicit checkpoint for eval.probe.mvp
   eval_output_dir: artifacts/results
@@ -180,7 +183,7 @@ probe:
         choices: [32, 64, 128, 256]
       epochs:
         enabled: true
-        choices: [20, 50, 100]
+        choices: [20,50,100,500,1000,2000]
       mlp:
         hidden_dims:
           choices:

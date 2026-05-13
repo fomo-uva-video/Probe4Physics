@@ -9,7 +9,7 @@
 #   sbatch ltx_video.sh
 #   MODE=smoke sbatch ltx_video.sh
 
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --gpus=1
 #SBATCH --job-name=intphys2_ltx_video_extract
 #SBATCH --ntasks=1
