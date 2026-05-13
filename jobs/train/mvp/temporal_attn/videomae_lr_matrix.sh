@@ -1,12 +1,12 @@
 #!/bin/bash
-# Train MVP temporal_attn probes with jepa_v2_1 features over a fixed
+# Train MVP temporal_attn probes with videomae features over a fixed
 # (layer, learning-rate) matrix.
 #
 # Usage:
-#   sbatch jobs/train/mvp/temporal_attn/jepa_v2_1_lr_matrix.sh
+#   sbatch jobs/train/mvp/temporal_attn/videomae_lr_matrix.sh
 #
 # Default matrix:
-#   layers = 12, 24, 38, 48
+#   layers = 8, 16, 24, 32
 #   lrs    = 5e-4, 1e-4, 5e-5, 1e-5
 #
 # Layout:
@@ -18,18 +18,18 @@
 # keeping, for each layer, the best completed LR run selected on validation.
 #
 # Quick check after completion:
-#   column -s, -t < artifacts/probes/mvp/mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/train_eval_summary.csv
+#   column -s, -t < artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix/train_eval_summary.csv
 
 #SBATCH --partition=gpu_a100
-#SBATCH --job-name=mvp_jepa_v2_1_attn_lr_matrix
+#SBATCH --job-name=mvp_videomae_attn_lr_matrix
 #SBATCH --array=0-15
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=120G
 #SBATCH --time=24:00:00
-#SBATCH --output=output/training/mvp/attention/mvp_jepa_v2_1_attn_lr_matrix_%A_%a.out
-#SBATCH --error=output/training/mvp/attention/mvp_jepa_v2_1_attn_lr_matrix_%A_%a.err
+#SBATCH --output=output/training/mvp/attention/mvp_videomae_attn_lr_matrix_%A_%a.out
+#SBATCH --error=output/training/mvp/attention/mvp_videomae_attn_lr_matrix_%A_%a.err
 
 set -euo pipefail
 
@@ -57,8 +57,8 @@ configure_hf_cache
 
 DATASET_NAME="mvp"
 PROBE_NAME="temporal_attn"
-BACKBONE_NAME="jepa_v2_1"
-BACKBONE_VARIANT="vitG_384"
+BACKBONE_NAME="videomae"
+BACKBONE_VARIANT="vit_huge_16_224"
 PROBE_FEATURE_VIEW="tokens"
 PROBE_DEVICE="cuda"
 PROBE_EPOCHS="30"
@@ -74,9 +74,9 @@ WANDB_PROJECT="probe4physics"
 WANDB_MODE="online"
 PROBE_OUTPUT_DIR="artifacts/probes/mvp"
 PROBE_EVAL_OUTPUT_DIR="artifacts/results"
-GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix}"
+GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix}"
 
-LAYER_VALUES=("12" "24" "38" "48")
+LAYER_VALUES=("8" "16" "24" "32")
 LR_VALUES=("5e-4" "1e-4" "5e-5" "1e-5")
 LR_TAGS=("5e-4" "1e-4" "5e-5" "1e-5")
 TASK_INDEX="${SLURM_ARRAY_TASK_ID:-0}"
@@ -105,8 +105,8 @@ TRAIN_ROOT="${REPO_ROOT}/${PROBE_OUTPUT_DIR}/${TRAIN_SUBDIR}"
 EVAL_ROOT="${REPO_ROOT}/${PROBE_EVAL_OUTPUT_DIR}/${EVAL_SUBDIR}"
 CHECKPOINT_PATH="${TRAIN_ROOT}/probe_best.pt"
 
-WANDB_GROUP="${WANDB_GROUP:-mvp_temporal_attn_jepa_v2_1_lr_matrix}"
-WANDB_NAME="${WANDB_NAME:-mvp_jepa_v2_1_layer_${PROBE_LAYER}_lr_${LR_TAG}}"
+WANDB_GROUP="${WANDB_GROUP:-mvp_temporal_attn_videomae_lr_matrix}"
+WANDB_NAME="${WANDB_NAME:-mvp_videomae_layer_${PROBE_LAYER}_lr_${LR_TAG}}"
 
 echo "===== TRAIN PROVENANCE ====="
 date -u
@@ -165,7 +165,7 @@ train_cmd=(
   "probe.wandb.mode=${WANDB_MODE}"
   "probe.wandb.group=${WANDB_GROUP}"
   "probe.wandb.name=${WANDB_NAME}"
-  "probe.wandb.tags=[mvp,jepa_v2_1,temporal_attn,lr_matrix,layer_${PROBE_LAYER},lr_${LR_TAG}]"
+  "probe.wandb.tags=[mvp,videomae,temporal_attn,lr_matrix,layer_${PROBE_LAYER},lr_${LR_TAG}]"
   "probe.optuna.enabled=false"
   "feature_cache.include_tokens=true"
 )

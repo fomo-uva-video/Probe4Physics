@@ -264,3 +264,10 @@ on the system, please use 'module avail' or 'module spider' to search for it.
 [eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
 [eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0012/val_eval
 [I 2026-05-13 17:39:25,873] Trial 12 finished with value: 0.0 and parameters: {'lr': 7.203821205189768e-05, 'weight_decay': 5.668012417261051e-07, 'batch_size': 64, 'epochs': 2000, 'hidden_dims': '512x256', 'dropout': 0.4750490740265187}. Best is trial 0 with value: 0.0.
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=50.0000 pair_consistency=0.0000 n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260512T155158Z/layer_noise_1.0_block_24/train/trial_0013/val_eval
+[I 2026-05-13 17:47:30,417] Trial 13 finished with value: 0.0 and parameters: {'lr': 0.0003961817591154835, 'weight_decay': 0.00014128462010415776, 'batch_size': 256, 'epochs': 100, 'hidden_dims': '1024', 'dropout': 0.16015259254014208}. Best is trial 0 with value: 0.0.
