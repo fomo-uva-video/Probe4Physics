@@ -235,6 +235,21 @@ DATASET_SPECS = {
         eval_prefix="intphys2_displacement_probe_eval",
         objective_metric="voe_accuracy",
     ),
+    "intphys2_single_frame": DatasetSpec(
+        name="intphys2_single_frame",
+        load_bundle=lambda config, feature_view: load_intphys2_feature_cache(
+            {**config, "baseline_tag": "single_frame"},
+            feature_view=feature_view,
+        ),
+        eval_runner=lambda config: run_intphys2_eval(config),
+        default_train_output_dir="artifacts/probes/intphys2_single_frame",
+        default_eval_output_dir="artifacts/results/intphys2_single_frame",
+        default_eval_split="test",
+        report_splits=(),
+        train_prefix="intphys2_single_frame_probe",
+        eval_prefix="intphys2_single_frame_probe_eval",
+        objective_metric="voe_accuracy",
+    ),
     "ssv2": DatasetSpec(
         name="ssv2",
         load_bundle=lambda config, _feature_view: load_ssv2_feature_cache(config),
@@ -326,6 +341,77 @@ def run_intphys2_displacement_eval_probe(config: dict[str, Any]) -> dict[str, An
 
 def run_intphys2_displacement_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train_eval("intphys2_displacement", config)
+
+
+def run_intphys2_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
+    dataset = "intphys2_single_frame"
+    _require_dataset(dataset)
+    probe_cfg = _probe_cfg(config)
+    context = _load_eval_context(dataset, config, probe_cfg)
+    eval_split = _resolve_primary_eval_split(dataset, config)
+    eval_root = _resolve_eval_output_dir(dataset, config, probe_cfg)
+    eval_root.mkdir(parents=True, exist_ok=True)
+
+    prediction_file = _write_prediction_payload_from_context(
+        dataset,
+        probe_cfg,
+        context,
+        split_name=eval_split,
+        output_dir=eval_root,
+    )
+
+    scenario_summaries: dict[str, dict[str, Any]] = {}
+    metrics_by_label_mode: dict[str, dict[str, Any]] = {}
+    for label_mode, label_value in (("all_true", 1), ("all_false", 0)):
+        scenario_dir = eval_root / f"single_frame_{label_mode}"
+        scenario_dir.mkdir(parents=True, exist_ok=True)
+
+        eval_cfg = copy.deepcopy(config)
+        eval_cfg["split_name"] = eval_split
+        eval_cfg["label_override"] = int(label_value)
+        eval_cfg["predictor"] = {
+            "mode": "from_file",
+            "prediction_file": str(prediction_file),
+        }
+        eval_cfg["output_subdir"] = scenario_dir.name
+        eval_cfg["output_dir"] = str(scenario_dir.parent)
+
+        result = context.spec.eval_runner(eval_cfg)
+        metrics = result.get("metrics", {})
+        if not isinstance(metrics, dict):
+            raise ProbeConfigError(
+                f"Single-frame eval metrics for label_mode='{label_mode}' must be a dictionary."
+            )
+        scenario_summary = {
+            "label_mode": label_mode,
+            "label_value": int(label_value),
+            "probe_eval_dir": str(scenario_dir),
+            "metrics": metrics,
+            "base_eval": result,
+        }
+        scenario_summaries[label_mode] = scenario_summary
+        metrics_by_label_mode[label_mode] = metrics
+
+    primary_mode = "all_true"
+    primary_metrics = metrics_by_label_mode[primary_mode]
+    summary = {
+        "probe_eval_dir": str(eval_root),
+        "checkpoint": str(context.checkpoint_path),
+        "prediction_file": str(prediction_file),
+        "feature_signature": context.current_signature,
+        "dataset": dataset,
+        "probe_name": probe_cfg["name"],
+        "split_name": eval_split,
+        "objective_metric": float(primary_metrics.get("voe_accuracy", 0.0)),
+        "metrics": primary_metrics,
+        "metrics_by_label_mode": metrics_by_label_mode,
+        "single_frame_evals": scenario_summaries,
+    }
+    (eval_root / "probe_eval_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return summary
 
 
 def run_probe_train(dataset: str, config: dict[str, Any]) -> dict[str, Any]:
@@ -702,12 +788,17 @@ def _load_eval_context(
     ckpt_meta = ckpt_payload.get("metadata", {}) if isinstance(ckpt_payload, dict) else {}
     checkpoint_signature = str(ckpt_meta.get("feature_signature", ""))
     current_signature = str(manifest.get("signature", ""))
-    if checkpoint_signature and checkpoint_signature != current_signature:
+    allow_signature_mismatch = dataset == "intphys2_single_frame"
+    if (
+        checkpoint_signature
+        and checkpoint_signature != current_signature
+        and not allow_signature_mismatch
+    ):
         raise ProbeConfigError(
             "Probe checkpoint feature signature mismatch. "
             f"checkpoint={checkpoint_signature}, current={current_signature}."
         )
-    if dataset == "mvp":
+    if _dataset_family(dataset) == "mvp":
         _require_semantic_checkpoint(ckpt_meta)
 
     features = _select_feature_tensor(bundle, probe_cfg)
@@ -764,91 +855,14 @@ def _run_single_eval_from_context(
             f"No samples found for split_name='{eval_split}' in cache index."
         )
 
-    split_frame = index.loc[split_mask].copy()
-    x_eval = None
-    eval_loader = None
-    if isinstance(features, ChunkedTokenSelection):
-        if not hasattr(probe, "predict_logits_loader"):
-            raise ProbeConfigError(
-                "Chunked MVP token evaluation requires loader-based probe inference support."
-            )
-        eval_dataset = _ChunkedTokenDataset(
-            features.store,
-            split_frame["feature_index"].astype(int).tolist(),
-            layer=features.layer,
-            reduction=features.reduction,
-            labels=None,
-        )
-        eval_loader = DataLoader(
-            eval_dataset,
-            batch_size=int(probe_cfg["eval_batch_size"]),
-            shuffle=False,
-        )
-    else:
-        split_idx = torch.tensor(split_mask.to_numpy())
-        x_eval = features[split_idx]
-
     eval_output_dir = output_dir or _resolve_eval_output_dir(dataset, config, probe_cfg)
     eval_output_dir.mkdir(parents=True, exist_ok=True)
-    pred_file = eval_output_dir / "probe_predictions.json"
-
-    if dataset == "mvp":
-        if eval_loader is not None:
-            logits = probe.predict_logits_loader(eval_loader)
-            semantic_pred = logits.argmax(dim=1).tolist()
-        else:
-            semantic_pred = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
-        pred_idx = _semantic_predictions_to_choice_indices(split_frame, semantic_pred)
-        sample_ids = split_frame["sample_id"].tolist()
-        if len(sample_ids) != len(pred_idx):
-            raise ProbeConfigError(
-                "MVP probe eval produced a prediction count mismatch. "
-                f"n_samples={len(sample_ids)}, n_predictions={len(pred_idx)}."
-            )
-        pred_payload = {
-            str(sample_id): int(pred)
-            for sample_id, pred in zip(sample_ids, pred_idx)
-        }
-    elif dataset == "intphys2":
-        if eval_loader is not None:
-            logits = probe.predict_logits_loader(eval_loader)
-        else:
-            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
-        probs = torch.softmax(logits, dim=1)
-        pred_payload = {
-            str(sample_id): {
-                "pred_idx": int(pred),
-                "score": float(score),
-            }
-            for sample_id, pred, score in zip(
-                split_frame["sample_id"].tolist(),
-                logits.argmax(dim=1).tolist(),
-                probs[:, 1].tolist(),
-            )
-        }
-    elif dataset == "ssv2":
-        if eval_loader is not None:
-            logits = probe.predict_logits_loader(eval_loader)
-        else:
-            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
-        probs = torch.softmax(logits, dim=1)
-        pred_payload = {
-            str(sample_id): {
-                "pred_idx": int(pred),
-                "scores": scores,
-            }
-            for sample_id, pred, scores in zip(
-                split_frame["sample_id"].tolist(),
-                logits.argmax(dim=1).tolist(),
-                probs.tolist(),
-            )
-        }
-    else:
-        raise ProbeConfigError(f"Unsupported dataset for eval: {dataset}")
-
-    pred_file.write_text(
-        json.dumps(pred_payload, indent=2, sort_keys=True),
-        encoding="utf-8",
+    pred_file = _write_prediction_payload_from_context(
+        dataset,
+        probe_cfg,
+        context,
+        split_name=eval_split,
+        output_dir=eval_output_dir,
     )
 
     eval_cfg = copy.deepcopy(config)
@@ -879,6 +893,113 @@ def _run_single_eval_from_context(
         encoding="utf-8",
     )
     return summary
+
+
+def _write_prediction_payload_from_context(
+    dataset: str,
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    split_name: str,
+    output_dir: Path,
+) -> Path:
+    eval_split = str(split_name)
+    index = context.index
+    features = context.features
+    probe = context.probe
+    family = _dataset_family(dataset)
+    split_mask = index["split"].astype(str) == eval_split
+    if not split_mask.any():
+        raise ProbeConfigError(
+            f"No samples found for split_name='{eval_split}' in cache index."
+        )
+
+    split_frame = index.loc[split_mask].copy()
+    x_eval = None
+    eval_loader = None
+    if isinstance(features, ChunkedTokenSelection):
+        if not hasattr(probe, "predict_logits_loader"):
+            raise ProbeConfigError(
+                "Chunked MVP token evaluation requires loader-based probe inference support."
+            )
+        eval_dataset = _ChunkedTokenDataset(
+            features.store,
+            split_frame["feature_index"].astype(int).tolist(),
+            layer=features.layer,
+            reduction=features.reduction,
+            labels=None,
+        )
+        eval_loader = DataLoader(
+            eval_dataset,
+            batch_size=int(probe_cfg["eval_batch_size"]),
+            shuffle=False,
+        )
+    else:
+        split_idx = torch.tensor(split_mask.to_numpy())
+        x_eval = features[split_idx]
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    pred_file = output_dir / "probe_predictions.json"
+
+    if family == "mvp":
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+            semantic_pred = logits.argmax(dim=1).tolist()
+        else:
+            semantic_pred = probe.predict(x_eval, batch_size=probe_cfg["eval_batch_size"]).tolist()
+        pred_idx = _semantic_predictions_to_choice_indices(split_frame, semantic_pred)
+        sample_ids = split_frame["sample_id"].tolist()
+        if len(sample_ids) != len(pred_idx):
+            raise ProbeConfigError(
+                "MVP probe eval produced a prediction count mismatch. "
+                f"n_samples={len(sample_ids)}, n_predictions={len(pred_idx)}."
+            )
+        pred_payload = {
+            str(sample_id): int(pred)
+            for sample_id, pred in zip(sample_ids, pred_idx)
+        }
+    elif family == "intphys2":
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+        else:
+            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
+        probs = torch.softmax(logits, dim=1)
+        pred_payload = {
+            str(sample_id): {
+                "pred_idx": int(pred),
+                "score": float(score),
+            }
+            for sample_id, pred, score in zip(
+                split_frame["sample_id"].tolist(),
+                logits.argmax(dim=1).tolist(),
+                probs[:, 1].tolist(),
+            )
+        }
+    elif family == "ssv2":
+        if eval_loader is not None:
+            logits = probe.predict_logits_loader(eval_loader)
+        else:
+            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
+        probs = torch.softmax(logits, dim=1)
+        pred_payload = {
+            str(sample_id): {
+                "pred_idx": int(pred),
+                "scores": scores,
+            }
+            for sample_id, pred, scores in zip(
+                split_frame["sample_id"].tolist(),
+                logits.argmax(dim=1).tolist(),
+                probs.tolist(),
+            )
+        }
+    else:
+        raise ProbeConfigError(f"Unsupported dataset for eval: {dataset}")
+
+    pred_file.write_text(
+        json.dumps(pred_payload, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return pred_file
 
 
 def _run_multi_split_eval(
@@ -1325,24 +1446,32 @@ def _require_dataset(dataset: str) -> None:
         raise ProbeConfigError(f"Unknown dataset '{dataset}'. Known: {known}")
 
 
+def _dataset_family(dataset: str) -> str:
+    if dataset.startswith("intphys2"):
+        return "intphys2"
+    return dataset
+
+
 def _validate_dataset_index(dataset: str, index: Any) -> None:
-    if dataset == "mvp":
+    family = _dataset_family(dataset)
+    if family == "mvp":
         _require_semantic_feature_index(index)
         return
-    if dataset == "intphys2":
+    if family == "intphys2":
         _require_fresh_intphys2_split_index(index)
         return
-    if dataset == "ssv2":
+    if family == "ssv2":
         return
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
 
 def _resolve_labels(dataset: str, index: Any) -> torch.Tensor:
-    if dataset == "mvp":
+    family = _dataset_family(dataset)
+    if family == "mvp":
         return torch.tensor(index["plausibility_label"].tolist(), dtype=torch.long)
-    if dataset == "intphys2":
+    if family == "intphys2":
         return torch.tensor(index["plausibility"].tolist(), dtype=torch.long)
-    if dataset == "ssv2":
+    if family == "ssv2":
         return torch.tensor(index["label_idx"].tolist(), dtype=torch.long)
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
@@ -1352,11 +1481,12 @@ def _resolve_num_classes(
     labels: torch.Tensor,
     manifest: dict[str, Any],
 ) -> int:
-    if dataset == "ssv2":
+    family = _dataset_family(dataset)
+    if family == "ssv2":
         return int(manifest.get("stats", {}).get("n_classes", SSV2_NUM_CLASSES))
-    if dataset == "mvp":
+    if family == "mvp":
         return max(int(labels.max().item()) + 1, 2)
-    if dataset == "intphys2":
+    if family == "intphys2":
         return 2
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
@@ -1370,7 +1500,7 @@ def _resolve_split_masks(
     train_mask = index["split"].astype(str) == train_split
     val_mask = index["split"].astype(str) == _MODEL_SELECTION_SPLIT
 
-    if dataset == "ssv2" and not train_mask.any():
+    if _dataset_family(dataset) == "ssv2" and not train_mask.any():
         available = sorted(index["split"].astype(str).unique().tolist())
         raise ProbeConfigError(
             f"No training samples found for split='{train_split}' in feature cache index. "
@@ -1381,7 +1511,7 @@ def _resolve_split_masks(
 
 
 def _missing_train_split_message(dataset: str, train_split: str, index: Any) -> str:
-    if dataset == "intphys2":
+    if _dataset_family(dataset) == "intphys2":
         return (
             "No training samples found in feature cache index. "
             "Ensure feature_cache.split_names includes 'train' and re-run extract.intphys2."

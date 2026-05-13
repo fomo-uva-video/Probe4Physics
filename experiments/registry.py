@@ -78,6 +78,31 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
+    "intphys2.jepa_v1.single_frame": ExperimentSpec(
+        name="intphys2.jepa_v1.single_frame",
+        description="IntPhys2 single-frame repeated baseline with JEPA v1.",
+        pipeline=(
+            "extract.intphys2.single_frame",
+            "eval.probe.intphys2.single_frame",
+        ),
+        config_overrides={},
+    ),
+    "intphys2.ltx_video.single_frame": ExperimentSpec(
+        name="intphys2.ltx_video.single_frame",
+        description="IntPhys2 single-frame repeated baseline with LTX-Video diffusion transformer features.",
+        pipeline=(
+            "extract.intphys2.single_frame",
+            "eval.probe.intphys2.single_frame",
+        ),
+        config_overrides={
+            "backbone": {
+                "name": "ltx_video",
+                "kwargs": {
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
     "ssv2.jepa_v1.probe": ExperimentSpec(
         name="ssv2.jepa_v1.probe",
         description="SSv2 frozen-feature probe recipe with JEPA v1 (control task).",

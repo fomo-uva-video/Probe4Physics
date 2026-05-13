@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -21,6 +20,8 @@ _BASELINE_TAG = "displacement"
 
 def _displacement_for_sample(sample_id: str, num_frames: int) -> int:
     """Deterministic non-zero displacement in [1, num_frames-1] tied to sample_id."""
+    if num_frames <= 1:
+        raise ValueError(f"num_frames must be > 1 for displacement, got {num_frames}")
     digest = int(hashlib.sha256(sample_id.encode("utf-8")).hexdigest(), 16)
     return digest % (num_frames - 1) + 1
 
@@ -41,35 +42,31 @@ def run_intphys2_displacement_extraction(config: dict[str, Any]) -> dict[str, An
 
     # Write baseline_metadata.json with per-sample displacement values.
     # Computed deterministically from the index, so it works after resume/skip too.
-    if not result.get("skipped", False):
-        try:
-            paths = resolve_expected_feature_cache_paths(config)
-            if paths.index_path.exists():
-                import pandas as pd
-                index = pd.read_parquet(paths.index_path)
-                num_frames = int(config.get("decode", {}).get("num_frames", 16))
-                displacements = {
-                    str(sid): _displacement_for_sample(str(sid), num_frames)
-                    for sid in index["sample_id"].tolist()
-                }
-                metadata: dict[str, Any] = {
-                    "baseline": _BASELINE_TAG,
-                    "description": (
-                        "displacement = SHA256(sample_id) % (num_frames - 1) + 1; "
-                        "non-zero circular shift applied along the time axis"
-                    ),
-                    "num_frames": num_frames,
-                    "displacements": displacements,
-                }
-                metadata_path = paths.cache_dir / "baseline_metadata.json"
-                tmp = metadata_path.parent / f".{metadata_path.name}.tmp.{os.getpid()}.{uuid4().hex}"
-                tmp.write_text(
-                    json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=True),
-                    encoding="utf-8",
-                )
-                os.replace(tmp, metadata_path)
-        except Exception:
-            pass
+    paths = resolve_expected_feature_cache_paths(config)
+    if paths.index_path.exists():
+        import pandas as pd
+        index = pd.read_parquet(paths.index_path)
+        num_frames = int(config.get("decode", {}).get("num_frames", 16))
+        displacements = {
+            str(sid): _displacement_for_sample(str(sid), num_frames)
+            for sid in index["sample_id"].tolist()
+        }
+        metadata: dict[str, Any] = {
+            "baseline": _BASELINE_TAG,
+            "description": (
+                "displacement = SHA256(sample_id) % (num_frames - 1) + 1; "
+                "non-zero circular shift applied along the time axis"
+            ),
+            "num_frames": num_frames,
+            "displacements": displacements,
+        }
+        metadata_path = paths.cache_dir / "baseline_metadata.json"
+        tmp = metadata_path.parent / f".{metadata_path.name}.tmp.{os.getpid()}.{uuid4().hex}"
+        tmp.write_text(
+            json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=True),
+            encoding="utf-8",
+        )
+        os.replace(tmp, metadata_path)
 
     return result
 

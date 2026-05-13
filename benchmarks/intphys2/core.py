@@ -28,6 +28,7 @@ class IntPhys2Prediction:
 @dataclass(frozen=True)
 class IntPhys2Metrics:
     accuracy: float
+    roc_auc: float | None
     voe_accuracy: float
     roc_auc: float | None
     n_samples: int
@@ -97,12 +98,14 @@ class IntPhys2Benchmark:
             if total_by_condition.get(cond, 0) > 0
         }
 
+        roc_auc = self._compute_roc_auc(samples, pred_by_id)
         voe_accuracy, voe_by_condition = self._compute_voe(samples, pred_by_id)
         roc_auc = self._compute_roc_auc(samples, pred_by_id)
         n_scenes = len({sample.scene_id for sample in samples})
 
         return IntPhys2Metrics(
             accuracy=accuracy,
+            roc_auc=roc_auc,
             voe_accuracy=voe_accuracy,
             roc_auc=roc_auc,
             n_samples=n_samples,
@@ -110,6 +113,46 @@ class IntPhys2Benchmark:
             accuracy_by_condition=accuracy_by_condition,
             voe_by_condition=voe_by_condition,
         )
+
+    def _compute_roc_auc(
+        self,
+        samples: list[IntPhys2Sample],
+        pred_by_id: dict[str, IntPhys2Prediction],
+    ) -> float | None:
+        scored: list[tuple[float, int]] = []
+        for sample in samples:
+            pred = pred_by_id.get(sample.sample_id)
+            if pred is None:
+                continue
+            score = float(pred.score) if pred.score is not None else float(pred.pred_idx)
+            scored.append((score, int(sample.plausibility)))
+
+        if not scored:
+            return None
+
+        positives = sum(label for _, label in scored)
+        negatives = len(scored) - positives
+        if positives <= 0 or negatives <= 0:
+            return None
+
+        ranked = sorted(scored, key=lambda item: item[0])
+        rank = 1
+        positive_rank_sum = 0.0
+        idx = 0
+        while idx < len(ranked):
+            tie_end = idx + 1
+            while tie_end < len(ranked) and ranked[tie_end][0] == ranked[idx][0]:
+                tie_end += 1
+            average_rank = (rank + (rank + (tie_end - idx) - 1)) / 2.0
+            positive_in_tie = sum(label for _, label in ranked[idx:tie_end])
+            positive_rank_sum += average_rank * positive_in_tie
+            rank += tie_end - idx
+            idx = tie_end
+
+        auc = (
+            positive_rank_sum - (positives * (positives + 1) / 2.0)
+        ) / float(positives * negatives)
+        return float(auc)
 
     def _compute_voe(
         self,
