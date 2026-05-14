@@ -42,6 +42,7 @@ PROBE_FEATURE_VIEW="${PROBE_FEATURE_VIEW:-pooled}"
 PROBE_DEVICE="${PROBE_DEVICE:-cpu}"
 PROBE_CHECKPOINT_PATH="${PROBE_CHECKPOINT_PATH:-}"
 EVAL_OUTPUT_DIR="${EVAL_OUTPUT_DIR:-}"
+EVAL_SUBDIR="${EVAL_SUBDIR:-}"
 PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-}"
 EXTRA_ARGS=("$@")
 
@@ -215,11 +216,12 @@ resolve_checkpoint() {
 
   local layer_path=""
   if [[ "${layer}" != "last" ]]; then
-    layer_path="$(find "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1)"
+    layer_path="$(find "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     if [[ -n "${layer_path}" ]]; then
       printf '%s\n' "${layer_path}"
       return 0
     fi
+    return 0
   fi
 
   find "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1
