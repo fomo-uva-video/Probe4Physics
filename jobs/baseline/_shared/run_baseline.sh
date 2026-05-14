@@ -135,6 +135,39 @@ load_dataset_args() {
   fi
 }
 
+default_probe_output_dir() {
+  if [[ "${DATASET_NAME}" == "mvp" ]]; then
+    printf '%s\n' "${REPO_ROOT}/artifacts/probes/mvp"
+  else
+    printf '%s\n' "${REPO_ROOT}/artifacts/probes/intphys2"
+  fi
+}
+
+normalize_probe_output_dir() {
+  local root="${PROBE_OUTPUT_DIR:-$(default_probe_output_dir)}"
+  if [[ -d "${root}" ]]; then
+    (cd "${root}" && pwd -P)
+  else
+    printf '%s\n' "${root}"
+  fi
+}
+
+probe_layer_label() {
+  local layer="${1}"
+  python -c '
+import sys
+from models.cache_metadata import resolve_backbone_layer_label
+
+name, variant, layer = sys.argv[1:4]
+try:
+    parsed_layer = int(layer)
+except ValueError:
+    parsed_layer = layer
+kwargs = {"variant": variant} if variant else {}
+print(resolve_backbone_layer_label(name, kwargs, parsed_layer))
+' "${BACKBONE_NAME}" "${EFFECTIVE_BACKBONE_VARIANT}" "${layer}"
+}
+
 run_extract() {
   local cmd=(python run.py "extract.${DATASET_NAME}.${BASELINE_NAME}")
   load_dataset_args
@@ -208,16 +241,19 @@ resolve_checkpoint() {
   local train_prefix=""
   if [[ "${DATASET_NAME}" == "mvp" ]]; then
     train_prefix="mvp_probe"
-    PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-${REPO_ROOT}/artifacts/probes}"
   else
     train_prefix="intphys2_probe"
-    PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-${REPO_ROOT}/artifacts/probes/intphys2}"
   fi
 
   local layer_path=""
   if [[ "${layer}" != "last" ]]; then
+    local layer_label=""
+    layer_label="$(probe_layer_label "${layer}")"
     local optuna_summary=""
-    optuna_summary="$(find "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+    optuna_summary="$(find -H "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+    if [[ -z "${optuna_summary}" ]]; then
+      optuna_summary="$(find -H "${PROBE_OUTPUT_DIR}" -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+    fi
     if [[ -n "${optuna_summary}" ]]; then
       local best_trial=""
       best_trial="$(python -c 'import json, sys; data=json.load(open(sys.argv[1])); value=data.get("best_trial_number"); print("" if value is None else int(value))' "${optuna_summary}" 2>/dev/null || true)"
@@ -234,7 +270,10 @@ resolve_checkpoint() {
       fi
     fi
 
-    layer_path="$(find "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+    layer_path="$(find -H "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+    if [[ -z "${layer_path}" ]]; then
+      layer_path="$(find -H "${PROBE_OUTPUT_DIR}" \( -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/probe_best.pt" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+    fi
     if [[ -n "${layer_path}" ]]; then
       printf '%s\n' "${layer_path}"
       return 0
@@ -242,11 +281,13 @@ resolve_checkpoint() {
     return 0
   fi
 
-  find "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1
+  find -H "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1
 }
 
 run_eval_for_layer() {
   local layer="${1}"
+  local layer_label=""
+  layer_label="$(probe_layer_label "${layer}")"
   local resolved_checkpoint=""
   resolved_checkpoint="$(resolve_checkpoint "${layer}")"
 
@@ -256,6 +297,7 @@ run_eval_for_layer() {
     echo "Searched root: ${PROBE_OUTPUT_DIR}" >&2
     echo "Expected backbone tag: ${BACKBONE_TAG}" >&2
     echo "Expected probe layer: ${layer}" >&2
+    echo "Expected probe layer label: ${layer_label}" >&2
     exit 2
   fi
 
@@ -264,9 +306,9 @@ run_eval_for_layer() {
   if [[ -n "${EVAL_SUBDIR}" && "${#PARSED_PROBE_LAYERS[@]}" -eq 1 ]]; then
     eval_subdir="${EVAL_SUBDIR}"
   elif [[ -n "${EVAL_SUBDIR}" ]]; then
-    eval_subdir="${EVAL_SUBDIR}/layer_${layer}"
+    eval_subdir="${EVAL_SUBDIR}/layer_${layer_label}"
   else
-    eval_subdir="${DATASET_NAME}_${BASELINE_LABEL}_${BACKBONE_TAG}_${PROBE_NAME}_${SLURM_JOB_ID:-manual}/layer_${layer}"
+    eval_subdir="${DATASET_NAME}_${BASELINE_LABEL}_${BACKBONE_TAG}_${PROBE_NAME}_${SLURM_JOB_ID:-manual}/layer_${layer_label}"
   fi
 
   local cmd=(python run.py "eval.probe.${DATASET_NAME}.${BASELINE_NAME}")
@@ -311,6 +353,7 @@ run_eval_for_layer() {
   echo "BACKBONE_VARIANT=${EFFECTIVE_BACKBONE_VARIANT}"
   echo "PROBE_NAME=${PROBE_NAME}"
   echo "PROBE_LAYER=${layer}"
+  echo "PROBE_LAYER_LABEL=${layer_label}"
   echo "PROBE_LAYERS=${PROBE_LAYERS}"
   echo "PROBE_FEATURE_VIEW=${PROBE_FEATURE_VIEW}"
   echo "PROBE_DEVICE=${PROBE_DEVICE}"
@@ -328,6 +371,7 @@ run_eval_for_layer() {
 
 run_eval() {
   parse_probe_layers
+  PROBE_OUTPUT_DIR="$(normalize_probe_output_dir)"
 
   if [[ -n "${PROBE_CHECKPOINT_PATH}" && "${#PARSED_PROBE_LAYERS[@]}" -ne 1 ]]; then
     echo "ERROR: PROBE_CHECKPOINT_PATH can only be used with one PROBE_LAYER/PROBE_LAYERS value." >&2
@@ -343,7 +387,7 @@ run_eval() {
 mkdir -p "output/baseline/${BASELINE_LABEL}/${DATASET_NAME}"
 
 JOB_START_EPOCH="$(date +%s)"
-JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+JOB_START_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 echo "JOB_START_UTC=${JOB_START_UTC}"
 
 if [[ "${BASELINE_STAGE}" == "extract" || "${BASELINE_STAGE}" == "extract_eval" ]]; then
@@ -355,7 +399,7 @@ if [[ "${BASELINE_STAGE}" == "eval" || "${BASELINE_STAGE}" == "extract_eval" ]];
 fi
 
 JOB_END_EPOCH="$(date +%s)"
-JOB_END_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+JOB_END_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 JOB_ELAPSED_SECONDS="$((JOB_END_EPOCH - JOB_START_EPOCH))"
 echo "JOB_END_UTC=${JOB_END_UTC}"
 echo "JOB_ELAPSED_SECONDS=${JOB_ELAPSED_SECONDS}"
