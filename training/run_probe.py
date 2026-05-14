@@ -61,6 +61,11 @@ _REQUIRED_MVP_SEMANTIC_COLUMNS = (
     "no_choice_idx",
 )
 _MODEL_SELECTION_SPLIT = "val"
+_BASELINE_LABEL_MODES: tuple[tuple[str, int | None], ...] = (
+    ("original", None),
+    ("all_true", 1),
+    ("all_false", 0),
+)
 
 
 class ProbeConfigError(ValueError):
@@ -344,17 +349,22 @@ def run_mvp_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_mvp_displacement_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_eval(
-        "mvp_displacement",
-        with_mvp_baseline_test_config(config, "displacement"),
+    return _run_baseline_label_scenarios(
+        dataset="mvp_displacement",
+        config=with_mvp_baseline_test_config(config, "displacement"),
+        baseline_name="displacement",
+        alias_key="displacement_evals",
+        primary_mode="original",
     )
 
 
 def run_mvp_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return _run_single_frame_label_scenarios(
+    return _run_baseline_label_scenarios(
         dataset="mvp_single_frame",
         config=with_mvp_baseline_test_config(config, "single_frame"),
-        primary_mode="all_true",
+        baseline_name="single_frame",
+        alias_key="single_frame_evals",
+        primary_mode="original",
     )
 
 
@@ -394,9 +404,12 @@ def run_intphys2_displacement_train_probe(config: dict[str, Any]) -> dict[str, A
 
 
 def run_intphys2_displacement_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_eval(
-        "intphys2_displacement",
-        with_intphys2_baseline_test_config(config, "displacement"),
+    return _run_baseline_label_scenarios(
+        dataset="intphys2_displacement",
+        config=with_intphys2_baseline_test_config(config, "displacement"),
+        baseline_name="displacement",
+        alias_key="displacement_evals",
+        primary_mode="original",
     )
 
 
@@ -408,19 +421,30 @@ def run_intphys2_displacement_train_eval_probe(config: dict[str, Any]) -> dict[s
 
 
 def run_intphys2_single_frame_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return _run_single_frame_label_scenarios(
+    return _run_baseline_label_scenarios(
         dataset="intphys2_single_frame",
         config=with_intphys2_baseline_test_config(config, "single_frame"),
-        primary_mode="all_true",
+        baseline_name="single_frame",
+        alias_key="single_frame_evals",
+        primary_mode="original",
     )
 
 
-def _run_single_frame_label_scenarios(
+def _run_baseline_label_scenarios(
     *,
     dataset: str,
     config: dict[str, Any],
+    baseline_name: str,
+    alias_key: str,
     primary_mode: str,
 ) -> dict[str, Any]:
+    label_modes = dict(_BASELINE_LABEL_MODES)
+    if primary_mode not in label_modes:
+        raise ProbeConfigError(
+            f"Unsupported primary label mode '{primary_mode}'. "
+            f"Expected one of {sorted(label_modes)}."
+        )
+
     _require_dataset(dataset)
     probe_cfg = _probe_cfg(config)
     context = _load_eval_context(dataset, config, probe_cfg)
@@ -438,13 +462,16 @@ def _run_single_frame_label_scenarios(
 
     scenario_summaries: dict[str, dict[str, Any]] = {}
     metrics_by_label_mode: dict[str, dict[str, Any]] = {}
-    for label_mode, label_value in (("all_true", 1), ("all_false", 0)):
-        scenario_dir = eval_root / f"single_frame_{label_mode}"
+    for label_mode, label_value in _BASELINE_LABEL_MODES:
+        scenario_dir = eval_root / f"{baseline_name}_{label_mode}"
         scenario_dir.mkdir(parents=True, exist_ok=True)
 
         eval_cfg = copy.deepcopy(config)
         eval_cfg["split_name"] = eval_split
-        eval_cfg["label_override"] = int(label_value)
+        if label_value is None:
+            eval_cfg.pop("label_override", None)
+        else:
+            eval_cfg["label_override"] = int(label_value)
         eval_cfg["predictor"] = {
             "mode": "from_file",
             "prediction_file": str(prediction_file),
@@ -456,11 +483,11 @@ def _run_single_frame_label_scenarios(
         metrics = result.get("metrics", {})
         if not isinstance(metrics, dict):
             raise ProbeConfigError(
-                f"Single-frame eval metrics for label_mode='{label_mode}' must be a dictionary."
+                f"{baseline_name} eval metrics for label_mode='{label_mode}' must be a dictionary."
             )
         scenario_summary = {
             "label_mode": label_mode,
-            "label_value": int(label_value),
+            "label_value": None if label_value is None else int(label_value),
             "probe_eval_dir": str(scenario_dir),
             "metrics": metrics,
             "base_eval": result,
@@ -482,13 +509,24 @@ def _run_single_frame_label_scenarios(
         "objective_metric_name": metric_name,
         "metrics": primary_metrics,
         "metrics_by_label_mode": metrics_by_label_mode,
-        "single_frame_evals": scenario_summaries,
+        "primary_label_mode": primary_mode,
+        "label_modes": [label_mode for label_mode, _ in _BASELINE_LABEL_MODES],
+        "baseline_name": baseline_name,
+        "baseline_evals": scenario_summaries,
+        alias_key: scenario_summaries,
     }
     (eval_root / "probe_eval_summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True),
         encoding="utf-8",
     )
+    _write_baseline_metric_csvs_for_eval(eval_root)
     return summary
+
+
+def _write_baseline_metric_csvs_for_eval(eval_root: Path) -> None:
+    from training.baseline_postprocess import write_baseline_metric_csvs_for_run
+
+    write_baseline_metric_csvs_for_run(eval_root.parent)
 
 
 def run_probe_train(dataset: str, config: dict[str, Any]) -> dict[str, Any]:

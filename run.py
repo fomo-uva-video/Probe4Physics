@@ -42,6 +42,7 @@ from training.run_probe import (
     run_ssv2_train_eval_probe,
     run_ssv2_train_probe,
 )
+from training.baseline_postprocess import run_baseline_label_backfill
 from training.intphys2_displacement_extract import run_intphys2_displacement_extract
 from training.intphys2_extract import run_intphys2_extract
 from training.intphys2_postprocess import run_intphys2_backfill_roc_auc
@@ -244,7 +245,7 @@ COMMANDS = {
     "eval.probe.mvp.single_frame": CommandSpec(
         config_name="mvp",
         handler=run_mvp_single_frame_eval_probe,
-        description="Evaluate an existing probe on MVP single-frame baseline (all_true + all_false).",
+        description="Evaluate an existing probe on MVP single-frame baseline (original + all_true + all_false).",
     ),
     # --- IntPhys2 ---
     "download.intphys2": CommandSpec(
@@ -282,6 +283,11 @@ COMMANDS = {
         handler=run_intphys2_backfill_roc_auc,
         description="Backfill ROC AUC into saved IntPhys2 evaluation artifacts and summary CSVs.",
     ),
+    "backfill.baseline_labels": CommandSpec(
+        config_name="mvp",
+        handler=run_baseline_label_backfill,
+        description="Backfill original/all_true/all_false baseline metrics and write baseline CSVs.",
+    ),
     "eval.probe.intphys2": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_eval_probe,
@@ -307,7 +313,7 @@ COMMANDS = {
     "eval.probe.intphys2.single_frame": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_single_frame_eval_probe,
-        description="Evaluate an existing probe on IntPhys2 single-frame baseline (all_true + all_false).",
+        description="Evaluate an existing probe on IntPhys2 single-frame baseline (original + all_true + all_false).",
     ),
     # --- SSv2 ---
     "init.ssv2": CommandSpec(
@@ -442,6 +448,11 @@ def _print_help() -> None:
         "  python run.py health strict_exit=true",
         "  python run.py health.layers strict_exit=true",
         "  python run.py health.features strict_exit=true",
+        "",
+        "Postprocess commands:",
+        "  python run.py backfill.baseline_labels",
+        "  python run.py backfill.baseline_labels +baseline_backfill.force=true",
+        "  python run.py backfill.intphys2.roc_auc",
         "",
         "Experiment recipes:",
         "  python run.py exp.list",
