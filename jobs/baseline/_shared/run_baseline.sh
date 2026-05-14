@@ -1,9 +1,12 @@
 #!/bin/bash
 # Shared runner for temporal-baseline extraction and eval jobs.
 #
-# Expected launch style:
-#   sbatch jobs/baseline/single_frame/mvp/extract/jepa_v1.sh
-#   sbatch jobs/baseline/frame_shuffling/intphys2/eval/videomae.sh
+# Expected launch style from the repository root:
+#   mkdir -p output/baseline/single_frame/mvp/extract output/baseline/single_frame/mvp/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/single_frame/mvp/extract/jepa_v1.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/mvp jobs/baseline/single_frame/mvp/eval/jepa_v1.sh
+#
+# The mkdir is required because Slurm opens stdout/stderr before this script runs.
 
 set -euo pipefail
 

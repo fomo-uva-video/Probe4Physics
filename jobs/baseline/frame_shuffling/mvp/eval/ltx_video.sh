@@ -1,13 +1,19 @@
 #!/bin/bash
 # Evaluate the MVP frame-shuffling baseline with LTX-Video features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/frame_shuffling/mvp/extract output/baseline/frame_shuffling/mvp/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/frame_shuffling/mvp/extract/ltx_video.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/mvp jobs/baseline/frame_shuffling/mvp/eval/ltx_video.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=rome
 #SBATCH --job-name=mvp_shuffle_eval_ltx_video
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/frame_shuffling/mvp/eval/%x_%j.out
+#SBATCH --error=output/baseline/frame_shuffling/mvp/eval/%x_%j.err
 
 set -euo pipefail
 

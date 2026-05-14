@@ -1,13 +1,19 @@
 #!/bin/bash
 # Evaluate the MVP single-frame baseline with V-JEPA v2.1 features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/single_frame/mvp/extract output/baseline/single_frame/mvp/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/single_frame/mvp/extract/jepa_v2_1.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/mvp jobs/baseline/single_frame/mvp/eval/jepa_v2_1.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=rome
 #SBATCH --job-name=mvp_sf_eval_jepa_v2_1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/single_frame/mvp/eval/%x_%j.out
+#SBATCH --error=output/baseline/single_frame/mvp/eval/%x_%j.err
 
 set -euo pipefail
 

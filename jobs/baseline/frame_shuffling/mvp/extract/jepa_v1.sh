@@ -1,14 +1,20 @@
 #!/bin/bash
 # Extract the MVP frame-shuffling baseline with V-JEPA v1 features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/frame_shuffling/mvp/extract output/baseline/frame_shuffling/mvp/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/frame_shuffling/mvp/extract/jepa_v1.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/mvp jobs/baseline/frame_shuffling/mvp/eval/jepa_v1.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=gpu_a100
 #SBATCH --gpus=1
 #SBATCH --job-name=mvp_shuffle_extract_jepa_v1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=08:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/frame_shuffling/mvp/extract/%x_%j.out
+#SBATCH --error=output/baseline/frame_shuffling/mvp/extract/%x_%j.err
 
 set -euo pipefail
 

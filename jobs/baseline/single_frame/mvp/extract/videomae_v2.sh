@@ -1,14 +1,20 @@
 #!/bin/bash
 # Extract the MVP single-frame baseline with VideoMAE v2 features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/single_frame/mvp/extract output/baseline/single_frame/mvp/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/single_frame/mvp/extract/videomae_v2.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/mvp jobs/baseline/single_frame/mvp/eval/videomae_v2.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=gpu_a100
 #SBATCH --gpus=1
 #SBATCH --job-name=mvp_sf_extract_videomae_v2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=08:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/single_frame/mvp/extract/%x_%j.out
+#SBATCH --error=output/baseline/single_frame/mvp/extract/%x_%j.err
 
 set -euo pipefail
 

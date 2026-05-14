@@ -1,13 +1,19 @@
 #!/bin/bash
 # Evaluate the IntPhys2 frame-shuffling baseline with VideoMAE v2 features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/frame_shuffling/intphys2/extract output/baseline/frame_shuffling/intphys2/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/frame_shuffling/intphys2/extract/videomae_v2.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2 jobs/baseline/frame_shuffling/intphys2/eval/videomae_v2.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=rome
 #SBATCH --job-name=int_shuffle_eval_videomae_v2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/frame_shuffling/intphys2/eval/%x_%j.out
+#SBATCH --error=output/baseline/frame_shuffling/intphys2/eval/%x_%j.err
 
 set -euo pipefail
 

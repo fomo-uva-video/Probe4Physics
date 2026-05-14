@@ -1,13 +1,19 @@
 #!/bin/bash
 # Evaluate the IntPhys2 single-frame baseline with VideoMAE features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/single_frame/intphys2/extract output/baseline/single_frame/intphys2/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/single_frame/intphys2/extract/videomae.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2 jobs/baseline/single_frame/intphys2/eval/videomae.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=rome
 #SBATCH --job-name=int_sf_eval_videomae
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/single_frame/intphys2/eval/%x_%j.out
+#SBATCH --error=output/baseline/single_frame/intphys2/eval/%x_%j.err
 
 set -euo pipefail
 

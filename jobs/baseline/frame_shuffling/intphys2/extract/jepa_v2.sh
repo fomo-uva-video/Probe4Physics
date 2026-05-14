@@ -1,14 +1,20 @@
 #!/bin/bash
 # Extract the IntPhys2 frame-shuffling baseline with V-JEPA v2 features.
-
+#
+# Run this baseline pair from the repository root:
+#   mkdir -p output/baseline/frame_shuffling/intphys2/extract output/baseline/frame_shuffling/intphys2/eval
+#   extract_jid=$(sbatch --parsable jobs/baseline/frame_shuffling/intphys2/extract/jepa_v2.sh)
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2 jobs/baseline/frame_shuffling/intphys2/eval/jepa_v2.sh
+# The mkdir is required because Slurm opens stdout/stderr before the script runs.
+#
 #SBATCH --partition=gpu_a100
 #SBATCH --gpus=1
 #SBATCH --job-name=int_shuffle_extract_jepa_v2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=08:00:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=output/baseline/frame_shuffling/intphys2/extract/%x_%j.out
+#SBATCH --error=output/baseline/frame_shuffling/intphys2/extract/%x_%j.err
 
 set -euo pipefail
 
