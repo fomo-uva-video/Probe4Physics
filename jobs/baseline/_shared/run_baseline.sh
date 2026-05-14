@@ -216,6 +216,24 @@ resolve_checkpoint() {
 
   local layer_path=""
   if [[ "${layer}" != "last" ]]; then
+    local optuna_summary=""
+    optuna_summary="$(find "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+    if [[ -n "${optuna_summary}" ]]; then
+      local best_trial=""
+      best_trial="$(python -c 'import json, sys; data=json.load(open(sys.argv[1])); value=data.get("best_trial_number"); print("" if value is None else int(value))' "${optuna_summary}" 2>/dev/null || true)"
+      if [[ -n "${best_trial}" ]]; then
+        local best_trial_dir=""
+        printf -v best_trial_dir 'trial_%04d' "${best_trial}"
+        layer_path="$(dirname "${optuna_summary}")/${best_trial_dir}/probe_best.pt"
+        if [[ -f "${layer_path}" ]]; then
+          printf '%s\n' "${layer_path}"
+          return 0
+        fi
+        echo "ERROR: Optuna best checkpoint not found: ${layer_path}" >&2
+        return 0
+      fi
+    fi
+
     layer_path="$(find "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     if [[ -n "${layer_path}" ]]; then
       printf '%s\n' "${layer_path}"
