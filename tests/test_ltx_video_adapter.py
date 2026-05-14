@@ -222,6 +222,14 @@ class LTXVideoLayerMappingTests(unittest.TestCase):
         )
         self.assertEqual(result, (12, 24, 36, 48))
 
+    def test_dev_depth_mapping(self) -> None:
+        result = resolve_relative_depth_layers(
+            "ltx_transformer_28",
+            [0.25, 0.5, 0.75, 1.0],
+            model_block_depths={"ltx_transformer_28": 28},
+        )
+        self.assertEqual(result, (7, 14, 21, 28))
+
     def test_default_noise_levels(self) -> None:
         result = resolve_noise_levels([0.9, 0.5, 0.1])
         self.assertEqual(result, (0.9, 0.5, 0.1))

@@ -2096,6 +2096,74 @@ def _summary_checkpoint_path(summary: dict[str, Any]) -> str:
     raise ProbeConfigError("Training summary does not expose a checkpoint path.")
 
 
+def _checkpoint_from_optuna_summary(summary_path: Path) -> Path:
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    checkpoint_value = ""
+    for key in ("checkpoint", "best_checkpoint", "checkpoint_best"):
+        checkpoint_value = str(summary.get(key, "")).strip()
+        if checkpoint_value:
+            break
+
+    if checkpoint_value:
+        checkpoint_path = Path(checkpoint_value)
+        if checkpoint_path.exists():
+            return checkpoint_path
+        if not checkpoint_path.is_absolute():
+            candidate = summary_path.parent / checkpoint_path
+            if candidate.exists():
+                return candidate
+
+    best_trial = summary.get("best_trial_number")
+    if best_trial is not None:
+        candidate = summary_path.parent / f"trial_{int(best_trial):04d}" / "probe_best.pt"
+        if candidate.exists():
+            return candidate
+        raise FileNotFoundError(
+            "Optuna summary points to a missing best checkpoint: "
+            f"{candidate}"
+        )
+
+    if checkpoint_value:
+        raise FileNotFoundError(
+            "Optuna summary points to a missing best checkpoint: "
+            f"{checkpoint_value}"
+        )
+    raise ProbeConfigError(f"Optuna summary does not expose a best checkpoint: {summary_path}")
+
+
+def _find_optuna_summary_candidates(train_root: Path, probe_cfg: dict[str, Any]) -> list[Path]:
+    def _collect(patterns: list[str]) -> list[Path]:
+        candidates: list[Path] = []
+        seen: set[Path] = set()
+        for pattern in patterns:
+            for candidate in sorted(train_root.glob(pattern)):
+                resolved = candidate.resolve()
+                if resolved in seen:
+                    continue
+                seen.add(resolved)
+                candidates.append(candidate)
+        return candidates
+
+    layer = probe_cfg.get("layer")
+    if layer not in (None, "last"):
+        layer_candidates = _collect(
+            [
+                f"**/layer_{layer}/train/optuna_summary.json",
+                f"**/layer_{layer}/optuna_summary.json",
+            ]
+        )
+        if layer_candidates:
+            return layer_candidates
+
+    return _collect(
+        [
+            "optuna_summary.json",
+            "*/optuna_summary.json",
+            "**/optuna_summary.json",
+        ]
+    )
+
+
 def _resolve_checkpoint_path(
 
     dataset: str,
@@ -2111,6 +2179,14 @@ def _resolve_checkpoint_path(
 
     train_root_value = probe_cfg["output_dir"] or DATASET_SPECS[dataset].default_train_output_dir
     train_root = Path(str(train_root_value))
+    output_subdir = str(probe_cfg.get("output_subdir", "")).strip()
+    if output_subdir:
+        train_root = train_root / output_subdir
+
+    optuna_summaries = _find_optuna_summary_candidates(train_root, probe_cfg)
+    if optuna_summaries:
+        return _checkpoint_from_optuna_summary(optuna_summaries[-1])
+
     patterns = (
         "*/probe_best.pt",
         "*/probe_last.pt",

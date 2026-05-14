@@ -182,6 +182,7 @@ ltx_video:
   default_relative_depths: [0.25, 0.5, 0.75, 1.0]
   default_noise_levels: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
   model_block_depths:
+    ltx_transformer_28: 28
     ltx_transformer_48: 48
   variants:
     ltxv_13b_0_9_8_distilled:
@@ -195,7 +196,7 @@ ltx_video:
       torch_dtype: float32
     ltxv_13b_0_9_8_dev:
       hf_model_id: Lightricks/LTX-Video
-      model_name: ltx_transformer_48
+      model_name: ltx_transformer_28
       vae_subfolder: vae
       frames_per_clip: 16
       crop_size: 224

@@ -702,6 +702,47 @@ class RunProbeTests(unittest.TestCase):
         self.assertEqual(len(summary["trials"]), 2)
         self.assertEqual(eval_splits, ["val", "val"])
 
+    def test_resolve_checkpoint_path_uses_optuna_best_trial_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            train_root = root / "mvp_probe_linear_jepa_v1_vith16_384" / "layer_8" / "train"
+            latest_trial = train_root / "trial_0019" / "probe_best.pt"
+            best_trial = train_root / "trial_0003" / "probe_best.pt"
+            latest_trial.parent.mkdir(parents=True)
+            best_trial.parent.mkdir(parents=True)
+            latest_trial.write_text("latest", encoding="utf-8")
+            best_trial.write_text("best", encoding="utf-8")
+            (train_root / "optuna_summary.json").write_text(
+                json.dumps(
+                    {
+                        "best_trial_number": 3,
+                        "checkpoint": "",
+                        "best_checkpoint": "",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            other_train_root = root / "mvp_probe_linear_jepa_v1_vith16_384" / "layer_24" / "train"
+            other_best_trial = other_train_root / "trial_0019" / "probe_best.pt"
+            other_best_trial.parent.mkdir(parents=True)
+            other_best_trial.write_text("wrong-layer", encoding="utf-8")
+            (other_train_root / "optuna_summary.json").write_text(
+                json.dumps({"best_trial_number": 19}),
+                encoding="utf-8",
+            )
+            config = {
+                "probe": {
+                    "name": "linear",
+                    "layer": 8,
+                    "output_dir": str(root),
+                }
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+
+            checkpoint = run_probe._resolve_checkpoint_path("mvp", config, probe_cfg)
+
+        self.assertEqual(checkpoint, best_trial)
+
     def test_run_multi_split_eval_writes_root_metrics_for_train_val_test(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_path = Path(tmp) / "probe_best.pt"
