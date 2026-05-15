@@ -1,0 +1,262 @@
+=== START layer=32 lr=1e-4 gpu=5 | Thu 14 May 18:07:19 CEST 2026 ===
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/v25/ippa6201/.netrc.
+wandb: Currently logged in as: losardosalvatorejr (caselli-niccolo-developer-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run spv75cok
+wandb: Tracking run with wandb version 0.24.0
+wandb: Run data is saved locally in /home/v25/ippa6201/Probe4Physics/wandb/run-20260514_180731-spv75cok
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run mvp_videomae_layer_32_lr_1e-4
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/spv75cok
+wandb: updating run metadata
+wandb: uploading wandb-summary.json
+wandb: uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▁▂▂▂▃▃▃▃▄▄▄▅▅▅▆▆▆▆▇▇▇██
+wandb: train_accuracy ▁▂▃▃▄▄▅▅▅▅▆▆▇▇▇▇▇▇██████
+wandb:     train_loss █▅▅▄▄▄▃▃▃▃▃▃▂▂▂▂▂▂▁▁▁▁▁▁
+wandb:   val_accuracy ▁▃▅▅▅▆▆▆▅▇▇█▇█▇▇▇█████▆█
+wandb:       val_loss ▂▂▁▁▁▂▁▂▂▁▂▁▂▁▂▂▄▂▃▄▅▂█▆
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 19
+wandb:    best_val_accuracy 76.79474
+wandb:        best_val_loss 0.91822
+wandb: checkpoint_best_path artifacts/probes/mvp...
+wandb: checkpoint_last_path artifacts/probes/mvp...
+wandb:      checkpoint_path artifacts/probes/mvp...
+wandb:              dataset mvp
+wandb:      elapsed_seconds 37031.30548
+wandb:                epoch 24
+wandb:    feature_signature 054d12ce1bcf0e54
+wandb:                  +19 ...
+wandb: 
+wandb: 🚀 View run mvp_videomae_layer_32_lr_1e-4 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/spv75cok
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260514_180731-spv75cok/logs
+[features.mvp] using compatible legacy cache: expected_signature=a37f592be7d2d486 actual_signature=054d12ce1bcf0e54 cache_dir=/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/videomae_vit_huge_16_224/train-val-test/054d12ce1bcf0e54
+{
+  "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix/layer_32/lr_1e-4/train/probe_best.pt",
+  "checkpoint_best": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix/layer_32/lr_1e-4/train/probe_best.pt",
+  "checkpoint_last": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix/layer_32/lr_1e-4/train/probe_last.pt",
+  "dataset": "mvp",
+  "elapsed_seconds": 37031.30548408601,
+  "feature_signature": "054d12ce1bcf0e54",
+  "feature_view": "tokens",
+  "fit": {
+    "best_epoch": 19,
+    "best_val_accuracy": 76.79474216380183,
+    "best_val_loss": 0.9182218817717205,
+    "early_stopped": true,
+    "early_stopping_patience": 5,
+    "history": [
+      {
+        "epoch": 1.0,
+        "train_accuracy": 54.55311973018549,
+        "train_loss": 1.0695476235989376,
+        "val_accuracy": 50.404448938321536,
+        "val_loss": 0.7982717916987181
+      },
+      {
+        "epoch": 2.0,
+        "train_accuracy": 59.66273187183811,
+        "train_loss": 0.7065817841165198,
+        "val_accuracy": 57.128412537917086,
+        "val_loss": 0.6772344613822574
+      },
+      {
+        "epoch": 3.0,
+        "train_accuracy": 65.00843170320405,
+        "train_loss": 0.6099053769632854,
+        "val_accuracy": 63.852376137512636,
+        "val_loss": 0.6268895597002188
+      },
+      {
+        "epoch": 4.0,
+        "train_accuracy": 67.72344013490725,
+        "train_loss": 0.568175372311708,
+        "val_accuracy": 65.3690596562184,
+        "val_loss": 0.6289901727727163
+      },
+      {
+        "epoch": 5.0,
+        "train_accuracy": 71.31534569983137,
+        "train_loss": 0.5188028991813095,
+        "val_accuracy": 66.43073811931244,
+        "val_loss": 0.5761652367360912
+      },
+      {
+        "epoch": 6.0,
+        "train_accuracy": 73.40640809443506,
+        "train_loss": 0.4713822809930361,
+        "val_accuracy": 70.42467138523762,
+        "val_loss": 0.6640478112891931
+      },
+      {
+        "epoch": 7.0,
+        "train_accuracy": 75.85160202360876,
+        "train_loss": 0.44446124916537816,
+        "val_accuracy": 70.12133468149646,
+        "val_loss": 0.5685621866863929
+      },
+      {
+        "epoch": 8.0,
+        "train_accuracy": 77.94266441821249,
+        "train_loss": 0.4259450830242293,
+        "val_accuracy": 68.80687563195147,
+        "val_loss": 0.7498863717394149
+      },
+      {
+        "epoch": 9.0,
+        "train_accuracy": 79.64586846543001,
+        "train_loss": 0.4040895332126327,
+        "val_accuracy": 65.3690596562184,
+        "val_loss": 0.7525944354196891
+      },
+      {
+        "epoch": 10.0,
+        "train_accuracy": 81.01180438448566,
+        "train_loss": 0.3803141865970793,
+        "val_accuracy": 74.31749241658241,
+        "val_loss": 0.519724504804507
+      },
+      {
+        "epoch": 11.0,
+        "train_accuracy": 84.16526138279933,
+        "train_loss": 0.35585670792820495,
+        "val_accuracy": 72.95247724974722,
+        "val_loss": 0.8610806638058164
+      },
+      {
+        "epoch": 12.0,
+        "train_accuracy": 84.73861720067454,
+        "train_loss": 0.3344781683332315,
+        "val_accuracy": 75.17694641051568,
+        "val_loss": 0.5478944836871785
+      },
+      {
+        "epoch": 13.0,
+        "train_accuracy": 87.43676222596964,
+        "train_loss": 0.2801516521276991,
+        "val_accuracy": 74.87360970677453,
+        "val_loss": 0.7264195730248706
+      },
+      {
+        "epoch": 14.0,
+        "train_accuracy": 88.27993254637437,
+        "train_loss": 0.2838967675540059,
+        "val_accuracy": 75.78361981799799,
+        "val_loss": 0.5993122626934296
+      },
+      {
+        "epoch": 15.0,
+        "train_accuracy": 90.26981450252951,
+        "train_loss": 0.25234848848819635,
+        "val_accuracy": 74.21638018200201,
+        "val_loss": 0.769622782279382
+      },
+      {
+        "epoch": 16.0,
+        "train_accuracy": 91.8212478920742,
+        "train_loss": 0.21663260630515246,
+        "val_accuracy": 73.86248736097068,
+        "val_loss": 0.745515191422785
+      },
+      {
+        "epoch": 17.0,
+        "train_accuracy": 92.29342327150084,
+        "train_loss": 0.20490118701295462,
+        "val_accuracy": 73.66026289180991,
+        "val_loss": 1.2213341984081574
+      },
+      {
+        "epoch": 18.0,
+        "train_accuracy": 92.66441821247892,
+        "train_loss": 0.20555327991419894,
+        "val_accuracy": 75.93528816986856,
+        "val_loss": 0.6954375279868299
+      },
+      {
+        "epoch": 19.0,
+        "train_accuracy": 94.08094435075886,
+        "train_loss": 0.17465984527424067,
+        "val_accuracy": 76.79474216380183,
+        "val_loss": 0.9182218817717205
+      },
+      {
+        "epoch": 20.0,
+        "train_accuracy": 94.41821247892074,
+        "train_loss": 0.17671031191745315,
+        "val_accuracy": 75.22750252780587,
+        "val_loss": 1.22616567822929
+      },
+      {
+        "epoch": 21.0,
+        "train_accuracy": 94.63743676222597,
+        "train_loss": 0.16272782387453635,
+        "val_accuracy": 75.17694641051568,
+        "val_loss": 1.5710062183887272
+      },
+      {
+        "epoch": 22.0,
+        "train_accuracy": 94.5531197301855,
+        "train_loss": 0.1839347648693397,
+        "val_accuracy": 75.32861476238625,
+        "val_loss": 0.815984283172374
+      },
+      {
+        "epoch": 23.0,
+        "train_accuracy": 95.83473861720067,
+        "train_loss": 0.13964814545170748,
+        "val_accuracy": 70.87967644084934,
+        "val_loss": 2.2923995686125793
+      },
+      {
+        "epoch": 24.0,
+        "train_accuracy": 96.13827993254638,
+        "train_loss": 0.12475172520250997,
+        "val_accuracy": 76.18806875631951,
+        "val_loss": 1.8128393449002884
+      }
+    ],
+    "n_epochs": 24,
+    "train_accuracy": 96.13827993254638,
+    "train_loss": 0.12475172520250997,
+    "val_accuracy": 76.18806875631951,
+    "val_loss": 1.8128393449002884
+  },
+  "input_dim": 1280,
+  "layer": 32,
+  "n_train": 5930,
+  "n_val": 1978,
+  "num_classes": 2,
+  "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_vit_huge_16_224_lr_matrix/layer_32/lr_1e-4/train",
+  "probe_hparams": {
+    "batch_size": 2,
+    "deterministic": false,
+    "device": "cuda:5",
+    "dropout": 0.2,
+    "early_stopping": {
+      "enabled": true,
+      "patience": 5
+    },
+    "embed_dim": null,
+    "epochs": 30,
+    "eval_batch_size": 2,
+    "feature_view": "tokens",
+    "layer": 32,
+    "lr": 0.0001,
+    "mlp_ratio": 2.0,
+    "name": "temporal_attn",
+    "num_classes": 2,
+    "num_heads": 16,
+    "num_self_attn_blocks": 1,
+    "weight_decay": 0.01
+  },
+  "probe_name": "temporal_attn",
+  "seconds_per_labeled_sample": 4.682764982813103,
+  "seconds_per_train_sample": 6.244739542004386
+}
+=== DONE layer=32 lr=1e-4 exit=0 | Fri 15 May 04:24:40 CEST 2026 ===
