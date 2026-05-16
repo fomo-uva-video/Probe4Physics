@@ -4,7 +4,8 @@
 # Run this baseline pair from the repository root:
 #   mkdir -p output/baseline/frame_shuffling/intphys2/extract output/baseline/frame_shuffling/intphys2/eval
 #   extract_jid=$(sbatch --parsable jobs/baseline/frame_shuffling/intphys2/extract/ltx_video.sh)
-#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2 jobs/baseline/frame_shuffling/intphys2/eval/ltx_video.sh
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2/ltx_linear_all_40_optuna jobs/baseline/frame_shuffling/intphys2/eval/ltx_video.sh
+#   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_NAME=mlp,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2/intphys2_probe_mlp_ltx_video_ltxv_13b_0_9_8_distilled_20260509T102816Z jobs/baseline/frame_shuffling/intphys2/eval/ltx_video.sh
 # The mkdir is required because Slurm opens stdout/stderr before the script runs.
 #
 #SBATCH --partition=rome

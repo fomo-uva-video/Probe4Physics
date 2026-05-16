@@ -84,7 +84,18 @@ def _resolve_cached_snapshot_dir(hf_model_id: str, hf_cache_dir: str | None) -> 
     path = Path(cached)
     if not path.exists():
         return None
-    return path.parent
+    snapshot_dir = path.parent
+    for required_name in ("modeling_config.py", "modeling_videomaev2.py"):
+        required_path = snapshot_dir / required_name
+        if not required_path.exists():
+            logger.warning(
+                "Ignoring incomplete cached VideoMAEv2 snapshot for %s: missing %s in %s",
+                hf_model_id,
+                required_name,
+                snapshot_dir,
+            )
+            return None
+    return snapshot_dir
 
 
 def _load_remote_code_modules(snapshot_dir: Path) -> tuple[Any, Any]:

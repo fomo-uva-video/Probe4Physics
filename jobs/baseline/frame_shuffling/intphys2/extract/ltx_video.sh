@@ -7,7 +7,7 @@
 #   sbatch --dependency=afterok:${extract_jid} --export=ALL,PROBE_OUTPUT_DIR=/scratch-shared/${USER}/probe4physics/artifacts/probes/intphys2 jobs/baseline/frame_shuffling/intphys2/eval/ltx_video.sh
 # The mkdir is required because Slurm opens stdout/stderr before the script runs.
 #
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --gpus=1
 #SBATCH --job-name=int_shuffle_extract_ltx_video
 #SBATCH --ntasks=1

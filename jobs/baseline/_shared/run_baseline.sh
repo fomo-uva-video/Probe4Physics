@@ -250,9 +250,9 @@ resolve_checkpoint() {
     local layer_label=""
     layer_label="$(probe_layer_label "${layer}")"
     local optuna_summary=""
-    optuna_summary="$(find -H "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+    optuna_summary="$(find -L "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
     if [[ -z "${optuna_summary}" ]]; then
-      optuna_summary="$(find -H "${PROBE_OUTPUT_DIR}" -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
+      optuna_summary="$(find -L "${PROBE_OUTPUT_DIR}" -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/optuna_summary.json" -type f 2>/dev/null | sort | tail -n 1)"
     fi
     if [[ -n "${optuna_summary}" ]]; then
       local best_trial=""
@@ -270,9 +270,9 @@ resolve_checkpoint() {
       fi
     fi
 
-    layer_path="$(find -H "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+    layer_path="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     if [[ -z "${layer_path}" ]]; then
-      layer_path="$(find -H "${PROBE_OUTPUT_DIR}" \( -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/probe_best.pt" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+      layer_path="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/probe_best.pt" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     fi
     if [[ -n "${layer_path}" ]]; then
       printf '%s\n' "${layer_path}"
@@ -281,7 +281,7 @@ resolve_checkpoint() {
     return 0
   fi
 
-  find -H "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1
+  find -L "${PROBE_OUTPUT_DIR}" -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/probe_best.pt" -type f 2>/dev/null | sort | tail -n 1
 }
 
 run_eval_for_layer() {

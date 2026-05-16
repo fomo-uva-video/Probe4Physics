@@ -1,0 +1,33 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/418 [00:00<?, ?it/s]Loading weights:   4%|▍         | 18/418 [00:00<00:03, 105.85it/s]Loading weights:   7%|▋         | 31/418 [00:00<00:03, 99.02it/s] Loading weights:  10%|▉         | 41/418 [00:00<00:04, 76.60it/s]Loading weights:  12%|█▏        | 49/418 [00:00<00:05, 65.52it/s]Loading weights:  13%|█▎        | 56/418 [00:01<00:09, 40.04it/s]Loading weights:  17%|█▋        | 70/418 [00:01<00:06, 51.60it/s]Loading weights:  19%|█▊        | 78/418 [00:01<00:07, 46.63it/s]Loading weights:  21%|██▏       | 89/418 [00:01<00:05, 55.34it/s]Loading weights:  23%|██▎       | 96/418 [00:01<00:06, 48.19it/s]Loading weights:  26%|██▌       | 109/418 [00:01<00:05, 59.08it/s]Loading weights:  28%|██▊       | 116/418 [00:01<00:04, 60.59it/s]Loading weights:  29%|██▉       | 123/418 [00:02<00:04, 61.79it/s]Loading weights:  31%|███       | 130/418 [00:02<00:05, 53.84it/s]Loading weights:  33%|███▎      | 136/418 [00:02<00:06, 46.93it/s]Loading weights:  34%|███▍      | 142/418 [00:02<00:07, 37.17it/s]Loading weights:  36%|███▌      | 151/418 [00:02<00:05, 45.36it/s]Loading weights:  38%|███▊      | 157/418 [00:02<00:06, 42.47it/s]Loading weights:  39%|███▉      | 162/418 [00:03<00:06, 37.76it/s]Loading weights:  44%|████▎     | 182/418 [00:03<00:03, 60.78it/s]Loading weights:  48%|████▊     | 200/418 [00:03<00:02, 78.44it/s]Loading weights:  50%|█████     | 209/418 [00:03<00:02, 72.76it/s]Loading weights:  52%|█████▏    | 217/418 [00:03<00:03, 66.77it/s]Loading weights:  54%|█████▍    | 225/418 [00:04<00:03, 55.45it/s]Loading weights:  56%|█████▌    | 235/418 [00:04<00:03, 56.01it/s]Loading weights:  61%|██████    | 255/418 [00:04<00:03, 53.14it/s]Loading weights:  62%|██████▏   | 261/418 [00:04<00:02, 53.86it/s]Loading weights:  65%|██████▌   | 273/418 [00:05<00:03, 45.93it/s]Loading weights:  69%|██████▊   | 287/418 [00:05<00:02, 52.94it/s]Loading weights:  71%|███████   | 295/418 [00:05<00:02, 56.13it/s]Loading weights:  72%|███████▏  | 302/418 [00:05<00:02, 53.91it/s]Loading weights:  76%|███████▌  | 318/418 [00:05<00:01, 66.98it/s]Loading weights:  78%|███████▊  | 326/418 [00:05<00:01, 56.46it/s]Loading weights:  80%|████████  | 335/418 [00:06<00:01, 49.99it/s]Loading weights:  82%|████████▏ | 341/418 [00:06<00:01, 48.92it/s]Loading weights:  83%|████████▎ | 347/418 [00:06<00:01, 49.78it/s]Loading weights:  85%|████████▌ | 357/418 [00:06<00:01, 58.55it/s]Loading weights:  87%|████████▋ | 364/418 [00:06<00:01, 53.87it/s]Loading weights:  89%|████████▊ | 370/418 [00:06<00:00, 48.69it/s]Loading weights:  90%|████████▉ | 376/418 [00:06<00:00, 48.98it/s]Loading weights:  91%|█████████▏| 382/418 [00:07<00:00, 44.92it/s]Loading weights:  93%|█████████▎| 387/418 [00:07<00:00, 42.34it/s]Loading weights:  94%|█████████▍| 392/418 [00:07<00:00, 39.24it/s]Loading weights:  96%|█████████▌| 400/418 [00:07<00:00, 48.08it/s]Loading weights: 100%|██████████| 418/418 [00:07<00:00, 55.37it/s]
+[transformers] [1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-huge-finetuned-kinetics
+Key                                                        | Status     | 
+-----------------------------------------------------------+------------+-
+videomae.encoder.layer.{0...31}.attention.attention.q_bias | UNEXPECTED | 
+videomae.encoder.layer.{0...31}.attention.attention.v_bias | UNEXPECTED | 
+fc_norm.bias                                               | UNEXPECTED | 
+classifier.weight                                          | UNEXPECTED | 
+fc_norm.weight                                             | UNEXPECTED | 
+classifier.bias                                            | UNEXPECTED | 
+encoder.layer.{0...31}.attention.attention.key.bias        | MISSING    | 
+encoder.layer.{0...31}.attention.attention.query.bias      | MISSING    | 
+encoder.layer.{0...31}.attention.attention.value.bias      | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.

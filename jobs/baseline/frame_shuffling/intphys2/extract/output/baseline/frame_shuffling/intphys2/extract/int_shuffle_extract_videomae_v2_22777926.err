@@ -1,0 +1,55 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/models/videomae_adapter.py", line 515, in __init__
+    self._model = self._load_hf_model(self.hf_model_id, self.hf_cache_dir)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/videomae_adapter.py", line 807, in _load_hf_model
+    cfg_module, model_module = _load_remote_code_modules(snapshot_dir)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/videomae_adapter.py", line 112, in _load_remote_code_modules
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/scratch-shared/scur0511/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-giant/snapshots/d27568eb41ccb2d41bb191fc2e3fe5aad74942d4/modeling_config.py'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 479, in <module>
+    main()
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 97, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/intphys2_displacement_extract.py", line 9, in run_intphys2_displacement_extract
+    return run_intphys2_displacement_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/intphys2/features_displacement.py", line 42, in run_intphys2_displacement_extraction
+    result = run_intphys2_feature_extraction(config, clip_fn=clip_fn)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/intphys2/features.py", line 292, in run_intphys2_feature_extraction
+    adapter = create_adapter(backbone_name, **backbone_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/registry.py", line 40, in create_adapter
+    return _ADAPTER_FACTORIES[key](**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/videomae_adapter.py", line 958, in create_videomae_v2_adapter
+    return VideoMAEV2Adapter(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/videomae_adapter.py", line 518, in __init__
+    raise RuntimeError(
+RuntimeError: VideoMAEV2Adapter failed to load HuggingFace model. hf_model_id=OpenGVLab/VideoMAEv2-giant variant=vit_giant_16_224 device=cuda backbone_key=videomae_v2 hf_cache_dir=<default> hf_model_id=OpenGVLab/VideoMAEv2-giant load_strategy=cached_snapshot_remote_code snapshot_dir=/scratch-shared/scur0511/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-giant/snapshots/d27568eb41ccb2d41bb191fc2e3fe5aad74942d4

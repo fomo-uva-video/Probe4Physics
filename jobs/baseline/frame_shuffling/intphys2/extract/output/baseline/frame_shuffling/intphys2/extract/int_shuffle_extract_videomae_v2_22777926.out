@@ -1,0 +1,22 @@
+JOB_START_UTC=2026-05-16T00:01:45Z
+===== BASELINE EXTRACTION PROVENANCE =====
+Sat May 16 00:01:45 UTC 2026
+gcn45.local.snellius.surf.nl
+089dd905c65ea13861188c78061f0f6640be29ea
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+DATASET_NAME=intphys2
+BASELINE_LABEL=frame_shuffling
+BASELINE_NAME=displacement
+BASELINE_STAGE=extract
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=videomae_v2
+BACKBONE_VARIANT=vit_giant_16_224
+CANONICAL_PROBE_LAYERS=10,20,30,40
+BACKBONE_DEVICE=cuda
+FEATURE_DIR=<config default>
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+Command: python run.py extract.intphys2.displacement metadata_file=/gpfs/home3/scur0511/Probe4Physics/data/annotations/intphys2_metadata.csv videos_root=/gpfs/home3/scur0511/Probe4Physics/data/videos/intphys2 split.dir=/gpfs/home3/scur0511/Probe4Physics/data/splits/intphys2 backbone.name=videomae_v2 backbone.kwargs.device=cuda +backbone.kwargs.variant=vit_giant_16_224
+==========================================
