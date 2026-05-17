@@ -3,8 +3,8 @@
 # (layer, learning-rate) matrix.
 #
 # Usage:
-#   sbatch jobs/train/mvp/temporal_attn/jepa_v1_lr_matrix.sh
-#
+#   
+
 # Default matrix:
 #   layers = 8, 16, 24, 32
 #   lrs    = 5e-4, 1e-4, 5e-5, 1e-5
