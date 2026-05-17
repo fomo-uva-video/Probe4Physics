@@ -1,0 +1,166 @@
+=== EVAL START videomae_v2 layer=40 lr=1e-4 gpu=7 | Sun 17 May 15:24:34 CEST 2026 ===
+[eval.mvp] Starting eval | split_name=train split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=2965 split_samples=5930
+[eval.mvp] Prepared samples | n_pairs_before_trim=2965 n_samples_before_trim=5930 n_pairs_after_trim=2965 n_samples_after_trim=5930 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=5930
+[eval.mvp] Scoring complete | accuracy=96.9646 pair_consistency=94.0978 label_override=none n_pairs=2965 n_samples=5930
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train
+[eval.mvp] Starting eval | split_name=val split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=83.6198 pair_consistency=73.1041 label_override=none n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val
+[eval.mvp] Starting eval | split_name=test split_dir=data/splits/mvp/full_60_20_20 predictor_mode=from_file annotation_file=data/annotations/mvp_full.jsonl
+[eval.mvp] Loaded split assignments | split_pairs=989 split_samples=1978
+[eval.mvp] Prepared samples | n_pairs_before_trim=989 n_samples_before_trim=1978 n_pairs_after_trim=989 n_samples_after_trim=1978 max_pairs=0
+[eval.mvp] Generated predictions | n_predictions=1978
+[eval.mvp] Scoring complete | accuracy=82.7604 pair_consistency=72.4975 label_override=none n_pairs=989 n_samples=1978
+[eval.mvp] Artifacts written | output_dir=artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test
+[features.mvp] using compatible legacy cache: expected_signature=9b940ab0a498dded actual_signature=0fe803997ba52d40 cache_dir=/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/0fe803997ba52d40
+{
+  "base_eval": {
+    "label_override": null,
+    "metrics": {
+      "accuracy": 82.76036400404449,
+      "n_pairs": 989,
+      "n_samples": 1978,
+      "pair_consistency": 72.4974721941355
+    },
+    "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test",
+    "split_dir": "data/splits/mvp/full_60_20_20"
+  },
+  "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/train/probe_best.pt",
+  "dataset": "mvp",
+  "feature_signature": "0fe803997ba52d40",
+  "metrics": {
+    "accuracy": 82.76036400404449,
+    "n_pairs": 989,
+    "n_samples": 1978,
+    "pair_consistency": 72.4974721941355
+  },
+  "metrics_by_split": {
+    "test": {
+      "accuracy": 82.76036400404449,
+      "n_pairs": 989,
+      "n_samples": 1978,
+      "pair_consistency": 72.4974721941355
+    },
+    "train": {
+      "accuracy": 96.964586846543,
+      "n_pairs": 2965,
+      "n_samples": 5930,
+      "pair_consistency": 94.09780775716695
+    },
+    "val": {
+      "accuracy": 83.61981799797775,
+      "n_pairs": 989,
+      "n_samples": 1978,
+      "pair_consistency": 73.1041456016178
+    }
+  },
+  "objective_metric": 72.4974721941355,
+  "prediction_file": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test/probe_predictions.json",
+  "prediction_files": {
+    "test": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test/probe_predictions.json",
+    "train": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train/probe_predictions.json",
+    "val": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val/probe_predictions.json"
+  },
+  "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval",
+  "probe_name": "temporal_attn",
+  "reported_splits": [
+    "train",
+    "val",
+    "test"
+  ],
+  "split_eval_dirs": {
+    "test": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test",
+    "train": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train",
+    "val": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val"
+  },
+  "split_evals": {
+    "test": {
+      "base_eval": {
+        "label_override": null,
+        "metrics": {
+          "accuracy": 82.76036400404449,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 72.4974721941355
+        },
+        "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test",
+        "split_dir": "data/splits/mvp/full_60_20_20"
+      },
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/train/probe_best.pt",
+      "dataset": "mvp",
+      "feature_signature": "0fe803997ba52d40",
+      "metrics": {
+        "accuracy": 82.76036400404449,
+        "n_pairs": 989,
+        "n_samples": 1978,
+        "pair_consistency": 72.4974721941355
+      },
+      "objective_metric": 72.4974721941355,
+      "prediction_file": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test/probe_predictions.json",
+      "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/test",
+      "probe_name": "temporal_attn",
+      "split_name": "test"
+    },
+    "train": {
+      "base_eval": {
+        "label_override": null,
+        "metrics": {
+          "accuracy": 96.964586846543,
+          "n_pairs": 2965,
+          "n_samples": 5930,
+          "pair_consistency": 94.09780775716695
+        },
+        "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train",
+        "split_dir": "data/splits/mvp/full_60_20_20"
+      },
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/train/probe_best.pt",
+      "dataset": "mvp",
+      "feature_signature": "0fe803997ba52d40",
+      "metrics": {
+        "accuracy": 96.964586846543,
+        "n_pairs": 2965,
+        "n_samples": 5930,
+        "pair_consistency": 94.09780775716695
+      },
+      "objective_metric": 94.09780775716695,
+      "prediction_file": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train/probe_predictions.json",
+      "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/train",
+      "probe_name": "temporal_attn",
+      "split_name": "train"
+    },
+    "val": {
+      "base_eval": {
+        "label_override": null,
+        "metrics": {
+          "accuracy": 83.61981799797775,
+          "n_pairs": 989,
+          "n_samples": 1978,
+          "pair_consistency": 73.1041456016178
+        },
+        "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val",
+        "split_dir": "data/splits/mvp/full_60_20_20"
+      },
+      "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/train/probe_best.pt",
+      "dataset": "mvp",
+      "feature_signature": "0fe803997ba52d40",
+      "metrics": {
+        "accuracy": 83.61981799797775,
+        "n_pairs": 989,
+        "n_samples": 1978,
+        "pair_consistency": 73.1041456016178
+      },
+      "objective_metric": 73.1041456016178,
+      "prediction_file": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val/probe_predictions.json",
+      "probe_eval_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_40/lr_1e-4/eval/val",
+      "probe_name": "temporal_attn",
+      "split_name": "val"
+    }
+  },
+  "split_name": "test"
+}
+=== EVAL DONE exit=0 | Sun 17 May 15:30:53 CEST 2026 ===
