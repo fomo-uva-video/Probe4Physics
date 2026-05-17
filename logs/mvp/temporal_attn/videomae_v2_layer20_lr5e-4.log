@@ -1,0 +1,156 @@
+=== START layer=20 lr=5e-4 gpu=6 | Sat 16 May 01:45:17 CEST 2026 ===
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /home/v25/ippa6201/.netrc.
+wandb: Currently logged in as: losardosalvatorejr (caselli-niccolo-developer-university-of-amsterdam) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run ecb72dfq
+wandb: Tracking run with wandb version 0.24.0
+wandb: Run data is saved locally in /home/v25/ippa6201/Probe4Physics/wandb/run-20260516_014531-ecb72dfq
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run mvp_videomae_v2_layer_20_lr_5e-4
+wandb: ⭐️ View project at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: 🚀 View run at https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/ecb72dfq
+wandb: updating run metadata
+wandb: uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:          epoch ▁▂▃▄▅▅▆▇█
+wandb: train_accuracy ▄▂▄█▁▃▆▆▆
+wandb:     train_loss ▁▁▁▁▁█   
+wandb:   val_accuracy ▁▁▇█▁▁▁▁▁
+wandb:       val_loss ▁▁▁▁▁█   
+wandb: 
+wandb: Run summary:
+wandb:           best_epoch 4
+wandb:    best_val_accuracy 50.35389
+wandb:        best_val_loss 8.89991
+wandb: checkpoint_best_path artifacts/probes/mvp...
+wandb: checkpoint_last_path artifacts/probes/mvp...
+wandb:      checkpoint_path artifacts/probes/mvp...
+wandb:              dataset mvp
+wandb:      elapsed_seconds 17496.15956
+wandb:                epoch 9
+wandb:    feature_signature 0fe803997ba52d40
+wandb:                  +17 ...
+wandb: 
+wandb: 🚀 View run mvp_videomae_v2_layer_20_lr_5e-4 at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics/runs/ecb72dfq
+wandb: ⭐️ View project at: https://wandb.ai/caselli-niccolo-developer-university-of-amsterdam/probe4physics
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260516_014531-ecb72dfq/logs
+[features.mvp] using compatible legacy cache: expected_signature=9b940ab0a498dded actual_signature=0fe803997ba52d40 cache_dir=/home/v25/ippa6201/Probe4Physics/artifacts/features/mvp/videomae_v2_vit_giant_16_224/train-val-test/0fe803997ba52d40
+{
+  "checkpoint": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_20/lr_5e-4/train/probe_best.pt",
+  "checkpoint_best": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_20/lr_5e-4/train/probe_best.pt",
+  "checkpoint_last": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_20/lr_5e-4/train/probe_last.pt",
+  "dataset": "mvp",
+  "elapsed_seconds": 17496.159555120976,
+  "feature_signature": "0fe803997ba52d40",
+  "feature_view": "tokens",
+  "fit": {
+    "best_epoch": 4,
+    "best_val_accuracy": 50.353892821031344,
+    "best_val_loss": 8.899906234458669,
+    "early_stopped": true,
+    "early_stopping_patience": 5,
+    "history": [
+      {
+        "epoch": 1.0,
+        "train_accuracy": 49.37605396290051,
+        "train_loss": 38.27158514924018,
+        "val_accuracy": 50.0,
+        "val_loss": 28.520077823989915
+      },
+      {
+        "epoch": 2.0,
+        "train_accuracy": 49.05564924114671,
+        "train_loss": 10.610911983123248,
+        "val_accuracy": 50.0,
+        "val_loss": 25.873987010805383
+      },
+      {
+        "epoch": 3.0,
+        "train_accuracy": 49.325463743676224,
+        "train_loss": 85.40561594833932,
+        "val_accuracy": 50.30333670374115,
+        "val_loss": 7.702028284120973
+      },
+      {
+        "epoch": 4.0,
+        "train_accuracy": 50.42158516020236,
+        "train_loss": 38.34835945168336,
+        "val_accuracy": 50.353892821031344,
+        "val_loss": 8.899906234458669
+      },
+      {
+        "epoch": 5.0,
+        "train_accuracy": 48.68465430016863,
+        "train_loss": 46.26028081405832,
+        "val_accuracy": 50.0,
+        "val_loss": 15.23437590160312
+      },
+      {
+        "epoch": 6.0,
+        "train_accuracy": 49.20741989881956,
+        "train_loss": 9972.356057981995,
+        "val_accuracy": 50.0,
+        "val_loss": 250170.56766620325
+      },
+      {
+        "epoch": 7.0,
+        "train_accuracy": 49.881956155143335,
+        "train_loss": NaN,
+        "val_accuracy": 50.0,
+        "val_loss": NaN
+      },
+      {
+        "epoch": 8.0,
+        "train_accuracy": 50.0,
+        "train_loss": NaN,
+        "val_accuracy": 50.0,
+        "val_loss": NaN
+      },
+      {
+        "epoch": 9.0,
+        "train_accuracy": 50.0,
+        "train_loss": NaN,
+        "val_accuracy": 50.0,
+        "val_loss": NaN
+      }
+    ],
+    "n_epochs": 9,
+    "train_accuracy": 50.0,
+    "train_loss": NaN,
+    "val_accuracy": 50.0,
+    "val_loss": NaN
+  },
+  "input_dim": 1408,
+  "layer": 20,
+  "n_train": 5930,
+  "n_val": 1978,
+  "num_classes": 2,
+  "output_dir": "artifacts/probes/mvp/mvp_probe_temporal_attn_videomae_v2_vit_giant_16_224_lr_matrix/layer_20/lr_5e-4/train",
+  "probe_hparams": {
+    "batch_size": 2,
+    "deterministic": false,
+    "device": "cuda:6",
+    "dropout": 0.2,
+    "early_stopping": {
+      "enabled": true,
+      "patience": 5
+    },
+    "embed_dim": null,
+    "epochs": 30,
+    "eval_batch_size": 2,
+    "feature_view": "tokens",
+    "layer": 20,
+    "lr": 0.0005,
+    "mlp_ratio": 2.0,
+    "name": "temporal_attn",
+    "num_classes": 2,
+    "num_heads": 16,
+    "num_self_attn_blocks": 1,
+    "weight_decay": 0.01
+  },
+  "probe_name": "temporal_attn",
+  "seconds_per_labeled_sample": 2.212463272018333,
+  "seconds_per_train_sample": 2.9504484915886975
+}
+=== DONE layer=20 lr=5e-4 exit=0 | Sat 16 May 06:37:05 CEST 2026 ===
