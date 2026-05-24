@@ -5,8 +5,21 @@ from typing import Any, Sequence
 
 import yaml
 
-from .ltx_video_adapter import resolve_noise_levels, resolve_probe_layer_ids, resolve_probe_layer_specs
-from .preprocessing import imagenet_preprocessing_metadata, ltx_diffusion_preprocessing_metadata
+from .ltx_video_adapter import (
+    resolve_noise_levels as resolve_ltx_noise_levels,
+    resolve_probe_layer_ids as resolve_ltx_probe_layer_ids,
+    resolve_probe_layer_specs as resolve_ltx_probe_layer_specs,
+)
+from .preprocessing import (
+    imagenet_preprocessing_metadata,
+    ltx_diffusion_preprocessing_metadata,
+    wan_diffusion_preprocessing_metadata,
+)
+from .wan_video_adapter import (
+    resolve_noise_levels as resolve_wan_noise_levels,
+    resolve_probe_layer_ids as resolve_wan_probe_layer_ids,
+    resolve_probe_layer_specs as resolve_wan_probe_layer_specs,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -80,7 +93,7 @@ def resolve_backbone_layer_label(name: str, kwargs: dict[str, Any], layer: int |
 
     resolved_layer = int(layer)
     key = str(name).strip()
-    if key != "ltx_video":
+    if key not in {"ltx_video", "wan_video"}:
         return str(resolved_layer)
 
     path = Path(str(kwargs.get("config_path", DEFAULT_BACKBONES_CONFIG_PATH))).expanduser()
@@ -115,7 +128,8 @@ def resolve_backbone_layer_label(name: str, kwargs: dict[str, Any], layer: int |
         return str(resolved_layer)
 
     try:
-        specs = resolve_probe_layer_specs(
+        resolver = resolve_ltx_probe_layer_specs if key == "ltx_video" else resolve_wan_probe_layer_specs
+        specs = resolver(
             model_name,
             relative_depths=relative_depths,
             noise_levels=noise_levels,
@@ -159,7 +173,17 @@ def _resolve_selected_layers(
 
     if backbone_name == "ltx_video":
         return list(
-            resolve_probe_layer_ids(
+            resolve_ltx_probe_layer_ids(
+                model_name,
+                relative_depths=relative_depths,
+                noise_levels=noise_levels,
+                model_block_depths=depths,
+            )
+        )
+
+    if backbone_name == "wan_video":
+        return list(
+            resolve_wan_probe_layer_ids(
                 model_name,
                 relative_depths=relative_depths,
                 noise_levels=noise_levels,
@@ -188,11 +212,22 @@ def _resolve_preprocessing_metadata(name: str, kwargs: dict[str, Any]) -> dict[s
     if name == "ltx_video":
         return ltx_diffusion_preprocessing_metadata(
             normalize_input=bool(kwargs.get("normalize_input", True)),
-            noise_levels=resolve_noise_levels(
+            noise_levels=resolve_ltx_noise_levels(
                 kwargs.get("noise_levels"),
                 config_path=kwargs.get("config_path", DEFAULT_BACKBONES_CONFIG_PATH),
             ),
             prompt_mode="empty_string",
             noise_policy="fixed_reference_noise",
+        )
+    if name == "wan_video":
+        return wan_diffusion_preprocessing_metadata(
+            normalize_input=bool(kwargs.get("normalize_input", True)),
+            noise_levels=resolve_wan_noise_levels(
+                kwargs.get("noise_levels"),
+                config_path=kwargs.get("config_path", DEFAULT_BACKBONES_CONFIG_PATH),
+            ),
+            prompt_mode="empty_string",
+            noise_policy="fixed_reference_noise",
+            frame_policy="pad_repeat_last_to_4k_plus_1",
         )
     return {}

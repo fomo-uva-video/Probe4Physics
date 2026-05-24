@@ -1,0 +1,145 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]Loading pipeline components...:  40%|████      | 2/5 [00:02<00:03,  1.03s/it]Loading pipeline components...:  60%|██████    | 3/5 [00:03<00:02,  1.08s/it]
+Loading checkpoint shards:   0%|          | 0/12 [00:00<?, ?it/s][A
+Loading checkpoint shards:   8%|▊         | 1/12 [00:08<01:34,  8.56s/it][A
+Loading checkpoint shards:  17%|█▋        | 2/12 [00:17<01:27,  8.74s/it][A
+Loading checkpoint shards:  25%|██▌       | 3/12 [00:26<01:18,  8.67s/it][A
+Loading checkpoint shards:  33%|███▎      | 4/12 [00:34<01:09,  8.64s/it][A
+Loading checkpoint shards:  42%|████▏     | 5/12 [00:43<01:00,  8.61s/it][A
+Loading checkpoint shards:  50%|█████     | 6/12 [00:51<00:51,  8.58s/it][A
+Loading checkpoint shards:  58%|█████▊    | 7/12 [01:00<00:42,  8.55s/it][A
+Loading checkpoint shards:  67%|██████▋   | 8/12 [01:09<00:34,  8.69s/it][A
+Loading checkpoint shards:  75%|███████▌  | 9/12 [01:18<00:26,  8.98s/it][A
+Loading checkpoint shards:  83%|████████▎ | 10/12 [01:27<00:17,  8.77s/it][A
+Loading checkpoint shards:  92%|█████████▏| 11/12 [01:35<00:08,  8.80s/it][A
+Loading checkpoint shards: 100%|██████████| 12/12 [01:41<00:00,  7.74s/it][ALoading checkpoint shards: 100%|██████████| 12/12 [01:41<00:00,  8.44s/it]
+Loading pipeline components...:  80%|████████  | 4/5 [01:44<00:38, 38.56s/it]
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s][A
+Loading weights:   0%|          | 1/242 [00:00<01:19,  3.02it/s][A
+Loading weights:   1%|          | 2/242 [00:00<00:50,  4.71it/s][A
+Loading weights:   1%|          | 3/242 [00:00<00:44,  5.36it/s][A
+Loading weights:   3%|▎         | 7/242 [00:01<00:26,  8.78it/s][A
+Loading weights:   3%|▎         | 8/242 [00:01<00:40,  5.79it/s][A
+Loading weights:   5%|▌         | 13/242 [00:01<00:20, 11.37it/s][A
+Loading weights:   6%|▌         | 15/242 [00:01<00:19, 11.62it/s][A
+Loading weights:   7%|▋         | 17/242 [00:02<00:23,  9.68it/s][A
+Loading weights:   8%|▊         | 19/242 [00:02<00:30,  7.43it/s][A
+Loading weights:   9%|▉         | 22/242 [00:02<00:24,  9.10it/s][A
+Loading weights:  10%|▉         | 24/242 [00:02<00:25,  8.56it/s][A
+Loading weights:  11%|█         | 26/242 [00:02<00:21, 10.10it/s][A
+Loading weights:  12%|█▏        | 28/242 [00:03<00:43,  4.90it/s][A
+Loading weights:  12%|█▏        | 29/242 [00:04<00:43,  4.87it/s][A
+Loading weights:  15%|█▌        | 37/242 [00:04<00:22,  9.16it/s][A
+Loading weights:  16%|█▌        | 39/242 [00:04<00:24,  8.14it/s][A
+Loading weights:  17%|█▋        | 42/242 [00:05<00:22,  8.98it/s][A
+Loading weights:  19%|█▉        | 47/242 [00:06<00:25,  7.69it/s][A
+Loading weights:  22%|██▏       | 53/242 [00:06<00:18, 10.12it/s][A
+Loading weights:  23%|██▎       | 55/242 [00:06<00:18,  9.90it/s][A
+Loading weights:  24%|██▎       | 57/242 [00:07<00:28,  6.58it/s][A
+Loading weights:  24%|██▍       | 59/242 [00:07<00:26,  6.99it/s][A
+Loading weights:  26%|██▌       | 63/242 [00:07<00:18,  9.62it/s][A
+Loading weights:  28%|██▊       | 67/242 [00:08<00:18,  9.44it/s][A
+Loading weights:  29%|██▊       | 69/242 [00:08<00:17,  9.80it/s][A
+Loading weights:  30%|██▉       | 72/242 [00:08<00:20,  8.40it/s][A
+Loading weights:  31%|███       | 74/242 [00:08<00:18,  9.18it/s][A
+Loading weights:  32%|███▏      | 77/242 [00:09<00:18,  9.00it/s][A
+Loading weights:  33%|███▎      | 79/242 [00:09<00:18,  8.79it/s][A
+Loading weights:  34%|███▍      | 82/242 [00:10<00:24,  6.58it/s][A
+Loading weights:  36%|███▌      | 87/242 [00:10<00:16,  9.25it/s][A
+Loading weights:  37%|███▋      | 89/242 [00:11<00:24,  6.20it/s][A
+Loading weights:  37%|███▋      | 90/242 [00:11<00:26,  5.84it/s][A
+Loading weights:  40%|████      | 97/242 [00:12<00:21,  6.88it/s][A
+Loading weights:  40%|████      | 98/242 [00:12<00:21,  6.59it/s][A
+Loading weights:  43%|████▎     | 105/242 [00:12<00:11, 11.44it/s][A
+Loading weights:  44%|████▍     | 107/242 [00:13<00:14,  9.31it/s][A
+Loading weights:  45%|████▌     | 109/242 [00:13<00:17,  7.76it/s][A
+Loading weights:  46%|████▋     | 112/242 [00:13<00:14,  8.67it/s][A
+Loading weights:  47%|████▋     | 114/242 [00:13<00:13,  9.65it/s][A
+Loading weights:  48%|████▊     | 117/242 [00:14<00:12, 10.08it/s][A
+Loading weights:  49%|████▉     | 119/242 [00:15<00:23,  5.19it/s][A
+Loading weights:  50%|████▉     | 120/242 [00:15<00:24,  5.04it/s][A
+Loading weights:  52%|█████▏    | 127/242 [00:16<00:16,  7.03it/s][A
+Loading weights:  53%|█████▎    | 128/242 [00:16<00:17,  6.48it/s][A
+Loading weights:  55%|█████▍    | 132/242 [00:16<00:12,  9.01it/s][A
+Loading weights:  55%|█████▌    | 134/242 [00:16<00:11,  9.23it/s][A
+Loading weights:  57%|█████▋    | 137/242 [00:17<00:12,  8.39it/s][A
+Loading weights:  58%|█████▊    | 141/242 [00:17<00:10,  9.92it/s][A
+Loading weights:  59%|█████▉    | 143/242 [00:17<00:10,  9.47it/s][A
+Loading weights:  60%|█████▉    | 145/242 [00:17<00:09,  9.90it/s][A
+Loading weights:  61%|██████    | 147/242 [00:18<00:10,  9.20it/s][A
+Loading weights:  61%|██████    | 148/242 [00:18<00:15,  6.06it/s][A
+Loading weights:  62%|██████▏   | 149/242 [00:18<00:14,  6.30it/s][A
+Loading weights:  64%|██████▎   | 154/242 [00:19<00:09,  9.57it/s][A
+Loading weights:  64%|██████▍   | 156/242 [00:19<00:08, 10.53it/s][A
+Loading weights:  65%|██████▌   | 158/242 [00:19<00:12,  6.71it/s][A
+Loading weights:  67%|██████▋   | 163/242 [00:20<00:08,  9.77it/s][A
+Loading weights:  69%|██████▉   | 167/242 [00:20<00:10,  7.49it/s][A
+Loading weights:  70%|██████▉   | 169/242 [00:20<00:08,  8.44it/s][A
+Loading weights:  71%|███████   | 172/242 [00:21<00:06, 10.04it/s][A
+Loading weights:  72%|███████▏  | 174/242 [00:21<00:07,  9.65it/s][A
+Loading weights:  73%|███████▎  | 177/242 [00:21<00:06,  9.70it/s][A
+Loading weights:  74%|███████▍  | 179/242 [00:22<00:10,  6.25it/s][A
+Loading weights:  76%|███████▌  | 183/242 [00:22<00:06,  8.99it/s][A
+Loading weights:  76%|███████▋  | 185/242 [00:22<00:06,  8.81it/s][A
+Loading weights:  77%|███████▋  | 187/242 [00:23<00:06,  8.70it/s][A
+Loading weights:  78%|███████▊  | 189/242 [00:23<00:06,  7.99it/s][A
+Loading weights:  79%|███████▉  | 192/242 [00:23<00:06,  8.26it/s][A
+Loading weights:  80%|███████▉  | 193/242 [00:23<00:06,  7.67it/s][A
+Loading weights:  81%|████████▏ | 197/242 [00:24<00:06,  6.91it/s][A
+Loading weights:  84%|████████▍ | 203/242 [00:24<00:03,  9.75it/s][A
+Loading weights:  86%|████████▌ | 207/242 [00:25<00:03,  9.78it/s][A
+Loading weights:  86%|████████▋ | 209/242 [00:25<00:04,  7.32it/s][A
+Loading weights:  88%|████████▊ | 213/242 [00:26<00:03,  7.38it/s][A
+Loading weights:  90%|████████▉ | 217/242 [00:26<00:03,  7.89it/s][A
+Loading weights:  90%|█████████ | 218/242 [00:27<00:04,  5.22it/s][A
+Loading weights:  92%|█████████▏| 223/242 [00:27<00:02,  7.72it/s][A
+Loading weights:  93%|█████████▎| 225/242 [00:27<00:02,  7.96it/s][A
+Loading weights:  94%|█████████▍| 227/242 [00:28<00:01,  7.52it/s][A
+Loading weights:  94%|█████████▍| 228/242 [00:28<00:02,  6.90it/s][A
+Loading weights:  95%|█████████▍| 229/242 [00:28<00:02,  5.73it/s][A
+Loading weights:  96%|█████████▌| 232/242 [00:28<00:01,  8.01it/s][A
+Loading weights:  98%|█████████▊| 237/242 [00:29<00:00,  8.03it/s][A
+Loading weights: 100%|██████████| 242/242 [00:31<00:00,  3.90it/s][ALoading weights: 100%|██████████| 242/242 [00:31<00:00,  7.61it/s]
+Loading pipeline components...: 100%|██████████| 5/5 [02:17<00:00, 36.58s/it]Loading pipeline components...: 100%|██████████| 5/5 [02:17<00:00, 27.52s/it]
+Traceback (most recent call last):
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/serialization.py", line 944, in save
+    _save(
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/serialization.py", line 1216, in _save
+    zip_file.write_record(name, storage, num_bytes)
+RuntimeError: [enforce fail at inline_container.cc:815] . PytorchStreamWriter failed writing file data/16: file write failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 482, in <module>
+    main()
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 97, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/mvp_extract.py", line 9, in run_mvp_extract
+    return run_mvp_feature_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/mvp/features.py", line 535, in run_mvp_feature_extraction
+    _torch_save_atomic(
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/mvp/features.py", line 1764, in _torch_save_atomic
+    torch.save(payload, tmp_path)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/serialization.py", line 943, in save
+    with _open_zipfile_writer(f) as opened_zipfile:
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/serialization.py", line 784, in __exit__
+    self.file_like.write_end_of_file()
+RuntimeError: [enforce fail at inline_container.cc:626] . unexpected pos 1284510080 vs 1284509968

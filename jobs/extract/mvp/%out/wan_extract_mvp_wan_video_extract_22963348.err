@@ -1,0 +1,130 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 19 files:   0%|          | 0/19 [00:00<?, ?it/s]Could not set the permissions on the file '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24.incomplete'. Error: [Errno 2] No such file or directory: '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24.incomplete'.
+Continuing without setting permissions.
+Fetching 19 files:  21%|██        | 4/19 [00:10<00:39,  2.65s/it]Fetching 19 files:  74%|███████▎  | 14/19 [00:10<00:03,  1.32it/s]
+Traceback (most recent call last):
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/shutil.py", line 853, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24.incomplete' -> '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1920, in _copy_no_matter_what
+    shutil.copy2(src, dst)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/shutil.py", line 448, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/shutil.py", line 256, in copyfile
+    with open(src, 'rb') as fsrc:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24.incomplete'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/models/wan_video_adapter.py", line 418, in _load_components
+    pipeline = WanPipeline.from_pretrained(self.hf_model_id, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/pipelines/pipeline_utils.py", line 853, in from_pretrained
+    cached_folder = cls.download(
+                    ^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/pipelines/pipeline_utils.py", line 1778, in download
+    cached_folder = snapshot_download(
+                    ^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/_snapshot_download.py", line 455, in snapshot_download
+    thread_map(
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/tqdm/contrib/concurrent.py", line 69, in thread_map
+    return _executor_map(ThreadPoolExecutor, fn, *iterables, **tqdm_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/tqdm/contrib/concurrent.py", line 51, in _executor_map
+    return list(tqdm_class(ex.map(fn, *iterables, chunksize=chunksize), **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/_snapshot_download.py", line 435, in _inner_hf_hub_download
+    hf_hub_download(  # type: ignore
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 997, in hf_hub_download
+    return _hf_hub_download_to_cache_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1216, in _hf_hub_download_to_cache_dir
+    _download_to_tmp_and_move(
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1868, in _download_to_tmp_and_move
+    _chmod_and_move(incomplete_path, destination_path)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1909, in _chmod_and_move
+    shutil.move(str(src), str(dst), copy_function=_copy_no_matter_what)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/shutil.py", line 873, in move
+    copy_function(src, real_dst)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1923, in _copy_no_matter_what
+    shutil.copyfile(src, dst)
+  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/shutil.py", line 256, in copyfile
+    with open(src, 'rb') as fsrc:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/scratch-shared/scur0511/.cache/huggingface/hub/models--Wan-AI--Wan2.1-T2V-1.3B-Diffusers/blobs/6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24.incomplete'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 482, in <module>
+    main()
+  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 97, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/training/mvp_extract.py", line 9, in run_mvp_extract
+    return run_mvp_feature_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/mvp/features.py", line 354, in run_mvp_feature_extraction
+    adapter = create_adapter(backbone_name, **backbone_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/registry.py", line 40, in create_adapter
+    return _ADAPTER_FACTORIES[key](**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/wan_video_adapter.py", line 809, in create_wan_video_adapter
+    return WanVideoAdapter(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/wan_video_adapter.py", line 393, in __init__
+    ) = self._load_components()
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home3/scur0511/Probe4Physics/models/wan_video_adapter.py", line 420, in _load_components
+    raise RuntimeError(
+RuntimeError: Failed to load Wan pipeline from HuggingFace. model_id='Wan-AI/Wan2.1-T2V-1.3B-Diffusers'. Ensure network access, accepted model license, and valid HF authentication if required.

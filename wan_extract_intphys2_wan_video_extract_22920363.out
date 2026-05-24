@@ -1,0 +1,84 @@
+===== PROVENANCE =====
+Tue May 19 15:52:08 UTC 2026
+gcn132.local.snellius.surf.nl
+ca5f9f034a20104f66fa9512dced366ca5418c27
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=wan_video
+BACKBONE_VARIANT=wan2_1_t2v_14b_diffusers
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home3/scur0511/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home3/scur0511/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home3/scur0511/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=<config default>
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+======================
+JOB_START_UTC=2026-05-19T15:52:08Z
+[extract.intphys2] resume status: resumed=False offset=0 target=1012 signature=9168bb922953de40
+[extract.intphys2] completed: signature=9168bb922953de40 resumed=False reused_samples=0 new_samples=1012 total=1012 elapsed_s=2185.782 sec_per_processed_sample=2.159864 elapsed_agg_s=2185.782
+{
+  "aggregated_elapsed_seconds": 2185.781954897975,
+  "aggregated_processed_samples": 1012,
+  "aggregated_seconds_per_processed_sample": 2.159863591796418,
+  "aggregated_seconds_per_total_sample": 2.159863591796418,
+  "elapsed_seconds": 2185.781954897975,
+  "feature_cache_dir": "/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/intphys2/wan_video_wan2_1_t2v_14b_diffusers/train-val-test/9168bb922953de40",
+  "n_samples": 1012,
+  "resume_events": "/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/intphys2/wan_video_wan2_1_t2v_14b_diffusers/train-val-test/9168bb922953de40/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 2.159863591796418,
+  "seconds_per_total_sample": 2.159863591796418,
+  "selected_layers": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "signature": "9168bb922953de40",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/scur0511/probe4physics/artifacts/features/intphys2/extract_warnings.log"
+}
+JOB_END_UTC=2026-05-19T16:31:38Z
+JOB_ELAPSED_SECONDS=2370
+Completed at:
+Tue May 19 16:31:38 UTC 2026

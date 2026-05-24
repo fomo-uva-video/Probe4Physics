@@ -71,6 +71,8 @@ BACKBONE_TAG="${BACKBONE_NAME}_${EFFECTIVE_BACKBONE_VARIANT}"
 
 if [[ "${BACKBONE_NAME}" == "ltx_video" && "${BASELINE_STAGE}" != "eval" ]]; then
   preflight_ltx_runtime
+elif [[ "${BACKBONE_NAME}" == "wan_video" && "${BASELINE_STAGE}" != "eval" ]]; then
+  preflight_wan_runtime
 fi
 
 if [[ -n "${MAX_SAMPLES}" ]]; then
@@ -273,6 +275,16 @@ resolve_checkpoint() {
     layer_path="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/probe_best.pt" -o -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     if [[ -z "${layer_path}" ]]; then
       layer_path="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/probe_best.pt" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/train/*/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
+    fi
+    if [[ -z "${layer_path}" ]]; then
+      local lr_eval_summary=""
+      lr_eval_summary="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/lr_*/train_eval_summary.json" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/lr_*/train_eval_summary.json" \) -type f 2>/dev/null | sort | tail -n 1)"
+      if [[ -n "${lr_eval_summary}" ]]; then
+        layer_path="$(dirname "${lr_eval_summary}")/train/probe_best.pt"
+      fi
+    fi
+    if [[ -z "${layer_path}" ]]; then
+      layer_path="$(find -L "${PROBE_OUTPUT_DIR}" \( -path "*/${train_prefix}_${PROBE_NAME}_${BACKBONE_TAG}_*/layer_${layer_label}/lr_*/train/probe_best.pt" -o -path "${PROBE_OUTPUT_DIR}/layer_${layer_label}/lr_*/train/probe_best.pt" \) -type f 2>/dev/null | sort | tail -n 1)"
     fi
     if [[ -n "${layer_path}" ]]; then
       printf '%s\n' "${layer_path}"

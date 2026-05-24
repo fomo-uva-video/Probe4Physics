@@ -1,0 +1,22 @@
+===== PROVENANCE =====
+Wed May 20 05:11:47 PM UTC 2026
+gcn139.local.snellius.surf.nl
+ca5f9f034a20104f66fa9512dced366ca5418c27
+Python 3.11.15
+/home/scur0511/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=wan_video
+BACKBONE_VARIANT=wan2_1_t2v_1_3b_diffusers
+BACKBONE_DEVICE=cuda
+ANNOTATION_FILE=/gpfs/home3/scur0511/Probe4Physics/data/annotations/mvp_full.jsonl
+OFFICIAL_REPO_ROOT=/gpfs/home3/scur0511/Probe4Physics/third_party/minimal_video_pairs
+VIDEOS_ROOT=/scratch-shared/scur0511/probe4physics/data/videos/mvp
+CACHE_DIR=/gpfs/home3/scur0511/Probe4Physics/data/cache/videos
+SPLIT_DIR=/gpfs/home3/scur0511/Probe4Physics/data/splits/mvp/full_60_20_20
+FEATURE_DIR=<config default>
+FEATURE_CHUNK_SIZE=16
+HF_HOME=/scratch-shared/scur0511/.cache/huggingface
+======================
+JOB_START_UTC=2026-05-20T17:11:47Z

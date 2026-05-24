@@ -32,6 +32,19 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
+    "mvp.wan_video.probe": ExperimentSpec(
+        name="mvp.wan_video.probe",
+        description="MVP frozen-feature probe recipe with Wan diffusion transformer features.",
+        pipeline=("extract.mvp", "train.probe.mvp", "eval.probe.mvp"),
+        config_overrides={
+            "backbone": {
+                "name": "wan_video",
+                "kwargs": {
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
     "intphys2.jepa_v1.probe": ExperimentSpec(
         name="intphys2.jepa_v1.probe",
         description="IntPhys2 frozen-feature probe recipe with JEPA v1.",
@@ -45,6 +58,19 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
         config_overrides={
             "backbone": {
                 "name": "ltx_video",
+                "kwargs": {
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
+    "intphys2.wan_video.probe": ExperimentSpec(
+        name="intphys2.wan_video.probe",
+        description="IntPhys2 frozen-feature probe recipe with Wan diffusion transformer features.",
+        pipeline=("extract.intphys2", "train.probe.intphys2", "eval.probe.intphys2"),
+        config_overrides={
+            "backbone": {
+                "name": "wan_video",
                 "kwargs": {
                     "device": "cuda",
                 },
@@ -114,6 +140,19 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
         config_overrides={
             "backbone": {
                 "name": "ltx_video",
+                "kwargs": {
+                    "device": "cuda",
+                },
+            }
+        },
+    ),
+    "ssv2.wan_video.probe": ExperimentSpec(
+        name="ssv2.wan_video.probe",
+        description="SSv2 frozen-feature probe recipe with Wan diffusion transformer features.",
+        pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
+        config_overrides={
+            "backbone": {
+                "name": "wan_video",
                 "kwargs": {
                     "device": "cuda",
                 },

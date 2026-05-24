@@ -18,6 +18,7 @@ from models.jepa_v2_adapter import resolve_relative_depth_layers as resolve_jepa
 from models.jepa_v2_1_adapter import resolve_relative_depth_layers as resolve_jepa_v2_1_relative_depth_layers
 from models import get_registered_adapters
 from models.ltx_video_adapter import resolve_probe_layer_ids as resolve_ltx_probe_layer_ids
+from models.wan_video_adapter import resolve_probe_layer_ids as resolve_wan_probe_layer_ids
 from models.videomae_adapter import resolve_relative_depth_layers as resolve_videomae_relative_depth_layers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +31,7 @@ BACKBONE_ORDER = [
     "videomae",
     "videomae_v2",
     "ltx_video",
+    "wan_video",
 ]
 
 # Largest variants requested for health checks.
@@ -40,6 +42,7 @@ LARGEST_VARIANTS = {
     "videomae": "vit_huge_16_224",
     "videomae_v2": "vit_giant_16_224",
     "ltx_video": "ltxv_13b_0_9_8_distilled",
+    "wan_video": "wan2_1_t2v_14b_diffusers",
 }
 
 
@@ -1067,7 +1070,7 @@ def _check_backbone_variant_layer_mapping(
         )
 
     noise_levels: list[float] = []
-    if backbone_name == "ltx_video":
+    if backbone_name in {"ltx_video", "wan_video"}:
         raw_noise_levels = section.get("default_noise_levels")
         if isinstance(raw_noise_levels, list) and raw_noise_levels:
             try:
@@ -1115,7 +1118,7 @@ def _check_backbone_variant_layer_mapping(
         except Exception as exc:
             checks.append(_check_result("selected_layers_resolved", False, str(exc)))
 
-    selected_layer_upper_bound = len(selected_layers) if backbone_name == "ltx_video" else depth
+    selected_layer_upper_bound = len(selected_layers) if backbone_name in {"ltx_video", "wan_video"} else depth
     in_bounds = bool(
         selected_layer_upper_bound > 0 and all(1 <= layer <= selected_layer_upper_bound for layer in selected_layers)
     )
@@ -1208,6 +1211,15 @@ def _resolve_selected_layers_for_variant(
     if backbone_name == "ltx_video":
         return list(
             resolve_ltx_probe_layer_ids(
+                model_name,
+                relative_depths=relative_depths,
+                noise_levels=noise_levels,
+                model_block_depths=model_block_depths,
+            )
+        )
+    if backbone_name == "wan_video":
+        return list(
+            resolve_wan_probe_layer_ids(
                 model_name,
                 relative_depths=relative_depths,
                 noise_levels=noise_levels,

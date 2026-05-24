@@ -6,10 +6,15 @@
 #   sbatch jobs/train/mvp/temporal_attn/ltx_video_lr_matrix.sh
 #
 # Default matrix:
-#   layers = 1, 2, ..., 40
-#   lrs    = 5e-4, 1e-4, 5e-5, 1e-5
+#   slots = 18, 22, 34, 38
+#   lrs   = 5e-4, 1e-4, 5e-5, 1e-5
 #
 # LTX uses slot ids 1..40 here, following docs/ltx_video_slot_map.md (noise-major, depth-minor).
+# Selected slots:
+#   18 -> noise_0.6_block_24
+#   22 -> noise_0.5_block_24
+#   34 -> noise_0.2_block_24
+#   38 -> noise_0.1_block_24
 # Layout:
 #   artifacts/probes/mvp/${GROUP_SUBDIR}/layer_<layer>/lr_<tag>/
 #
@@ -21,9 +26,9 @@
 # Quick check after completion:
 #   column -s, -t < artifacts/probes/mvp/mvp_probe_temporal_attn_ltx_video_ltxv_13b_0_9_8_distilled_lr_matrix/train_eval_summary.csv
 
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --job-name=mvp_ltx_video_attn_lr_matrix
-#SBATCH --array=0-159
+#SBATCH --array=0-15
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
@@ -77,7 +82,7 @@ PROBE_OUTPUT_DIR="artifacts/probes/mvp"
 PROBE_EVAL_OUTPUT_DIR="artifacts/results"
 GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_ltx_video_ltxv_13b_0_9_8_distilled_lr_matrix}"
 
-LAYER_VALUES=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36" "37" "38" "39" "40")
+LAYER_VALUES=("18" "22" "34" "38")
 LR_VALUES=("5e-4" "1e-4" "5e-5" "1e-5")
 LR_TAGS=("5e-4" "1e-4" "5e-5" "1e-5")
 TASK_INDEX="${SLURM_ARRAY_TASK_ID:-0}"

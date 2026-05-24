@@ -25,6 +25,7 @@ features:
     - videomae
     - videomae_v2
     - ltx_video
+    - wan_video
   require_all_backbones: true
   check_tensors: true
   check_video_paths: false

@@ -12,6 +12,10 @@ from .ltx_video_adapter import (
     LTXVideoAdapter,
     create_ltx_video_adapter,
 )
+from .wan_video_adapter import (
+    WanVideoAdapter,
+    create_wan_video_adapter,
+)
 from .registry import (
     create_adapter,
     enforce_single_jepa_namespace,
@@ -41,4 +45,6 @@ __all__ = [
     "create_videomae_v2_adapter",
     "LTXVideoAdapter",
     "create_ltx_video_adapter",
+    "WanVideoAdapter",
+    "create_wan_video_adapter",
 ]

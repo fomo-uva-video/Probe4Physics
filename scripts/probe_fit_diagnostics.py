@@ -23,7 +23,18 @@ RESULT_ROOTS = (
 DEFAULT_PROBE_ROOTS = (
     Path("/scratch-shared/scur0511/probe4physics/artifacts/probes"),
     Path("artifacts/probes"),
+    Path("artifacts/derived_probe_roots"),
 )
+LTX_NOISE_LEVELS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1)
+LTX_DEPTH_LAYERS = (12, 24, 36, 48)
+LAST_LAYER_BY_MODEL = {
+    "jepa_v1_vith16_384": "32",
+    "jepa_v2_vitg_384": "40",
+    "jepa_v2_1_vitG_384": "48",
+    "videomae_vit_huge_16_224": "32",
+    "videomae_v2_vit_giant_16_224": "40",
+    "ltx_video": "40",
+}
 
 
 @dataclass(frozen=True)
@@ -95,10 +106,7 @@ def main() -> None:
 
 
 def next_default_roots() -> list[Path]:
-    for root in DEFAULT_PROBE_ROOTS:
-        if root.exists():
-            return [root]
-    return []
+    return [root for root in DEFAULT_PROBE_ROOTS if root.exists()]
 
 
 def collect_records(
@@ -112,23 +120,41 @@ def collect_records(
     records: list[SummaryRecord] = []
     for root in roots:
         for dataset in DATASETS:
-            dataset_root = root / dataset
-            if not dataset_root.exists():
-                continue
-            for path in iter_candidate_train_summaries(dataset_root, dataset):
-                resolved = path.resolve()
-                if resolved in seen:
-                    continue
-                seen.add(resolved)
-                record = parse_train_summary(
-                    path,
-                    tail_window=tail_window,
-                    eval_index=eval_index,
-                    best_checkpoint_index=best_checkpoint_index,
-                )
-                if record is not None:
-                    records.append(record)
+            for dataset_root in iter_dataset_search_roots(root, dataset):
+                for path in iter_candidate_train_summaries(dataset_root, dataset):
+                    resolved = path.resolve()
+                    if resolved in seen:
+                        continue
+                    seen.add(resolved)
+                    record = parse_train_summary(
+                        path,
+                        tail_window=tail_window,
+                        eval_index=eval_index,
+                        best_checkpoint_index=best_checkpoint_index,
+                    )
+                    if record is not None:
+                        records.append(record)
     return records
+
+
+def iter_dataset_search_roots(root: Path, dataset: str) -> list[Path]:
+    candidates: list[Path] = []
+    if root.name == dataset and root.exists():
+        candidates.append(root)
+    dataset_root = root / dataset
+    if dataset_root.exists():
+        candidates.append(dataset_root)
+    if root.exists() and any(root.glob(f"{dataset}_probe_*")):
+        candidates.append(root)
+
+    unique: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            unique.append(candidate)
+    return unique
 
 
 def iter_candidate_train_summaries(dataset_root: Path, dataset: str) -> list[Path]:
@@ -162,18 +188,26 @@ def build_indexes(roots: list[Path]) -> tuple[EvalIndex, BestCheckpointIndex]:
     best_checkpoints: BestCheckpointIndex = set()
     for root in roots:
         for dataset in DATASETS:
-            dataset_root = root / dataset
-            if not dataset_root.exists():
-                continue
-            for run_dir in iter_candidate_run_dirs(dataset_root, dataset):
-                for summary_path in run_dir.rglob("train_eval_summary.json"):
-                    add_train_eval_summary_to_indexes(
-                        summary_path,
-                        index,
-                        best_checkpoints,
-                    )
+            for dataset_root in iter_dataset_search_roots(root, dataset):
+                for run_dir in iter_candidate_run_dirs(dataset_root, dataset):
+                    for summary_path in iter_train_eval_summaries(run_dir):
+                        add_train_eval_summary_to_indexes(
+                            summary_path,
+                            index,
+                            best_checkpoints,
+                        )
     return index, best_checkpoints
 
+
+
+def iter_train_eval_summaries(run_dir: Path) -> list[Path]:
+    summaries = list(run_dir.rglob("train_eval_summary.json"))
+    final_paths = {path.resolve() for path in summaries}
+    for partial in run_dir.rglob("train_eval_summary.partial.json"):
+        final = partial.with_name("train_eval_summary.json")
+        if final.resolve() not in final_paths and not final.exists():
+            summaries.append(partial)
+    return sorted(summaries)
 
 def add_train_eval_summary_to_indexes(
     summary_path: Path,
@@ -190,18 +224,62 @@ def add_train_eval_summary_to_indexes(
     for layer_summary in layers:
         if not isinstance(layer_summary, dict):
             continue
-        checkpoint = str(layer_summary.get("checkpoint", "")).strip()
+        checkpoints = selected_checkpoint_candidates(layer_summary)
         eval_summary = layer_summary.get("eval")
-        if not checkpoint or not isinstance(eval_summary, dict):
+        if not checkpoints or not isinstance(eval_summary, dict):
             continue
-        best_checkpoints.update(checkpoint_keys(checkpoint))
+        for checkpoint in checkpoints:
+            best_checkpoints.update(checkpoint_keys(checkpoint))
         metrics_by_split = eval_summary.get("metrics_by_split")
         if not isinstance(metrics_by_split, dict):
             continue
         for split, metrics in metrics_by_split.items():
             if split in {"train", "val", "test"} and isinstance(metrics, dict):
-                for key in checkpoint_keys(checkpoint):
-                    index[("__checkpoint__", key, str(split))] = metrics
+                for checkpoint in checkpoints:
+                    for key in checkpoint_keys(checkpoint):
+                        index[("__checkpoint__", key, str(split))] = metrics
+
+
+def selected_checkpoint_candidates(layer_summary: dict[str, Any]) -> set[str]:
+    checkpoints: set[str] = set()
+    for key in ("checkpoint", "best_checkpoint"):
+        value = str(layer_summary.get(key, "")).strip()
+        if value:
+            checkpoints.add(value)
+
+    train_summary = layer_summary.get("train")
+    if isinstance(train_summary, dict):
+        for key in ("checkpoint", "best_checkpoint"):
+            value = str(train_summary.get(key, "")).strip()
+            if value:
+                checkpoints.add(value)
+        best_trial_number = _to_int(train_summary.get("best_trial_number"))
+        trials = train_summary.get("trials")
+        if best_trial_number is not None and isinstance(trials, list):
+            for trial in trials:
+                if not isinstance(trial, dict):
+                    continue
+                if _to_int(trial.get("trial_number")) != best_trial_number:
+                    continue
+                checkpoint = str(trial.get("checkpoint", "")).strip()
+                if checkpoint:
+                    checkpoints.add(checkpoint)
+
+    eval_summary = layer_summary.get("eval")
+    if isinstance(eval_summary, dict):
+        checkpoint = str(eval_summary.get("checkpoint", "")).strip()
+        if checkpoint:
+            checkpoints.add(checkpoint)
+        split_evals = eval_summary.get("split_evals")
+        if isinstance(split_evals, dict):
+            for split_summary in split_evals.values():
+                if not isinstance(split_summary, dict):
+                    continue
+                checkpoint = str(split_summary.get("checkpoint", "")).strip()
+                if checkpoint:
+                    checkpoints.add(checkpoint)
+
+    return checkpoints
 
 
 def parse_train_summary(
@@ -619,7 +697,7 @@ def write_selected_rows_compact_csv(path: Path, rows: list[dict[str, Any]]) -> N
             writer.writerow(
                 {
                     "model": infer_model_name(row),
-                    "layer": row.get("layer", ""),
+                    "layer": compact_layer_label(row),
                     "hyperpars": row.get("hyperpars", ""),
                     "overfit_gap": row.get("overfit_gap", ""),
                     "underfit_like": row.get("underfit_like", ""),
@@ -635,11 +713,11 @@ def write_best_config_compact_csv(path: Path, rows: list[dict[str, Any]]) -> Non
     if selected_rows:
         rows = selected_rows
     for row in rows:
-        key = (infer_model_name(row), str(row.get("layer", "")))
+        key = (infer_model_name(row), compact_layer_label(row))
         grouped.setdefault(key, []).append(row)
 
     selected: list[dict[str, Any]] = []
-    for key in sorted(grouped, key=lambda item: (_sort_layer(item[1]), item[0])):
+    for key in sorted(grouped, key=lambda item: (item[0], _sort_compact_layer(item[0], item[1]))):
         candidates = grouped[key]
         selected.append(
             max(
@@ -654,6 +732,42 @@ def write_best_config_compact_csv(path: Path, rows: list[dict[str, Any]]) -> Non
         )
     write_selected_rows_compact_csv(path, selected)
 
+
+
+def compact_layer_label(row: dict[str, Any]) -> str:
+    model = infer_model_name(row)
+    raw_layer = str(row.get("layer", "")).strip()
+    if raw_layer.lower() == "last":
+        raw_layer = LAST_LAYER_BY_MODEL.get(model, raw_layer)
+
+    if model == "ltx_video":
+        slot = _to_int(raw_layer)
+        if slot is not None and 1 <= slot <= len(LTX_NOISE_LEVELS) * len(LTX_DEPTH_LAYERS):
+            index = slot - 1
+            noise = LTX_NOISE_LEVELS[index // len(LTX_DEPTH_LAYERS)]
+            depth = LTX_DEPTH_LAYERS[index % len(LTX_DEPTH_LAYERS)]
+            return f"noise_{noise:.1f}_block_{depth}"
+
+    return raw_layer
+
+
+def _sort_compact_layer(model: str, layer: str) -> tuple[int, int, str]:
+    if model == "ltx_video":
+        match = re.fullmatch(r"noise_([0-9.]+)_block_([0-9]+)", str(layer))
+        if match:
+            noise = float(match.group(1))
+            depth = int(match.group(2))
+            try:
+                noise_index = LTX_NOISE_LEVELS.index(noise)
+            except ValueError:
+                noise_index = 10**6
+            try:
+                depth_index = LTX_DEPTH_LAYERS.index(depth)
+            except ValueError:
+                depth_index = 10**6
+            return (noise_index, depth_index, str(layer))
+    numeric, label = _sort_layer(layer)
+    return (numeric, 0, label)
 
 def _history_row_for_epoch(history: list[Any], epoch: int | None) -> dict[str, Any] | None:
     if epoch is None:

@@ -1,0 +1,7 @@
+model,best_layer,best_probe,accuracy,voe_accuracy
+V-JEPA,24,attentive,74.02,56.86
+V-JEPA 2,40,attentive,77.45,58.82
+V-JEPA 2.1,48,attentive,76.47,66.67
+VideoMAE,24,attentive,74.51,58.82
+VideoMAE-v2,20,linear,59.31,37.25
+LTX-Video,noise_0.2_block_24,linear,62.25,47.06

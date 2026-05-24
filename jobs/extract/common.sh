@@ -80,6 +80,32 @@ PY
 }
 
 
+preflight_wan_runtime() {
+  python - <<'PY'
+import importlib.util
+import sys
+
+if importlib.util.find_spec("sentencepiece") is None:
+    print(
+        "ERROR: Wan extraction requires 'sentencepiece' in the active environment.",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+try:
+    from diffusers import AutoencoderKLWan, WanPipeline, WanTransformer3DModel  # noqa: F401
+except Exception as exc:
+    print(
+        "ERROR: Wan extraction requires diffusers with WanPipeline, "
+        "WanTransformer3DModel, and AutoencoderKLWan support.",
+        file=sys.stderr,
+    )
+    print(str(exc), file=sys.stderr)
+    raise SystemExit(2)
+PY
+}
+
+
 resolve_backbone_variant() {
   local repo_root="${1}"
   local backbone_name="${2}"

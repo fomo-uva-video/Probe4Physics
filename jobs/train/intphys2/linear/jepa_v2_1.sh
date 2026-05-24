@@ -1,4 +1,4 @@
-#!/bin/bash
+ssh#!/bin/bash
 # Train a IntPhys2 linear probe with jepa_v2_1 features.
 #
 # Usage:

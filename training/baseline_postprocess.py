@@ -29,6 +29,7 @@ _KNOWN_BACKBONES = (
     "jepa_v2_1",
     "videomae_v2",
     "ltx_video",
+    "wan_video",
     "jepa_v1",
     "jepa_v2",
     "videomae",
@@ -527,7 +528,7 @@ def _layer_label_for_summary(summary_path: Path, summary: dict[str, Any]) -> str
 def _layer_slot_for_label(backbone: str, variant: str, layer_label: str) -> str:
     if layer_label.isdigit():
         return layer_label
-    if backbone != "ltx_video" or not layer_label:
+    if backbone not in {"ltx_video", "wan_video"} or not layer_label:
         return ""
 
     kwargs = {"variant": variant} if variant else {}

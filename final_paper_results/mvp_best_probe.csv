@@ -1,0 +1,7 @@
+model,best_layer,best_probe,accuracy,pair_consistency
+V-JEPA,24,attentive,96.61,94.03
+V-JEPA 2,30,attentive,95.90,92.82
+V-JEPA 2.1,48,attentive,96.51,93.73
+VideoMAE,24,attentive,95.10,92.01
+VideoMAE-v2,30,attentive,94.89,91.10
+LTX-Video,noise_0.5_block_24,MLP,81.60,66.84

@@ -10,12 +10,26 @@ from typing import Any
 
 
 BASE = Path("artifacts/analysis/probe_fit_diagnostics")
-PROBE_ROOT = Path("/scratch-shared/scur0511/probe4physics/artifacts/probes")
+PROBE_ROOTS = (
+    Path("/scratch-shared/scur0511/probe4physics/artifacts/probes"),
+    Path("artifacts/probes"),
+    Path("artifacts/derived_probe_roots"),
+)
 DATASETS = ("mvp", "intphys2")
 PROBES = ("linear", "mlp", "temporal_attn")
 OBJECTIVE_METRICS = {
     "mvp": "pair_consistency",
     "intphys2": "voe_accuracy",
+}
+LTX_NOISE_LEVELS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1)
+LTX_DEPTH_LAYERS = (12, 24, 36, 48)
+LAST_LAYER_BY_MODEL = {
+    "jepa_v1_vith16_384": "32",
+    "jepa_v2_vitg_384": "40",
+    "jepa_v2_1_vitG_384": "48",
+    "videomae_vit_huge_16_224": "32",
+    "videomae_v2_vit_giant_16_224": "40",
+    "ltx_video": "40",
 }
 
 
@@ -112,7 +126,7 @@ def main() -> None:
                         full_errors.append(f"{full_path}:{line_no} mismatch {name}")
 
                 if selected:
-                    group_key = (infer_model(row), str(row["layer"]))
+                    group_key = (infer_model(row), compact_layer_label(row))
                     previous = selected_by_group.get(group_key)
                     if previous is None or rank_row(row) > rank_row(previous):
                         selected_by_group[group_key] = row
@@ -124,7 +138,7 @@ def main() -> None:
                 expected_compact.append(
                     {
                         "model": infer_model(selected_row),
-                        "layer": str(selected_row["layer"]),
+                        "layer": compact_layer_label(selected_row),
                         "hyperpars": selected_row["hyperpars"],
                         "overfit_gap": selected_row["overfit_gap"],
                         "underfit_like": selected_row["underfit_like"],
@@ -175,25 +189,99 @@ def run_dirs(dataset_root: Path, dataset: str) -> list[Path]:
     return sorted(out)
 
 
+
+def iter_train_eval_summaries(run_dir: Path) -> list[Path]:
+    summaries = list(run_dir.rglob("train_eval_summary.json"))
+    final_paths = {path.resolve() for path in summaries}
+    for partial in run_dir.rglob("train_eval_summary.partial.json"):
+        final = partial.with_name("train_eval_summary.json")
+        if final.resolve() not in final_paths and not final.exists():
+            summaries.append(partial)
+    return sorted(summaries)
+
 def build_best_checkpoint_set() -> set[str]:
     best: set[str] = set()
-    for dataset in DATASETS:
-        dataset_root = PROBE_ROOT / dataset
-        if not dataset_root.exists():
+    for root in PROBE_ROOTS:
+        if not root.exists():
             continue
-        for run_dir in run_dirs(dataset_root, dataset):
-            for summary_path in run_dir.rglob("train_eval_summary.json"):
-                try:
-                    summary = json.loads(summary_path.read_text())
-                except (OSError, json.JSONDecodeError):
-                    continue
-                layers = summary.get("layers")
-                if not isinstance(layers, list):
-                    continue
-                for layer in layers:
-                    if isinstance(layer, dict):
-                        best.update(checkpoint_keys(layer.get("checkpoint", "")))
+        for dataset in DATASETS:
+            for dataset_root in iter_dataset_search_roots(root, dataset):
+                for run_dir in run_dirs(dataset_root, dataset):
+                    for summary_path in iter_train_eval_summaries(run_dir):
+                        try:
+                            summary = json.loads(summary_path.read_text())
+                        except (OSError, json.JSONDecodeError):
+                            continue
+                        layers = summary.get("layers")
+                        if not isinstance(layers, list):
+                            continue
+                        for layer in layers:
+                            if isinstance(layer, dict):
+                                for checkpoint in selected_checkpoint_candidates(layer):
+                                    best.update(checkpoint_keys(checkpoint))
     return best
+
+
+def iter_dataset_search_roots(root: Path, dataset: str) -> list[Path]:
+    candidates: list[Path] = []
+    if root.name == dataset and root.exists():
+        candidates.append(root)
+    dataset_root = root / dataset
+    if dataset_root.exists():
+        candidates.append(dataset_root)
+    if root.exists() and any(root.glob(f"{dataset}_probe_*")):
+        candidates.append(root)
+
+    unique: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            unique.append(candidate)
+    return unique
+
+
+def selected_checkpoint_candidates(layer_summary: dict[str, Any]) -> set[str]:
+    checkpoints: set[str] = set()
+    for key in ("checkpoint", "best_checkpoint"):
+        value = str(layer_summary.get(key, "")).strip()
+        if value:
+            checkpoints.add(value)
+
+    train_summary = layer_summary.get("train")
+    if isinstance(train_summary, dict):
+        for key in ("checkpoint", "best_checkpoint"):
+            value = str(train_summary.get(key, "")).strip()
+            if value:
+                checkpoints.add(value)
+        best_trial_number = to_int(train_summary.get("best_trial_number"))
+        trials = train_summary.get("trials")
+        if best_trial_number is not None and isinstance(trials, list):
+            for trial in trials:
+                if not isinstance(trial, dict):
+                    continue
+                if to_int(trial.get("trial_number")) != best_trial_number:
+                    continue
+                checkpoint = str(trial.get("checkpoint", "")).strip()
+                if checkpoint:
+                    checkpoints.add(checkpoint)
+
+    eval_summary = layer_summary.get("eval")
+    if isinstance(eval_summary, dict):
+        checkpoint = str(eval_summary.get("checkpoint", "")).strip()
+        if checkpoint:
+            checkpoints.add(checkpoint)
+        split_evals = eval_summary.get("split_evals")
+        if isinstance(split_evals, dict):
+            for split_summary in split_evals.values():
+                if not isinstance(split_summary, dict):
+                    continue
+                checkpoint = str(split_summary.get("checkpoint", "")).strip()
+                if checkpoint:
+                    checkpoints.add(checkpoint)
+
+    return checkpoints
 
 
 def checkpoint_keys(checkpoint: Any) -> set[str]:
@@ -257,6 +345,23 @@ def infer_run_name_from_path(path: Path, dataset: str, probe: str) -> str:
         return candidate
     return path.parent.name
 
+
+
+def compact_layer_label(row: dict[str, Any]) -> str:
+    model = infer_model(row)
+    raw_layer = str(row.get("layer", "")).strip()
+    if raw_layer.lower() == "last":
+        raw_layer = LAST_LAYER_BY_MODEL.get(model, raw_layer)
+
+    if model == "ltx_video":
+        slot = to_int(raw_layer)
+        if slot is not None and 1 <= slot <= len(LTX_NOISE_LEVELS) * len(LTX_DEPTH_LAYERS):
+            index = slot - 1
+            noise = LTX_NOISE_LEVELS[index // len(LTX_DEPTH_LAYERS)]
+            depth = LTX_DEPTH_LAYERS[index % len(LTX_DEPTH_LAYERS)]
+            return f"noise_{noise:.1f}_block_{depth}"
+
+    return raw_layer
 
 def rank_row(row: dict[str, Any]) -> tuple[bool, float, float, str]:
     val = to_float(row.get("diagnostic_val_metric"))

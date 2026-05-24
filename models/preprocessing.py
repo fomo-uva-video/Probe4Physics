@@ -67,3 +67,26 @@ def ltx_diffusion_preprocessing_metadata(
         "noise_policy": str(noise_policy),
         "frame_rate": float(frame_rate),
     }
+
+
+def wan_diffusion_preprocessing_metadata(
+    *,
+    normalize_input: bool,
+    noise_levels: Sequence[float],
+    prompt_mode: str,
+    noise_policy: str,
+    frame_policy: str,
+) -> dict[str, Any]:
+    return {
+        "version": PREPROCESSING_VERSION,
+        "family": "wan_video_diffusion",
+        "input_color": "rgb",
+        "input_range": [0.0, 1.0],
+        "layout": "BCTHW",
+        "pixel_normalization": "scale_to_minus_one_one" if normalize_input else "identity",
+        "vae_encode_input_range": [-1.0, 1.0] if normalize_input else [0.0, 1.0],
+        "noise_levels": [float(v) for v in noise_levels],
+        "prompt_mode": str(prompt_mode),
+        "noise_policy": str(noise_policy),
+        "frame_policy": str(frame_policy),
+    }

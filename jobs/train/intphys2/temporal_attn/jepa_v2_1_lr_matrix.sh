@@ -20,13 +20,13 @@
 # Quick check after completion:
 #   column -s, -t < artifacts/probes/intphys2/intphys2_probe_temporal_attn_jepa_v2_1_vitG_384_lr_matrix/train_eval_summary.csv
 
-#SBATCH --partition=gpu_a100
+#SBATCH --partition=gpu_h100
 #SBATCH --job-name=intphys2_jepa_v2_1_attn_lr_matrix
 #SBATCH --array=0-15
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=120G
+#SBATCH --mem=180G
 #SBATCH --time=24:00:00
 #SBATCH --output=output/training/intphys2/attention/intphys2_jepa_v2_1_attn_lr_matrix_%A_%a.out
 #SBATCH --error=output/training/intphys2/attention/intphys2_jepa_v2_1_attn_lr_matrix_%A_%a.err

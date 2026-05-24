@@ -45,6 +45,16 @@ def _backbone_cfg_fixture() -> dict[str, object]:
             "model_block_depths": {"ltx_transformer_48": 48},
             "variants": {"ltxv_13b_0_9_8_distilled": {"model_name": "ltx_transformer_48"}},
         },
+        "wan_video": {
+            "default_variant": "wan2_1_t2v_14b_diffusers",
+            "default_relative_depths": [0.25, 0.5, 0.75, 1.0],
+            "default_noise_levels": [1.0, 0.5, 0.1],
+            "model_block_depths": {"wan2_1_t2v_1_3b": 30, "wan2_1_t2v_14b": 40},
+            "variants": {
+                "wan2_1_t2v_1_3b_diffusers": {"model_name": "wan2_1_t2v_1_3b"},
+                "wan2_1_t2v_14b_diffusers": {"model_name": "wan2_1_t2v_14b"},
+            },
+        },
     }
 
 
@@ -82,8 +92,20 @@ class HealthLayersRunTests(unittest.TestCase):
             for item in report["variants"]
             if item.get("name") == "ltx_video" and item.get("variant") == "ltxv_13b_0_9_8_distilled"
         )
+        wan = next(
+            item
+            for item in report["variants"]
+            if item.get("name") == "wan_video" and item.get("variant") == "wan2_1_t2v_14b_diffusers"
+        )
+        wan_13 = next(
+            item
+            for item in report["variants"]
+            if item.get("name") == "wan_video" and item.get("variant") == "wan2_1_t2v_1_3b_diffusers"
+        )
         self.assertEqual(jepa21["selected_layers_1_based"], [12, 24, 38, 48])
         self.assertEqual(ltx["selected_layers_1_based"], list(range(1, 13)))
+        self.assertEqual(wan["selected_layers_1_based"], list(range(1, 13)))
+        self.assertEqual(wan_13["selected_layers_1_based"], list(range(1, 13)))
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][0], 1)
         self.assertEqual(jepa21["backbone_layer_ids_1_based"][-1], 48)
 

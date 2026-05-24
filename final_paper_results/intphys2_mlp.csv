@@ -1,0 +1,7 @@
+model,best_layer,accuracy,voe_accuracy
+V-JEPA,24,63.73,45.10
+V-JEPA 2,40,59.31,47.06
+V-JEPA 2.1,38,57.35,39.22
+VideoMAE,24,59.80,35.29
+VideoMAE-v2,20,56.37,47.06
+LTX-Video,noise_0.2_block_24,61.76,47.06

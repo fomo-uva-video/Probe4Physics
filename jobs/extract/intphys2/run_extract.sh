@@ -35,10 +35,13 @@ BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
 FORCE_REEXTRACT="${FORCE_REEXTRACT:-}"
 INCLUDE_POOLED="${INCLUDE_POOLED:-}"
 INCLUDE_TOKENS="${INCLUDE_TOKENS:-}"
+FEATURE_CHUNK_SIZE="${FEATURE_CHUNK_SIZE:-}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 
 if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
   preflight_ltx_runtime
+elif [[ "${BACKBONE_NAME}" == "wan_video" ]]; then
+  preflight_wan_runtime
 fi
 
 METADATA_FILE="${METADATA_FILE:-${REPO_ROOT}/data/annotations/intphys2_metadata.csv}"
@@ -93,6 +96,7 @@ echo "METADATA_FILE=${METADATA_FILE}"
 echo "VIDEOS_ROOT=${VIDEOS_ROOT}"
 echo "SPLIT_DIR=${SPLIT_DIR}"
 echo "FEATURE_DIR=${FEATURE_DIR:-<config default>}"
+echo "FEATURE_CHUNK_SIZE=${FEATURE_CHUNK_SIZE:-<config default>}"
 echo "HF_HOME=${HF_HOME}"
 echo "======================"
 
@@ -123,6 +127,10 @@ fi
 
 if [[ -n "${FORCE_REEXTRACT}" ]]; then
   cmd+=("feature_cache.force_reextract=${FORCE_REEXTRACT}")
+fi
+
+if [[ -n "${FEATURE_CHUNK_SIZE}" ]]; then
+  cmd+=("feature_cache.chunk_size=${FEATURE_CHUNK_SIZE}")
 fi
 
 if [[ -n "${MAX_SAMPLES_OVERRIDE}" ]]; then

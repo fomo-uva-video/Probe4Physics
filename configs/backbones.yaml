@@ -212,3 +212,33 @@ ltx_video:
       patch_size: 1
       patch_size_t: 1
       torch_dtype: float32
+
+wan_video:
+  default_variant: wan2_1_t2v_14b_diffusers
+  # Wan is probed as a diffusion transformer across fixed noise regimes.
+  default_relative_depths: [0.25, 0.5, 0.75, 1.0]
+  default_noise_levels: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+  model_block_depths:
+    wan2_1_t2v_1_3b: 30
+    wan2_1_t2v_14b: 40
+  variants:
+    wan2_1_t2v_1_3b_diffusers:
+      hf_model_id: Wan-AI/Wan2.1-T2V-1.3B-Diffusers
+      model_name: wan2_1_t2v_1_3b
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 2
+      patch_size_t: 1
+      torch_dtype: bfloat16
+      num_inference_steps: 50
+      max_sequence_length: 226
+    wan2_1_t2v_14b_diffusers:
+      hf_model_id: Wan-AI/Wan2.1-T2V-14B-Diffusers
+      model_name: wan2_1_t2v_14b
+      frames_per_clip: 16
+      crop_size: 224
+      patch_size: 2
+      patch_size_t: 1
+      torch_dtype: bfloat16
+      num_inference_steps: 50
+      max_sequence_length: 226

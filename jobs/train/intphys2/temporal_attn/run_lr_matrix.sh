@@ -29,6 +29,7 @@ DATASET_NAME="${DATASET_NAME:-intphys2}"
 PROBE_NAME="${PROBE_NAME:-temporal_attn}"
 BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
+EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
 PROBE_FEATURE_VIEW="${PROBE_FEATURE_VIEW:-tokens}"
 PROBE_DEVICE="${PROBE_DEVICE:-cuda}"
 PROBE_EPOCHS="${PROBE_EPOCHS:-30}"
@@ -58,8 +59,8 @@ if [[ "${PROBE_NAME}" != "temporal_attn" ]]; then
 fi
 
 BACKBONE_TAG="${BACKBONE_NAME}"
-if [[ -n "${BACKBONE_VARIANT}" ]]; then
-  BACKBONE_TAG="${BACKBONE_TAG}_${BACKBONE_VARIANT}"
+if [[ -n "${EFFECTIVE_BACKBONE_VARIANT}" && "${EFFECTIVE_BACKBONE_VARIANT}" != "<unknown>" ]]; then
+  BACKBONE_TAG="${BACKBONE_TAG}_${EFFECTIVE_BACKBONE_VARIANT}"
 fi
 GROUP_SUBDIR="${GROUP_SUBDIR:-intphys2_probe_temporal_attn_${BACKBONE_TAG}_lr_matrix}"
 
@@ -118,6 +119,7 @@ echo "GROUP_SUBDIR=${GROUP_SUBDIR}"
 echo "RUN_SUBDIR=${RUN_SUBDIR}"
 echo "BACKBONE_NAME=${BACKBONE_NAME}"
 echo "BACKBONE_VARIANT=${BACKBONE_VARIANT:-<config default>}"
+echo "EFFECTIVE_BACKBONE_VARIANT=${EFFECTIVE_BACKBONE_VARIANT}"
 echo "PROBE_LAYER=${PROBE_LAYER}"
 echo "LR_VALUE=${LR_VALUE}"
 echo "PROBE_EPOCHS=${PROBE_EPOCHS}"
@@ -152,7 +154,7 @@ train_cmd=(
   "probe.batch_size=${PROBE_BATCH_SIZE}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
   "probe.early_stopping.enabled=true"
-  "probe.early_stopping.patience=5"
+  "probe.early_stopping.patience=30"
   "probe.temporal_attn.num_heads=${TEMPORAL_NUM_HEADS}"
   "probe.temporal_attn.num_self_attn_blocks=${TEMPORAL_NUM_SELF_ATTN_BLOCKS}"
   "probe.temporal_attn.mlp_ratio=${TEMPORAL_MLP_RATIO}"

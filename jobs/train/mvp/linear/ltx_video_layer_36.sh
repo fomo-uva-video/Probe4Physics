@@ -3,11 +3,12 @@
 #
 # Usage:
 #   sbatch ltx_video.sh
-#   sbatch ltx_video.sh probe.device=cpu
+#   sbatch ltx_video.sh probe.device=cuda
 
-#SBATCH --partition=rome
+#SBATCH --partition=gpu_a100
 #SBATCH --job-name=mvp_ltx_video_linear
 #SBATCH --ntasks=1
+#SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=24:00:00
 #SBATCH --output=output/training/mvp/linear/mvp_ltx_linear_layer_36_%j.out
@@ -23,7 +24,7 @@ BACKBONE_VARIANT=""  # empty uses configs/backbones.yaml default (currently dist
 PROBE_LAYER="last"  # possible values: last | 1..40 for the default LTX slot grid
 PROBE_LAYERS="3, 7, 11, 15, 19, 23, 27, 31, 35, 39"  # subset of layers to train probes on
 PROBE_FEATURE_VIEW="pooled"
-PROBE_DEVICE="cpu"
+PROBE_DEVICE="cuda"
 ENABLE_WANDB="false"
 WANDB_PROJECT="probe4physics"
 WANDB_MODE="online"
@@ -35,7 +36,7 @@ ENABLE_OPTUNA_PRUNER="true"
 OPTUNA_PRUNER_STARTUP_TRIALS="3"
 OPTUNA_PRUNER_WARMUP_STEPS="100"
 OPTUNA_PRUNER_INTERVAL_STEPS="1"
-OPTUNA_SEARCH_OVERRIDES=""
+OPTUNA_SEARCH_OVERRIDES="probe.optuna.search_space.epochs.enabled=true probe.optuna.search_space.epochs.choices=[20,50,100,500,1000,2000]"
 export DATASET_NAME PROBE_NAME BACKBONE_NAME BACKBONE_VARIANT PROBE_EPOCHS PROBE_DEVICE PROBE_LAYER PROBE_LAYERS PROBE_FEATURE_VIEW ENABLE_WANDB WANDB_PROJECT WANDB_MODE ENABLE_OPTUNA OPTUNA_N_TRIALS OPTUNA_N_JOBS OPTUNA_TIMEOUT_SECONDS ENABLE_OPTUNA_PRUNER OPTUNA_PRUNER_STARTUP_TRIALS OPTUNA_PRUNER_WARMUP_STEPS OPTUNA_PRUNER_INTERVAL_STEPS OPTUNA_SEARCH_OVERRIDES
 
 JOB_COMMAND=""

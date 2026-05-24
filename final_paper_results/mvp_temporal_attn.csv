@@ -1,0 +1,6 @@
+model,best_layer,accuracy,pair_consistency
+V-JEPA,24,96.61,94.03
+V-JEPA 2,30,95.90,92.82
+V-JEPA 2.1,48,96.51,93.73
+VideoMAE,24,95.10,92.01
+VideoMAE-v2,30,94.89,91.10
