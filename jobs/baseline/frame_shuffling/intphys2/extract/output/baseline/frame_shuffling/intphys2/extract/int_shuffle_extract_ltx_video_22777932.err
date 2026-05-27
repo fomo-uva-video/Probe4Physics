@@ -1,95 +1,0 @@
-============================================================================================== 
-Warning! Mixing Conda and module environments may lead to corruption of the
-user environment. 
-We do not recommend users mixing those two environments unless absolutely
-necessary. Note that 
-SURF does not provide any support for Conda environment.
-For more information, please refer to our software policy page:
-https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
-
-Remember that many packages have already been installed on the system and can
-be loaded using 
-the 'module load <package__name>' command. If you are uncertain if a package is
-already available 
-on the system, please use 'module avail' or 'module spider' to search for it.
-============================================================================================== 
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 34 files:   0%|          | 0/34 [00:00<?, ?it/s]Fetching 34 files:  12%|█▏        | 4/34 [00:00<00:01, 29.32it/s]Fetching 34 files: 100%|██████████| 34/34 [00:00<00:00, 194.78it/s]
-Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]
-Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s][A
-Loading checkpoint shards:  17%|█▋        | 1/6 [00:17<01:25, 17.12s/it][A
-Loading checkpoint shards:  33%|███▎      | 2/6 [00:33<01:05, 16.50s/it][A
-Loading checkpoint shards:  50%|█████     | 3/6 [00:50<00:50, 16.81s/it][A
-Loading checkpoint shards:  67%|██████▋   | 4/6 [01:05<00:32, 16.02s/it][A
-Loading checkpoint shards:  83%|████████▎ | 5/6 [01:21<00:16, 16.12s/it][A
-Loading checkpoint shards: 100%|██████████| 6/6 [01:26<00:00, 12.34s/it][ALoading checkpoint shards: 100%|██████████| 6/6 [01:26<00:00, 14.41s/it]
-Loading pipeline components...:  20%|██        | 1/5 [01:26<05:47, 86.81s/it]Loading pipeline components...:  40%|████      | 2/5 [01:26<01:47, 35.83s/it]
-Loading weights:   0%|          | 0/219 [00:00<?, ?it/s][A
-Loading weights:  10%|█         | 22/219 [00:00<00:00, 205.70it/s][A
-Loading weights:  20%|█▉        | 43/219 [00:00<00:03, 50.89it/s] [A
-Loading weights:  25%|██▍       | 54/219 [00:01<00:03, 43.56it/s][A
-Loading weights:  28%|██▊       | 62/219 [00:01<00:04, 38.82it/s][A
-Loading weights:  31%|███       | 68/219 [00:01<00:04, 34.99it/s][A
-Loading weights:  33%|███▎      | 73/219 [00:01<00:04, 35.05it/s][A
-Loading weights:  37%|███▋      | 81/219 [00:02<00:03, 35.16it/s][A
-Loading weights:  39%|███▉      | 85/219 [00:02<00:03, 35.43it/s][A
-Loading weights:  48%|████▊     | 105/219 [00:02<00:02, 56.71it/s][A
-Loading weights:  51%|█████     | 111/219 [00:02<00:02, 45.00it/s][A
-Loading weights:  53%|█████▎    | 116/219 [00:02<00:02, 42.85it/s][A
-Loading weights:  60%|█████▉    | 131/219 [00:02<00:01, 61.58it/s][A
-Loading weights:  64%|██████▍   | 141/219 [00:02<00:01, 65.57it/s][A
-Loading weights:  68%|██████▊   | 150/219 [00:03<00:01, 66.95it/s][A
-Loading weights:  74%|███████▍  | 162/219 [00:03<00:00, 60.68it/s][A
-Loading weights:  77%|███████▋  | 169/219 [00:03<00:00, 61.20it/s][A
-Loading weights:  84%|████████▎ | 183/219 [00:03<00:00, 61.94it/s][A
-Loading weights:  92%|█████████▏| 201/219 [00:03<00:00, 78.65it/s][A
-Loading weights:  96%|█████████▌| 210/219 [00:03<00:00, 63.04it/s][ALoading weights: 100%|██████████| 219/219 [00:04<00:00, 54.70it/s]
-Loading pipeline components...:  80%|████████  | 4/5 [01:32<00:15, 15.00s/it]Loading pipeline components...: 100%|██████████| 5/5 [01:39<00:00, 12.61s/it]Loading pipeline components...: 100%|██████████| 5/5 [01:39<00:00, 19.89s/it]
-Traceback (most recent call last):
-  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 479, in <module>
-    main()
-  File "/gpfs/home3/scur0511/Probe4Physics/run.py", line 97, in main
-    result = command.handler(config)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/training/intphys2_displacement_extract.py", line 9, in run_intphys2_displacement_extract
-    return run_intphys2_displacement_extraction(config)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/intphys2/features_displacement.py", line 42, in run_intphys2_displacement_extraction
-    result = run_intphys2_feature_extraction(config, clip_fn=clip_fn)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/benchmarks/intphys2/features.py", line 292, in run_intphys2_feature_extraction
-    adapter = create_adapter(backbone_name, **backbone_kwargs)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/models/registry.py", line 40, in create_adapter
-    return _ADAPTER_FACTORIES[key](**kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 978, in create_ltx_video_adapter
-    return LTXVideoAdapter(**kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 430, in __init__
-    ) = self._load_components()
-        ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/gpfs/home3/scur0511/Probe4Physics/models/ltx_video_adapter.py", line 469, in _load_components
-    pipeline.to(self.device)
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/pipelines/pipeline_utils.py", line 565, in to
-    module.to(device, dtype)
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/diffusers/models/modeling_utils.py", line 1451, in to
-    return super().to(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1343, in to
-    return self._apply(convert)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 903, in _apply
-    module._apply(fn)
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 903, in _apply
-    module._apply(fn)
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 903, in _apply
-    module._apply(fn)
-  [Previous line repeated 3 more times]
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 930, in _apply
-    param_applied = fn(param)
-                    ^^^^^^^^^
-  File "/home/scur0511/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1329, in convert
-    return t.to(
-           ^^^^^
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 256.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 251.25 MiB is free. Including non-PyTorch memory, this process has 39.24 GiB memory in use. Of the allocated memory 38.82 GiB is allocated by PyTorch, and 15.68 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

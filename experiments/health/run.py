@@ -268,12 +268,12 @@ def _feature_dataset_specs(feature_cfg: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(raw_datasets, dict) or not raw_datasets:
         raw_datasets = {
             "mvp": {
-                "dir": "/scratch-shared/scur0511/probe4physics/artifacts/features/mvp",
+                "dir": "artifacts/features/mvp",
                 "config": "mvp",
                 "required": True,
             },
             "intphys2": {
-                "dir": "/scratch-shared/scur0511/probe4physics/artifacts/features/intphys2",
+                "dir": "artifacts/features/intphys2",
                 "config": "intphys2",
                 "required": True,
             },

@@ -19,3 +19,7 @@ CLAUDE.md
 
 
 /wandb
+/ops/hpc/**/*.out
+/ops/hpc/**/*.err
+/ops/hpc/**/output/
+/ops/hpc/out/

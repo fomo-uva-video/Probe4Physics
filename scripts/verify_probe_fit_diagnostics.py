@@ -10,7 +10,7 @@ from typing import Any
 
 
 BASE = Path("artifacts/analysis/probe_fit_diagnostics")
-PROBE_ROOT = Path("/scratch-shared/scur0511/probe4physics/artifacts/probes")
+PROBE_ROOT = Path("artifacts/probes")
 DATASETS = ("mvp", "intphys2")
 PROBES = ("linear", "mlp", "temporal_attn")
 OBJECTIVE_METRICS = {

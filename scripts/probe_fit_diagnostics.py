@@ -21,7 +21,6 @@ RESULT_ROOTS = (
     Path("artifacts/results/intphys2"),
 )
 DEFAULT_PROBE_ROOTS = (
-    Path("/scratch-shared/scur0511/probe4physics/artifacts/probes"),
     Path("artifacts/probes"),
 )
 
