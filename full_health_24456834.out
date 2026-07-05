@@ -1,0 +1,49 @@
+===== PROVENANCE =====
+Sun Jul  5 14:54:26 UTC 2026
+gcn28.local.snellius.surf.nl
+ca5f9f034a20104f66fa9512dced366ca5418c27
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+HF_HOME=/scratch-shared/spunzo1/probe4physics/hf_cache
+TRANSFORMERS_CACHE=/scratch-shared/spunzo1/probe4physics/hf_cache/transformers
+HUGGINGFACE_HUB_CACHE=/scratch-shared/spunzo1/probe4physics/hf_cache/hub
+HEALTH_DEVICE=cuda
+======================
+===== TORCH RUNTIME =====
+torch_version=2.6.0+cu124
+torch_cuda_version=12.4
+cuda_available=True
+cuda_device_count=1
+CUDA_VISIBLE_DEVICES=0
+GPU 0: NVIDIA A100-SXM4-40GB (UUID: GPU-657bd8e6-c1a5-95d9-c6a0-b0d85c4b6423)
+=========================
+Probe4Physics Health Check
+
+Overall: FAIL
+Mode: deep synthetic-forward smoke (device=cuda)
+Checks: total=41 passed=32 failed=9
+
+Backbones
+- jepa_v1 (vith16_384): PASS
+- jepa_v2 (vitg_384): PASS
+- jepa_v2_1 (vitG_384): PASS
+- videomae (vit_huge_16_224): PASS
+- videomae_v2 (vit_giant_16_224): PASS
+- ltx_video (ltxv_13b_0_9_8_distilled): FAIL
+
+Datasets
+- mvp: FAIL
+- intphys2: PASS
+- ssv2: FAIL
+
+Failing checks
+- ltx_video (ltxv_13b_0_9_8_distilled) [synthetic_forward]: CUDA out of memory. Tried to allocate 256.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 251.25 MiB is free. Including non-PyTorch memory, this process has 39.24 GiB memory in use. Of the allocated memory 38.82 GiB is allocated by PyTorch, and 15.68 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables) [torch=2.6.0+cu124, torch_cuda=12.4, cuda_available=True, device_count=1]
+- mvp [videos_downloaded]: Video check failed: [Errno 13] Permission denied: '/gpfs/scratch1/shared/scur0511/probe4physics/data/videos/mvp/grasp/level2/IP_Collision/001.mp4'
+- ssv2 [train_annotation_exists]: /gpfs/scratch1/shared/spunzo1/probe4physics/data/annotations/ssv2/train.json
+- ssv2 [val_annotation_exists]: /gpfs/scratch1/shared/spunzo1/probe4physics/data/annotations/ssv2/validation.json
+- ssv2 [labels_exists]: /gpfs/scratch1/shared/spunzo1/probe4physics/data/annotations/ssv2/labels.json
+- ssv2 [split_clips_exists]: /gpfs/scratch1/shared/spunzo1/probe4physics/data/splits/ssv2/split_clips.parquet
+- ssv2 [split_manifest_exists]: /gpfs/scratch1/shared/spunzo1/probe4physics/data/splits/ssv2/manifest.json
+- ssv2 [manifest_readable]: Manifest file not found.
+- ssv2 [videos_downloaded]: Missing split_clips and annotations.

@@ -66,7 +66,7 @@ backbone:
     device: cpu
 
 feature_cache:
-  dir: /scratch-shared/scur0511/probe4physics/artifacts/features/intphys2
+  dir: /scratch-shared/spunzo1/probe4physics/artifacts/features/intphys2
   # Feature tensors contain all requested splits together; index.parquet stores
   # the split for each row, and training/eval filter by that column.
   split_names:
