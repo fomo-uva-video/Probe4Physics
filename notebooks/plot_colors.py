@@ -14,12 +14,14 @@ MODEL_COLORS = {
     "videomae": "#D95F02",
     "videomae_v2": "#A63603",
     "ltx_video": FAMILY_COLORS["LTX-Video"],
+    "ltx_video_2b": "#74C476",
+    "ltx_video_13b": "#006D2C",
 }
 
 PROBE_COLORS = {
     "linear": "#009E73",
     "mlp": "#E69F00",
-    "temporal_attn": "#CC79A7",
+    "temporal_attn": "#601880",
 }
 
 PROBE_LABEL_COLORS = {
@@ -43,4 +45,8 @@ BACKBONE_COLORS = {
 DATASET_COLORS = {
     "mvp": "#4C78A8",
     "intphys2": "#F58518",
+}
+
+REFERENCE_COLORS = {
+    "random_baseline": "#7F3C1D",
 }
