@@ -22,5 +22,19 @@ BACKBONE_NAME="jepa_v1"
 export BACKBONE_NAME
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JOB_DIR="${SLURM_SUBMIT_DIR:-${SCRIPT_DIR}}"
-exec "${JOB_DIR}/run_extract.sh"
+RUN_EXTRACT=""
+for candidate in \
+  "${SCRIPT_DIR}/run_extract.sh" \
+  "${SLURM_SUBMIT_DIR:-}/run_extract.sh" \
+  "${SLURM_SUBMIT_DIR:-}/jobs/extract/mvp/run_extract.sh"
+do
+  if [[ -n "${candidate}" && -x "${candidate}" ]]; then
+    RUN_EXTRACT="${candidate}"
+    break
+  fi
+done
+if [[ -z "${RUN_EXTRACT}" ]]; then
+  echo "ERROR: could not locate jobs/extract/mvp/run_extract.sh" >&2
+  exit 2
+fi
+exec "${RUN_EXTRACT}"

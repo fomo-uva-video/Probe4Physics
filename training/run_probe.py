@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import copy
 import csv
+import hashlib
 import json
 import os
 import random
@@ -20,6 +21,7 @@ from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset, Sampler
 
 from benchmarks.intphys2.baseline_config import with_intphys2_baseline_test_config
+from benchmarks.intphys2.core import compute_binary_roc_auc
 from benchmarks.intphys2.eval import run_intphys2_eval
 from benchmarks.intphys2.features import (
     load_feature_cache_for_config as load_intphys2_feature_cache,
@@ -66,6 +68,12 @@ _BASELINE_LABEL_MODES: tuple[tuple[str, int | None], ...] = (
     ("all_true", 1),
     ("all_false", 0),
 )
+_LABEL_CONTROL_ORIGINAL = "original"
+_LABEL_CONTROL_STRUCTURED_RANDOM = "structured_random"
+_LABEL_CONTROL_MODES = {
+    _LABEL_CONTROL_ORIGINAL,
+    _LABEL_CONTROL_STRUCTURED_RANDOM,
+}
 
 
 class ProbeConfigError(ValueError):
@@ -122,6 +130,12 @@ class ChunkedTokenSelection:
     store: MVPChunkedTokenStore
     layer: int
     reduction: str
+
+
+@dataclass(frozen=True)
+class LabelResolution:
+    labels: torch.Tensor
+    metadata: dict[str, Any]
 
 
 class _ChunkedTokenDataset(Dataset):
@@ -621,6 +635,12 @@ def _run_train_workflow(
     *,
     output_dir: Path | None = None,
 ) -> dict[str, Any]:
+    if _label_control_enabled(probe_cfg) and bool(probe_cfg["optuna"]["enabled"]):
+        raise ProbeConfigError(
+            "probe.optuna.enabled=true is disabled for probe.label_control.mode="
+            f"{probe_cfg['label_control']['mode']!r}. Run the structured random-label "
+            "control with fixed hyperparameters/layers."
+        )
     if probe_cfg["optuna"]["enabled"]:
         return _run_optuna_study(dataset, config, probe_cfg, study_root=output_dir)
 
@@ -652,7 +672,8 @@ def _run_single_train(
     _require_report_splits_present(dataset, index)
 
     features = _select_feature_tensor(bundle, probe_cfg)
-    labels = _resolve_labels(dataset, index)
+    label_resolution = _resolve_labels(dataset, index, probe_cfg)
+    labels = label_resolution.labels
     train_mask, val_mask = _resolve_split_masks(dataset, index, probe_cfg)
 
     if not train_mask.any():
@@ -679,7 +700,15 @@ def _run_single_train(
         config,
         benchmark=dataset,
         output_dir=train_output_dir,
-        metadata=_training_metadata(dataset, config, probe_cfg, manifest, bundle, num_classes),
+        metadata=_training_metadata(
+            dataset,
+            config,
+            probe_cfg,
+            manifest,
+            bundle,
+            num_classes,
+            label_control=label_resolution.metadata,
+        ),
     )
 
     train_summary: dict[str, Any] | None = None
@@ -772,7 +801,15 @@ def _run_single_train(
 
         checkpoint_last_path = train_output_dir / "probe_last.pt"
         checkpoint_best_path = train_output_dir / "probe_best.pt"
-        metadata = _training_metadata(dataset, config, probe_cfg, manifest, bundle, num_classes)
+        metadata = _training_metadata(
+            dataset,
+            config,
+            probe_cfg,
+            manifest,
+            bundle,
+            num_classes,
+            label_control=label_resolution.metadata,
+        )
         metadata["checkpoint_kind"] = "last"
         probe.save(checkpoint_last_path, metadata=metadata)
 
@@ -822,6 +859,7 @@ def _run_single_train(
             "n_val": int(val_mask.sum()),
             "input_dim": input_dim,
             "num_classes": num_classes,
+            "label_control": label_resolution.metadata,
             "elapsed_seconds": max(0.0, time.perf_counter() - wall_start),
             "probe_hparams": _probe_hparam_summary(probe_cfg, num_classes),
         }
@@ -862,6 +900,16 @@ def _run_report_eval(
     report_splits = _resolve_report_splits(dataset, config)
     primary_split = _resolve_primary_eval_split(dataset, config)
     context = _load_eval_context(dataset, config, probe_cfg)
+    if _label_control_enabled(probe_cfg):
+        return _run_label_control_report_eval(
+            dataset,
+            config,
+            probe_cfg,
+            context,
+            output_dir=output_dir,
+            primary_split=primary_split,
+            report_splits=report_splits,
+        )
     if len(report_splits) == 1:
         return _run_single_eval_from_context(
             dataset,
@@ -901,6 +949,7 @@ def _load_eval_context(
     )
 
     ckpt_meta = ckpt_payload.get("metadata", {}) if isinstance(ckpt_payload, dict) else {}
+    _validate_checkpoint_label_control(ckpt_meta, probe_cfg)
     checkpoint_signature = str(ckpt_meta.get("feature_signature", ""))
     current_signature = str(manifest.get("signature", ""))
     allow_signature_mismatch = dataset in {
@@ -1120,6 +1169,364 @@ def _write_prediction_payload_from_context(
         encoding="utf-8",
     )
     return pred_file
+
+
+def _run_label_control_report_eval(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    output_dir: Path | None,
+    primary_split: str,
+    report_splits: tuple[str, ...],
+) -> dict[str, Any]:
+    if len(report_splits) == 1:
+        return _run_single_label_control_eval_from_context(
+            dataset,
+            config,
+            probe_cfg,
+            context,
+            output_dir=output_dir,
+            split_name=report_splits[0],
+        )
+    return _run_multi_split_label_control_eval(
+        dataset,
+        config,
+        probe_cfg,
+        context,
+        output_dir=output_dir,
+        primary_split=primary_split,
+        report_splits=report_splits,
+    )
+
+
+def _run_single_label_control_eval_from_context(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    output_dir: Path | None = None,
+    split_name: str,
+) -> dict[str, Any]:
+    eval_split = str(split_name)
+    index = context.index
+    split_mask = index["split"].astype(str) == eval_split
+    if not split_mask.any():
+        raise ProbeConfigError(
+            f"No samples found for split_name='{eval_split}' in cache index."
+        )
+
+    eval_output_dir = output_dir or _resolve_eval_output_dir(dataset, config, probe_cfg)
+    eval_output_dir.mkdir(parents=True, exist_ok=True)
+
+    label_resolution = _resolve_labels(dataset, index, probe_cfg)
+    split_idx = torch.tensor(split_mask.to_numpy())
+    split_frame = index.loc[split_mask].copy()
+    target_labels = label_resolution.labels[split_idx]
+    logits = _predict_logits_for_split(probe_cfg, context, split_frame, split_mask)
+    pred_labels = logits.argmax(dim=1).to(dtype=torch.long)
+    probs = torch.softmax(logits, dim=1)
+    if probs.ndim != 2 or int(probs.shape[1]) < 2:
+        raise ProbeConfigError(
+            "Structured random-label controls require binary classifier logits."
+        )
+    positive_scores = probs[:, 1].to(dtype=torch.float32)
+
+    metrics = _compute_label_control_metrics(
+        dataset,
+        split_frame,
+        target_labels,
+        pred_labels,
+        positive_scores,
+    )
+    pred_file = _write_label_control_predictions(
+        dataset,
+        split_frame,
+        target_labels,
+        pred_labels,
+        positive_scores,
+        output_dir=eval_output_dir,
+    )
+    metric_value = _extract_objective_metric(dataset, metrics, probe_cfg)
+    summary = {
+        "probe_eval_dir": str(eval_output_dir),
+        "checkpoint": str(context.checkpoint_path),
+        "prediction_file": str(pred_file),
+        "feature_signature": context.current_signature,
+        "dataset": dataset,
+        "probe_name": probe_cfg["name"],
+        "split_name": eval_split,
+        "objective_metric": metric_value,
+        "objective_metric_name": _resolve_objective_metric_name(dataset, probe_cfg),
+        "metrics": metrics,
+        "label_control": label_resolution.metadata,
+        "base_eval": {
+            "kind": "structured_random_label_control",
+            "metrics": metrics,
+        },
+    }
+    (eval_output_dir / "metrics.json").write_text(
+        json.dumps(metrics, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (eval_output_dir / "probe_eval_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return summary
+
+
+def _run_multi_split_label_control_eval(
+    dataset: str,
+    config: dict[str, Any],
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    *,
+    output_dir: Path | None,
+    primary_split: str,
+    report_splits: tuple[str, ...],
+) -> dict[str, Any]:
+    if primary_split not in report_splits:
+        raise ProbeConfigError(
+            f"Primary eval split '{primary_split}' must be one of the reported splits {list(report_splits)}."
+        )
+
+    eval_root = output_dir or _resolve_eval_output_dir(dataset, config, probe_cfg)
+    eval_root.mkdir(parents=True, exist_ok=True)
+
+    split_summaries: dict[str, dict[str, Any]] = {}
+    metrics_by_split: dict[str, dict[str, Any]] = {}
+    prediction_files: dict[str, str] = {}
+    split_eval_dirs: dict[str, str] = {}
+
+    for split_name in report_splits:
+        split_summary = _run_single_label_control_eval_from_context(
+            dataset,
+            config,
+            probe_cfg,
+            context,
+            output_dir=eval_root / split_name,
+            split_name=split_name,
+        )
+        split_summaries[split_name] = split_summary
+        metrics = split_summary.get("metrics", {})
+        if not isinstance(metrics, dict):
+            raise ProbeConfigError(f"Control eval metrics for split '{split_name}' must be a dictionary.")
+        metrics_by_split[split_name] = metrics
+        prediction_files[split_name] = str(split_summary["prediction_file"])
+        split_eval_dirs[split_name] = str(split_summary["probe_eval_dir"])
+
+    primary_summary = split_summaries[primary_split]
+    summary = {
+        "probe_eval_dir": str(eval_root),
+        "checkpoint": str(context.checkpoint_path),
+        "prediction_file": str(primary_summary["prediction_file"]),
+        "prediction_files": prediction_files,
+        "feature_signature": context.current_signature,
+        "dataset": dataset,
+        "probe_name": probe_cfg["name"],
+        "split_name": primary_split,
+        "reported_splits": list(report_splits),
+        "objective_metric": float(primary_summary["objective_metric"]),
+        "objective_metric_name": _resolve_objective_metric_name(dataset, probe_cfg),
+        "metrics": primary_summary["metrics"],
+        "metrics_by_split": metrics_by_split,
+        "label_control": primary_summary["label_control"],
+        "base_eval": {
+            "kind": "structured_random_label_control",
+            "metrics": primary_summary["metrics"],
+        },
+        "split_eval_dirs": split_eval_dirs,
+        "split_evals": split_summaries,
+    }
+    (eval_root / "metrics.json").write_text(
+        json.dumps(metrics_by_split, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (eval_root / "probe_eval_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    _write_aggregate_eval_summary(eval_root / "summary.md", summary)
+    _write_aggregate_eval_config_snapshot(eval_root / "run_config.snapshot.yaml", config)
+    return summary
+
+
+def _predict_logits_for_split(
+    probe_cfg: dict[str, Any],
+    context: EvalContext,
+    split_frame: Any,
+    split_mask: Any,
+) -> torch.Tensor:
+    features = context.features
+    probe = context.probe
+    if isinstance(features, ChunkedTokenSelection):
+        if not hasattr(probe, "predict_logits_loader"):
+            raise ProbeConfigError(
+                "Chunked token control evaluation requires loader-based probe inference support."
+            )
+        eval_dataset = _ChunkedTokenDataset(
+            features.store,
+            split_frame["feature_index"].astype(int).tolist(),
+            layer=features.layer,
+            reduction=features.reduction,
+            labels=None,
+        )
+        eval_loader = DataLoader(
+            eval_dataset,
+            batch_size=int(probe_cfg["eval_batch_size"]),
+            shuffle=False,
+        )
+        return probe.predict_logits_loader(eval_loader)
+
+    split_idx = torch.tensor(split_mask.to_numpy())
+    x_eval = features[split_idx]
+    if not hasattr(probe, "predict_logits"):
+        raise ProbeConfigError("Structured random-label controls require probe logits.")
+    return probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
+
+
+def _write_label_control_predictions(
+    dataset: str,
+    split_frame: Any,
+    target_labels: torch.Tensor,
+    pred_labels: torch.Tensor,
+    positive_scores: torch.Tensor,
+    *,
+    output_dir: Path,
+) -> Path:
+    group_key = _label_control_group_key(dataset)
+    pred_file = output_dir / "control_predictions.json"
+    payload: dict[str, dict[str, Any]] = {}
+    for row_idx, (_, row) in enumerate(split_frame.iterrows()):
+        target = int(target_labels[row_idx].item())
+        pred = int(pred_labels[row_idx].item())
+        payload[str(row["sample_id"])] = {
+            "group_id": str(row[group_key]),
+            "pseudo_label": target,
+            "pred_idx": pred,
+            "is_correct": int(pred == target),
+            "score": float(positive_scores[row_idx].item()),
+        }
+    pred_file.write_text(
+        json.dumps(payload, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return pred_file
+
+
+def _compute_label_control_metrics(
+    dataset: str,
+    split_frame: Any,
+    target_labels: torch.Tensor,
+    pred_labels: torch.Tensor,
+    positive_scores: torch.Tensor,
+) -> dict[str, Any]:
+    family = _dataset_family(dataset)
+    if int(target_labels.shape[0]) != len(split_frame):
+        raise ProbeConfigError("Control target labels do not match split frame length.")
+    correct = (pred_labels.to(dtype=torch.long) == target_labels.to(dtype=torch.long))
+    n_samples = int(target_labels.shape[0])
+    accuracy = (int(correct.sum().item()) / max(n_samples, 1)) * 100.0
+    if family == "mvp":
+        return _compute_mvp_label_control_metrics(split_frame, correct, accuracy)
+    if family == "intphys2":
+        return _compute_intphys2_label_control_metrics(
+            split_frame,
+            target_labels,
+            correct,
+            positive_scores,
+            accuracy,
+        )
+    raise ProbeConfigError(
+        f"Structured random-label controls are only supported for MVP and IntPhys2, got '{dataset}'."
+    )
+
+
+def _compute_mvp_label_control_metrics(
+    split_frame: Any,
+    correct: torch.Tensor,
+    accuracy: float,
+) -> dict[str, Any]:
+    if "pair_id" not in split_frame.columns:
+        raise ProbeConfigError("MVP structured random-label eval requires a pair_id column.")
+    frame = split_frame.copy()
+    frame["_control_correct"] = [int(item) for item in correct.tolist()]
+    n_pairs = 0
+    pair_correct = 0
+    for _, group in frame.groupby("pair_id", sort=True):
+        n_pairs += 1
+        pair_correct += int(group["_control_correct"].astype(int).all())
+    pair_consistency = (pair_correct / max(n_pairs, 1)) * 100.0
+    return {
+        "accuracy": float(accuracy),
+        "pair_consistency": float(pair_consistency),
+        "n_samples": int(len(split_frame)),
+        "n_pairs": int(n_pairs),
+        "label_control_metric": "structured_random",
+    }
+
+
+def _compute_intphys2_label_control_metrics(
+    split_frame: Any,
+    target_labels: torch.Tensor,
+    correct: torch.Tensor,
+    positive_scores: torch.Tensor,
+    accuracy: float,
+) -> dict[str, Any]:
+    if "scene_id" not in split_frame.columns:
+        raise ProbeConfigError("IntPhys2 structured random-label eval requires a scene_id column.")
+    frame = split_frame.copy()
+    frame["_control_label"] = [int(item) for item in target_labels.tolist()]
+    frame["_control_correct"] = [int(item) for item in correct.tolist()]
+    frame["_control_score"] = [float(item) for item in positive_scores.tolist()]
+
+    voe_correct_total = 0
+    n_scenes_total = 0
+    voe_correct_by_condition: dict[str, int] = {}
+    n_scenes_by_condition: dict[str, int] = {}
+    for _, scene in frame.groupby("scene_id", sort=True):
+        possible = scene[scene["_control_label"].astype(int) == 1]
+        impossible = scene[scene["_control_label"].astype(int) == 0]
+        if possible.empty or impossible.empty:
+            continue
+        cond_values = {str(item) for item in scene.get("condition", [])}
+        cond = next(iter(cond_values)) if len(cond_values) == 1 else "mixed"
+        min_possible = float(possible["_control_score"].min())
+        max_impossible = float(impossible["_control_score"].max())
+        is_correct = int(min_possible > max_impossible)
+        voe_correct_total += is_correct
+        n_scenes_total += 1
+        voe_correct_by_condition[cond] = voe_correct_by_condition.get(cond, 0) + is_correct
+        n_scenes_by_condition[cond] = n_scenes_by_condition.get(cond, 0) + 1
+
+    accuracy_by_condition: dict[str, float] = {}
+    if "condition" in frame.columns:
+        for cond, group in frame.groupby("condition", sort=True):
+            values = group["_control_correct"].astype(int)
+            accuracy_by_condition[str(cond)] = float(values.sum() / max(len(values), 1) * 100.0)
+
+    voe_accuracy = voe_correct_total / max(n_scenes_total, 1) * 100.0
+    voe_by_condition = {
+        cond: float(voe_correct_by_condition.get(cond, 0) / max(total, 1) * 100.0)
+        for cond, total in sorted(n_scenes_by_condition.items())
+    }
+    roc_auc = compute_binary_roc_auc(
+        [int(item) for item in frame["_control_label"].tolist()],
+        [float(item) for item in frame["_control_score"].tolist()],
+    )
+    return {
+        "accuracy": float(accuracy),
+        "roc_auc": None if roc_auc is None else float(roc_auc),
+        "voe_accuracy": float(voe_accuracy),
+        "n_samples": int(len(split_frame)),
+        "n_scenes": int(len(set(str(item) for item in frame["scene_id"].tolist()))),
+        "accuracy_by_condition": accuracy_by_condition,
+        "voe_by_condition": voe_by_condition,
+        "label_control_metric": "structured_random",
+    }
 
 
 def _run_multi_split_eval(
@@ -1380,6 +1787,11 @@ def _run_optuna_study(
     *,
     study_root: Path | None = None,
 ) -> dict[str, Any]:
+    if _label_control_enabled(probe_cfg):
+        raise ProbeConfigError(
+            "Optuna is disabled for structured random-label controls. "
+            "Use fixed probe hyperparameters for this control."
+        )
     optuna = _import_optuna()
     optuna_cfg = probe_cfg["optuna"]
     if study_root is None:
@@ -1554,6 +1966,34 @@ def load_probe_from_checkpoint(
     return probe_class.load(path, device=device), payload
 
 
+def _validate_checkpoint_label_control(
+    checkpoint_metadata: dict[str, Any],
+    probe_cfg: dict[str, Any],
+) -> None:
+    configured = dict(probe_cfg.get("label_control", {"mode": _LABEL_CONTROL_ORIGINAL}))
+    configured_mode = str(configured.get("mode", _LABEL_CONTROL_ORIGINAL))
+    checkpoint_control = checkpoint_metadata.get("label_control", {"mode": _LABEL_CONTROL_ORIGINAL})
+    if checkpoint_control is None:
+        checkpoint_control = {"mode": _LABEL_CONTROL_ORIGINAL}
+    if not isinstance(checkpoint_control, dict):
+        raise ProbeConfigError("Probe checkpoint label_control metadata must be a dictionary.")
+    checkpoint_mode = str(checkpoint_control.get("mode", _LABEL_CONTROL_ORIGINAL))
+
+    if checkpoint_mode != configured_mode:
+        raise ProbeConfigError(
+            "Probe checkpoint label_control mode does not match config. "
+            f"checkpoint={checkpoint_mode}, config={configured_mode}."
+        )
+    if configured_mode == _LABEL_CONTROL_STRUCTURED_RANDOM:
+        checkpoint_seed = int(checkpoint_control.get("seed", -1))
+        configured_seed = int(configured.get("seed", -2))
+        if checkpoint_seed != configured_seed:
+            raise ProbeConfigError(
+                "Probe checkpoint structured random-label seed does not match config. "
+                f"checkpoint={checkpoint_seed}, config={configured_seed}."
+            )
+
+
 def _compose_config(config_name: str, overrides: list[str]) -> Any:
     GlobalHydra.instance().clear()
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
@@ -1587,15 +2027,141 @@ def _validate_dataset_index(dataset: str, index: Any) -> None:
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
 
-def _resolve_labels(dataset: str, index: Any) -> torch.Tensor:
+def _resolve_labels(
+    dataset: str,
+    index: Any,
+    probe_cfg: dict[str, Any] | None = None,
+) -> LabelResolution:
     family = _dataset_family(dataset)
     if family == "mvp":
-        return torch.tensor(index["plausibility_label"].tolist(), dtype=torch.long)
+        real_labels = torch.tensor(index["plausibility_label"].tolist(), dtype=torch.long)
+    elif family == "intphys2":
+        real_labels = torch.tensor(index["plausibility"].tolist(), dtype=torch.long)
+    elif family == "ssv2":
+        real_labels = torch.tensor(index["label_idx"].tolist(), dtype=torch.long)
+    else:
+        raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
+
+    if probe_cfg is None or not _label_control_enabled(probe_cfg):
+        return LabelResolution(
+            labels=real_labels,
+            metadata={"mode": _LABEL_CONTROL_ORIGINAL},
+        )
+
+    _require_structured_label_control_dataset(dataset)
+    return _resolve_structured_random_labels(dataset, index, real_labels, probe_cfg)
+
+
+def _resolve_structured_random_labels(
+    dataset: str,
+    index: Any,
+    real_labels: torch.Tensor,
+    probe_cfg: dict[str, Any],
+) -> LabelResolution:
+    group_key = _label_control_group_key(dataset)
+    label_column = _label_control_label_column(dataset)
+    missing = [column for column in (group_key, label_column, "split") if column not in index.columns]
+    if missing:
+        raise ProbeConfigError(
+            f"Structured random-label controls for {dataset} require columns {missing}."
+        )
+
+    seed = int(probe_cfg["label_control"]["seed"])
+    labels = real_labels.clone()
+    n_groups = 0
+    n_changed_groups = 0
+    n_unchanged_groups = 0
+    n_degenerate_groups = 0
+    n_changed_samples = 0
+
+    for group_id, group in index.groupby(group_key, sort=True):
+        n_groups += 1
+        positions = [int(item) for item in group.index.tolist()]
+        original_values = [int(real_labels[pos].item()) for pos in positions]
+        shuffled_values = list(original_values)
+        if len(shuffled_values) < 2 or len(set(shuffled_values)) < 2:
+            n_degenerate_groups += 1
+        else:
+            rng = random.Random(_stable_group_seed(seed, dataset, group_key, str(group_id)))
+            rng.shuffle(shuffled_values)
+
+        changed_in_group = 0
+        for pos, value, original in zip(positions, shuffled_values, original_values):
+            labels[pos] = int(value)
+            changed_in_group += int(int(value) != int(original))
+        n_changed_samples += changed_in_group
+        if changed_in_group:
+            n_changed_groups += 1
+        else:
+            n_unchanged_groups += 1
+
+    metadata = {
+        "mode": _LABEL_CONTROL_STRUCTURED_RANDOM,
+        "seed": seed,
+        "group_key": group_key,
+        "label_column": label_column,
+        "n_samples": int(labels.shape[0]),
+        "n_groups": int(n_groups),
+        "n_changed_groups": int(n_changed_groups),
+        "n_unchanged_groups": int(n_unchanged_groups),
+        "n_degenerate_groups": int(n_degenerate_groups),
+        "n_changed_samples": int(n_changed_samples),
+        "n_unchanged_samples": int(labels.shape[0]) - int(n_changed_samples),
+        "class_counts_by_split": _class_counts_by_split(index, labels),
+        "original_class_counts_by_split": _class_counts_by_split(index, real_labels),
+    }
+    return LabelResolution(labels=labels, metadata=metadata)
+
+
+def _stable_group_seed(seed: int, dataset: str, group_key: str, group_id: str) -> int:
+    payload = f"{int(seed)}|{dataset}|{group_key}|{group_id}".encode("utf-8")
+    digest = hashlib.sha256(payload).digest()
+    return int.from_bytes(digest[:8], byteorder="big", signed=False)
+
+
+def _class_counts_by_split(index: Any, labels: torch.Tensor) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for split_name in sorted(str(item) for item in index["split"].astype(str).unique().tolist()):
+        split_mask = index["split"].astype(str) == split_name
+        split_idx = torch.tensor(split_mask.to_numpy())
+        split_labels = labels[split_idx].tolist()
+        split_counts: dict[str, int] = {}
+        for label in split_labels:
+            key = str(int(label))
+            split_counts[key] = split_counts.get(key, 0) + 1
+        counts[split_name] = split_counts
+    return counts
+
+
+def _label_control_group_key(dataset: str) -> str:
+    family = _dataset_family(dataset)
+    if family == "mvp":
+        return "pair_id"
     if family == "intphys2":
-        return torch.tensor(index["plausibility"].tolist(), dtype=torch.long)
-    if family == "ssv2":
-        return torch.tensor(index["label_idx"].tolist(), dtype=torch.long)
+        return "scene_id"
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
+
+
+def _label_control_label_column(dataset: str) -> str:
+    family = _dataset_family(dataset)
+    if family == "mvp":
+        return "plausibility_label"
+    if family == "intphys2":
+        return "plausibility"
+    raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
+
+
+def _label_control_enabled(probe_cfg: dict[str, Any]) -> bool:
+    return str(probe_cfg.get("label_control", {}).get("mode", _LABEL_CONTROL_ORIGINAL)) != _LABEL_CONTROL_ORIGINAL
+
+
+def _require_structured_label_control_dataset(dataset: str) -> None:
+    if dataset in {"mvp", "intphys2"}:
+        return
+    raise ProbeConfigError(
+        "probe.label_control.mode=structured_random is currently supported only "
+        f"for mvp and intphys2, got '{dataset}'."
+    )
 
 
 def _resolve_num_classes(
@@ -1834,6 +2400,21 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(early_stopping_raw, dict):
         raise ProbeConfigError("probe.early_stopping must be a dictionary")
 
+    label_control_raw = raw.get("label_control", {})
+    if label_control_raw is None:
+        label_control_raw = {}
+    if not isinstance(label_control_raw, dict):
+        raise ProbeConfigError("probe.label_control must be a dictionary")
+    label_control_mode = str(
+        label_control_raw.get("mode", _LABEL_CONTROL_ORIGINAL)
+    ).strip().lower() or _LABEL_CONTROL_ORIGINAL
+    if label_control_mode not in _LABEL_CONTROL_MODES:
+        known_modes = ", ".join(sorted(_LABEL_CONTROL_MODES))
+        raise ProbeConfigError(
+            f"Unsupported probe.label_control.mode='{label_control_mode}'. "
+            f"Expected one of: {known_modes}."
+        )
+
     return {
         "name": probe_name,
         "feature_view": feature_view,
@@ -1848,6 +2429,10 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "early_stopping": {
             "enabled": bool(early_stopping_raw.get("enabled", False)),
             "patience": int(early_stopping_raw.get("patience", 5)),
+        },
+        "label_control": {
+            "mode": label_control_mode,
+            "seed": int(label_control_raw.get("seed", config.get("seed", 42))),
         },
         "device": str(raw.get("device", "cpu")),
         "deterministic": bool(raw.get("deterministic", False)),
@@ -2254,6 +2839,8 @@ def _training_metadata(
     manifest: dict[str, Any],
     bundle: dict[str, Any],
     num_classes: int,
+    *,
+    label_control: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     metadata = {
         "dataset": dataset,
@@ -2266,6 +2853,7 @@ def _training_metadata(
         "deterministic": bool(probe_cfg["deterministic"]),
         "num_classes": int(num_classes),
         "probe_hparams": _probe_hparam_summary(probe_cfg, num_classes),
+        "label_control": label_control or dict(probe_cfg["label_control"]),
     }
     metadata = {key: value for key, value in metadata.items() if value is not None}
     if dataset == "mvp":
@@ -2286,6 +2874,7 @@ def _probe_hparam_summary(probe_cfg: dict[str, Any], num_classes: int) -> dict[s
         "eval_batch_size": probe_cfg["eval_batch_size"],
         "weight_decay": probe_cfg["weight_decay"],
         "early_stopping": dict(probe_cfg["early_stopping"]),
+        "label_control": dict(probe_cfg["label_control"]),
         "device": probe_cfg["device"],
         "deterministic": bool(probe_cfg["deterministic"]),
         "num_classes": int(num_classes),

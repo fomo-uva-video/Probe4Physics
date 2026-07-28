@@ -12,6 +12,13 @@ from .ltx_video_adapter import (
     LTXVideoAdapter,
     create_ltx_video_adapter,
 )
+from .parameter_count import (
+    build_vit_parameter_table,
+    count_adapter_parameters,
+    count_module_parameters,
+    format_parameter_count,
+    select_vit_size_comparison_rows,
+)
 from .registry import (
     create_adapter,
     enforce_single_jepa_namespace,
@@ -41,4 +48,9 @@ __all__ = [
     "create_videomae_v2_adapter",
     "LTXVideoAdapter",
     "create_ltx_video_adapter",
+    "build_vit_parameter_table",
+    "count_adapter_parameters",
+    "count_module_parameters",
+    "format_parameter_count",
+    "select_vit_size_comparison_rows",
 ]

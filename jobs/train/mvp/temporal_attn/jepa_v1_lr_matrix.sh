@@ -55,25 +55,28 @@ cd "${REPO_ROOT}"
 load_probe4physics_env
 configure_hf_cache
 
-DATASET_NAME="mvp"
-PROBE_NAME="temporal_attn"
-BACKBONE_NAME="jepa_v1"
-BACKBONE_VARIANT="vith16_384"
-PROBE_FEATURE_VIEW="tokens"
-PROBE_DEVICE="cuda"
-PROBE_EPOCHS="30"
-PROBE_BATCH_SIZE="2"
-PROBE_EVAL_BATCH_SIZE="2"
-PROBE_WEIGHT_DECAY="0.01"
-TEMPORAL_NUM_HEADS="16"
-TEMPORAL_NUM_SELF_ATTN_BLOCKS="1"
-TEMPORAL_MLP_RATIO="2.0"
-TEMPORAL_DROPOUT="0.2"
-ENABLE_WANDB="true"
-WANDB_PROJECT="probe4physics"
-WANDB_MODE="online"
-PROBE_OUTPUT_DIR="artifacts/probes/mvp"
-PROBE_EVAL_OUTPUT_DIR="artifacts/results"
+DATASET_NAME="${DATASET_NAME:-mvp}"
+PROBE_NAME="${PROBE_NAME:-temporal_attn}"
+BACKBONE_NAME="${BACKBONE_NAME:-jepa_v1}"
+BACKBONE_VARIANT="${BACKBONE_VARIANT:-vith16_384}"
+PROBE_FEATURE_VIEW="${PROBE_FEATURE_VIEW:-tokens}"
+PROBE_DEVICE="${PROBE_DEVICE:-cuda}"
+PROBE_EPOCHS="${PROBE_EPOCHS:-30}"
+PROBE_BATCH_SIZE="${PROBE_BATCH_SIZE:-2}"
+PROBE_EVAL_BATCH_SIZE="${PROBE_EVAL_BATCH_SIZE:-2}"
+PROBE_WEIGHT_DECAY="${PROBE_WEIGHT_DECAY:-0.01}"
+PROBE_EARLY_STOPPING_PATIENCE="${PROBE_EARLY_STOPPING_PATIENCE:-5}"
+PROBE_LABEL_CONTROL_MODE="${PROBE_LABEL_CONTROL_MODE:-original}"
+PROBE_LABEL_CONTROL_SEED="${PROBE_LABEL_CONTROL_SEED:-42}"
+TEMPORAL_NUM_HEADS="${TEMPORAL_NUM_HEADS:-16}"
+TEMPORAL_NUM_SELF_ATTN_BLOCKS="${TEMPORAL_NUM_SELF_ATTN_BLOCKS:-1}"
+TEMPORAL_MLP_RATIO="${TEMPORAL_MLP_RATIO:-2.0}"
+TEMPORAL_DROPOUT="${TEMPORAL_DROPOUT:-0.2}"
+ENABLE_WANDB="${ENABLE_WANDB:-true}"
+WANDB_PROJECT="${WANDB_PROJECT:-probe4physics}"
+WANDB_MODE="${WANDB_MODE:-online}"
+PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-artifacts/probes/mvp}"
+PROBE_EVAL_OUTPUT_DIR="${PROBE_EVAL_OUTPUT_DIR:-artifacts/results}"
 GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_jepa_v1_vith16_384_lr_matrix}"
 
 LAYER_VALUES=("8" "16" "24" "32")
@@ -123,6 +126,9 @@ echo "PROBE_EPOCHS=${PROBE_EPOCHS}"
 echo "PROBE_BATCH_SIZE=${PROBE_BATCH_SIZE}"
 echo "PROBE_EVAL_BATCH_SIZE=${PROBE_EVAL_BATCH_SIZE}"
 echo "PROBE_WEIGHT_DECAY=${PROBE_WEIGHT_DECAY}"
+echo "PROBE_EARLY_STOPPING_PATIENCE=${PROBE_EARLY_STOPPING_PATIENCE}"
+echo "PROBE_LABEL_CONTROL_MODE=${PROBE_LABEL_CONTROL_MODE}"
+echo "PROBE_LABEL_CONTROL_SEED=${PROBE_LABEL_CONTROL_SEED}"
 echo "TEMPORAL_NUM_HEADS=${TEMPORAL_NUM_HEADS}"
 echo "TEMPORAL_NUM_SELF_ATTN_BLOCKS=${TEMPORAL_NUM_SELF_ATTN_BLOCKS}"
 echo "TEMPORAL_MLP_RATIO=${TEMPORAL_MLP_RATIO}"
@@ -152,7 +158,9 @@ train_cmd=(
   "probe.batch_size=${PROBE_BATCH_SIZE}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
   "probe.early_stopping.enabled=true"
-  "probe.early_stopping.patience=5"
+  "probe.early_stopping.patience=${PROBE_EARLY_STOPPING_PATIENCE}"
+  "probe.label_control.mode=${PROBE_LABEL_CONTROL_MODE}"
+  "probe.label_control.seed=${PROBE_LABEL_CONTROL_SEED}"
   "probe.temporal_attn.num_heads=${TEMPORAL_NUM_HEADS}"
   "probe.temporal_attn.num_self_attn_blocks=${TEMPORAL_NUM_SELF_ATTN_BLOCKS}"
   "probe.temporal_attn.mlp_ratio=${TEMPORAL_MLP_RATIO}"
@@ -165,7 +173,7 @@ train_cmd=(
   "probe.wandb.mode=${WANDB_MODE}"
   "probe.wandb.group=${WANDB_GROUP}"
   "probe.wandb.name=${WANDB_NAME}"
-  "probe.wandb.tags=[mvp,jepa_v1,temporal_attn,lr_matrix,layer_${PROBE_LAYER},lr_${LR_TAG}]"
+  "probe.wandb.tags=[mvp,jepa_v1,temporal_attn,lr_matrix,label_${PROBE_LABEL_CONTROL_MODE},layer_${PROBE_LAYER},lr_${LR_TAG}]"
   "probe.optuna.enabled=false"
   "feature_cache.include_tokens=true"
 )
@@ -187,6 +195,8 @@ eval_cmd=(
   "probe.eval_output_dir=${PROBE_EVAL_OUTPUT_DIR}"
   "probe.eval_output_subdir=${EVAL_SUBDIR}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
+  "probe.label_control.mode=${PROBE_LABEL_CONTROL_MODE}"
+  "probe.label_control.seed=${PROBE_LABEL_CONTROL_SEED}"
   "feature_cache.include_tokens=true"
 )
 
@@ -195,7 +205,7 @@ printf '  %q' "${eval_cmd[@]}"
 printf '\n'
 "${eval_cmd[@]}"
 
-export GROUP_ROOT RUN_ROOT EVAL_ROOT PROBE_LAYER
+export GROUP_ROOT RUN_ROOT EVAL_ROOT PROBE_LAYER LR_VALUE LR_TAG PROBE_LABEL_CONTROL_MODE PROBE_LABEL_CONTROL_SEED
 mkdir -p "${GROUP_ROOT}"
 exec 9>"${GROUP_ROOT}/.summary.lock"
 flock 9
@@ -205,6 +215,13 @@ import os
 from pathlib import Path
 
 from training.run_probe import _write_train_eval_summary_csv
+
+
+def parse_int(value: object) -> object:
+    try:
+        return int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return value
 
 
 def read_json(path: Path) -> dict:
@@ -224,6 +241,12 @@ group_root = Path(os.environ["GROUP_ROOT"])
 run_root = Path(os.environ["RUN_ROOT"])
 eval_root = Path(os.environ["EVAL_ROOT"])
 probe_layer = str(os.environ["PROBE_LAYER"])
+lr_value = str(os.environ["LR_VALUE"])
+lr_tag = str(os.environ["LR_TAG"])
+label_control = {
+    "mode": os.environ.get("PROBE_LABEL_CONTROL_MODE", "original"),
+    "seed": parse_int(os.environ.get("PROBE_LABEL_CONTROL_SEED", "42")),
+}
 
 train_summary = read_json(run_root / "train" / "train_summary.json")
 eval_summary = read_json(eval_root / "probe_eval_summary.json")
@@ -237,12 +260,15 @@ single_layer_summary = {
     "model_selection_split": "val",
     "split_name": eval_summary.get("split_name", "test"),
     "reported_splits": list(eval_summary.get("reported_splits", [])),
+    "label_control": label_control,
     "sweep_dir": str(run_root),
     "requested_layers": [probe_layer],
     "layers": [
         {
             "layer": probe_layer,
             "layer_label": probe_layer,
+            "learning_rate": lr_value,
+            "learning_rate_tag": lr_tag,
             "checkpoint": str(train_summary["checkpoint"]),
             "objective_metric": float(eval_summary["objective_metric"]),
             "train": train_summary,
@@ -289,6 +315,7 @@ group_summary = {
     "model_selection_split": "val",
     "split_name": "test",
     "reported_splits": ["train", "val", "test"],
+    "label_control": label_control,
     "sweep_dir": str(group_root),
     "requested_layers": [layer.get("layer", "") for layer in group_layers],
     "layers": group_layers,

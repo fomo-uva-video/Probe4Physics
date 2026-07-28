@@ -81,6 +81,9 @@ probe:
   early_stopping:
     enabled: false
     patience: 5
+  label_control:
+    mode: original  # structured_random is supported only for MVP/IntPhys2
+    seed: ${seed}
   device: cpu
   output_dir: artifacts/probes/ssv2
   output_subdir: ""

@@ -188,6 +188,101 @@ class RunProbeTests(unittest.TestCase):
 
         self.assertEqual(cfg["early_stopping"], {"enabled": True, "patience": 5})
 
+    def test_probe_cfg_defaults_label_control_to_original(self) -> None:
+        cfg = run_probe._probe_cfg({"probe": {"name": "linear"}})
+
+        self.assertEqual(cfg["label_control"], {"mode": "original", "seed": 42})
+
+    def test_probe_cfg_label_control_seed_defaults_to_config_seed(self) -> None:
+        cfg = run_probe._probe_cfg(
+            {
+                "seed": 123,
+                "probe": {
+                    "name": "linear",
+                    "label_control": {"mode": "structured_random"},
+                },
+            }
+        )
+
+        self.assertEqual(cfg["label_control"], {"mode": "structured_random", "seed": 123})
+
+    def test_structured_random_mvp_labels_preserve_pair_multisets(self) -> None:
+        index = pd.DataFrame(
+            [
+                {"feature_index": 0, "split": "train", "pair_id": "p0", "plausibility_label": 0},
+                {"feature_index": 1, "split": "train", "pair_id": "p0", "plausibility_label": 1},
+                {"feature_index": 2, "split": "val", "pair_id": "p1", "plausibility_label": 0},
+                {"feature_index": 3, "split": "val", "pair_id": "p1", "plausibility_label": 1},
+            ]
+        )
+        probe_cfg = run_probe._probe_cfg(
+            {
+                "probe": {
+                    "name": "linear",
+                    "label_control": {"mode": "structured_random", "seed": 13},
+                }
+            }
+        )
+
+        first = run_probe._resolve_labels("mvp", index, probe_cfg)
+        second = run_probe._resolve_labels("mvp", index, probe_cfg)
+
+        self.assertEqual(first.labels.tolist(), second.labels.tolist())
+        self.assertEqual(first.metadata["mode"], "structured_random")
+        for pair_id, group in index.groupby("pair_id"):
+            positions = group.index.tolist()
+            original = sorted(index.loc[positions, "plausibility_label"].astype(int).tolist())
+            shuffled = sorted(int(first.labels[pos].item()) for pos in positions)
+            self.assertEqual(shuffled, original, pair_id)
+
+    def test_structured_random_intphys2_labels_preserve_scene_multisets(self) -> None:
+        index = pd.DataFrame(
+            [
+                {"feature_index": 0, "split": "train", "scene_id": "s0", "plausibility": 0},
+                {"feature_index": 1, "split": "train", "scene_id": "s0", "plausibility": 0},
+                {"feature_index": 2, "split": "train", "scene_id": "s0", "plausibility": 1},
+                {"feature_index": 3, "split": "train", "scene_id": "s0", "plausibility": 1},
+                {"feature_index": 4, "split": "val", "scene_id": "s1", "plausibility": 0},
+                {"feature_index": 5, "split": "val", "scene_id": "s1", "plausibility": 1},
+            ]
+        )
+        probe_cfg = run_probe._probe_cfg(
+            {
+                "probe": {
+                    "name": "linear",
+                    "label_control": {"mode": "structured_random", "seed": 29},
+                }
+            }
+        )
+
+        resolved = run_probe._resolve_labels("intphys2", index, probe_cfg)
+
+        self.assertEqual(resolved.metadata["group_key"], "scene_id")
+        for scene_id, group in index.groupby("scene_id"):
+            positions = group.index.tolist()
+            original = sorted(index.loc[positions, "plausibility"].astype(int).tolist())
+            shuffled = sorted(int(resolved.labels[pos].item()) for pos in positions)
+            self.assertEqual(shuffled, original, scene_id)
+
+    def test_structured_random_label_control_rejects_ssv2(self) -> None:
+        index = pd.DataFrame(
+            [
+                {"feature_index": 0, "split": "train", "label_idx": 0},
+                {"feature_index": 1, "split": "val", "label_idx": 1},
+            ]
+        )
+        probe_cfg = run_probe._probe_cfg(
+            {
+                "probe": {
+                    "name": "linear",
+                    "label_control": {"mode": "structured_random", "seed": 1},
+                }
+            }
+        )
+
+        with self.assertRaises(run_probe.ProbeConfigError):
+            run_probe._resolve_labels("ssv2", index, probe_cfg)
+
     def test_default_wandb_run_name_uses_backbone_label(self) -> None:
         config = {
             "experiment": {"name": "intphys2.jepa_v1.probe"},
@@ -290,6 +385,86 @@ class RunProbeTests(unittest.TestCase):
         self.assertEqual(probe.seen_eval_batch_size, 3)
         self.assertEqual(summary["fit"]["n_epochs"], 2)
         self.assertIsNotNone(summary["fit"]["best_val_accuracy"])
+
+    def test_run_single_train_records_structured_random_label_control(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config = {
+                "seed": 7,
+                "probe": {
+                    "name": "linear",
+                    "batch_size": 2,
+                    "eval_batch_size": 2,
+                    "epochs": 1,
+                    "wandb": {"enabled": False},
+                    "optuna": {"enabled": False},
+                    "label_control": {"mode": "structured_random", "seed": 99},
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+            index = pd.DataFrame(
+                [
+                    {
+                        "feature_index": 0,
+                        "sample_id": "a0",
+                        "pair_id": "p0",
+                        "split": "train",
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 1,
+                        "sample_id": "a1",
+                        "pair_id": "p0",
+                        "split": "train",
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 2,
+                        "sample_id": "b0",
+                        "pair_id": "p1",
+                        "split": "val",
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 3,
+                        "sample_id": "b1",
+                        "pair_id": "p1",
+                        "split": "val",
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                ]
+            )
+            bundle = {
+                "paths": SimpleNamespace(cache_dir=Path(tmp)),
+                "manifest": {"signature": "sig", "stats": {"n_classes": 2}},
+                "index": index,
+                "pooled": {"selected_layers": [8], "by_layer": {8: torch.randn(4, 4)}},
+                "tokens": None,
+            }
+            fake_spec = SimpleNamespace(load_bundle=lambda cfg, view: bundle, report_splits=("train", "val"))
+
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"mvp": fake_spec}, clear=False):
+                with mock.patch("training.run_probe.init_wandb_train_logger", return_value=None):
+                    summary, _logger = run_probe._run_single_train(
+                        "mvp",
+                        config,
+                        probe_cfg,
+                        output_dir=Path(tmp) / "train",
+                    )
+
+            payload = torch.load(summary["checkpoint"], map_location="cpu", weights_only=False)
+
+        self.assertEqual(summary["label_control"]["mode"], "structured_random")
+        self.assertEqual(summary["label_control"]["seed"], 99)
+        self.assertEqual(payload["metadata"]["label_control"]["mode"], "structured_random")
+        self.assertEqual(payload["metadata"]["label_control"]["seed"], 99)
 
     def test_run_single_train_streams_chunked_mvp_tokens_mean(self) -> None:
         class _CapturingLinearProbe(LinearProbe):
@@ -450,6 +625,111 @@ class RunProbeTests(unittest.TestCase):
                 pred_payload = json.loads(Path(summary["prediction_file"]).read_text(encoding="utf-8"))
                 self.assertEqual(pred_payload, {"s0": 0, "s1": 1})
                 mocked_eval.assert_called_once()
+
+    def test_structured_random_eval_writes_control_report_without_mvp_eval(self) -> None:
+        class _StaticProbe:
+            def predict_logits(self, x, *, batch_size=1024):
+                del batch_size
+                return torch.tensor([[0.2, 0.8] for _ in range(int(x.shape[0]))], dtype=torch.float32)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            index = pd.DataFrame(
+                [
+                    {
+                        "feature_index": 0,
+                        "sample_id": "train0",
+                        "pair_id": "ptrain",
+                        "split": "train",
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 1,
+                        "sample_id": "train1",
+                        "pair_id": "ptrain",
+                        "split": "train",
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 2,
+                        "sample_id": "val0",
+                        "pair_id": "pval",
+                        "split": "val",
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 3,
+                        "sample_id": "val1",
+                        "pair_id": "pval",
+                        "split": "val",
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 4,
+                        "sample_id": "test0",
+                        "pair_id": "ptest",
+                        "split": "test",
+                        "plausibility_label": 0,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                    {
+                        "feature_index": 5,
+                        "sample_id": "test1",
+                        "pair_id": "ptest",
+                        "split": "test",
+                        "plausibility_label": 1,
+                        "yes_choice_idx": 0,
+                        "no_choice_idx": 1,
+                    },
+                ]
+            )
+            context = run_probe.EvalContext(
+                spec=run_probe.DATASET_SPECS["mvp"],
+                manifest={"signature": "sig"},
+                index=index,
+                features=torch.randn(6, 4),
+                probe=_StaticProbe(),
+                checkpoint_path=Path(tmp) / "probe_best.pt",
+                current_signature="sig",
+            )
+            config = {
+                "split_name": "test",
+                "probe": {
+                    "name": "linear",
+                    "eval_batch_size": 2,
+                    "label_control": {"mode": "structured_random", "seed": 17},
+                },
+            }
+            probe_cfg = run_probe._probe_cfg(config)
+            eval_root = Path(tmp) / "eval"
+
+            with mock.patch("training.run_probe._load_eval_context", return_value=context):
+                with mock.patch("training.run_probe.run_mvp_eval") as mocked_eval:
+                    summary = run_probe._run_report_eval(
+                        "mvp",
+                        config,
+                        probe_cfg,
+                        output_dir=eval_root,
+                    )
+
+            mocked_eval.assert_not_called()
+            self.assertEqual(summary["label_control"]["mode"], "structured_random")
+            self.assertEqual(summary["reported_splits"], ["train", "val", "test"])
+            self.assertTrue((eval_root / "metrics.json").exists())
+            pred_payload = json.loads(
+                (eval_root / "test" / "control_predictions.json").read_text(encoding="utf-8")
+            )
+            self.assertIn("test0", pred_payload)
+            self.assertIn("pseudo_label", pred_payload["test0"])
+            self.assertIn("pair_consistency", summary["metrics_by_split"]["test"])
 
     def test_apply_trial_parameters_keeps_fixed_epochs_when_epoch_search_disabled(self) -> None:
         probe_cfg = run_probe._probe_cfg(
@@ -648,6 +928,18 @@ class RunProbeTests(unittest.TestCase):
 
         with self.assertRaises(run_probe.ProbeConfigError):
             callback({"epoch": 1.0, "train_accuracy": 80.0})
+
+    def test_structured_random_label_control_rejects_optuna(self) -> None:
+        config = {
+            "probe": {
+                "name": "linear",
+                "label_control": {"mode": "structured_random", "seed": 5},
+                "optuna": {"enabled": True},
+            }
+        }
+
+        with self.assertRaises(run_probe.ProbeConfigError):
+            run_probe.run_probe_train("mvp", config)
 
     def test_optuna_train_returns_best_trial_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

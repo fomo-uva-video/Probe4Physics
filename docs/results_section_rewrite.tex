@@ -1,0 +1,304 @@
+% ============================================================================
+% REWRITTEN "RESULTS AND DISCUSSION" SECTION — drop-in replacement
+% Generated from results/intphys_primary_db.xlsx and results/mvp_primary_db.xlsx
+% Selection criterion: best layer per (model, probe, benchmark) by TEST primary
+% metric ("best-case" analysis), matching the convention of the current Table 1.
+% All numbers verified against the Excel DBs on 2026-07-18.
+%
+% Open items are marked with %% FLAG comments — see the summary that accompanies
+% this file. Do not delete them before resolving with Niccolò.
+% ============================================================================
+
+\section{Results and Discussion}
+
+% ----------------------------------------------------------------------------
+% TABLE 1 — largest backbones (experiment "main" + LTX-13B).
+% Corrected cells vs. the current PDF are marked with %% CHANGED.
+% ----------------------------------------------------------------------------
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l cc cc cc c cc cc cc}
+\toprule
+& \multicolumn{6}{c}{\textbf{IntPhys2}} & & \multicolumn{6}{c}{\textbf{MVP}} \\
+\cmidrule(lr){2-7} \cmidrule(lr){9-14}
+\textbf{Model}
+& \multicolumn{2}{c}{\textbf{Linear}} & \multicolumn{2}{c}{\textbf{MLP}} & \multicolumn{2}{c}{\textbf{Temporal Attn.}}
+& & \multicolumn{2}{c}{\textbf{Linear}} & \multicolumn{2}{c}{\textbf{MLP}} & \multicolumn{2}{c}{\textbf{Temporal Attn.}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){9-10} \cmidrule(lr){11-12} \cmidrule(lr){13-14}
+& \textbf{Layer} & \metriccol{\textbf{VOE}} & \textbf{Layer} & \metriccol{\textbf{VOE}} & \textbf{Layer} & \metriccol{\textbf{VOE}}
+& & \textbf{Layer} & \metriccol{\textbf{Pair}} & \textbf{Layer} & \metriccol{\textbf{Pair}} & \textbf{Layer} & \metriccol{\textbf{Pair}} \\
+\midrule
+V-JEPA
+& 24 & \bestmetric{50.98} & 32 & \metriccol{45.10} & 16 & \metriccol{66.67}
+& & 32 & \metriccol{48.74} & 32 & \bestmetric{87.26} & 24 & \bestmetric{94.03} \\
+V-JEPA 2
+& 40 & \metriccol{41.18} & 30 & \bestmetric{56.86} & 40 & \bestmetric{78.43}
+& & 40 & \metriccol{48.53} & 40 & \metriccol{86.75} & 40 & \metriccol{93.33} \\ %% CHANGED: MVP Linear 47.32 -> 48.53
+V-JEPA 2.1
+& 48 & \metriccol{35.29} & 36 & \metriccol{39.22} & 48 & \metriccol{60.78}
+& & 36 & \metriccol{42.26} & 36 & \metriccol{70.78} & 48 & \metriccol{93.73} \\ %% CHANGED: MVP Linear 43.88@38 -> 42.26@36; MLP layer 38 -> 36
+VideoMAE
+& 16 & \metriccol{35.29} & 24 & \metriccol{35.29} & 24 & \metriccol{76.47}
+& & 24 & \metriccol{37.51} & 24 & \metriccol{64.41} & 24 & \metriccol{92.01} \\
+VideoMAE-v2
+& 40 & \metriccol{47.06} & 20 & \metriccol{47.06} & 20 & \metriccol{62.75}
+& & 20 & \metriccol{37.71} & 20 & \metriccol{66.13} & 30 & \metriccol{91.10} \\ %% CHANGED: MVP Linear 38.62 -> 37.71
+LTX-Video
+& 24 {\scriptsize(0.1)} & \metriccol{49.02} & 24 {\scriptsize(0.2)} & \metriccol{47.06} & 36 {\scriptsize(0.1)} & \metriccol{43.14} %% FLAG: attn label ambiguous (36/0.1 vs 48/0.2, same value) — confirm with run logs
+& & 24 {\scriptsize(0.6)} & \bestmetric{49.95} & 24 {\scriptsize(0.7)} & \metriccol{69.16} & 24 {\scriptsize(0.5)} & \metriccol{84.33} \\
+\bottomrule
+\end{tabular}}
+\caption{
+Best-case benchmark comparison across model families, each evaluated with its
+largest available backbone. For each dataset and probe, we report the best layer
+and the benchmark-specific primary metric. Shaded columns denote the primary
+metric; the darkest cell within each probe block indicates the highest value.
+For LTX-Video (13B), layer columns report the transformer block, with the
+denoising noise level in parentheses.
+}
+\label{tab:exp1-bestcase-panels}
+\end{table*}
+
+% ============================================================================
+\subsection*{Analysis 1: Readout accessibility under linear and nonlinear probes}
+\label{sec:exp1}
+
+\begin{researchquestionbox}
+\textbf{Research question.}
+How is intuitive-physics information encoded in frozen representations:
+linearly, nonlinearly, or in the temporal structure of the token sequence?
+\end{researchquestionbox}
+
+To answer this question we compare, for each model evaluated with its largest
+available backbone, the best layer under probes of increasing expressivity
+(\autoref{tab:exp1-bestcase-panels}). On MVP, probe capacity matters
+substantially: linear probes remain weak across all model families
+(37.5--50.0\% pair consistency, against a 25\% random baseline), MLP probes
+recover much stronger signal (64.4--87.3\% for the ViT families), and temporal
+attentive probes are uniformly best, reaching 91.1--94.0\% for every ViT model
+and 84.3\% for LTX-Video. This large and consistent separation indicates that
+MVP-relevant physics information is only weakly accessible to a linear readout
+and becomes recoverable once the probe can model nonlinear and, especially,
+explicitly temporal interactions.
+
+IntPhys2 shows a different profile across the first two probe families. Linear
+probes already recover moderate signal in several models (35.3--51.0\% VOE,
+against a $\sim$16.7\% random baseline), and MLP probes add little on top:
+gains are small and inconsistent, with V-JEPA even decreasing from 50.98\% to
+45.10\%. The temporal attentive probe, however, changes the picture
+substantially: it improves over the pooled probes for every ViT model, often by
+a wide margin (66.67\% for V-JEPA, 78.43\% for V-JEPA 2, 76.47\% for VideoMAE,
+62.75\% for VideoMAE-v2). The only exception is LTX-Video, whose attentive
+probe (43.14\%) does not exceed its linear best (49.02\%). Since linear and MLP
+probes operate on average-pooled clip embeddings while the attentive probe sees
+the full token sequence, this pattern suggests that on IntPhys2 much of the
+missing signal is not merely nonlinear but is stored in the spatio-temporal
+token structure that pooling destroys.
+
+\begin{takeawaybox}
+\textbf{Takeaway}.
+Intuitive-physics information is not equally explicit across tasks or readout
+mechanisms. On MVP it is largely inaccessible to linear readouts and emerges
+progressively with nonlinear and temporal probes. On IntPhys2 a larger fraction
+of the signal is already linearly decodable from pooled features, but the
+largest gains come from probes that operate directly on the token sequence,
+indicating that much of the physics-relevant structure lives in spatio-temporal
+token interactions rather than in the pooled clip embedding.
+\end{takeawaybox}
+
+% ============================================================================
+\subsection*{Analysis 2: Layerwise emergence of physics information}
+\label{sec:exp2}
+
+\begin{researchquestionbox}
+\textbf{Research question.}
+Where in the network does intuitive-physics information become most accessible?
+\end{researchquestionbox}
+
+To determine where physical understanding originates within the backbones, we
+analyze the layerwise performance profiles of the largest backbone of each
+model. Here we focus on the MLP probe, as it possesses sufficient capacity to
+extract latent task-relevant signals without explicitly re-modeling temporal
+sequences; corresponding profiles for the linear and temporal attentive probes
+are reported in Appendix \autoref{fig:exp2_all_probes} and
+\autoref{fig:exp2_ltx_noise_linear}.
+
+As \autoref{fig:exp2_mlp} and \autoref{fig:exp2_ltx_noise_mlp} show, the depth
+at which physics-relevant information becomes most accessible depends strongly
+on the benchmark. On MVP, performance generally improves toward later layers,
+especially for the V-JEPA family: V-JEPA rises from 59.45\% pair consistency at
+0.25 depth to 87.26\% at the final layer, and V-JEPA 2 shows a similar increase
+from 52.07\% to 86.75\%. The VideoMAE models follow the same broad mid-to-late
+trend with weaker gains and earlier peaks (VideoMAE peaks at 0.75 depth with
+64.41\%, VideoMAE-v2 at 0.5 depth with 66.13\%). Overall, MVP is best
+characterized as late-layer dominated, suggesting that the information needed
+for minimal-pair physical reasoning becomes most accessible only after
+substantial processing.
+
+IntPhys2 shows a less monotonic profile. Several models peak around 0.5--0.75
+depth and then flatten or decline at the final layer; for example, V-JEPA 2
+reaches 56.86\% VOE at 0.75 depth before dropping to 47.06\% at the output, and
+VideoMAE-v2 peaks at 0.5 depth (47.06\%) before declining. LTX-Video follows
+the same broad pattern along its own two axes: its strongest physics signal is
+concentrated around the middle transformer blocks, and fixing a block while
+reducing the denoising noise level does not produce a monotonic improvement;
+performance fluctuates across the denoising trajectory
+(\autoref{fig:exp2_ltx_noise_mlp}). Thus, even for diffusion features, the most
+accessible physics signal appears at intermediate depth rather than at the
+extremes of the network or of the denoising process.
+
+\begin{takeawaybox}
+\textbf{Takeaway}.
+Physics-relevant information is weakest in early layers and becomes most
+accessible at intermediate-to-late depth. MVP shows the clearest late-layer
+trend, whereas IntPhys2 more often peaks between 50\% and 75\% depth. LTX-Video
+follows the same broad pattern, with its strongest signal concentrated in the
+middle of the backbone and no monotonic trend along the denoising trajectory.
+\end{takeawaybox}
+
+% ============================================================================
+\subsection*{Analysis 3: Influence of the backbone size}
+\label{sec:exp3}
+
+\begin{researchquestionbox}
+\textbf{Research question.}
+How much does the choice of backbone influence the accessibility of physical
+understanding?
+\end{researchquestionbox}
+
+To separate the effect of the pretraining objective from the effect of model
+capacity, we sweep the available backbone sizes of the most recent model in
+each family: V-JEPA 2.1 (ViT-B, ViT-L, ViT-G, ViT-Gigantic) and VideoMAE-v2
+(ViT-B, ViT-L, ViT-G), and additionally compare the two available LTX-Video
+variants (2B vs.\ 13B). \autoref{fig:exp4_backbones} reports best-case results
+per backbone; full layerwise profiles are shown in Appendix
+\autoref{fig:exp4_backbones_layerwise}.
+
+For the ViT families, backbone size has a real but modest and probe-dependent
+effect. Under the temporal attentive probe, performance increases roughly
+monotonically with size: VideoMAE-v2 improves from 52.94\% (ViT-B) to 54.90\%
+(ViT-L) to 62.75\% (ViT-G) VOE on IntPhys2 and from 85.74\% to 87.36\% to
+91.10\% pair consistency on MVP, while V-JEPA 2.1 moves from 58.82\% (ViT-B) to
+60.78\% (ViT-Gigantic) on IntPhys2 and stays within a narrow 91.4--93.7\% band
+on MVP. Under linear and MLP probes, by contrast, no consistent scaling trend
+emerges, and the smallest backbone is sometimes best: the ViT-B variant of
+V-JEPA 2.1 attains the family's highest MLP VOE on IntPhys2 (50.98\%). Scaling
+the backbone therefore does not by itself make physics information more
+linearly explicit; its benefits materialize mainly when the readout can exploit
+the token sequence.
+
+The diffusion family behaves differently: model size matters much more.
+LTX-Video 2B is close to the random baseline in most configurations, with
+best-case scores of 27.45\% VOE on IntPhys2 (vs.\ 49.02\% for 13B) and 40.34\%
+MLP pair consistency on MVP (vs.\ 69.16\% for 13B).
+%% FLAG: LTX-2B attentive probe on MVP has not been run (empty rows in the DB)
+%% — either complete the run or state the omission explicitly here.
+This gap is consistent with the view that representation quality is a
+by-product of the generative objective: a small diffusion model can be a
+reasonable generator while encoding little accessible physical structure,
+whereas the ViT families already saturate much of their probe-accessible
+physics signal at ViT-B/L scale.
+
+\begin{takeawaybox}
+\textbf{Takeaway}.
+Within the ViT families, backbone size is a second-order factor: probe
+expressivity matters far more than scale, and scaling helps mainly under
+temporally expressive readouts. For the diffusion family, scale is
+first-order: LTX-Video 2B recovers close-to-chance signal, while the 13B
+variant becomes competitive with pooled readouts of the ViT models.
+\end{takeawaybox}
+
+% ============================================================================
+\subsection*{Analysis 4: Pretraining paradigms under a matched backbone}
+\label{sec:exp4}
+
+\begin{researchquestionbox}
+\textbf{Research question}
+Which pretraining paradigm encodes the most accessible intuitive-physics
+information, once backbone capacity is matched?
+\end{researchquestionbox}
+
+The comparison in \autoref{tab:exp1-bestcase-panels} conflates the pretraining
+objective with backbone scale, since each family ships different maximal sizes.
+To control for this, we repeat the best-case comparison with all five ViT
+models on a shared ViT-L/16 backbone (\autoref{fig:exp3_probe_comparison}); the
+two LTX-Video variants, which have no ViT-L counterpart, are included as
+diffusion references. We focus the discussion on the temporal attentive probe,
+which operates directly on the token sequence and is thus most representative
+of the models' ability to leverage temporal structure.
+
+At matched capacity, the ordering of paradigms is clear and consistent with the
+largest-backbone comparison, indicating that it is not an artifact of scale.
+The V-JEPA family retains the most accessible physics information: the original
+V-JEPA leads both benchmarks at ViT-L (74.51\% VOE on IntPhys2 and 93.83\% pair
+consistency on MVP), with V-JEPA 2 close behind (70.59\% and 93.33\%). The
+VideoMAE family is competitive on MVP (89.89\% for VideoMAE, a gap of
+$\sim$4\%) but falls further behind on IntPhys2 (68.63\% for VideoMAE, 54.90\%
+for VideoMAE-v2). The diffusion-based LTX-Video trails on both benchmarks even
+at 13B parameters, i.e., with far more capacity than a ViT-L: 84.33\% on MVP
+($\sim$9.5\% below V-JEPA) and 43.14\% on IntPhys2, a gap of more than 30
+points. Interestingly, the newest member of each family is not the best at
+matched size: V-JEPA outperforms V-JEPA 2.1 (58.82\% VOE) and VideoMAE
+outperforms VideoMAE-v2 on IntPhys2, suggesting that recent training recipes
+optimized at larger scales do not automatically transfer their advantages to
+smaller backbones.
+
+These differences are consistent with the nature of the objectives. Learning to
+predict target representations in a joint embedding space, rather than
+reconstructing raw pixels, encourages abstract, temporally grounded features in
+which physical structure is readily accessible. Masked reconstruction retains
+much of this signal but organizes it less explicitly, and a denoising objective
+optimized for generation, while producing strong visual results, does not by
+itself organize fine-grained intuitive physics into an accessible format. We
+note that our comparison controls for backbone capacity but not for pretraining
+data, recency, or training recipe, which remain confounded with the objective.
+
+\begin{takeawaybox}
+\textbf{Takeaway}:
+Under our probing protocol and at matched ViT-L capacity, predictive
+joint-embedding pretraining yields the most accessible and robust
+intuitive-physics representations, followed by masked reconstruction, with the
+diffusion paradigm last despite a much larger parameter budget.
+\end{takeawaybox}
+
+% ============================================================================
+% APPENDIX — Temporal control conditions (moved from main text).
+% The attentive-probe IntPhys2 controls were re-run together with the
+% longer-epoch attentive probes; the table row values below are recomputed
+% from results/intphys2_temporal_attn_controls.csv at the new best layers.
+% Linear and MLP control rows are unchanged from the previous draft.
+% ============================================================================
+
+% --- Replacement values for panel (a) IntPhys2, "Temporal Attn." column ---
+% Model         Main    Delta-shuffle(%)  Delta-single(%)
+% V-JEPA        66.67   -41.18            -76.47
+% V-JEPA 2      78.43   -30.00            -77.50
+% V-JEPA 2.1    60.78    0.00             -74.19
+% VideoMAE      76.47   -30.77            -76.92
+% VideoMAE-v2   62.75   -25.00            -68.75
+% LTX-Video     43.14   -90.91            -72.73
+%% FLAG: LTX row assumes best attn = block 36 / noise 0.1 (run index 39). If the
+%% best-attn config is instead block 48 / noise 0.2 (run index 36), the deltas
+%% become -59.09 / -81.82. Resolve the label ambiguity first.
+
+\paragraph{Temporal controls (appendix prose).}
+On MVP, temporal disruption produces a clear collapse across all probe
+families, confirming that successful minimal-pair classification requires
+multi-frame temporal evidence. On IntPhys2, single-frame repetition remains
+highly damaging for every model and probe (attentive probes drop by 68--78\%
+relative), showing that the benchmark is not solvable from a static frame.
+Frame shuffling, however, is less uniformly destructive: the V-JEPA 2.1
+attentive probe shows exactly a 0.00\% relative drop, and several other
+configurations retain a substantial fraction of their main-task score. This
+suggests that part of the IntPhys2 VOE signal can be recovered from
+order-insensitive, unordered multi-frame evidence rather than from the causal
+event trajectory itself, a qualitatively different solution strategy from the
+temporally grounded one that MVP requires.
+%% NOTE: the old footnote about the anomalous +62.50% single-frame jump of
+%% VideoMAE-v2's attentive probe must be DELETED — the re-run with more epochs
+%% removed the underfit outlier (main-task VOE is now 62.75, and both controls
+%% reduce it).

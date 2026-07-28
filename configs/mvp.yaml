@@ -129,6 +129,9 @@ probe:
   early_stopping:
     enabled: false
     patience: 5
+  label_control:
+    mode: original # original | structured_random
+    seed: ${seed}
   device: cpu
   deterministic: false # enable stricter reproducibility at some performance cost
   output_dir: artifacts/probes/mvp

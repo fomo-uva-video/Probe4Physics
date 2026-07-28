@@ -78,12 +78,20 @@ PROBE_EVAL_OUTPUT_DIR="${PROBE_EVAL_OUTPUT_DIR:-artifacts/results}"
 GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_ltx_video_ltxv_13b_0_9_8_distilled_lr_matrix}"
 
 if [[ -n "${LAYER_VALUES_CSV:-}" ]]; then
-  IFS=',' read -r -a LAYER_VALUES <<< "${LAYER_VALUES_CSV}"
+  if [[ "${LAYER_VALUES_CSV}" == *":"* ]]; then
+    IFS=':' read -r -a LAYER_VALUES <<< "${LAYER_VALUES_CSV}"
+  else
+    IFS=',' read -r -a LAYER_VALUES <<< "${LAYER_VALUES_CSV}"
+  fi
 else
   LAYER_VALUES=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30" "31" "32" "33" "34" "35" "36" "37" "38" "39" "40")
 fi
 LR_VALUES=("5e-4" "1e-4" "5e-5" "1e-5")
 LR_TAGS=("5e-4" "1e-4" "5e-5" "1e-5")
+FEATURE_LAYER_IDS="${FEATURE_LAYER_IDS:-}"
+if [[ -z "${FEATURE_LAYER_IDS}" ]]; then
+  FEATURE_LAYER_IDS="$(IFS=','; printf '%s' "${LAYER_VALUES[*]}")"
+fi
 TASK_INDEX="${SLURM_ARRAY_TASK_ID:-0}"
 NUM_LAYERS="${#LAYER_VALUES[@]}"
 NUM_LRS="${#LR_VALUES[@]}"
@@ -123,6 +131,7 @@ echo "REPO_ROOT=${REPO_ROOT}"
 echo "GROUP_SUBDIR=${GROUP_SUBDIR}"
 echo "RUN_SUBDIR=${RUN_SUBDIR}"
 echo "PROBE_LAYER=${PROBE_LAYER}"
+echo "FEATURE_LAYER_IDS=${FEATURE_LAYER_IDS}"
 echo "LR_VALUE=${LR_VALUE}"
 echo "PROBE_EPOCHS=${PROBE_EPOCHS}"
 echo "PROBE_BATCH_SIZE=${PROBE_BATCH_SIZE}"
@@ -172,6 +181,7 @@ train_cmd=(
   "probe.wandb.name=${WANDB_NAME}"
   "probe.wandb.tags=[mvp,ltx_video,temporal_attn,lr_matrix,layer_${PROBE_LAYER},lr_${LR_TAG}]"
   "probe.optuna.enabled=false"
+  "feature_cache.layer_ids=[${FEATURE_LAYER_IDS}]"
   "feature_cache.include_tokens=true"
 )
 
@@ -192,6 +202,7 @@ eval_cmd=(
   "probe.eval_output_dir=${PROBE_EVAL_OUTPUT_DIR}"
   "probe.eval_output_subdir=${EVAL_SUBDIR}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
+  "feature_cache.layer_ids=[${FEATURE_LAYER_IDS}]"
   "feature_cache.include_tokens=true"
 )
 

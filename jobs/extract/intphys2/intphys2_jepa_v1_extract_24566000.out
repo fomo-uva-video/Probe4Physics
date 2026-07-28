@@ -1,0 +1,48 @@
+===== PROVENANCE =====
+Sat Jul 11 23:54:33 UTC 2026
+gcn46.local.snellius.surf.nl
+0c316ecad6d63752f401ee75e990e14d0e180d70
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=jepa_v1
+BACKBONE_VARIANT=vith16_384
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home2/spunzo1/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home2/spunzo1/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=<config default>
+HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
+======================
+JOB_START_UTC=2026-07-11T23:54:33Z
+[extract.intphys2] resume status: resumed=False offset=0 target=1012 signature=0ffb5c4d39ae2f66
+[extract.intphys2] completed: signature=0ffb5c4d39ae2f66 resumed=False reused_samples=0 new_samples=1012 total=1012 elapsed_s=1709.780 sec_per_processed_sample=1.689506 elapsed_agg_s=1709.780
+{
+  "aggregated_elapsed_seconds": 1709.780190693,
+  "aggregated_processed_samples": 1012,
+  "aggregated_seconds_per_processed_sample": 1.689506117285573,
+  "aggregated_seconds_per_total_sample": 1.689506117285573,
+  "elapsed_seconds": 1709.780190693,
+  "feature_cache_dir": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/jepa_v1_vith16_384/train-val-test/0ffb5c4d39ae2f66",
+  "n_samples": 1012,
+  "resume_events": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/jepa_v1_vith16_384/train-val-test/0ffb5c4d39ae2f66/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 1.689506117285573,
+  "seconds_per_total_sample": 1.689506117285573,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "0ffb5c4d39ae2f66",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/extract_warnings.log"
+}
+JOB_END_UTC=2026-07-12T00:24:05Z
+JOB_ELAPSED_SECONDS=1772
+Completed at:
+Sun Jul 12 00:24:05 UTC 2026

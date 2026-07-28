@@ -35,6 +35,9 @@ PROBE_EPOCHS="${PROBE_EPOCHS:-30}"
 PROBE_BATCH_SIZE="${PROBE_BATCH_SIZE:-1}"
 PROBE_EVAL_BATCH_SIZE="${PROBE_EVAL_BATCH_SIZE:-${PROBE_BATCH_SIZE}}"
 PROBE_WEIGHT_DECAY="${PROBE_WEIGHT_DECAY:-0.01}"
+PROBE_EARLY_STOPPING_PATIENCE="${PROBE_EARLY_STOPPING_PATIENCE:-5}"
+PROBE_LABEL_CONTROL_MODE="${PROBE_LABEL_CONTROL_MODE:-original}"
+PROBE_LABEL_CONTROL_SEED="${PROBE_LABEL_CONTROL_SEED:-42}"
 TEMPORAL_NUM_HEADS="${TEMPORAL_NUM_HEADS:-16}"
 TEMPORAL_NUM_SELF_ATTN_BLOCKS="${TEMPORAL_NUM_SELF_ATTN_BLOCKS:-1}"
 TEMPORAL_MLP_RATIO="${TEMPORAL_MLP_RATIO:-2.0}"
@@ -124,6 +127,9 @@ echo "PROBE_EPOCHS=${PROBE_EPOCHS}"
 echo "PROBE_BATCH_SIZE=${PROBE_BATCH_SIZE}"
 echo "PROBE_EVAL_BATCH_SIZE=${PROBE_EVAL_BATCH_SIZE}"
 echo "PROBE_WEIGHT_DECAY=${PROBE_WEIGHT_DECAY}"
+echo "PROBE_EARLY_STOPPING_PATIENCE=${PROBE_EARLY_STOPPING_PATIENCE}"
+echo "PROBE_LABEL_CONTROL_MODE=${PROBE_LABEL_CONTROL_MODE}"
+echo "PROBE_LABEL_CONTROL_SEED=${PROBE_LABEL_CONTROL_SEED}"
 echo "TEMPORAL_NUM_HEADS=${TEMPORAL_NUM_HEADS}"
 echo "TEMPORAL_NUM_SELF_ATTN_BLOCKS=${TEMPORAL_NUM_SELF_ATTN_BLOCKS}"
 echo "TEMPORAL_MLP_RATIO=${TEMPORAL_MLP_RATIO}"
@@ -152,7 +158,9 @@ train_cmd=(
   "probe.batch_size=${PROBE_BATCH_SIZE}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
   "probe.early_stopping.enabled=true"
-  "probe.early_stopping.patience=5"
+  "probe.early_stopping.patience=${PROBE_EARLY_STOPPING_PATIENCE}"
+  "probe.label_control.mode=${PROBE_LABEL_CONTROL_MODE}"
+  "probe.label_control.seed=${PROBE_LABEL_CONTROL_SEED}"
   "probe.temporal_attn.num_heads=${TEMPORAL_NUM_HEADS}"
   "probe.temporal_attn.num_self_attn_blocks=${TEMPORAL_NUM_SELF_ATTN_BLOCKS}"
   "probe.temporal_attn.mlp_ratio=${TEMPORAL_MLP_RATIO}"
@@ -165,7 +173,7 @@ train_cmd=(
   "probe.wandb.mode=${WANDB_MODE}"
   "probe.wandb.group=${WANDB_GROUP}"
   "probe.wandb.name=${WANDB_NAME}"
-  "probe.wandb.tags=[intphys2,${BACKBONE_NAME},temporal_attn,lr_matrix,layer_${PROBE_LAYER},lr_${LR_TAG}]"
+  "probe.wandb.tags=[intphys2,${BACKBONE_NAME},temporal_attn,lr_matrix,label_${PROBE_LABEL_CONTROL_MODE},layer_${PROBE_LAYER},lr_${LR_TAG}]"
   "probe.optuna.enabled=false"
   "feature_cache.include_tokens=true"
 )
@@ -190,6 +198,8 @@ eval_cmd=(
   "probe.eval_output_dir=${PROBE_EVAL_OUTPUT_DIR}"
   "probe.eval_output_subdir=${EVAL_SUBDIR}"
   "probe.eval_batch_size=${PROBE_EVAL_BATCH_SIZE}"
+  "probe.label_control.mode=${PROBE_LABEL_CONTROL_MODE}"
+  "probe.label_control.seed=${PROBE_LABEL_CONTROL_SEED}"
   "feature_cache.include_tokens=true"
 )
 
@@ -202,7 +212,7 @@ printf '  %q' "${eval_cmd[@]}"
 printf '\n'
 "${eval_cmd[@]}"
 
-export GROUP_ROOT RUN_ROOT EVAL_ROOT PROBE_LAYER LR_VALUE LR_TAG
+export GROUP_ROOT RUN_ROOT EVAL_ROOT PROBE_LAYER LR_VALUE LR_TAG PROBE_LABEL_CONTROL_MODE PROBE_LABEL_CONTROL_SEED
 mkdir -p "${GROUP_ROOT}"
 exec 9>"${GROUP_ROOT}/.summary.lock"
 flock 9
@@ -221,6 +231,13 @@ OBJECTIVE_METRIC_NAME = "voe_accuracy"
 MODEL_SELECTION_SPLIT = "val"
 PRIMARY_SPLIT = "test"
 REPORTED_SPLITS = ["train", "val", "test"]
+
+
+def parse_int(value: Any) -> Any:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return value
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -338,6 +355,10 @@ eval_root = Path(os.environ["EVAL_ROOT"])
 probe_layer = str(os.environ["PROBE_LAYER"])
 lr_value = str(os.environ["LR_VALUE"])
 lr_tag = str(os.environ["LR_TAG"])
+label_control = {
+    "mode": os.environ.get("PROBE_LABEL_CONTROL_MODE", "original"),
+    "seed": parse_int(os.environ.get("PROBE_LABEL_CONTROL_SEED", "42")),
+}
 
 train_summary = read_json(run_root / "train" / "train_summary.json")
 eval_summary = read_json(eval_root / "probe_eval_summary.json")
@@ -365,6 +386,7 @@ single_layer_summary = {
     "model_selection_split": MODEL_SELECTION_SPLIT,
     "split_name": eval_summary.get("split_name", PRIMARY_SPLIT),
     "reported_splits": list(eval_summary.get("reported_splits", REPORTED_SPLITS)),
+    "label_control": label_control,
     "sweep_dir": str(run_root),
     "requested_layers": [probe_layer],
     "layers": [single_layer],
@@ -408,6 +430,7 @@ group_summary = {
     "model_selection_split": MODEL_SELECTION_SPLIT,
     "split_name": PRIMARY_SPLIT,
     "reported_splits": REPORTED_SPLITS,
+    "label_control": label_control,
     "sweep_dir": str(group_root),
     "requested_layers": [layer.get("layer", "") for layer in group_layers],
     "layers": group_layers,
