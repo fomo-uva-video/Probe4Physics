@@ -13,6 +13,8 @@ the 'module load <package__name>' command. If you are uncertain if a package is
 already available 
 on the system, please use 'module avail' or 'module spider' to search for it.
 ============================================================================================== 
+/home/spunzo1/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
 /home/spunzo1/.conda/envs/probe4physics-gpu/lib/python3.11/contextlib.py:105: FutureWarning: `torch.backends.cuda.sdp_kernel()` is deprecated. In the future, this context manager will be removed. Please see `torch.nn.attention.sdpa_kernel()` for the new context manager, with updated signature.
   self.gen = func(*args, **kwds)
 /home/spunzo1/.conda/envs/probe4physics-gpu/lib/python3.11/contextlib.py:105: FutureWarning: `torch.backends.cuda.sdp_kernel()` is deprecated. In the future, this context manager will be removed. Please see `torch.nn.attention.sdpa_kernel()` for the new context manager, with updated signature.

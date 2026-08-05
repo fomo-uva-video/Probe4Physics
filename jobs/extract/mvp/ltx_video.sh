@@ -15,8 +15,8 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=24:00:00
-#SBATCH --output=%out/ltx_extract_%x_%j.out
-#SBATCH --error=%out/ltx_extract_%x_%j.err
+#SBATCH --output=%x_%j.out
+#SBATCH --error=%x_%j.err
 
 set -euo pipefail
 
@@ -24,5 +24,20 @@ BACKBONE_NAME="ltx_video"
 export BACKBONE_NAME
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JOB_DIR="${SLURM_SUBMIT_DIR:-${SCRIPT_DIR}}"
-exec "${JOB_DIR}/run_extract.sh"
+RUN_EXTRACT=""
+for candidate in \
+  "${SCRIPT_DIR}/run_extract.sh" \
+  "${SLURM_SUBMIT_DIR:-}/run_extract.sh" \
+  "${SLURM_SUBMIT_DIR:-}/jobs/extract/mvp/run_extract.sh"; do
+  if [[ -x "${candidate}" ]]; then
+    RUN_EXTRACT="${candidate}"
+    break
+  fi
+done
+
+if [[ -z "${RUN_EXTRACT}" ]]; then
+  echo "ERROR: Could not locate jobs/extract/mvp/run_extract.sh" >&2
+  exit 2
+fi
+
+exec "${RUN_EXTRACT}"

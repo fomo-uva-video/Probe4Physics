@@ -1,0 +1,75 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] A new version of the following files was downloaded from https://huggingface.co/OpenGVLab/VideoMAEv2-giant:
+- modeling_config.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+[transformers] A new version of the following files was downloaded from https://huggingface.co/OpenGVLab/VideoMAEv2-giant:
+- modeling_videomaev2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Loading weights:   0%|          | 0/524 [00:00<?, ?it/s]Loading weights:   5%|▍         | 24/524 [00:00<00:04, 118.17it/s]Loading weights:   7%|▋         | 36/524 [00:00<00:10, 45.87it/s] Loading weights:   8%|▊         | 43/524 [00:01<00:18, 26.49it/s]Loading weights:   9%|▉         | 47/524 [00:01<00:22, 21.58it/s]Loading weights:  10%|█         | 55/524 [00:01<00:17, 26.83it/s]Loading weights:  11%|█▏        | 59/524 [00:01<00:18, 24.83it/s]Loading weights:  12%|█▏        | 65/524 [00:02<00:22, 20.43it/s]Loading weights:  14%|█▍        | 74/524 [00:02<00:16, 27.26it/s]Loading weights:  15%|█▍        | 78/524 [00:02<00:15, 28.49it/s]Loading weights:  17%|█▋        | 88/524 [00:02<00:12, 34.45it/s]Loading weights:  18%|█▊        | 94/524 [00:03<00:15, 27.53it/s]Loading weights:  19%|█▊        | 98/524 [00:03<00:15, 28.29it/s]Loading weights:  19%|█▉        | 102/524 [00:03<00:16, 25.63it/s]Loading weights:  20%|██        | 105/524 [00:03<00:20, 20.20it/s]Loading weights:  22%|██▏       | 114/524 [00:04<00:19, 20.72it/s]Loading weights:  24%|██▍       | 125/524 [00:04<00:15, 26.22it/s]Loading weights:  24%|██▍       | 128/524 [00:04<00:17, 22.01it/s]Loading weights:  25%|██▌       | 131/524 [00:04<00:18, 21.36it/s]Loading weights:  29%|██▉       | 151/524 [00:05<00:09, 38.52it/s]Loading weights:  31%|███▏      | 164/524 [00:05<00:07, 49.44it/s]Loading weights:  34%|███▍      | 177/524 [00:05<00:08, 42.49it/s]Loading weights:  37%|███▋      | 193/524 [00:05<00:06, 52.13it/s]Loading weights:  38%|███▊      | 199/524 [00:06<00:07, 45.25it/s]Loading weights:  40%|███▉      | 208/524 [00:06<00:06, 46.72it/s]Loading weights:  42%|████▏     | 218/524 [00:06<00:06, 49.86it/s]Loading weights:  43%|████▎     | 227/524 [00:06<00:05, 50.97it/s]Loading weights:  45%|████▍     | 235/524 [00:06<00:06, 43.20it/s]Loading weights:  46%|████▌     | 240/524 [00:07<00:07, 36.51it/s]Loading weights:  48%|████▊     | 250/524 [00:07<00:07, 35.76it/s]Loading weights:  50%|█████     | 263/524 [00:07<00:06, 39.55it/s]Loading weights:  51%|█████     | 268/524 [00:07<00:07, 35.92it/s]Loading weights:  54%|█████▍    | 285/524 [00:08<00:05, 42.09it/s]Loading weights:  55%|█████▌    | 290/524 [00:08<00:06, 36.91it/s]Loading weights:  57%|█████▋    | 298/524 [00:08<00:05, 42.17it/s]Loading weights:  58%|█████▊    | 303/524 [00:08<00:05, 43.15it/s]Loading weights:  60%|█████▉    | 312/524 [00:09<00:06, 34.11it/s]Loading weights:  60%|██████    | 316/524 [00:09<00:06, 33.83it/s]Loading weights:  63%|██████▎   | 330/524 [00:09<00:03, 50.65it/s]Loading weights:  64%|██████▍   | 337/524 [00:09<00:04, 38.69it/s]Loading weights:  68%|██████▊   | 355/524 [00:09<00:03, 46.41it/s]Loading weights:  70%|██████▉   | 366/524 [00:10<00:03, 40.47it/s]Loading weights:  71%|███████   | 371/524 [00:10<00:04, 37.77it/s]Loading weights:  72%|███████▏  | 376/524 [00:10<00:04, 35.87it/s]Loading weights:  73%|███████▎  | 380/524 [00:10<00:04, 32.56it/s]Loading weights:  73%|███████▎  | 384/524 [00:10<00:04, 30.93it/s]Loading weights:  75%|███████▍  | 391/524 [00:11<00:03, 33.77it/s]Loading weights:  75%|███████▌  | 395/524 [00:11<00:04, 26.96it/s]Loading weights:  76%|███████▋  | 400/524 [00:11<00:04, 25.65it/s]Loading weights:  80%|████████  | 420/524 [00:11<00:02, 51.19it/s]Loading weights:  81%|████████▏ | 427/524 [00:12<00:02, 41.43it/s]Loading weights:  82%|████████▏ | 432/524 [00:12<00:02, 41.41it/s]Loading weights:  83%|████████▎ | 437/524 [00:12<00:02, 31.30it/s]Loading weights:  84%|████████▍ | 441/524 [00:12<00:03, 25.14it/s]Loading weights:  87%|████████▋ | 454/524 [00:13<00:02, 29.75it/s]Loading weights:  87%|████████▋ | 458/524 [00:13<00:02, 30.56it/s]Loading weights:  88%|████████▊ | 462/524 [00:13<00:02, 23.29it/s]Loading weights:  89%|████████▊ | 465/524 [00:13<00:03, 19.63it/s]Loading weights:  89%|████████▉ | 468/524 [00:14<00:03, 14.55it/s]Loading weights:  90%|████████▉ | 470/524 [00:14<00:03, 14.92it/s]Loading weights:  90%|█████████ | 472/524 [00:14<00:03, 13.72it/s]Loading weights:  94%|█████████▎| 490/524 [00:14<00:00, 37.12it/s]Loading weights:  95%|█████████▍| 496/524 [00:14<00:00, 37.37it/s]Loading weights:  96%|█████████▌| 501/524 [00:15<00:00, 32.28it/s]Loading weights:  96%|█████████▋| 505/524 [00:15<00:00, 29.37it/s]Loading weights:  98%|█████████▊| 515/524 [00:15<00:00, 34.68it/s]Loading weights: 100%|██████████| 524/524 [00:15<00:00, 33.91it/s]
+[transformers] [1mVideoMAEv2 LOAD REPORT[0m from: OpenGVLab/VideoMAEv2-giant
+Key                                                | Status     |  | 
+---------------------------------------------------+------------+--+-
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.weight   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.bias       | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.qkv.weight  | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.v_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.weight     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.q_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.bias     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.weight     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.bias       | UNEXPECTED |  | 
+model.decoder.head.bias                            | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.bias   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.weight   | UNEXPECTED |  | 
+model.encoder_to_decoder.weight                    | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.bias     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.weight | UNEXPECTED |  | 
+model.mask_token                                   | UNEXPECTED |  | 
+model.decoder.norm.bias                            | UNEXPECTED |  | 
+model.decoder.head.weight                          | UNEXPECTED |  | 
+model.decoder.norm.weight                          | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Loading weights:   0%|          | 0/524 [00:00<?, ?it/s]Loading weights: 100%|██████████| 524/524 [00:00<00:00, 7822.69it/s]
+[transformers] [1mVideoMAEv2 LOAD REPORT[0m from: OpenGVLab/VideoMAEv2-giant
+Key                                                | Status     |  | 
+---------------------------------------------------+------------+--+-
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.weight   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.bias       | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.qkv.weight  | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.v_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.weight     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.q_bias      | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc2.bias     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm1.weight     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.norm2.bias       | UNEXPECTED |  | 
+model.decoder.head.bias                            | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.bias   | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.weight   | UNEXPECTED |  | 
+model.encoder_to_decoder.weight                    | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.mlp.fc1.bias     | UNEXPECTED |  | 
+model.decoder.blocks.{0, 1, 2, 3}.attn.proj.weight | UNEXPECTED |  | 
+model.mask_token                                   | UNEXPECTED |  | 
+model.decoder.norm.bias                            | UNEXPECTED |  | 
+model.decoder.head.weight                          | UNEXPECTED |  | 
+model.decoder.norm.weight                          | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Materialized VideoMAEv2 plain tensor attribute from helper: model.pos_embed (num_patches=2048 embed_dim=1408 model_config_num_frames=16)

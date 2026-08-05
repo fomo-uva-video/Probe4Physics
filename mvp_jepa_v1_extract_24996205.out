@@ -19,3 +19,32 @@ FEATURE_DIR=/scratch-shared/spunzo1/probe4physics/artifacts/features/mvp
 HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
 ======================
 JOB_START_UTC=2026-07-28T12:31:58Z
+[extract.mvp] resume status: resumed=False offset=0 target=9886 signature=ee823dd0344415ef
+[extract.mvp] completed: signature=ee823dd0344415ef resumed=False reused_samples=0 new_samples=9886 total=9886 elapsed_s=11861.315 sec_per_processed_sample=1.199809 elapsed_agg_s=11861.315
+{
+  "aggregated_elapsed_seconds": 11861.314938985975,
+  "aggregated_processed_samples": 9886,
+  "aggregated_seconds_per_processed_sample": 1.199809320148288,
+  "aggregated_seconds_per_total_sample": 1.199809320148288,
+  "elapsed_seconds": 11861.314938985975,
+  "feature_cache_dir": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/ee823dd0344415ef",
+  "n_samples": 9886,
+  "resume_events": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/jepa_v1_vith16_384/train-val-test/ee823dd0344415ef/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 1.199809320148288,
+  "seconds_per_total_sample": 1.199809320148288,
+  "selected_layers": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "signature": "ee823dd0344415ef",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/extract_warnings.log"
+}
+JOB_END_UTC=2026-07-28T16:00:15Z
+JOB_ELAPSED_SECONDS=12497
+Completed at:
+Tue Jul 28 16:00:15 UTC 2026

@@ -35,7 +35,10 @@ BACKBONE_DEVICE="${BACKBONE_DEVICE:-cuda}"
 FORCE_REEXTRACT="${FORCE_REEXTRACT:-}"
 INCLUDE_POOLED="${INCLUDE_POOLED:-}"
 INCLUDE_TOKENS="${INCLUDE_TOKENS:-}"
+FEATURE_LAYER_IDS="${FEATURE_LAYER_IDS:-}"
 EFFECTIVE_BACKBONE_VARIANT="$(resolve_backbone_variant "${REPO_ROOT}" "${BACKBONE_NAME}" "${BACKBONE_VARIANT}")"
+FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS// /}"
+FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS_COMPACT//:/,}"
 
 if [[ "${BACKBONE_NAME}" == "ltx_video" ]]; then
   preflight_ltx_runtime
@@ -93,6 +96,7 @@ echo "METADATA_FILE=${METADATA_FILE}"
 echo "VIDEOS_ROOT=${VIDEOS_ROOT}"
 echo "SPLIT_DIR=${SPLIT_DIR}"
 echo "FEATURE_DIR=${FEATURE_DIR:-<config default>}"
+echo "FEATURE_LAYER_IDS=${FEATURE_LAYER_IDS_COMPACT:-<unset>}"
 echo "HF_HOME=${HF_HOME}"
 echo "======================"
 
@@ -119,6 +123,10 @@ fi
 
 if [[ -n "${INCLUDE_TOKENS}" ]]; then
   cmd+=("feature_cache.include_tokens=${INCLUDE_TOKENS}")
+fi
+
+if [[ -n "${FEATURE_LAYER_IDS_COMPACT}" ]]; then
+  cmd+=("feature_cache.layer_ids=[${FEATURE_LAYER_IDS_COMPACT}]")
 fi
 
 if [[ -n "${FORCE_REEXTRACT}" ]]; then

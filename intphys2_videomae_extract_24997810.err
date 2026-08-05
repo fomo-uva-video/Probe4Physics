@@ -1,0 +1,33 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/418 [00:00<?, ?it/s]Loading weights:   5%|▌         | 22/418 [00:00<00:04, 86.81it/s]Loading weights:   8%|▊         | 32/418 [00:00<00:09, 40.86it/s]Loading weights:  26%|██▌       | 107/418 [00:00<00:01, 173.28it/s]Loading weights:  34%|███▍      | 144/418 [00:01<00:04, 65.32it/s] Loading weights:  40%|████      | 168/418 [00:02<00:04, 52.45it/s]Loading weights:  44%|████▍     | 185/418 [00:03<00:05, 42.77it/s]Loading weights:  47%|████▋     | 198/418 [00:03<00:04, 46.99it/s]Loading weights:  50%|█████     | 209/418 [00:04<00:05, 39.83it/s]Loading weights:  52%|█████▏    | 217/418 [00:04<00:04, 42.99it/s]Loading weights:  54%|█████▍    | 225/418 [00:04<00:05, 34.29it/s]Loading weights:  55%|█████▌    | 231/418 [00:04<00:05, 36.53it/s]Loading weights:  59%|█████▊    | 245/418 [00:04<00:03, 48.72it/s]Loading weights:  61%|██████    | 253/418 [00:05<00:06, 24.53it/s]Loading weights:  65%|██████▍   | 271/418 [00:05<00:04, 35.45it/s]Loading weights:  67%|██████▋   | 278/418 [00:06<00:03, 36.58it/s]Loading weights:  69%|██████▊   | 287/418 [00:06<00:03, 37.05it/s]Loading weights:  70%|███████   | 293/418 [00:06<00:03, 38.11it/s]Loading weights:  72%|███████▏  | 299/418 [00:06<00:03, 39.12it/s]Loading weights:  73%|███████▎  | 304/418 [00:06<00:02, 39.93it/s]Loading weights:  74%|███████▍  | 309/418 [00:06<00:02, 39.74it/s]Loading weights:  76%|███████▌  | 316/418 [00:06<00:02, 44.97it/s]Loading weights:  78%|███████▊  | 325/418 [00:07<00:02, 39.50it/s]Loading weights:  79%|███████▉  | 330/418 [00:07<00:02, 39.84it/s]Loading weights:  81%|████████  | 337/418 [00:07<00:01, 43.10it/s]Loading weights:  82%|████████▏ | 342/418 [00:07<00:02, 35.24it/s]Loading weights:  83%|████████▎ | 346/418 [00:07<00:02, 35.75it/s]Loading weights:  85%|████████▌ | 357/418 [00:07<00:01, 42.12it/s]Loading weights:  87%|████████▋ | 362/418 [00:08<00:01, 38.10it/s]Loading weights:  88%|████████▊ | 366/418 [00:08<00:01, 36.80it/s]Loading weights:  89%|████████▉ | 374/418 [00:08<00:01, 37.50it/s]Loading weights:  91%|█████████ | 380/418 [00:08<00:01, 36.70it/s]Loading weights:  94%|█████████▍| 395/418 [00:08<00:00, 56.90it/s]Loading weights:  96%|█████████▌| 402/418 [00:08<00:00, 52.97it/s]Loading weights:  98%|█████████▊| 408/418 [00:09<00:00, 44.55it/s]Loading weights: 100%|██████████| 418/418 [00:09<00:00, 45.80it/s]
+[transformers] [1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-huge-finetuned-kinetics
+Key                                                        | Status     | 
+-----------------------------------------------------------+------------+-
+videomae.encoder.layer.{0...31}.attention.attention.q_bias | UNEXPECTED | 
+videomae.encoder.layer.{0...31}.attention.attention.v_bias | UNEXPECTED | 
+classifier.bias                                            | UNEXPECTED | 
+classifier.weight                                          | UNEXPECTED | 
+fc_norm.bias                                               | UNEXPECTED | 
+fc_norm.weight                                             | UNEXPECTED | 
+encoder.layer.{0...31}.attention.attention.query.bias      | MISSING    | 
+encoder.layer.{0...31}.attention.attention.value.bias      | MISSING    | 
+encoder.layer.{0...31}.attention.attention.key.bias        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.

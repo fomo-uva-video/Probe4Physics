@@ -820,7 +820,12 @@ def _manifest_matches_requested_cache(
         return False
     if bool(features.get("include_tokens", False)) != bool(feature_cfg["include_tokens"]):
         return False
-    if [int(v) for v in features.get("selected_layers", [])] != expected_layers:
+    cached_layers = [int(v) for v in features.get("selected_layers", [])]
+    if feature_cfg["layer_ids"]:
+        cached_layer_set = set(cached_layers)
+        if any(int(layer) not in cached_layer_set for layer in expected_layers):
+            return False
+    elif cached_layers != expected_layers:
         return False
 
     manifest_decode = manifest.get("decode", {})

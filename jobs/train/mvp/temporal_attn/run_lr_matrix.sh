@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shared runner for IntPhys2 temporal_attn fixed-LR matrix jobs.
+# Shared runner for MVP temporal_attn fixed-LR matrix jobs.
 
 set -euo pipefail
 
@@ -25,10 +25,15 @@ cd "${REPO_ROOT}"
 load_probe4physics_env
 configure_hf_cache
 
-DATASET_NAME="${DATASET_NAME:-intphys2}"
+DATASET_NAME="${DATASET_NAME:-mvp}"
 PROBE_NAME="${PROBE_NAME:-temporal_attn}"
-BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set by the wrapper script}"
+BACKBONE_NAME="${BACKBONE_NAME:?BACKBONE_NAME must be set}"
 BACKBONE_VARIANT="${BACKBONE_VARIANT:-}"
+BACKBONE_TAG="${BACKBONE_NAME}"
+if [[ -n "${BACKBONE_VARIANT}" ]]; then
+  BACKBONE_TAG="${BACKBONE_TAG}_${BACKBONE_VARIANT}"
+fi
+
 PROBE_FEATURE_VIEW="${PROBE_FEATURE_VIEW:-tokens}"
 PROBE_DEVICE="${PROBE_DEVICE:-cuda}"
 PROBE_EPOCHS="${PROBE_EPOCHS:-30}"
@@ -45,14 +50,17 @@ TEMPORAL_DROPOUT="${TEMPORAL_DROPOUT:-0.2}"
 ENABLE_WANDB="${ENABLE_WANDB:-true}"
 WANDB_PROJECT="${WANDB_PROJECT:-probe4physics}"
 WANDB_MODE="${WANDB_MODE:-online}"
-PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-artifacts/probes/intphys2}"
-PROBE_EVAL_OUTPUT_DIR="${PROBE_EVAL_OUTPUT_DIR:-artifacts/results/intphys2}"
-MATRIX_LAYERS="${MATRIX_LAYERS:?MATRIX_LAYERS must be set by the wrapper script}"
+PROBE_OUTPUT_DIR="${PROBE_OUTPUT_DIR:-artifacts/probes/mvp}"
+PROBE_EVAL_OUTPUT_DIR="${PROBE_EVAL_OUTPUT_DIR:-artifacts/results}"
+GROUP_SUBDIR="${GROUP_SUBDIR:-mvp_probe_temporal_attn_${BACKBONE_TAG}_lr_matrix}"
+WANDB_GROUP="${WANDB_GROUP:-mvp_temporal_attn_${BACKBONE_NAME}_lr_matrix}"
+MATRIX_LAYERS="${MATRIX_LAYERS:?MATRIX_LAYERS must be set}"
 MATRIX_LRS="${MATRIX_LRS:-5e-4,1e-4,5e-5,1e-5}"
 MATRIX_LR_TAGS="${MATRIX_LR_TAGS:-${MATRIX_LRS}}"
+FEATURE_LAYER_IDS="${FEATURE_LAYER_IDS:-}"
 
-if [[ "${DATASET_NAME}" != "intphys2" ]]; then
-  echo "run_lr_matrix.sh is only intended for DATASET_NAME=intphys2." >&2
+if [[ "${DATASET_NAME}" != "mvp" ]]; then
+  echo "run_lr_matrix.sh is only intended for DATASET_NAME=mvp." >&2
   exit 2
 fi
 if [[ "${PROBE_NAME}" != "temporal_attn" ]]; then
@@ -60,20 +68,13 @@ if [[ "${PROBE_NAME}" != "temporal_attn" ]]; then
   exit 2
 fi
 
-BACKBONE_TAG="${BACKBONE_NAME}"
-if [[ -n "${BACKBONE_VARIANT}" ]]; then
-  BACKBONE_TAG="${BACKBONE_TAG}_${BACKBONE_VARIANT}"
-fi
-GROUP_SUBDIR="${GROUP_SUBDIR:-intphys2_probe_temporal_attn_${BACKBONE_TAG}_lr_matrix}"
-
 MATRIX_LAYERS_COMPACT="${MATRIX_LAYERS// /}"
 MATRIX_LRS_COMPACT="${MATRIX_LRS// /}"
 MATRIX_LR_TAGS_COMPACT="${MATRIX_LR_TAGS// /}"
 MATRIX_LAYERS_COMPACT="${MATRIX_LAYERS_COMPACT//:/,}"
 MATRIX_LRS_COMPACT="${MATRIX_LRS_COMPACT//:/,}"
 MATRIX_LR_TAGS_COMPACT="${MATRIX_LR_TAGS_COMPACT//:/,}"
-FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS:-}"
-FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS_COMPACT// /}"
+FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS// /}"
 FEATURE_LAYER_IDS_COMPACT="${FEATURE_LAYER_IDS_COMPACT//:/,}"
 IFS=',' read -r -a LAYER_VALUES <<< "${MATRIX_LAYERS_COMPACT}"
 IFS=',' read -r -a LR_VALUES <<< "${MATRIX_LRS_COMPACT}"
@@ -113,8 +114,7 @@ TRAIN_ROOT="${REPO_ROOT}/${PROBE_OUTPUT_DIR}/${TRAIN_SUBDIR}"
 EVAL_ROOT="${REPO_ROOT}/${PROBE_EVAL_OUTPUT_DIR}/${EVAL_SUBDIR}"
 CHECKPOINT_PATH="${TRAIN_ROOT}/probe_best.pt"
 
-WANDB_GROUP="${WANDB_GROUP:-intphys2_temporal_attn_${BACKBONE_NAME}_lr_matrix}"
-WANDB_NAME="${WANDB_NAME:-intphys2_${BACKBONE_NAME}_layer_${PROBE_LAYER}_lr_${LR_TAG}}"
+WANDB_NAME="${WANDB_NAME:-mvp_${BACKBONE_NAME}_layer_${PROBE_LAYER}_lr_${LR_TAG}}"
 
 echo "===== TRAIN PROVENANCE ====="
 date -u
@@ -180,7 +180,7 @@ train_cmd=(
   "probe.wandb.mode=${WANDB_MODE}"
   "probe.wandb.group=${WANDB_GROUP}"
   "probe.wandb.name=${WANDB_NAME}"
-  "probe.wandb.tags=[intphys2,${BACKBONE_NAME},temporal_attn,lr_matrix,label_${PROBE_LABEL_CONTROL_MODE},layer_${PROBE_LAYER},lr_${LR_TAG}]"
+  "probe.wandb.tags=[mvp,${BACKBONE_NAME},temporal_attn,lr_matrix,label_${PROBE_LABEL_CONTROL_MODE},layer_${PROBE_LAYER},lr_${LR_TAG}]"
   "probe.optuna.enabled=false"
   "feature_cache.include_tokens=true"
 )
@@ -230,25 +230,17 @@ mkdir -p "${GROUP_ROOT}"
 exec 9>"${GROUP_ROOT}/.summary.lock"
 flock 9
 python - <<'PY'
-import csv
 import json
 import os
 from pathlib import Path
 from typing import Any
 
-
-DATASET = "intphys2"
-PROBE_NAME = "temporal_attn"
-FEATURE_VIEW = "tokens"
-OBJECTIVE_METRIC_NAME = "voe_accuracy"
-MODEL_SELECTION_SPLIT = "val"
-PRIMARY_SPLIT = "test"
-REPORTED_SPLITS = ["train", "val", "test"]
+from training.run_probe import _write_train_eval_summary_csv
 
 
-def parse_int(value: Any) -> Any:
+def parse_int(value: object) -> object:
     try:
-        return int(value)
+        return int(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         return value
 
@@ -262,104 +254,8 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def scalar_metrics(metrics: Any) -> dict[str, Any]:
-    if not isinstance(metrics, dict):
-        return {}
-    return {
-        str(key): value
-        for key, value in metrics.items()
-        if value is None or isinstance(value, (str, int, float, bool))
-    }
-
-
-def selection_metric(eval_summary: dict[str, Any]) -> float:
-    metrics_by_split = eval_summary.get("metrics_by_split", {})
-    if isinstance(metrics_by_split, dict):
-        val_metrics = metrics_by_split.get(MODEL_SELECTION_SPLIT, {})
-        if isinstance(val_metrics, dict) and OBJECTIVE_METRIC_NAME in val_metrics:
-            return float(val_metrics[OBJECTIVE_METRIC_NAME])
-    return float(eval_summary.get("objective_metric", 0.0))
-
-
 def metric_value(item: dict[str, Any]) -> float:
-    return float(item.get("selection_metric", item.get("objective_metric", 0.0)))
-
-
-def write_matrix_csv(path: Path, summary: dict[str, Any]) -> None:
-    report_splits = [str(item) for item in summary.get("reported_splits", [])]
-    layer_summaries = summary.get("layers", [])
-    metric_keys_by_split: dict[str, set[str]] = {split: set() for split in report_splits}
-    extra_splits: set[str] = set()
-    for layer_summary in layer_summaries:
-        if not isinstance(layer_summary, dict):
-            continue
-        eval_summary = layer_summary.get("eval", {})
-        metrics_by_split = (
-            eval_summary.get("metrics_by_split", {})
-            if isinstance(eval_summary, dict)
-            else {}
-        )
-        if not isinstance(metrics_by_split, dict):
-            continue
-        for split_name, metrics in metrics_by_split.items():
-            split_label = str(split_name)
-            target = metric_keys_by_split.get(split_label)
-            if target is None:
-                extra_splits.add(split_label)
-                target = metric_keys_by_split.setdefault(split_label, set())
-            target.update(scalar_metrics(metrics).keys())
-
-    ordered_splits = report_splits + sorted(extra_splits - set(report_splits))
-    metric_columns = [
-        f"{split}_{metric}"
-        for split in ordered_splits
-        for metric in sorted(metric_keys_by_split.get(split, set()))
-    ]
-    fieldnames = [
-        "layer",
-        "layer_label",
-        "selected_lr",
-        "selected_lr_tag",
-        "selection_metric_name",
-        "selection_metric",
-        "objective_metric_name",
-        "objective_metric",
-        "checkpoint",
-    ] + metric_columns
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
-        writer.writeheader()
-        for layer_summary in layer_summaries:
-            if not isinstance(layer_summary, dict):
-                continue
-            eval_summary = layer_summary.get("eval", {})
-            metrics_by_split = (
-                eval_summary.get("metrics_by_split", {})
-                if isinstance(eval_summary, dict)
-                else {}
-            )
-            row = {
-                "layer": layer_summary.get("layer", ""),
-                "layer_label": layer_summary.get("layer_label", ""),
-                "selected_lr": layer_summary.get("learning_rate", ""),
-                "selected_lr_tag": layer_summary.get("learning_rate_tag", ""),
-                "selection_metric_name": layer_summary.get(
-                    "selection_metric_name", OBJECTIVE_METRIC_NAME
-                ),
-                "selection_metric": layer_summary.get("selection_metric", ""),
-                "objective_metric_name": summary.get(
-                    "objective_metric_name", OBJECTIVE_METRIC_NAME
-                ),
-                "objective_metric": layer_summary.get("objective_metric", ""),
-                "checkpoint": layer_summary.get("checkpoint", ""),
-            }
-            if isinstance(metrics_by_split, dict):
-                for split_name, metrics in metrics_by_split.items():
-                    for metric_name, metric in scalar_metrics(metrics).items():
-                        row[f"{split_name}_{metric_name}"] = metric
-            writer.writerow(row)
+    return float(item.get("objective_metric", 0.0))
 
 
 group_root = Path(os.environ["GROUP_ROOT"])
@@ -375,42 +271,38 @@ label_control = {
 
 train_summary = read_json(run_root / "train" / "train_summary.json")
 eval_summary = read_json(eval_root / "probe_eval_summary.json")
-selection_value = selection_metric(eval_summary)
-
-single_layer = {
-    "layer": probe_layer,
-    "layer_label": probe_layer,
-    "learning_rate": lr_value,
-    "learning_rate_tag": lr_tag,
-    "checkpoint": str(train_summary["checkpoint"]),
-    "selection_metric_name": OBJECTIVE_METRIC_NAME,
-    "selection_metric": selection_value,
-    "objective_metric": float(eval_summary["objective_metric"]),
-    "train": train_summary,
-    "eval": eval_summary,
-}
 
 single_layer_summary = {
-    "dataset": DATASET,
-    "probe_name": PROBE_NAME,
-    "feature_view": FEATURE_VIEW,
+    "dataset": "mvp",
+    "probe_name": "temporal_attn",
+    "feature_view": "tokens",
     "train_split": "train",
-    "objective_metric_name": OBJECTIVE_METRIC_NAME,
-    "model_selection_split": MODEL_SELECTION_SPLIT,
-    "split_name": eval_summary.get("split_name", PRIMARY_SPLIT),
-    "reported_splits": list(eval_summary.get("reported_splits", REPORTED_SPLITS)),
+    "objective_metric_name": "pair_consistency",
+    "model_selection_split": "val",
+    "split_name": eval_summary.get("split_name", "test"),
+    "reported_splits": list(eval_summary.get("reported_splits", [])),
     "label_control": label_control,
     "sweep_dir": str(run_root),
     "requested_layers": [probe_layer],
-    "layers": [single_layer],
+    "layers": [
+        {
+            "layer": probe_layer,
+            "layer_label": probe_layer,
+            "learning_rate": lr_value,
+            "learning_rate_tag": lr_tag,
+            "checkpoint": str(train_summary["checkpoint"]),
+            "objective_metric": float(eval_summary["objective_metric"]),
+            "train": train_summary,
+            "eval": eval_summary,
+        }
+    ],
     "best_layer": probe_layer,
     "best_layer_label": probe_layer,
-    "best_selection_metric": selection_value,
     "best_objective_metric": float(eval_summary["objective_metric"]),
 }
 
 write_json(run_root / "train_eval_summary.json", single_layer_summary)
-write_matrix_csv(run_root / "train_eval_summary.csv", single_layer_summary)
+_write_train_eval_summary_csv(run_root / "train_eval_summary.csv", single_layer_summary)
 
 best_by_layer: dict[str, dict[str, Any]] = {}
 for candidate_path in sorted(group_root.glob("layer_*/lr_*/train_eval_summary.json")):
@@ -435,32 +327,30 @@ def sort_key(label: str) -> tuple[int, str]:
 
 group_layers = [best_by_layer[label] for label in sorted(best_by_layer, key=sort_key)]
 group_summary = {
-    "dataset": DATASET,
-    "probe_name": PROBE_NAME,
-    "feature_view": FEATURE_VIEW,
+    "dataset": "mvp",
+    "probe_name": "temporal_attn",
+    "feature_view": "tokens",
     "train_split": "train",
-    "objective_metric_name": OBJECTIVE_METRIC_NAME,
-    "model_selection_split": MODEL_SELECTION_SPLIT,
-    "split_name": PRIMARY_SPLIT,
-    "reported_splits": REPORTED_SPLITS,
+    "objective_metric_name": "pair_consistency",
+    "model_selection_split": "val",
+    "split_name": "test",
+    "reported_splits": ["train", "val", "test"],
     "label_control": label_control,
     "sweep_dir": str(group_root),
     "requested_layers": [layer.get("layer", "") for layer in group_layers],
     "layers": group_layers,
     "best_layer": None,
     "best_layer_label": None,
-    "best_selection_metric": None,
     "best_objective_metric": None,
 }
 if group_layers:
     best_overall = max(group_layers, key=metric_value)
     group_summary["best_layer"] = best_overall.get("layer")
     group_summary["best_layer_label"] = best_overall.get("layer_label")
-    group_summary["best_selection_metric"] = metric_value(best_overall)
-    group_summary["best_objective_metric"] = float(best_overall.get("objective_metric", 0.0))
+    group_summary["best_objective_metric"] = metric_value(best_overall)
 
 write_json(group_root / "train_eval_summary.json", group_summary)
-write_matrix_csv(group_root / "train_eval_summary.csv", group_summary)
+_write_train_eval_summary_csv(group_root / "train_eval_summary.csv", group_summary)
 PY
 flock -u 9
 

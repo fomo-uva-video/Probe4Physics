@@ -1,0 +1,36 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Traceback (most recent call last):
+  File "/gpfs/home2/spunzo1/Probe4Physics/run.py", line 479, in <module>
+    main()
+  File "/gpfs/home2/spunzo1/Probe4Physics/run.py", line 97, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/training/intphys2_extract.py", line 9, in run_intphys2_extract
+    return run_intphys2_feature_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/benchmarks/intphys2/features.py", line 292, in run_intphys2_feature_extraction
+    adapter = create_adapter(backbone_name, **backbone_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/registry.py", line 40, in create_adapter
+    return _ADAPTER_FACTORIES[key](**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/jepa_v2_1_adapter.py", line 461, in create_jepa_v2_1_adapter
+    return JEPAV2_1Adapter(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/jepa_v2_1_adapter.py", line 266, in __init__
+    raise FileNotFoundError(
+FileNotFoundError: V-JEPA v2.1 checkpoint not found: /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitG_384.pt. Download the official checkpoint and place it under /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1.

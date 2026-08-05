@@ -1,0 +1,48 @@
+===== PROVENANCE =====
+Tue Jul 28 16:03:35 UTC 2026
+gcn12.local.snellius.surf.nl
+8ade538f54123143e4bfc2c9074722537b446cd4
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=jepa_v2
+BACKBONE_VARIANT=vitg_384
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home2/spunzo1/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home2/spunzo1/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=/scratch-shared/spunzo1/probe4physics/artifacts/features/intphys2
+HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
+======================
+JOB_START_UTC=2026-07-28T16:03:35Z
+[extract.intphys2] resume status: resumed=False offset=0 target=1012 signature=e8907c44e6a5e86e
+[extract.intphys2] completed: signature=e8907c44e6a5e86e resumed=False reused_samples=0 new_samples=1012 total=1012 elapsed_s=2016.397 sec_per_processed_sample=1.992487 elapsed_agg_s=2016.397
+{
+  "aggregated_elapsed_seconds": 2016.3965824829647,
+  "aggregated_processed_samples": 1012,
+  "aggregated_seconds_per_processed_sample": 1.9924867415839573,
+  "aggregated_seconds_per_total_sample": 1.9924867415839573,
+  "elapsed_seconds": 2016.3965824829647,
+  "feature_cache_dir": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/jepa_v2_vitg_384/train-val-test/e8907c44e6a5e86e",
+  "n_samples": 1012,
+  "resume_events": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/jepa_v2_vitg_384/train-val-test/e8907c44e6a5e86e/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 1.9924867415839573,
+  "seconds_per_total_sample": 1.9924867415839573,
+  "selected_layers": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "signature": "e8907c44e6a5e86e",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/extract_warnings.log"
+}
+JOB_END_UTC=2026-07-28T16:40:02Z
+JOB_ELAPSED_SECONDS=2187
+Completed at:
+Tue Jul 28 16:40:02 UTC 2026
