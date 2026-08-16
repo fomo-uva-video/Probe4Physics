@@ -1,0 +1,20 @@
+===== PROVENANCE =====
+Mon Aug 10 11:50:12 UTC 2026
+gcn6.local.snellius.surf.nl
+348ded65e7da65c19c48243bc42645b0c859c028
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=videomae_v2
+BACKBONE_VARIANT=vit_base_16_224
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home2/spunzo1/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home2/spunzo1/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=<config default>
+FEATURE_LAYER_IDS=3
+HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
+======================
+JOB_START_UTC=2026-08-10T11:50:12Z

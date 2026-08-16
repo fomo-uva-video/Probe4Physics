@@ -1,0 +1,51 @@
+===== PROVENANCE =====
+Mon Aug 10 12:12:57 UTC 2026
+gcn11.local.snellius.surf.nl
+348ded65e7da65c19c48243bc42645b0c859c028
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=videomae_v2
+BACKBONE_VARIANT=vit_base_16_224
+BACKBONE_DEVICE=cuda
+ANNOTATION_FILE=/gpfs/home2/spunzo1/Probe4Physics/data/annotations/mvp_full.jsonl
+OFFICIAL_REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics/third_party/minimal_video_pairs
+VIDEOS_ROOT=/scratch-shared/spunzo1/probe4physics/data/videos/mvp
+CACHE_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/cache/videos
+SPLIT_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/splits/mvp/full_60_20_20
+FEATURE_DIR=<config default>
+FEATURE_LAYER_IDS=3,6,9,12
+HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
+======================
+JOB_START_UTC=2026-08-10T12:12:57Z
+[extract.mvp] resume status: resumed=False offset=0 target=9886 signature=e4e4468069b0b898
+[extract.mvp] completed: signature=e4e4468069b0b898 resumed=False reused_samples=0 new_samples=9886 total=9886 elapsed_s=6140.386 sec_per_processed_sample=0.621119 elapsed_agg_s=6140.386
+{
+  "aggregated_elapsed_seconds": 6140.385800112039,
+  "aggregated_processed_samples": 9886,
+  "aggregated_seconds_per_processed_sample": 0.621119340492822,
+  "aggregated_seconds_per_total_sample": 0.621119340492822,
+  "elapsed_seconds": 6140.385800112039,
+  "feature_cache_dir": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/videomae_v2_vit_base_16_224/train-val-test/e4e4468069b0b898",
+  "n_samples": 9886,
+  "resume_events": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/videomae_v2_vit_base_16_224/train-val-test/e4e4468069b0b898/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 0.621119340492822,
+  "seconds_per_total_sample": 0.621119340492822,
+  "selected_layers": [
+    3,
+    6,
+    9,
+    12
+  ],
+  "signature": "e4e4468069b0b898",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/mvp/extract_warnings.log"
+}
+JOB_END_UTC=2026-08-10T13:56:03Z
+JOB_ELAPSED_SECONDS=6186
+Completed at:
+Mon Aug 10 13:56:03 UTC 2026

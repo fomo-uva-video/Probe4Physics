@@ -137,6 +137,7 @@ probe:
   output_dir: artifacts/probes/mvp
   output_subdir: "" # optional stable subdir for train artifacts
   checkpoint_path: "" # optional explicit checkpoint for eval.probe.mvp
+  init_checkpoint_path: "" # optional checkpoint used to warm-start probe training
   eval_output_dir: artifacts/results
   eval_output_subdir: "" # optional stable subdir for probe eval artifacts
   mlp:

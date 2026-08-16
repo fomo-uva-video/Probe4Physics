@@ -246,4 +246,3 @@ Main conclusions:
 | MVP | same_L | VideoMAE-v2 | ViT-L/16 | MLP | 18 | no recovered config for the current best row |
 
 Machine-readable best-row table: `results/best_config_availability.csv`.
-Row-level validation for all recovered configs: `results/recovered_best_configs_row_validation.csv`.

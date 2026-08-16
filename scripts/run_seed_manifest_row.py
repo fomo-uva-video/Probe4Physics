@@ -27,7 +27,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--probe",
-        choices=("linear", "mlp"),
+        choices=("linear", "mlp", "temporal_attn"),
         default=None,
         help="Filter manifest rows by probe_hydra before applying --task-index.",
     )
@@ -79,17 +79,27 @@ def _validate_row(row: dict[str, str], *, manifest_path: Path) -> None:
         raise ValueError(f"Manifest row {run_id!r} is not pending.")
     if row.get("blocked_reason", "").strip():
         raise ValueError(f"Manifest row {run_id!r} is blocked: {row['blocked_reason']}")
-    if row.get("probe_hydra", "").strip() not in {"linear", "mlp"}:
+    probe_hydra = row.get("probe_hydra", "").strip()
+    if probe_hydra not in {"linear", "mlp", "temporal_attn"}:
         raise ValueError(f"Unsupported probe_hydra for seed runner: {row.get('probe_hydra')!r}")
 
     overrides = _manifest_overrides(row)
     required = {
         "probe.optuna.enabled=false",
-        "probe.device=cpu",
         f"seed={row['seed']}",
-        f"probe.name={row['probe_hydra']}",
+        f"probe.name={probe_hydra}",
         f"probe.layer={row['layer']}",
     }
+    if probe_hydra == "temporal_attn":
+        required.update(
+            {
+                "probe.device=cuda",
+                "probe.feature_view=tokens",
+                "feature_cache.include_tokens=true",
+            }
+        )
+    else:
+        required.add("probe.device=cpu")
     missing = sorted(required - set(overrides))
     if missing:
         raise ValueError(f"Manifest row {run_id!r} is missing required overrides: {missing}")

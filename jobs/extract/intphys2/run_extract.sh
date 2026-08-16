@@ -137,6 +137,10 @@ if [[ -n "${MAX_SAMPLES_OVERRIDE}" ]]; then
   cmd+=("${MAX_SAMPLES_OVERRIDE}")
 fi
 
+if [[ "$#" -gt 0 ]]; then
+  cmd+=("$@")
+fi
+
 JOB_START_EPOCH="$(date +%s)"
 JOB_START_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 echo "JOB_START_UTC=${JOB_START_UTC}"

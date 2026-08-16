@@ -12,6 +12,7 @@ DEFAULT_SOURCE = Path("results/verified_best_probe_configs.csv")
 DEFAULT_OUTPUT = Path("results/seed_runs/seed_manifest_main_linear_mlp_v1.csv")
 DEFAULT_BLOCKED_OUTPUT = Path("results/seed_runs/seed_manifest_main_linear_mlp_blocked_v1.csv")
 DEFAULT_SEEDS = (101, 102)
+DEFAULT_RUN_GROUP = "seed_runs_v1"
 
 NULL_VALUES = {"", "NULL", "null", "None", "none", "NA", "N/A"}
 
@@ -29,9 +30,23 @@ PROBE_TO_HYDRA = {
 BACKBONE_TO_HYDRA = {
     ("V-JEPA", "ViT-H/16"): ("jepa_v1", "vith16_384"),
     ("V-JEPA 2", "ViT-G/16"): ("jepa_v2", "vitg_384"),
+    ("V-JEPA 2.1", "ViT-B/16"): ("jepa_v2_1", "vitb_384"),
+    ("V-JEPA 2.1", "ViT-G/16"): ("jepa_v2_1", "vitg_384"),
     ("V-JEPA 2.1", "ViT-Gigantic/16"): ("jepa_v2_1", "vitG_384"),
     ("VideoMAE", "ViT-H/16"): ("videomae", "vit_huge_16_224"),
+    ("VideoMAE-v2", "ViT-B/16"): ("videomae_v2", "vit_base_16_224"),
     ("VideoMAE-v2", "ViT-G/16"): ("videomae_v2", "vit_giant_16_224"),
+}
+
+FEATURE_CACHE_LAYER_IDS = {
+    ("backbone_sweep", "V-JEPA 2.1", "ViT-B/16"): [3, 6, 9, 12],
+    ("backbone_sweep", "V-JEPA 2.1", "ViT-G/16"): [10, 20, 30, 40],
+    ("backbone_sweep", "VideoMAE-v2", "ViT-B/16"): [3, 6, 9, 12],
+    ("same_L", "V-JEPA", "ViT-L/16"): [6, 12, 18, 24],
+    ("same_L", "V-JEPA 2", "ViT-L/16"): [6, 12, 18, 24],
+    ("same_L", "V-JEPA 2.1", "ViT-L/16"): [6, 12, 18, 24],
+    ("same_L", "VideoMAE", "ViT-L/16"): [6, 12, 18, 24],
+    ("same_L", "VideoMAE-v2", "ViT-L/16"): [6, 12, 18, 24],
 }
 
 MANIFEST_FIELDS = [
@@ -92,11 +107,40 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--blocked-output", type=Path, default=DEFAULT_BLOCKED_OUTPUT)
     parser.add_argument("--experiment", default="main")
+    parser.add_argument(
+        "--experiments",
+        default="",
+        help="Comma-separated experiment labels. Overrides --experiment when set.",
+    )
+    parser.add_argument("--datasets", default="", help="Optional comma-separated dataset labels.")
+    parser.add_argument("--models", default="", help="Optional comma-separated model labels.")
+    parser.add_argument("--backbones", default="", help="Optional comma-separated backbone labels.")
     parser.add_argument("--probes", default="Linear,MLP")
     parser.add_argument("--seeds", default=",".join(str(seed) for seed in DEFAULT_SEEDS))
+    parser.add_argument(
+        "--run-group",
+        default=DEFAULT_RUN_GROUP,
+        help="Artifact/W&B namespace used in output subdirs, e.g. seed_runs_v1 or seed_runs_layerwise_v1.",
+    )
+    parser.add_argument(
+        "--allow-statuses",
+        default="VERIFIED_FULL",
+        help="Comma-separated config_status values allowed to run. Other selected rows are blocked.",
+    )
+    parser.add_argument(
+        "--mlp-early-stopping-policy",
+        choices=("force_disabled", "source"),
+        default="force_disabled",
+        help="Use force_disabled to match historical MLP runtime behavior; use source to trust the CSV.",
+    )
     args = parser.parse_args()
 
-    requested_probes = {item.strip() for item in args.probes.split(",") if item.strip()}
+    requested_probes = _parse_required_set(args.probes, option_name="--probes")
+    requested_experiments = _parse_filter_set(args.experiments) or {args.experiment}
+    requested_datasets = _parse_filter_set(args.datasets)
+    requested_models = _parse_filter_set(args.models)
+    requested_backbones = _parse_filter_set(args.backbones)
+    allowed_statuses = _parse_filter_set(args.allow_statuses) or {"VERIFIED_FULL"}
     seeds = [int(item.strip()) for item in args.seeds.split(",") if item.strip()]
     if not seeds:
         raise SystemExit("--seeds must contain at least one integer seed")
@@ -106,19 +150,29 @@ def main() -> None:
     selected = [
         row
         for row in source_rows
-        if str(row.get("experiment", "")).strip() == args.experiment
-        and str(row.get("probe", "")).strip() in requested_probes
+        if _value(row.get("experiment")) in requested_experiments
+        and _value(row.get("probe")) in requested_probes
+        and _matches_optional_filter(row, "dataset", requested_datasets)
+        and _matches_optional_filter(row, "model", requested_models)
+        and _matches_optional_filter(row, "backbone", requested_backbones)
     ]
 
     manifest_rows: list[dict[str, str]] = []
     blocked_rows: list[dict[str, str]] = []
     for row in selected:
-        blocked_reason = _blocked_reason(row)
+        blocked_reason = _blocked_reason(row, allowed_statuses=allowed_statuses)
         if blocked_reason:
             blocked_rows.append(_blocked_row(row, blocked_reason))
             continue
         for seed in seeds:
-            manifest_rows.append(_manifest_row(row, seed=seed))
+            manifest_rows.append(
+                _manifest_row(
+                    row,
+                    seed=seed,
+                    run_group=args.run_group,
+                    mlp_early_stopping_policy=args.mlp_early_stopping_policy,
+                )
+            )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     _write_csv(args.output, manifest_rows, MANIFEST_FIELDS)
@@ -128,9 +182,15 @@ def main() -> None:
         "source": str(args.source),
         "output": str(args.output),
         "blocked_output": str(args.blocked_output),
-        "experiment": args.experiment,
+        "experiments": sorted(requested_experiments),
+        "datasets": sorted(requested_datasets) if requested_datasets is not None else "all",
+        "models": sorted(requested_models) if requested_models is not None else "all",
+        "backbones": sorted(requested_backbones) if requested_backbones is not None else "all",
         "probes": sorted(requested_probes),
         "seeds": seeds,
+        "run_group": args.run_group,
+        "allow_statuses": sorted(allowed_statuses),
+        "mlp_early_stopping_policy": args.mlp_early_stopping_policy,
         "source_rows_selected": len(selected),
         "runnable_configs": len({row["config_id"] for row in manifest_rows}),
         "manifest_rows": len(manifest_rows),
@@ -153,6 +213,26 @@ def _write_csv(path: Path, rows: list[dict[str, str]], fieldnames: list[str]) ->
         writer.writerows(rows)
 
 
+def _parse_required_set(raw: str, *, option_name: str) -> set[str]:
+    values = _parse_filter_set(raw)
+    if values is None:
+        raise SystemExit(f"{option_name} must contain at least one explicit value")
+    return values
+
+
+def _parse_filter_set(raw: str) -> set[str] | None:
+    values = {item.strip() for item in raw.split(",") if item.strip()}
+    if not values or values & {"*", "all", "ALL"}:
+        return None
+    return values
+
+
+def _matches_optional_filter(row: dict[str, str], key: str, allowed: set[str] | None) -> bool:
+    if allowed is None:
+        return True
+    return _value(row.get(key)) in allowed
+
+
 def _annotate_source_rows(rows: list[dict[str, str]], path: Path) -> None:
     for index, row in enumerate(rows):
         row["_source_csv_path"] = str(path)
@@ -171,13 +251,14 @@ def _source_row_hash(row: dict[str, str]) -> str:
     return hashlib.sha256(encoded).hexdigest()[:16]
 
 
-def _blocked_reason(row: dict[str, str]) -> str:
-    status = str(row.get("config_status", "")).strip()
+def _blocked_reason(row: dict[str, str], *, allowed_statuses: set[str]) -> str:
+    status = _value(row.get("config_status"))
     if status == "MISSING":
         return "source config_status=MISSING"
-    if status not in {"VERIFIED_FULL", "VERIFIED_ATTENTIVE_LAYER_LR"}:
+    if status not in allowed_statuses:
         return f"unsupported source config_status={status!r}"
     try:
+        _config_id(row)
         _resolve_dataset(row)
         _resolve_probe(row)
         _resolve_backbone(row)
@@ -189,17 +270,17 @@ def _blocked_reason(row: dict[str, str]) -> str:
 
 def _blocked_row(row: dict[str, str], reason: str) -> dict[str, str]:
     base = {field: "" for field in MANIFEST_FIELDS}
-    config_id = _config_id(row)
+    config_id = _config_id(row, allow_synthetic=True)
     base.update(
         {
             "run_id": f"{config_id}__blocked",
             "config_id": config_id,
             "run_command": "",
-            "dataset": str(row.get("dataset", "")).strip(),
-            "experiment": str(row.get("experiment", "")).strip(),
-            "model": str(row.get("model", "")).strip(),
-            "backbone": str(row.get("backbone", "")).strip(),
-            "probe": str(row.get("probe", "")).strip(),
+            "dataset": _value(row.get("dataset")),
+            "experiment": _value(row.get("experiment")),
+            "model": _value(row.get("model")),
+            "backbone": _value(row.get("backbone")),
+            "probe": _value(row.get("probe")),
             "status": "blocked",
             "blocked_reason": reason,
             "hydra_overrides_json": "",
@@ -207,22 +288,28 @@ def _blocked_row(row: dict[str, str], reason: str) -> dict[str, str]:
             "source_csv_row_index": str(row.get("_source_csv_row_index", "")),
             "source_csv_line_number": str(row.get("_source_csv_line_number", "")),
             "source_row_sha256": str(row.get("_source_row_sha256", "")),
-            "source_config_status": str(row.get("config_status", "")).strip(),
-            "source_config_json": str(row.get("best_config_json", "")).strip(),
-            "source_evidence_path": str(row.get("evidence_path", "")).strip(),
+            "source_config_status": _value(row.get("config_status")),
+            "source_config_json": _value(row.get("best_config_json")),
+            "source_evidence_path": _value(row.get("evidence_path")),
         }
     )
     return base
 
 
-def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
+def _manifest_row(
+    row: dict[str, str],
+    *,
+    seed: int,
+    run_group: str,
+    mlp_early_stopping_policy: str,
+) -> dict[str, str]:
     dataset_hydra = _resolve_dataset(row)
     probe_hydra = _resolve_probe(row)
     backbone_name, backbone_variant = _resolve_backbone(row)
     layer = _resolve_layer(row)
     config_id = _config_id(row)
     run_id = f"{config_id}__seed_{int(seed)}"
-    output_subdir = f"seed_runs_v1/{config_id}/seed_{int(seed)}"
+    output_subdir = f"{run_group}/{config_id}/seed_{int(seed)}"
     source_config = _parse_json_dict(row.get("best_config_json", ""))
 
     feature_view = _value(row.get("feature_view")) or str(source_config.get("feature_view", "")) or "pooled"
@@ -247,10 +334,15 @@ def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
         or _json_value(early_stopping, "patience")
         or "5"
     )
-    if probe_hydra == "mlp":
-        # The recovered CSV records the current config shape, but the old MLP
-        # main jobs selected checkpoints after the full epoch budget. Keep seed
-        # reruns matched to that runtime behavior.
+    if probe_hydra == "linear":
+        # Historical linear wrappers did not enable probe early stopping; they
+        # used Optuna pruning during the search. Fixed-config seed reruns must
+        # therefore train for the recovered epoch budget.
+        early_stopping_enabled = "false"
+    elif probe_hydra == "mlp" and mlp_early_stopping_policy == "force_disabled":
+        # Historical MLP main jobs selected after the full epoch budget. Keep
+        # seed reruns matched to that runtime behavior unless explicitly told
+        # to trust the CSV's early-stopping field.
         early_stopping_enabled = "false"
 
     mlp_hidden_dims = _value(row.get("mlp_hidden_dims"))
@@ -264,12 +356,12 @@ def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
         "run_id": run_id,
         "config_id": config_id,
         "run_command": f"train_eval.probe.{dataset_hydra}",
-        "dataset": str(row.get("dataset", "")).strip(),
+        "dataset": _value(row.get("dataset")),
         "dataset_hydra": dataset_hydra,
-        "experiment": str(row.get("experiment", "")).strip(),
-        "model": str(row.get("model", "")).strip(),
-        "backbone": str(row.get("backbone", "")).strip(),
-        "probe": str(row.get("probe", "")).strip(),
+        "experiment": _value(row.get("experiment")),
+        "model": _value(row.get("model")),
+        "backbone": _value(row.get("backbone")),
+        "probe": _value(row.get("probe")),
         "probe_hydra": probe_hydra,
         "seed": str(int(seed)),
         "original_seed": "42",
@@ -277,7 +369,7 @@ def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
         "backbone_variant": backbone_variant,
         "layer": str(layer),
         "selected_slot": _value(row.get("selected_slot")),
-        "layer_label": str(row.get("selected_layer_label", "")).strip(),
+        "layer_label": _resolve_layer_label(row, layer),
         "feature_view": feature_view,
         "lr": lr,
         "weight_decay": weight_decay,
@@ -292,12 +384,12 @@ def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
         "temporal_num_self_attn_blocks": _value(row.get("temporal_num_self_attn_blocks")),
         "temporal_mlp_ratio": _value(row.get("temporal_mlp_ratio")),
         "temporal_dropout": _value(row.get("temporal_dropout")),
-        "probe_device": "cpu",
+        "probe_device": "cuda" if probe_hydra == "temporal_attn" else "cpu",
         "probe_output_dir": _probe_output_dir(dataset_hydra),
         "probe_output_subdir": output_subdir,
         "eval_output_dir": _eval_output_dir(dataset_hydra),
         "eval_output_subdir": output_subdir,
-        "wandb_group": f"seed_runs_v1_{config_id}",
+        "wandb_group": f"{run_group}_{config_id}",
         "wandb_name": run_id,
         "status": "pending",
         "blocked_reason": "",
@@ -306,9 +398,9 @@ def _manifest_row(row: dict[str, str], *, seed: int) -> dict[str, str]:
         "source_csv_row_index": str(row.get("_source_csv_row_index", "")),
         "source_csv_line_number": str(row.get("_source_csv_line_number", "")),
         "source_row_sha256": str(row.get("_source_row_sha256", "")),
-        "source_config_status": str(row.get("config_status", "")).strip(),
-        "source_config_json": str(row.get("best_config_json", "")).strip(),
-        "source_evidence_path": str(row.get("evidence_path", "")).strip(),
+        "source_config_status": _value(row.get("config_status")),
+        "source_config_json": _value(row.get("best_config_json")),
+        "source_evidence_path": _value(row.get("evidence_path")),
     }
     manifest_row["hydra_overrides_json"] = _json_compact(_hydra_overrides(manifest_row))
     return manifest_row
@@ -347,18 +439,56 @@ def _hydra_overrides(row: dict[str, str]) -> list[str]:
                 f"probe.mlp.dropout={row['mlp_dropout']}",
             ]
         )
+    cache_layer_ids = _feature_cache_layer_ids(row)
+    if cache_layer_ids:
+        compact = ",".join(str(layer_id) for layer_id in cache_layer_ids)
+        overrides.append(f"feature_cache.layer_ids=[{compact}]")
+
+    if row["probe_hydra"] == "temporal_attn":
+        if row.get("temporal_num_heads"):
+            overrides.append(f"probe.temporal_attn.num_heads={row['temporal_num_heads']}")
+        if row.get("temporal_num_self_attn_blocks"):
+            overrides.append(
+                f"probe.temporal_attn.num_self_attn_blocks={row['temporal_num_self_attn_blocks']}"
+            )
+        if row.get("temporal_mlp_ratio"):
+            overrides.append(f"probe.temporal_attn.mlp_ratio={row['temporal_mlp_ratio']}")
+        if row.get("temporal_dropout"):
+            overrides.append(f"probe.temporal_attn.dropout={row['temporal_dropout']}")
+        overrides.append("feature_cache.include_tokens=true")
     return overrides
 
 
-def _config_id(row: dict[str, str]) -> str:
-    config_id = str(row.get("config_id", "")).strip()
+def _feature_cache_layer_ids(row: dict[str, str]) -> list[int]:
+    key = (row.get("experiment", ""), row.get("model", ""), row.get("backbone", ""))
+    return FEATURE_CACHE_LAYER_IDS.get(key, [])
+
+
+def _config_id(row: dict[str, str], *, allow_synthetic: bool = False) -> str:
+    config_id = _value(row.get("config_id"))
     if config_id:
         return config_id
+    if allow_synthetic:
+        parts = [
+            _value(row.get("dataset")) or "unknown_dataset",
+            _value(row.get("experiment")) or "unknown_experiment",
+            _value(row.get("model")) or "unknown_model",
+            _value(row.get("backbone")) or "unknown_backbone",
+            _value(row.get("probe")) or "unknown_probe",
+            _value(row.get("probe_layer"))
+            or _value(row.get("selected_layer_id"))
+            or _value(row.get("excel_layer"))
+            or _value(row.get("_source_csv_line_number"))
+            or "unknown_layer",
+        ]
+        stem = "__".join(_slug(part) for part in parts)
+        line = _value(row.get("_source_csv_line_number")) or "unknown"
+        return f"missing__{stem}__line_{line}"
     raise ValueError(f"Missing config_id for row: {row}")
 
 
 def _resolve_dataset(row: dict[str, str]) -> str:
-    raw = str(row.get("dataset", "")).strip()
+    raw = _value(row.get("dataset"))
     try:
         return DATASET_TO_HYDRA[raw]
     except KeyError as exc:
@@ -366,7 +496,10 @@ def _resolve_dataset(row: dict[str, str]) -> str:
 
 
 def _resolve_probe(row: dict[str, str]) -> str:
-    raw = str(row.get("probe", "")).strip()
+    explicit = _value(row.get("probe_name"))
+    if explicit:
+        return explicit
+    raw = _value(row.get("probe"))
     try:
         return PROBE_TO_HYDRA[raw]
     except KeyError as exc:
@@ -374,7 +507,11 @@ def _resolve_probe(row: dict[str, str]) -> str:
 
 
 def _resolve_backbone(row: dict[str, str]) -> tuple[str, str]:
-    key = (str(row.get("model", "")).strip(), str(row.get("backbone", "")).strip())
+    explicit_name = _value(row.get("backbone_name"))
+    explicit_variant = _value(row.get("backbone_variant"))
+    if explicit_name and explicit_variant:
+        return explicit_name, explicit_variant
+    key = (_value(row.get("model")), _value(row.get("backbone")))
     try:
         return BACKBONE_TO_HYDRA[key]
     except KeyError as exc:
@@ -382,7 +519,11 @@ def _resolve_backbone(row: dict[str, str]) -> tuple[str, str]:
 
 
 def _resolve_layer(row: dict[str, str]) -> str:
-    layer = _value(row.get("selected_layer_id"))
+    layer = (
+        _value(row.get("selected_layer_id"))
+        or _value(row.get("probe_layer"))
+        or _value(row.get("excel_layer"))
+    )
     if layer:
         return layer
     config = _parse_json_dict(row.get("best_config_json", ""))
@@ -390,6 +531,15 @@ def _resolve_layer(row: dict[str, str]) -> str:
     if layer_value is not None:
         return str(layer_value)
     raise ValueError(f"Missing selected layer for {_config_id(row)}")
+
+
+def _resolve_layer_label(row: dict[str, str], layer: str) -> str:
+    return (
+        _value(row.get("selected_layer_label"))
+        or _value(row.get("layer_label"))
+        or _value(row.get("depth_layer_id"))
+        or f"layer_{layer}"
+    )
 
 
 def _probe_output_dir(dataset_hydra: str) -> str:
@@ -444,6 +594,18 @@ def _bool_to_string(value: Any) -> str:
     if value is None:
         return ""
     return "true" if bool(value) else "false"
+
+
+def _slug(raw: str) -> str:
+    chars: list[str] = []
+    for char in raw.lower():
+        if char.isalnum():
+            chars.append(char)
+        elif char in {"-", "_"}:
+            chars.append(char)
+        else:
+            chars.append("_")
+    return "".join(chars).strip("_") or "unknown"
 
 
 if __name__ == "__main__":

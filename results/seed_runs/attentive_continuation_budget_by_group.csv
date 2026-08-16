@@ -1,0 +1,22 @@
+experiment,dataset,model,backbone,probe,local_seed_rows,rows_needing_continuation,target_epochs,remaining_epochs,estimated_gpu_hours,estimated_sbu,median_seconds_per_epoch,max_remaining_row
+backbone_sweep,IntPhys2,V-JEPA 2.1,ViT-B/16,Attentive,8,8,90,338,4.042553,517.447,42.830,layer 6 seed 101: 69
+backbone_sweep,IntPhys2,V-JEPA 2.1,ViT-G/16,Attentive,8,7,90,275,6.286454,804.666,82.458,layer 10 seed 102: 59
+backbone_sweep,IntPhys2,VideoMAE-v2,ViT-B/16,Attentive,8,8,90,336,1.862037,238.341,19.856,layer 3 seed 101: 56
+backbone_sweep,MVP,V-JEPA 2.1,ViT-B/16,Attentive,8,2,30,14,1.606213,205.595,415.953,layer 3 seed 101: 7
+backbone_sweep,MVP,V-JEPA 2.1,ViT-G/16,Attentive,8,0,30,0,0.000000,0.000,773.699,
+backbone_sweep,MVP,VideoMAE-v2,ViT-B/16,Attentive,8,0,30,0,0.000000,0.000,180.583,
+main,IntPhys2,V-JEPA,ViT-H/16,Attentive,8,8,90,335,6.825354,873.645,72.837,layer 8 seed 102: 60
+main,IntPhys2,V-JEPA 2,ViT-G/16,Attentive,8,7,90,322,7.226984,925.054,80.717,layer 10 seed 102: 66
+main,IntPhys2,V-JEPA 2.1,ViT-Gigantic/16,Attentive,8,6,90,251,6.672479,854.077,95.669,layer 48 seed 102: 58
+main,IntPhys2,VideoMAE,ViT-H/16,Attentive,8,7,90,195,1.447716,185.308,26.035,layer 8 seed 102: 54
+main,IntPhys2,VideoMAE-v2,ViT-G/16,Attentive,8,8,90,389,3.935834,503.787,35.727,layer 30 seed 101: 69
+same_L,IntPhys2,V-JEPA,ViT-L/16,Attentive,8,5,90,139,0.742639,95.058,19.282,layer 6 seed 101: 55
+same_L,IntPhys2,V-JEPA 2,ViT-L/16,Attentive,8,8,90,282,2.004222,256.540,25.690,layer 6 seed 101: 58
+same_L,IntPhys2,V-JEPA 2.1,ViT-L/16,Attentive,8,6,90,191,2.903766,371.682,56.432,layer 12 seed 102: 60
+same_L,IntPhys2,VideoMAE,ViT-L/16,Attentive,8,8,90,270,1.697450,217.274,22.389,layer 6 seed 102: 49
+same_L,IntPhys2,VideoMAE-v2,ViT-L/16,Attentive,8,8,90,226,1.329609,170.190,20.783,layer 6 seed 102: 63
+same_L,MVP,V-JEPA,ViT-L/16,Attentive,8,1,30,2,0.113747,14.560,205.535,layer 18 seed 102: 2
+same_L,MVP,V-JEPA 2,ViT-L/16,Attentive,8,5,30,26,1.866362,238.894,259.446,layer 12 seed 102: 8
+same_L,MVP,V-JEPA 2.1,ViT-L/16,Attentive,8,6,30,73,10.559427,1351.607,528.263,layer 6 seed 102: 24
+same_L,MVP,VideoMAE,ViT-L/16,Attentive,8,3,30,7,0.441087,56.459,228.838,layer 18 seed 102: 3
+same_L,MVP,VideoMAE-v2,ViT-L/16,Attentive,8,3,30,31,1.962463,251.195,228.583,layer 12 seed 102: 19

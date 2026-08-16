@@ -189,7 +189,12 @@ class XlsxCache:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Collect seed rerun metrics into long and summary CSV files.")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
+    parser.add_argument(
+        "--source",
+        type=Path,
+        default=None,
+        help="Source config CSV. Defaults to the source_csv_path recorded in the manifest, then verified_best_probe_configs.csv.",
+    )
     parser.add_argument("--long-output", type=Path, default=DEFAULT_LONG_OUTPUT)
     parser.add_argument("--summary-output", type=Path, default=DEFAULT_SUMMARY_OUTPUT)
     parser.add_argument(
@@ -205,10 +210,11 @@ def main() -> None:
     args = parser.parse_args()
 
     manifest_rows = _read_csv(args.manifest)
-    source_rows = _read_csv(args.source)
+    source_path = args.source or _infer_source_path(manifest_rows, args.manifest) or DEFAULT_SOURCE
+    source_rows = _read_csv(source_path)
     for index, row in enumerate(source_rows):
         row["_source_csv_line_number"] = str(index + 2)
-    source_by_config = {row.get("config_id", "").strip(): row for row in source_rows}
+    source_by_config = _source_rows_by_config(source_rows)
     expected_seeds = [int(item.strip()) for item in args.expected_seeds.split(",") if item.strip()]
 
     xlsx_cache = XlsxCache()
@@ -218,9 +224,9 @@ def main() -> None:
             for config_id in _ordered_config_ids(manifest_rows):
                 source_row = source_by_config.get(config_id)
                 if source_row is None:
-                    long_rows.append(_missing_source_row(config_id, args.source))
+                    long_rows.append(_missing_source_row(config_id, source_path))
                 else:
-                    long_rows.append(_source_seed_row(source_row, args.source, xlsx_cache))
+                    long_rows.append(_source_seed_row(source_row, source_path, xlsx_cache))
         for row in manifest_rows:
             long_rows.append(_artifact_seed_row(row, args.manifest))
     finally:
@@ -239,6 +245,7 @@ def main() -> None:
         json.dumps(
             {
                 "manifest": str(args.manifest),
+                "source": str(source_path),
                 "long_output": str(args.long_output),
                 "summary_output": str(args.summary_output),
                 "long_rows": len(long_rows),
@@ -252,11 +259,36 @@ def main() -> None:
     )
 
 
+def _infer_source_path(manifest_rows: list[dict[str, str]], manifest_path: Path) -> Path | None:
+    raw_sources = {_value(row.get("source_csv_path")) for row in manifest_rows if _value(row.get("source_csv_path"))}
+    if not raw_sources:
+        return None
+    if len(raw_sources) > 1:
+        raise SystemExit(f"Manifest references multiple source CSVs; pass --source explicitly: {sorted(raw_sources)}")
+    return _resolve_manifest_relative_path(next(iter(raw_sources)), manifest_path)
+
+
+def _resolve_manifest_relative_path(raw: str, manifest_path: Path) -> Path:
+    path = Path(raw)
+    if path.is_absolute():
+        return path
+    return manifest_path.parent.parent.parent / path
+
+
+def _source_rows_by_config(rows: list[dict[str, str]]) -> dict[str, dict[str, str]]:
+    by_config: dict[str, dict[str, str]] = {}
+    for row in rows:
+        config_id = _value(row.get("config_id"))
+        if config_id and config_id not in by_config:
+            by_config[config_id] = row
+    return by_config
+
+
 def _ordered_config_ids(rows: list[dict[str, str]]) -> list[str]:
     seen: set[str] = set()
     ordered: list[str] = []
     for row in rows:
-        config_id = row.get("config_id", "").strip()
+        config_id = _value(row.get("config_id"))
         if config_id and config_id not in seen:
             ordered.append(config_id)
             seen.add(config_id)
@@ -269,9 +301,9 @@ def _source_seed_row(source_row: dict[str, str], source_path: Path, xlsx_cache: 
     base = _base_from_source(source_row, source_path)
     base.update(
         {
-            "run_id": f"{source_row.get('config_id', '').strip()}__seed_42",
+            "run_id": f"{_value(source_row.get('config_id'))}__seed_42",
             "seed": "42",
-            "source": "sheet",
+            "source": "source_csv",
             "objective_metric_name": primary,
             "primary_metric_name": primary,
             "expected_early_stopping": _value(source_row.get("early_stopping_enabled")),
@@ -281,21 +313,28 @@ def _source_seed_row(source_row: dict[str, str], source_path: Path, xlsx_cache: 
             "source_excel_range": _value(source_row.get("excel_range")),
         }
     )
+
+    csv_metrics = _read_source_csv_metrics(source_row)
+    base.update(csv_metrics)
+    required = ["train_primary", "train_accuracy", "val_primary", "val_accuracy", "test_primary", "test_accuracy"]
+    if all(base[field] for field in required):
+        base.update({"status": "complete", "notes": "seed 42 read from source CSV metrics"})
+        return base
+
     try:
         values = _read_source_excel_metrics(source_row, source_path, xlsx_cache)
     except Exception as exc:  # keep the collector fail-soft for incomplete source tables
         base.update(
             {
                 "status": "source_partial",
-                "val_primary": _number_string(source_row.get("val_primary_metric")),
-                "val_accuracy": _number_string(source_row.get("val_accuracy")),
-                "notes": f"could not read source Excel metrics: {exc}",
+                "notes": f"source CSV metrics incomplete and Excel fallback failed: {exc}",
             }
         )
         return base
 
     base.update(
         {
+            "source": "sheet",
             "status": "complete",
             "train_primary": _number_string(values.get("Train Primary Metric")),
             "train_accuracy": _number_string(values.get("Train Accuracy")),
@@ -306,11 +345,21 @@ def _source_seed_row(source_row: dict[str, str], source_path: Path, xlsx_cache: 
             "notes": "seed 42 read from Excel DB",
         }
     )
-    required = ["train_primary", "train_accuracy", "val_primary", "val_accuracy", "test_primary", "test_accuracy"]
     if any(not base[field] for field in required):
         base["status"] = "source_partial"
         base["notes"] = "source Excel row did not contain all six metrics"
     return base
+
+
+def _read_source_csv_metrics(source_row: dict[str, str]) -> dict[str, str]:
+    return {
+        "train_primary": _number_string(source_row.get("train_primary_metric")),
+        "train_accuracy": _number_string(source_row.get("train_accuracy")),
+        "val_primary": _number_string(source_row.get("val_primary_metric")),
+        "val_accuracy": _number_string(source_row.get("val_accuracy")),
+        "test_primary": _number_string(source_row.get("test_primary_metric")),
+        "test_accuracy": _number_string(source_row.get("test_accuracy")),
+    }
 
 
 def _read_source_excel_metrics(
@@ -378,20 +427,21 @@ def _artifact_seed_row(row: dict[str, str], manifest_path: Path) -> dict[str, st
 
 
 def _artifact_validation_notes(
-    row: dict[str, str], data: dict[str, Any], layer: dict[str, Any], fit: dict[str, Any], primary: str) -> list[str]:
+    row: dict[str, str], data: dict[str, Any], layer: dict[str, Any], fit: dict[str, Any], primary: str
+) -> list[str]:
     notes: list[str] = []
-    if str(data.get("dataset", "")).strip() and str(data.get("dataset", "")).strip() != row["dataset_hydra"]:
+    if _value(data.get("dataset")) and _value(data.get("dataset")) != row["dataset_hydra"]:
         notes.append(f"dataset mismatch artifact={data.get('dataset')} manifest={row['dataset_hydra']}")
-    if str(data.get("probe_name", "")).strip() and str(data.get("probe_name", "")).strip() != row["probe_hydra"]:
+    if _value(data.get("probe_name")) and _value(data.get("probe_name")) != row["probe_hydra"]:
         notes.append(f"probe mismatch artifact={data.get('probe_name')} manifest={row['probe_hydra']}")
-    if str(layer.get("layer", "")).strip() != str(row["layer"]).strip():
+    if _value(layer.get("layer")) != _value(row.get("layer")):
         notes.append(f"layer mismatch artifact={layer.get('layer')} manifest={row['layer']}")
     expected_primary = DATASET_PRIMARY.get(row["dataset_hydra"])
     if expected_primary and primary != expected_primary:
         notes.append(f"primary metric mismatch artifact={primary} expected={expected_primary}")
 
     label_control = layer.get("train", {}).get("label_control", {})
-    mode = str(label_control.get("mode", "original")).strip() or "original"
+    mode = _value(label_control.get("mode")) or "original"
     if mode != "original":
         notes.append(f"label_control.mode={mode}")
 
@@ -415,7 +465,7 @@ def _select_layer(data: dict[str, Any], expected_layer: str) -> dict[str, Any]:
     if not isinstance(layers, list) or not layers:
         raise ValueError("artifact has no layers list")
     for layer in layers:
-        if str(layer.get("layer", "")).strip() == str(expected_layer).strip():
+        if _value(layer.get("layer")) == _value(expected_layer):
             return layer
     raise ValueError(f"layer {expected_layer} not found in artifact")
 
@@ -483,8 +533,8 @@ def _base_from_source(source_row: dict[str, str], source_path: Path) -> dict[str
             "backbone": _value(source_row.get("backbone")),
             "probe": _value(source_row.get("probe")),
             "probe_hydra": _probe_hydra(source_row),
-            "layer": _value(source_row.get("selected_layer_id")),
-            "layer_label": _value(source_row.get("selected_layer_label")),
+            "layer": _source_layer(source_row),
+            "layer_label": _source_layer_label(source_row),
             "source_csv_path": str(source_path),
             "source_csv_line_number": _value(source_row.get("_source_csv_line_number")),
         }
@@ -492,6 +542,7 @@ def _base_from_source(source_row: dict[str, str], source_path: Path) -> dict[str
 
 
 def _base_from_manifest(row: dict[str, str], manifest_path: Path) -> dict[str, str]:
+    source_path = _value(row.get("source_csv_path")) or str(manifest_path)
     return _empty_long_row(
         {
             "config_id": row.get("config_id", ""),
@@ -509,7 +560,7 @@ def _base_from_manifest(row: dict[str, str], manifest_path: Path) -> dict[str, s
             "source": "artifact",
             "expected_epochs": row.get("epochs", ""),
             "expected_early_stopping": row.get("early_stopping_enabled", ""),
-            "source_csv_path": str(manifest_path),
+            "source_csv_path": source_path,
             "source_csv_line_number": row.get("source_csv_line_number", ""),
         }
     )
@@ -521,7 +572,7 @@ def _missing_source_row(config_id: str, source_path: Path) -> dict[str, str]:
             "config_id": config_id,
             "run_id": f"{config_id}__seed_42",
             "seed": "42",
-            "source": "sheet",
+            "source": "source_csv",
             "status": "missing_source",
             "source_csv_path": str(source_path),
             "notes": f"config_id not found in {source_path}",
@@ -544,11 +595,32 @@ def _dataset_hydra(row: dict[str, str]) -> str:
 
 
 def _probe_hydra(row: dict[str, str]) -> str:
-    explicit = _value(row.get("probe_hydra"))
+    explicit = _value(row.get("probe_hydra")) or _value(row.get("probe_name"))
     if explicit:
         return explicit
     probe = _value(row.get("probe"))
     return {"Linear": "linear", "MLP": "mlp", "Attentive": "temporal_attn"}.get(probe, probe.lower())
+
+
+def _source_layer(row: dict[str, str]) -> str:
+    layer = (
+        _value(row.get("selected_layer_id"))
+        or _value(row.get("probe_layer"))
+        or _value(row.get("excel_layer"))
+    )
+    if layer:
+        return layer
+    config = _parse_json_dict(row.get("best_config_json", ""))
+    layer_value = config.get("layer")
+    return "" if layer_value is None else str(layer_value)
+
+
+def _source_layer_label(row: dict[str, str]) -> str:
+    return (
+        _value(row.get("selected_layer_label"))
+        or _value(row.get("layer_label"))
+        or _value(row.get("depth_layer_id"))
+    )
 
 
 def _metric(metrics_by_split: dict[str, Any], split: str, metric: str) -> str:
@@ -609,6 +681,14 @@ def _col_name(index: int) -> str:
         index, rem = divmod(index - 1, 26)
         name = chr(65 + rem) + name
     return name
+
+
+def _parse_json_dict(raw: str | None) -> dict[str, Any]:
+    value = _value(raw)
+    if not value:
+        return {}
+    parsed = json.loads(value)
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _value(raw: Any) -> str:

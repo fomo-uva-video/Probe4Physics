@@ -1,0 +1,11 @@
+Downloading: https://dl.fbaipublicfiles.com/vjepa2/vjepa2_1_vitb_dist_vitG_384.pt
+ -> /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitb_dist_vitG_384.pt
+Downloading: https://dl.fbaipublicfiles.com/vjepa2/vjepa2_1_vitg_384.pt
+ -> /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitg_384.pt
+===== DOWNLOAD SUMMARY =====
+Mon Aug 10 11:54:26 UTC 2026
+tcn231.local.snellius.surf.nl
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+CHECKPOINTS_ROOT=/gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints
+-rw-r-----. 1 spunzo1 spunzo1 1.6G Aug 10 13:53 /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitb_dist_vitG_384.pt
+-rw-r-----. 1 spunzo1 spunzo1  16G Aug 10 13:54 /gpfs/scratch1/shared/spunzo1/probe4physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitg_384.pt

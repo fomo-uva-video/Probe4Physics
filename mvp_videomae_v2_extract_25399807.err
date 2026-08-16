@@ -1,0 +1,52 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Traceback (most recent call last):
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/videomae_adapter.py", line 526, in __init__
+    self._model = self._load_hf_model(self.hf_model_id, self.hf_cache_dir)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/videomae_adapter.py", line 828, in _load_hf_model
+    model = model_cls.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spunzo1/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/modeling_utils.py", line 4267, in from_pretrained
+    checkpoint_files, sharded_metadata = _get_resolved_checkpoint_files(
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spunzo1/.conda/envs/probe4physics-gpu/lib/python3.11/site-packages/transformers/modeling_utils.py", line 630, in _get_resolved_checkpoint_files
+    raise OSError(
+OSError: Error no file named model.safetensors found in directory /scratch-shared/spunzo1/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-Base/snapshots/78c337a418cc4adaf7f1ff6c7ba343418393966b.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/gpfs/home2/spunzo1/Probe4Physics/run.py", line 479, in <module>
+    main()
+  File "/gpfs/home2/spunzo1/Probe4Physics/run.py", line 97, in main
+    result = command.handler(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/training/mvp_extract.py", line 9, in run_mvp_extract
+    return run_mvp_feature_extraction(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/benchmarks/mvp/features.py", line 354, in run_mvp_feature_extraction
+    adapter = create_adapter(backbone_name, **backbone_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/registry.py", line 40, in create_adapter
+    return _ADAPTER_FACTORIES[key](**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/videomae_adapter.py", line 969, in create_videomae_v2_adapter
+    return VideoMAEV2Adapter(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home2/spunzo1/Probe4Physics/models/videomae_adapter.py", line 529, in __init__
+    raise RuntimeError(
+RuntimeError: VideoMAEV2Adapter failed to load HuggingFace model. hf_model_id=OpenGVLab/VideoMAEv2-Base variant=vit_base_16_224 device=cuda backbone_key=videomae_v2 hf_cache_dir=<default> hf_model_id=OpenGVLab/VideoMAEv2-Base load_strategy=cached_snapshot_remote_code snapshot_dir=/scratch-shared/spunzo1/.cache/huggingface/hub/models--OpenGVLab--VideoMAEv2-Base/snapshots/78c337a418cc4adaf7f1ff6c7ba343418393966b

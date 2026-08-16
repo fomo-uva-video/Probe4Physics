@@ -692,6 +692,16 @@ def _run_single_train(
         x_train = features[train_idx]
         input_dim = int(x_train.shape[-1])
     probe = _create_probe_instance(probe_cfg, input_dim=input_dim, num_classes=num_classes)
+    init_checkpoint_path = str(probe_cfg.get("init_checkpoint_path", "")).strip()
+    if init_checkpoint_path:
+        probe = _load_probe_for_training_init(
+            init_checkpoint_path,
+            dataset=dataset,
+            probe_cfg=probe_cfg,
+            input_dim=input_dim,
+            num_classes=num_classes,
+            manifest=manifest,
+        )
 
     train_output_dir = output_dir or _resolve_train_output_dir(dataset, config, probe_cfg)
     train_output_dir.mkdir(parents=True, exist_ok=True)
@@ -836,6 +846,7 @@ def _run_single_train(
             "checkpoint": str(checkpoint_best_path),
             "checkpoint_last": str(checkpoint_last_path),
             "checkpoint_best": str(checkpoint_best_path),
+            "init_checkpoint_path": init_checkpoint_path,
             "output_dir": str(train_output_dir),
             "feature_signature": str(manifest.get("signature", "")),
             "dataset": dataset,
@@ -1966,6 +1977,59 @@ def load_probe_from_checkpoint(
     return probe_class.load(path, device=device), payload
 
 
+def _load_probe_for_training_init(
+    checkpoint_path: str | Path,
+    *,
+    dataset: str,
+    probe_cfg: dict[str, Any],
+    input_dim: int,
+    num_classes: int,
+    manifest: dict[str, Any],
+) -> Any:
+    probe, payload = load_probe_from_checkpoint(
+        checkpoint_path,
+        device=probe_cfg["device"],
+        expected_probe_name=probe_cfg["name"],
+    )
+    if int(getattr(probe, "input_dim", -1)) != int(input_dim):
+        raise ProbeConfigError(
+            "Training init checkpoint input_dim mismatch. "
+            f"checkpoint={getattr(probe, 'input_dim', None)}, current={input_dim}."
+        )
+    if int(getattr(probe, "num_classes", -1)) != int(num_classes):
+        raise ProbeConfigError(
+            "Training init checkpoint num_classes mismatch. "
+            f"checkpoint={getattr(probe, 'num_classes', None)}, current={num_classes}."
+        )
+
+    metadata_raw = payload.get("metadata", {})
+    metadata = metadata_raw if isinstance(metadata_raw, dict) else {}
+    _validate_checkpoint_label_control(metadata, probe_cfg)
+
+    checkpoint_dataset = str(metadata.get("dataset", "")).strip()
+    if checkpoint_dataset and checkpoint_dataset != dataset:
+        raise ProbeConfigError(
+            "Training init checkpoint dataset mismatch. "
+            f"checkpoint={checkpoint_dataset}, current={dataset}."
+        )
+
+    checkpoint_layer = metadata.get("layer")
+    if checkpoint_layer is not None and int(checkpoint_layer) != int(probe_cfg["layer"]):
+        raise ProbeConfigError(
+            "Training init checkpoint layer mismatch. "
+            f"checkpoint={checkpoint_layer}, current={probe_cfg['layer']}."
+        )
+
+    checkpoint_signature = str(metadata.get("feature_signature", "")).strip()
+    current_signature = str(manifest.get("signature", "")).strip()
+    if checkpoint_signature and current_signature and checkpoint_signature != current_signature:
+        raise ProbeConfigError(
+            "Training init checkpoint feature signature mismatch. "
+            f"checkpoint={checkpoint_signature}, current={current_signature}."
+        )
+    return probe
+
+
 def _validate_checkpoint_label_control(
     checkpoint_metadata: dict[str, Any],
     probe_cfg: dict[str, Any],
@@ -2439,6 +2503,7 @@ def _probe_cfg(config: dict[str, Any]) -> dict[str, Any]:
         "output_dir": str(raw.get("output_dir", "")),
         "output_subdir": str(raw.get("output_subdir", "")),
         "checkpoint_path": str(raw.get("checkpoint_path", "")),
+        "init_checkpoint_path": str(raw.get("init_checkpoint_path", "")),
         "eval_output_dir": str(raw.get("eval_output_dir", "")),
         "eval_output_subdir": str(raw.get("eval_output_subdir", "")),
         "mlp": {
@@ -2877,6 +2942,7 @@ def _probe_hparam_summary(probe_cfg: dict[str, Any], num_classes: int) -> dict[s
         "label_control": dict(probe_cfg["label_control"]),
         "device": probe_cfg["device"],
         "deterministic": bool(probe_cfg["deterministic"]),
+        "init_checkpoint_path": probe_cfg.get("init_checkpoint_path", ""),
         "num_classes": int(num_classes),
     }
     if probe_cfg["name"] == "mlp":

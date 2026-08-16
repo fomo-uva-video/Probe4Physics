@@ -1,0 +1,17 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Loading weights:   0%|          | 0/316 [00:00<?, ?it/s]Loading weights:   7%|▋         | 23/316 [00:00<00:06, 46.76it/s]Loading weights:  11%|█▏        | 36/316 [00:00<00:04, 62.68it/s]Loading weights:  14%|█▍        | 45/316 [00:00<00:05, 52.09it/s]Loading weights:  16%|█▋        | 52/316 [00:01<00:06, 39.94it/s]Loading weights:  18%|█▊        | 57/316 [00:01<00:06, 40.90it/s]Loading weights:  22%|██▏       | 70/316 [00:01<00:05, 44.02it/s]Loading weights:  32%|███▏      | 101/316 [00:01<00:02, 78.56it/s]Loading weights:  43%|████▎     | 136/316 [00:01<00:01, 121.92it/s]Loading weights:  48%|████▊     | 152/316 [00:02<00:01, 100.28it/s]Loading weights:  53%|█████▎    | 166/316 [00:02<00:01, 96.44it/s] Loading weights:  62%|██████▏   | 197/316 [00:02<00:00, 131.04it/s]Loading weights:  73%|███████▎  | 231/316 [00:02<00:00, 173.35it/s]Loading weights:  80%|████████  | 253/316 [00:02<00:00, 175.94it/s]Loading weights: 100%|██████████| 316/316 [00:02<00:00, 121.81it/s]
+Materialized VideoMAEv2 plain tensor attribute from helper: model.pos_embed (num_patches=1568 embed_dim=1024 model_config_num_frames=16)

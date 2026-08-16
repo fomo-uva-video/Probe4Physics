@@ -1,0 +1,17 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Loading weights:   0%|          | 0/160 [00:00<?, ?it/s]Loading weights:   9%|▉         | 14/160 [00:00<00:02, 65.35it/s]Loading weights:  16%|█▌        | 25/160 [00:00<00:01, 82.94it/s]Loading weights:  22%|██▎       | 36/160 [00:00<00:01, 83.59it/s]Loading weights:  34%|███▍      | 55/160 [00:00<00:01, 97.71it/s]Loading weights:  49%|████▉     | 79/160 [00:00<00:00, 134.32it/s]Loading weights: 100%|██████████| 160/160 [00:00<00:00, 200.13it/s]
+Materialized VideoMAEv2 plain tensor attribute from helper: model.pos_embed (num_patches=1568 embed_dim=768 model_config_num_frames=16)

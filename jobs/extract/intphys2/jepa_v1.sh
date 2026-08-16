@@ -36,4 +36,4 @@ if [[ -z "${RUN_EXTRACT}" ]]; then
   exit 2
 fi
 
-exec "${RUN_EXTRACT}"
+exec "${RUN_EXTRACT}" "$@"

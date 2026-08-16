@@ -1,0 +1,50 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/316 [00:00<?, ?it/s]Loading weights: 100%|██████████| 316/316 [00:00<00:00, 20790.26it/s]
+[transformers] [1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-large
+Key                                                              | Status     | 
+-----------------------------------------------------------------+------------+-
+decoder.decoder_layers.{0...11}.attention.attention.key.weight   | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.attention.value.weight | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.layernorm_after.weight           | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.intermediate.dense.bias          | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.output.dense.weight              | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.output.dense.bias      | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.intermediate.dense.weight        | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.layernorm_before.bias            | UNEXPECTED | 
+videomae.encoder.layer.{0...23}.attention.attention.v_bias       | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.output.dense.bias                | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.attention.query.weight | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.layernorm_after.bias             | UNEXPECTED | 
+videomae.encoder.layer.{0...23}.attention.attention.q_bias       | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.layernorm_before.weight          | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.attention.v_bias       | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.output.dense.weight    | UNEXPECTED | 
+decoder.decoder_layers.{0...11}.attention.attention.q_bias       | UNEXPECTED | 
+decoder.norm.bias                                                | UNEXPECTED | 
+mask_token                                                       | UNEXPECTED | 
+decoder.norm.weight                                              | UNEXPECTED | 
+encoder_to_decoder.weight                                        | UNEXPECTED | 
+decoder.head.bias                                                | UNEXPECTED | 
+decoder.head.weight                                              | UNEXPECTED | 
+encoder.layer.{0...23}.attention.attention.key.bias              | MISSING    | 
+encoder.layer.{0...23}.attention.attention.value.bias            | MISSING    | 
+encoder.layer.{0...23}.attention.attention.query.bias            | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.

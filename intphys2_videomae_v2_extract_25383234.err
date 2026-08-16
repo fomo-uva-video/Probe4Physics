@@ -1,0 +1,25 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] A new version of the following files was downloaded from https://huggingface.co/OpenGVLab/VideoMAEv2-Large:
+- modeling_config.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+[transformers] A new version of the following files was downloaded from https://huggingface.co/OpenGVLab/VideoMAEv2-Large:
+- modeling_videomaev2.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Loading weights:   0%|          | 0/316 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 42/316 [00:00<00:00, 418.33it/s]Loading weights:  27%|██▋       | 84/316 [00:00<00:00, 410.25it/s]Loading weights:  40%|███▉      | 126/316 [00:00<00:00, 331.48it/s]Loading weights:  54%|█████▍    | 170/316 [00:00<00:00, 333.82it/s]Loading weights:  74%|███████▍  | 234/316 [00:00<00:00, 370.53it/s]Loading weights:  96%|█████████▌| 303/316 [00:00<00:00, 416.15it/s]Loading weights: 100%|██████████| 316/316 [00:00<00:00, 404.34it/s]
+Loading weights:   0%|          | 0/316 [00:00<?, ?it/s]Loading weights: 100%|██████████| 316/316 [00:00<00:00, 6799.33it/s]
+Materialized VideoMAEv2 plain tensor attribute from helper: model.pos_embed (num_patches=1568 embed_dim=1024 model_config_num_frames=16)

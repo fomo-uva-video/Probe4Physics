@@ -1,0 +1,15 @@
+Downloading: https://dl.fbaipublicfiles.com/jepa/vitl16/vitl16.pth.tar
+ -> /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v1/vitl16.pth.tar
+Downloading: https://dl.fbaipublicfiles.com/vjepa2/vitl.pt
+ -> /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v2/vitl.pth
+Downloading: https://dl.fbaipublicfiles.com/vjepa2/vjepa2_1_vitl_dist_vitG_384.pt
+ -> /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitl_dist_vitG_384.pt
+===== DOWNLOAD SUMMARY =====
+Sun Aug  9 23:22:26 UTC 2026
+tcn227.local.snellius.surf.nl
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+CHECKPOINTS_ROOT=/gpfs/home2/spunzo1/Probe4Physics/data/checkpoints
+FORCE_DOWNLOAD=false
+-rw-r-----. 1 spunzo1 spunzo1 4.8G Aug 10 01:22 /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v1/vitl16.pth.tar
+-rw-r-----. 1 spunzo1 spunzo1 4.8G Aug 10 01:22 /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v2/vitl.pth
+-rw-r-----. 1 spunzo1 spunzo1 4.8G Aug 10 01:22 /gpfs/home2/spunzo1/Probe4Physics/data/checkpoints/jepa_v2_1/vjepa2_1_vitl_dist_vitG_384.pt
