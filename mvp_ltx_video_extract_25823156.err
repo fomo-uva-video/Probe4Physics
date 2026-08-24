@@ -1,0 +1,21 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/219 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 219/219 [00:00<00:00, 10248.73it/s]
+Loading pipeline components...:  20%|██        | 1/5 [00:00<00:00,  9.65it/s]Loading pipeline components...:  80%|████████  | 4/5 [00:00<00:00, 16.30it/s]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][ALoading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 54.89it/s]
+Loading pipeline components...: 100%|██████████| 5/5 [00:00<00:00, 14.73it/s]

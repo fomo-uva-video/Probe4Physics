@@ -41,6 +41,8 @@ PROBE_BATCH_SIZE="${PROBE_BATCH_SIZE:-1}"
 PROBE_EVAL_BATCH_SIZE="${PROBE_EVAL_BATCH_SIZE:-${PROBE_BATCH_SIZE}}"
 PROBE_WEIGHT_DECAY="${PROBE_WEIGHT_DECAY:-0.01}"
 PROBE_EARLY_STOPPING_PATIENCE="${PROBE_EARLY_STOPPING_PATIENCE:-5}"
+RUN_SEED="${RUN_SEED:-42}"
+SPLIT_SEED="${SPLIT_SEED:-42}"
 PROBE_LABEL_CONTROL_MODE="${PROBE_LABEL_CONTROL_MODE:-original}"
 PROBE_LABEL_CONTROL_SEED="${PROBE_LABEL_CONTROL_SEED:-42}"
 TEMPORAL_NUM_HEADS="${TEMPORAL_NUM_HEADS:-16}"
@@ -91,6 +93,16 @@ if [[ "${#LR_TAGS[@]}" -ne "${NUM_LRS}" ]]; then
   exit 2
 fi
 
+resolve_output_path() {
+  local root="$1"
+  local relative="$2"
+  if [[ "${root}" == /* ]]; then
+    printf '%s/%s' "${root%/}" "${relative}"
+  else
+    printf '%s/%s/%s' "${REPO_ROOT}" "${root}" "${relative}"
+  fi
+}
+
 TASK_INDEX="${SLURM_ARRAY_TASK_ID:-0}"
 TOTAL_TASKS="$((NUM_LAYERS * NUM_LRS))"
 if [[ "${TASK_INDEX}" -lt 0 || "${TASK_INDEX}" -ge "${TOTAL_TASKS}" ]]; then
@@ -108,10 +120,10 @@ LR_TAG="${LR_TAGS[${LR_INDEX}]}"
 RUN_SUBDIR="${GROUP_SUBDIR}/layer_${PROBE_LAYER}/lr_${LR_TAG}"
 TRAIN_SUBDIR="${RUN_SUBDIR}/train"
 EVAL_SUBDIR="${RUN_SUBDIR}/eval"
-RUN_ROOT="${REPO_ROOT}/${PROBE_OUTPUT_DIR}/${RUN_SUBDIR}"
-GROUP_ROOT="${REPO_ROOT}/${PROBE_OUTPUT_DIR}/${GROUP_SUBDIR}"
-TRAIN_ROOT="${REPO_ROOT}/${PROBE_OUTPUT_DIR}/${TRAIN_SUBDIR}"
-EVAL_ROOT="${REPO_ROOT}/${PROBE_EVAL_OUTPUT_DIR}/${EVAL_SUBDIR}"
+RUN_ROOT="$(resolve_output_path "${PROBE_OUTPUT_DIR}" "${RUN_SUBDIR}")"
+GROUP_ROOT="$(resolve_output_path "${PROBE_OUTPUT_DIR}" "${GROUP_SUBDIR}")"
+TRAIN_ROOT="$(resolve_output_path "${PROBE_OUTPUT_DIR}" "${TRAIN_SUBDIR}")"
+EVAL_ROOT="$(resolve_output_path "${PROBE_EVAL_OUTPUT_DIR}" "${EVAL_SUBDIR}")"
 CHECKPOINT_PATH="${TRAIN_ROOT}/probe_best.pt"
 
 WANDB_NAME="${WANDB_NAME:-mvp_${BACKBONE_NAME}_layer_${PROBE_LAYER}_lr_${LR_TAG}}"
@@ -134,6 +146,8 @@ echo "PROBE_BATCH_SIZE=${PROBE_BATCH_SIZE}"
 echo "PROBE_EVAL_BATCH_SIZE=${PROBE_EVAL_BATCH_SIZE}"
 echo "PROBE_WEIGHT_DECAY=${PROBE_WEIGHT_DECAY}"
 echo "PROBE_EARLY_STOPPING_PATIENCE=${PROBE_EARLY_STOPPING_PATIENCE}"
+echo "RUN_SEED=${RUN_SEED}"
+echo "SPLIT_SEED=${SPLIT_SEED}"
 echo "PROBE_LABEL_CONTROL_MODE=${PROBE_LABEL_CONTROL_MODE}"
 echo "PROBE_LABEL_CONTROL_SEED=${PROBE_LABEL_CONTROL_SEED}"
 echo "TEMPORAL_NUM_HEADS=${TEMPORAL_NUM_HEADS}"
@@ -154,6 +168,8 @@ echo "JOB_START_UTC=${JOB_START_UTC}"
 
 train_cmd=(
   python run.py "train.probe.${DATASET_NAME}"
+  "seed=${RUN_SEED}"
+  "split.seed=${SPLIT_SEED}"
   "backbone.name=${BACKBONE_NAME}"
   "probe.name=${PROBE_NAME}"
   "probe.device=${PROBE_DEVICE}"
@@ -199,6 +215,8 @@ printf '\n'
 
 eval_cmd=(
   python run.py "eval.probe.${DATASET_NAME}"
+  "seed=${RUN_SEED}"
+  "split.seed=${SPLIT_SEED}"
   "backbone.name=${BACKBONE_NAME}"
   "probe.name=${PROBE_NAME}"
   "probe.device=${PROBE_DEVICE}"

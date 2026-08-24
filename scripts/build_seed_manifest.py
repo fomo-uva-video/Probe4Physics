@@ -49,6 +49,12 @@ FEATURE_CACHE_LAYER_IDS = {
     ("same_L", "VideoMAE-v2", "ViT-L/16"): [6, 12, 18, 24],
 }
 
+DATASET_FEATURE_CACHE_LAYER_IDS = {
+    # LTX attentive probes use the top four MLP slots, which are dataset-specific.
+    ("IntPhys2", "ltx", "LTX-Video", "LTX-2B"): [34, 36, 38, 39],
+    ("MVP", "ltx", "LTX-Video", "LTX-2B"): [17, 21, 29, 38],
+}
+
 MANIFEST_FIELDS = [
     "run_id",
     "config_id",
@@ -133,6 +139,12 @@ def main() -> None:
         default="force_disabled",
         help="Use force_disabled to match historical MLP runtime behavior; use source to trust the CSV.",
     )
+    parser.add_argument(
+        "--attentive-early-stopping-policy",
+        choices=("force_disabled", "source"),
+        default="force_disabled",
+        help="Use force_disabled so attentive seed reruns train for the full recovered epoch budget.",
+    )
     args = parser.parse_args()
 
     requested_probes = _parse_required_set(args.probes, option_name="--probes")
@@ -171,6 +183,7 @@ def main() -> None:
                     seed=seed,
                     run_group=args.run_group,
                     mlp_early_stopping_policy=args.mlp_early_stopping_policy,
+                    attentive_early_stopping_policy=args.attentive_early_stopping_policy,
                 )
             )
 
@@ -191,6 +204,7 @@ def main() -> None:
         "run_group": args.run_group,
         "allow_statuses": sorted(allowed_statuses),
         "mlp_early_stopping_policy": args.mlp_early_stopping_policy,
+        "attentive_early_stopping_policy": args.attentive_early_stopping_policy,
         "source_rows_selected": len(selected),
         "runnable_configs": len({row["config_id"] for row in manifest_rows}),
         "manifest_rows": len(manifest_rows),
@@ -302,6 +316,7 @@ def _manifest_row(
     seed: int,
     run_group: str,
     mlp_early_stopping_policy: str,
+    attentive_early_stopping_policy: str,
 ) -> dict[str, str]:
     dataset_hydra = _resolve_dataset(row)
     probe_hydra = _resolve_probe(row)
@@ -343,6 +358,13 @@ def _manifest_row(
         # Historical MLP main jobs selected after the full epoch budget. Keep
         # seed reruns matched to that runtime behavior unless explicitly told
         # to trust the CSV's early-stopping field.
+        early_stopping_enabled = "false"
+    elif (
+        probe_hydra == "temporal_attn"
+        and attentive_early_stopping_policy == "force_disabled"
+    ):
+        # Paper-facing attentive seed reruns should complete the recovered
+        # epoch budget; validation still selects the best checkpoint.
         early_stopping_enabled = "false"
 
     mlp_hidden_dims = _value(row.get("mlp_hidden_dims"))
@@ -460,6 +482,14 @@ def _hydra_overrides(row: dict[str, str]) -> list[str]:
 
 
 def _feature_cache_layer_ids(row: dict[str, str]) -> list[int]:
+    dataset_key = (
+        row.get("dataset", ""),
+        row.get("experiment", ""),
+        row.get("model", ""),
+        row.get("backbone", ""),
+    )
+    if dataset_key in DATASET_FEATURE_CACHE_LAYER_IDS:
+        return DATASET_FEATURE_CACHE_LAYER_IDS[dataset_key]
     key = (row.get("experiment", ""), row.get("model", ""), row.get("backbone", ""))
     return FEATURE_CACHE_LAYER_IDS.get(key, [])
 

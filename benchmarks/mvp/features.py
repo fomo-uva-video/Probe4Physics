@@ -831,8 +831,17 @@ def load_feature_cache_for_config(
 
     paths = resolve_expected_feature_cache_paths(config)
     feature_cfg = _feature_cfg(config)
-    if not _is_valid_cache(paths):
-        compatible = _find_compatible_feature_cache(config, exact_paths=paths, feature_cfg=feature_cfg)
+    view = str(feature_view or "").strip().lower()
+    needs_pooled = view in {"", "pooled"}
+    needs_tokens = view in {"", "tokens_mean", "tokens"}
+    if not _is_valid_cache_for_view(paths, needs_pooled=needs_pooled, needs_tokens=needs_tokens):
+        compatible = _find_compatible_feature_cache(
+            config,
+            exact_paths=paths,
+            feature_cfg=feature_cfg,
+            needs_pooled=needs_pooled,
+            needs_tokens=needs_tokens,
+        )
         if compatible is None:
             raise FeatureCacheError(
                 "Feature cache is missing or invalid for current config. "
@@ -860,7 +869,6 @@ def load_feature_cache_for_config(
     tokens_payload: dict[str, Any] | None = None
     token_store: MVPChunkedTokenStore | None = None
 
-    view = str(feature_view or "").strip().lower()
     load_pooled = view in {"", "pooled"}
     load_tokens = view in {"", "tokens_mean", "tokens"}
 
@@ -898,6 +906,8 @@ def _find_compatible_feature_cache(
     *,
     exact_paths: FeatureCachePaths,
     feature_cfg: dict[str, Any],
+    needs_pooled: bool = True,
+    needs_tokens: bool = True,
 ) -> FeatureCachePaths | None:
     split_dir = _resolve_split_dir(config)
     split_manifest_path = split_dir / "manifest.json"
@@ -932,7 +942,11 @@ def _find_compatible_feature_cache(
         if cache_dir == exact_paths.cache_dir:
             continue
         candidate = _feature_cache_paths(cache_dir)
-        if not _is_valid_cache(candidate):
+        if not _is_valid_cache_for_view(
+            candidate,
+            needs_pooled=needs_pooled,
+            needs_tokens=needs_tokens,
+        ):
             continue
         try:
             manifest = _load_json(candidate.manifest_path)
@@ -2284,6 +2298,39 @@ def _is_valid_cache(paths: FeatureCachePaths) -> bool:
         return False
     if include_tokens and not tokens_name and not _chunked_token_storage_is_valid(manifest, paths.cache_dir):
         return False
+
+    return True
+
+
+def _is_valid_cache_for_view(
+    paths: FeatureCachePaths,
+    *,
+    needs_pooled: bool,
+    needs_tokens: bool,
+) -> bool:
+    """Return whether a cache has the files required by the requested view."""
+
+    if not paths.manifest_path.exists() or not paths.index_path.exists():
+        return False
+
+    try:
+        manifest = _load_json(paths.manifest_path)
+    except Exception:
+        return False
+
+    if str(manifest.get("signature", "")) != paths.signature:
+        return False
+
+    files_cfg = manifest.get("files", {})
+    pooled_name = str(files_cfg.get("pooled", ""))
+    tokens_name = str(files_cfg.get("tokens", ""))
+
+    if needs_pooled and (not pooled_name or not paths.pooled_path.exists()):
+        return False
+    if needs_tokens:
+        if tokens_name:
+            return paths.tokens_path.exists()
+        return _chunked_token_storage_is_valid(manifest, paths.cache_dir)
 
     return True
 

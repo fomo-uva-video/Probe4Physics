@@ -16,6 +16,25 @@ probe.optuna.enabled=false
 
 `seed` changes the probe-training randomness. `split.seed=42` keeps the original data split. The runs reuse existing feature caches and do not rerun extraction.
 
+## Current Seed Protocol Decision
+
+Decision date: 2026-08-19
+
+For the paper-facing seeded robustness runs, keep the probe policy probe-specific:
+
+- Linear and MLP stay as already run and collected.
+- Attentive (`temporal_attn`) additional fixed-config seeds should use the full epoch budget with early stopping disabled:
+
+```bash
+probe.epochs=<recovered_epoch_budget>
+probe.early_stopping.enabled=false
+probe.optuna.enabled=false
+```
+
+For attentive seeds, evaluation should still use the selected best checkpoint from the completed training trajectory, not the last checkpoint by default. "No early stopping" means the training trajectory is not truncated before the configured epoch budget.
+
+Existing attentive continuation artifacts are provisionally considered valid full-epoch seeded runs for reporting and prioritization. The immediate priority is to run missing attentive configurations under this full-epoch/no-early-stopping protocol. If GPU credits and time remain, rerun the continuation-derived attentive seeds from scratch as a cleanup/reproducibility check, but do not block the main seeded coverage on that.
+
 ## Source Tables
 
 There are now two config sources, and they should not be mixed.
@@ -27,18 +46,15 @@ There are now two config sources, and they should not be mixed.
 
 The selected-layer CSV keeps the paper-facing best-layer flow. The layerwise CSV is broader and is the right source for all-layer experiments.
 
-Current layerwise CSV inspection:
+Current layerwise CSV inspection after the 2026-08-21 MVP V-JEPA 2 attentive recovery:
 
 | Slice | Status |
 | --- | --- |
 | All rows | 648 configs |
-| `VERIFIED_FULL` | 581 configs |
-| `MISSING` | 63 configs |
-| `VERIFIED_ATTENTIVE_LAYER_LR` | 4 configs |
-| `main` Linear/MLP | 80 configs, all `VERIFIED_FULL` |
-| `main` Attentive | 28 `VERIFIED_FULL`, 12 `MISSING` |
+| `main` MVP V-JEPA 2 Attentive | 4 `VERIFIED_FULL` configs recovered from the local LR matrix |
+| `main` MVP attentive focused V-JEPA 2 seed manifest | 8 runnable rows: 4 layers x seeds 101/102 |
 
-The missing `main` attentive rows are MVP V-JEPA, MVP V-JEPA 2, and MVP V-JEPA 2.1 across their four reported layers. LTX remains partly incomplete, especially MVP LTX-13B Linear/MLP and attentive configs.
+The remaining missing `main` MVP attentive rows are V-JEPA and V-JEPA 2.1 across their four reported layers. LTX remains partly incomplete, especially MVP LTX-13B Linear/MLP and attentive configs.
 
 Rows with `config_status=MISSING` must stay blocked. Missing rows have `config_id=NULL`, so blocked manifests generate synthetic IDs from row content and source line number.
 
@@ -208,3 +224,14 @@ python scripts/export_seed_results_excel.py \
 ```
 
 The exporter is source-agnostic and does not need changes for selected-layer versus layerwise runs.
+
+## MVP V-JEPA 2 Attentive Layerwise Seed Manifest
+
+Created on 2026-08-21 after recovering the MVP main V-JEPA 2 / ViT-G/16 attentive LR matrix.
+
+| File | Rows | Meaning |
+| --- | ---: | --- |
+| `results/seed_runs/seed_manifest_mvp_jepa_v2_attentive_layerwise_v1.csv` | 8 | V-JEPA 2 attentive, layers 10/20/30/40, seeds 101/102 |
+| `results/seed_runs/seed_manifest_mvp_jepa_v2_attentive_layerwise_blocked_v1.csv` | 0 | no blocked configs for this focused manifest |
+
+Per-layer fixed LR comes from the recovered LR matrix by selecting the best LR within each layer using validation pair-consistency. The seed reruns use `probe.epochs=30`, `probe.early_stopping.enabled=false`, `probe.optuna.enabled=false`, and `split.seed=42`.

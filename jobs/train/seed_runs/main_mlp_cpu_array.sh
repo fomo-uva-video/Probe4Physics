@@ -27,15 +27,19 @@ PROBE_FILTER="mlp"
 export PROBE_FILTER
 
 SCRIPT_PATH="${BASH_SOURCE[0]}"
-JOB_COMMAND=""
 if command -v scontrol >/dev/null 2>&1 && [[ -n "${SLURM_JOB_ID:-}" ]]; then
-  JOB_COMMAND="$(scontrol show job "${SLURM_JOB_ID}" | tr ' ' '\n' | sed -n 's/^Command=//p' | head -n 1)"
+  JOB_DETAILS="$(scontrol show job "${SLURM_JOB_ID}" 2>/dev/null || true)"
+  for JOB_FIELD in ${JOB_DETAILS}; do
+    case "${JOB_FIELD}" in
+      Command=*)
+        SCRIPT_PATH="${JOB_FIELD#Command=}"
+        break
+        ;;
+    esac
+  done
 fi
-if [[ -n "${JOB_COMMAND}" && "${JOB_COMMAND}" != /* ]]; then
-  JOB_COMMAND="${SLURM_SUBMIT_DIR}/${JOB_COMMAND}"
-fi
-if [[ -n "${JOB_COMMAND}" ]]; then
-  SCRIPT_PATH="${JOB_COMMAND}"
+if [[ "${SCRIPT_PATH}" != /* ]]; then
+  SCRIPT_PATH="${SLURM_SUBMIT_DIR:-$(pwd)}/${SCRIPT_PATH}"
 fi
 SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 

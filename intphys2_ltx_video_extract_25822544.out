@@ -1,0 +1,85 @@
+===== PROVENANCE =====
+Thu Aug 20 06:26:43 UTC 2026
+gcn137.local.snellius.surf.nl
+c23feee76264c202f870381b0cf3cd63e46abd27
+Python 3.11.15
+/home/spunzo1/.conda/envs/probe4physics-gpu/bin/python
+REPO_ROOT=/gpfs/home2/spunzo1/Probe4Physics
+MODE=full
+MAX_SAMPLES=<unset>
+BACKBONE_NAME=ltx_video
+BACKBONE_VARIANT=ltx_2b_0_9_8_distilled
+BACKBONE_DEVICE=cuda
+METADATA_FILE=/gpfs/home2/spunzo1/Probe4Physics/data/annotations/intphys2_metadata.csv
+VIDEOS_ROOT=/gpfs/home2/spunzo1/Probe4Physics/data/videos/intphys2
+SPLIT_DIR=/gpfs/home2/spunzo1/Probe4Physics/data/splits/intphys2
+FEATURE_DIR=/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2
+FEATURE_LAYER_IDS=<unset>
+HF_HOME=/scratch-shared/spunzo1/.cache/huggingface
+======================
+JOB_START_UTC=2026-08-20T06:26:43Z
+[extract.intphys2] resume status: resumed=False offset=0 target=1012 signature=ab1df7a180fd30fb
+[extract.intphys2] completed: signature=ab1df7a180fd30fb resumed=False reused_samples=0 new_samples=1012 total=1012 elapsed_s=1393.600 sec_per_processed_sample=1.377075 elapsed_agg_s=1393.600
+{
+  "aggregated_elapsed_seconds": 1393.5998746019977,
+  "aggregated_processed_samples": 1012,
+  "aggregated_seconds_per_processed_sample": 1.3770749749031599,
+  "aggregated_seconds_per_total_sample": 1.3770749749031599,
+  "elapsed_seconds": 1393.5998746019977,
+  "feature_cache_dir": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/ltx_video_ltx_2b_0_9_8_distilled/train-val-test/ab1df7a180fd30fb",
+  "n_samples": 1012,
+  "resume_events": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/ltx_video_ltx_2b_0_9_8_distilled/train-val-test/ab1df7a180fd30fb/.resume/events.jsonl",
+  "resume_from_sample_offset": 0,
+  "resumed": false,
+  "seconds_per_processed_sample": 1.3770749749031599,
+  "seconds_per_total_sample": 1.3770749749031599,
+  "selected_layers": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "signature": "ab1df7a180fd30fb",
+  "skipped": false,
+  "warning_log": "/gpfs/scratch1/shared/spunzo1/probe4physics/artifacts/features/intphys2/extract_warnings.log"
+}
+JOB_END_UTC=2026-08-20T06:51:18Z
+JOB_ELAPSED_SECONDS=1475
+Completed at:
+Thu Aug 20 06:51:18 UTC 2026

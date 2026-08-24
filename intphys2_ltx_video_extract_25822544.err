@@ -1,0 +1,43 @@
+============================================================================================== 
+Warning! Mixing Conda and module environments may lead to corruption of the
+user environment. 
+We do not recommend users mixing those two environments unless absolutely
+necessary. Note that 
+SURF does not provide any support for Conda environment.
+For more information, please refer to our software policy page:
+https://servicedesk.surf.nl/wiki/display/WIKI/Software+policy+Snellius#SoftwarepolicySnellius-UseofAnacondaandMinicondaenvironmentsonSnellius 
+
+Remember that many packages have already been installed on the system and can
+be loaded using 
+the 'module load <package__name>' command. If you are uncertain if a package is
+already available 
+on the system, please use 'module avail' or 'module spider' to search for it.
+============================================================================================== 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 18 files:   0%|          | 0/18 [00:00<?, ?it/s]Fetching 18 files:  11%|█         | 2/18 [00:00<00:01, 15.28it/s]Fetching 18 files:  22%|██▏       | 4/18 [00:09<00:38,  2.76s/it]Fetching 18 files:  33%|███▎      | 6/18 [00:09<00:19,  1.59s/it]Fetching 18 files:  78%|███████▊  | 14/18 [00:10<00:01,  2.13it/s]Fetching 18 files:  89%|████████▉ | 16/18 [00:13<00:01,  1.33it/s]Fetching 18 files: 100%|██████████| 18/18 [00:13<00:00,  1.30it/s]
+Loading pipeline components...:   0%|          | 0/5 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/219 [00:00<?, ?it/s][A
+Loading weights:   8%|▊         | 18/219 [00:00<00:01, 121.55it/s][A
+Loading weights:  14%|█▍        | 31/219 [00:00<00:02, 69.65it/s] [A
+Loading weights:  18%|█▊        | 39/219 [00:00<00:02, 62.88it/s][A
+Loading weights:  21%|██        | 46/219 [00:00<00:03, 54.88it/s][A
+Loading weights:  24%|██▎       | 52/219 [00:01<00:04, 38.77it/s][A
+Loading weights:  26%|██▌       | 57/219 [00:01<00:04, 36.33it/s][A
+Loading weights:  36%|███▌      | 78/219 [00:01<00:02, 60.46it/s][A
+Loading weights:  43%|████▎     | 95/219 [00:01<00:01, 73.89it/s][A
+Loading weights:  47%|████▋     | 103/219 [00:01<00:01, 71.55it/s][A
+Loading weights:  51%|█████     | 111/219 [00:02<00:02, 46.74it/s][A
+Loading weights:  54%|█████▍    | 119/219 [00:02<00:02, 46.77it/s][A
+Loading weights:  57%|█████▋    | 125/219 [00:02<00:01, 47.48it/s][A
+Loading weights:  61%|██████    | 134/219 [00:02<00:01, 45.62it/s][A
+Loading weights:  63%|██████▎   | 139/219 [00:02<00:01, 46.14it/s][A
+Loading weights:  71%|███████   | 155/219 [00:02<00:00, 69.29it/s][A
+Loading weights:  78%|███████▊  | 171/219 [00:02<00:00, 83.78it/s][A
+Loading weights:  83%|████████▎ | 181/219 [00:03<00:00, 71.35it/s][A
+Loading weights:  87%|████████▋ | 190/219 [00:03<00:00, 61.03it/s][A
+Loading weights:  90%|████████▉ | 197/219 [00:03<00:00, 54.76it/s][ALoading weights: 100%|██████████| 219/219 [00:03<00:00, 62.76it/s]
+Loading pipeline components...:  20%|██        | 1/5 [00:04<00:17,  4.28s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][A
+Loading checkpoint shards:  50%|█████     | 1/2 [00:06<00:06,  6.22s/it][A
+Loading checkpoint shards: 100%|██████████| 2/2 [00:10<00:00,  4.93s/it][ALoading checkpoint shards: 100%|██████████| 2/2 [00:10<00:00,  5.12s/it]
+Loading pipeline components...:  60%|██████    | 3/5 [00:14<00:09,  4.94s/it]Loading pipeline components...:  80%|████████  | 4/5 [00:17<00:04,  4.11s/it]Loading pipeline components...: 100%|██████████| 5/5 [00:17<00:00,  2.79s/it]Loading pipeline components...: 100%|██████████| 5/5 [00:17<00:00,  3.46s/it]
