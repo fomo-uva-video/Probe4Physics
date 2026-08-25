@@ -1,0 +1,13 @@
+Dataset,Model,Probe,ViT-B score,ViT-B layer,ViT-L score,ViT-L layer,ViT-G score,ViT-G layer,ViT-Gig. score,ViT-Gig. layer
+IntPhys2,V-JEPA 2.1,Linear,38.56 +/- 1.13,12,44.44 +/- 1.13,18,47.06 +/- 1.96,40,36.60 +/- 2.26,final
+IntPhys2,V-JEPA 2.1,MLP,49.67 +/- 9.87,9,51.63 +/- 3.00,18,41.18 +/- 1.96,40,39.87 +/- 4.53,final
+IntPhys2,V-JEPA 2.1,Attentive,55.56 +/- 3.00,9,67.32 +/- 8.84,24,65.36 +/- 4.08,40,58.82 +/- 5.19,38
+IntPhys2,VideoMAE-v2,Linear,39.87 +/- 3.00,9,42.48 +/- 5.99,12,50.98 +/- 3.92,final,NA,NA
+IntPhys2,VideoMAE-v2,MLP,37.91 +/- 2.26,9,50.33 +/- 3.00,12,47.71 +/- 3.00,0.5,NA,NA
+IntPhys2,VideoMAE-v2,Attentive,56.21 +/- 4.08,9,56.86 +/- 1.96,18,58.82 +/- 6.79,20,NA,NA
+MVP,V-JEPA 2.1,Linear,40.82 +/- 0.31,12,44.56 +/- 0.50,24,46.41 +/- 0.63,40,43.21 +/- 1.30,0.75
+MVP,V-JEPA 2.1,MLP,70.61 +/- 2.03,12,71.12 +/- 1.14,18,68.92 +/- 0.92,30,71.92 +/- 1.28,0.75
+MVP,V-JEPA 2.1,Attentive,90.12 +/- 1.13,12,90.06 +/- 4.93,24,89.45 +/- 3.93,40,92.52 +/- 0.44,final
+MVP,VideoMAE-v2,Linear,39.10 +/- 1.09,9,40.04 +/- 0.46,18,36.00 +/- 1.53,0.5,NA,NA
+MVP,VideoMAE-v2,MLP,69.23 +/- 1.28,12,68.18 +/- 1.35,18,66.43 +/- 0.44,0.5,NA,NA
+MVP,VideoMAE-v2,Attentive,86.15 +/- 1.17,9,87.87 +/- 1.53,18,89.86 +/- 3.27,0.75,NA,NA

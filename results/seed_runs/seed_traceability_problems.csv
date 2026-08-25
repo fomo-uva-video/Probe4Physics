@@ -1,0 +1,5 @@
+dataset,experiment,model_label,backbone,probe,layer_key,layer,layer_label,config_id,manifest_seeds,expected_seeds,loaded_n_seeds,loaded_seeds,missing_loaded_seeds,loaded_seed_source,test_primary_mean,test_primary_std,status,manifest
+mvp,ltx,LTX-2B,LTX-2B,temporal_attn,id:17,17,17,mvp__ltx__ltx_video__ltx_2b__temporal_attn__layer_17,"101,102","42,101,102",0,,"42,101,102",,,,MISSING_FROM_LOADER,seed_manifest_mvp_ltx2b_attentive.csv
+mvp,ltx,LTX-2B,LTX-2B,temporal_attn,id:29,29,29,mvp__ltx__ltx_video__ltx_2b__temporal_attn__layer_29,"101,102","42,101,102",0,,"42,101,102",,,,MISSING_FROM_LOADER,seed_manifest_mvp_ltx2b_attentive.csv
+mvp,ltx,LTX-2B,LTX-2B,temporal_attn,id:38,38,38,mvp__ltx__ltx_video__ltx_2b__temporal_attn__layer_38,"101,102","42,101,102",0,,"42,101,102",,,,MISSING_FROM_LOADER,seed_manifest_mvp_ltx2b_attentive.csv
+mvp,backbone_sweep,V-JEPA 2.1,ViT-B/16,temporal_attn,id:9,9,9,mvp__backbone_sweep__jepa_v2_1__vitb_384__temporal_attn__layer_9,"101,102","42,101,102",0,,"42,101,102",,,,MISSING_FROM_LOADER,seed_manifest_layerwise_backbone_sweep_attentive_v1.csv
