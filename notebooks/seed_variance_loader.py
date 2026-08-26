@@ -46,6 +46,7 @@ READY_MANIFESTS = (
     "seed_manifest_mvp_ltx2b_attentive.csv",
     "seed_manifest_mvp_ltx2b_attentive_a100_fast.csv",
     "seed_manifest_mvp_ltx13b_linear_mlp.csv",
+    "seed_manifest_mvp_ltx13b_attentive_friend_external.csv",
 )
 
 TRACEABILITY_MANIFEST_SKIP_MARKERS = (
@@ -470,6 +471,8 @@ def _seed_merge_key_from_row(row: dict[str, Any], seed_merge_keys: list[str]) ->
 def _manifest_row_reached_target(row: dict[str, Any], repo_root: Path) -> bool:
     if not _has_test_metrics(_artifact_metrics(row, repo_root)):
         return False
+    if _is_confirmed_external_import(row):
+        return True
     train_eval = _find_train_eval_summary(row, repo_root)
     if train_eval is not None:
         data = json.loads(train_eval.read_text(encoding="utf-8"))
@@ -490,6 +493,14 @@ def _manifest_row_reached_target(row: dict[str, Any], repo_root: Path) -> bool:
     if target_epochs is None and isinstance(data, dict):
         target_epochs = _int_or_none(data.get("probe_hparams", {}).get("epochs", None))
     return _fit_reached_target(fit, target_epochs)
+
+
+def _is_confirmed_external_import(row: dict[str, Any]) -> bool:
+    return (
+        _value(row.get("run_command")) == "external_import_eval_only"
+        and _value(row.get("status")) == "verified_external_import"
+        and _value(row.get("external_training_provenance_confirmed")).lower() == "true"
+    )
 
 
 def _fit_reached_target(fit: dict[str, Any], target_epochs: int | None) -> bool:
