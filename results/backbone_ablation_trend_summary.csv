@@ -1,13 +1,13 @@
 Dataset,Model,Probe,Smallest backbone,Smallest score,Largest backbone,Largest score,Largest - smallest pp,Best backbone,Best score,Best layer,Best - largest pp,Rank trend rho,Trend
-MVP,V-JEPA 2.1,Linear,ViT-B,40.82,ViT-Gig.,43.21,2.39,ViT-G,46.41,40,3.2,0.4,mixed up
-MVP,V-JEPA 2.1,MLP,ViT-B,70.61,ViT-Gig.,71.92,1.31,ViT-Gig.,71.92,0.75,0.0,0.4,mixed up
-MVP,V-JEPA 2.1,Attentive,ViT-B,90.12,ViT-Gig.,92.52,2.4,ViT-Gig.,92.52,final,0.0,0.2,mixed up
-MVP,VideoMAE-v2,Linear,ViT-B,39.1,ViT-G,36.0,-3.1,ViT-L,40.04,18,4.04,-0.5,mixed down
-MVP,VideoMAE-v2,MLP,ViT-B,69.23,ViT-G,66.43,-2.8,ViT-B,69.23,12,2.8,-1.0,monotonic down
-MVP,VideoMAE-v2,Attentive,ViT-B,86.15,ViT-G,89.86,3.71,ViT-G,89.86,0.75,0.0,1.0,monotonic up
 IntPhys2,V-JEPA 2.1,Linear,ViT-B,38.56,ViT-Gig.,36.6,-1.96,ViT-G,47.06,40,10.46,-0.2,mixed down
 IntPhys2,V-JEPA 2.1,MLP,ViT-B,49.67,ViT-Gig.,39.87,-9.8,ViT-L,51.63,18,11.76,-0.8,mixed down
 IntPhys2,V-JEPA 2.1,Attentive,ViT-B,55.56,ViT-Gig.,58.82,3.26,ViT-L,67.32,24,8.5,0.2,mixed up
 IntPhys2,VideoMAE-v2,Linear,ViT-B,39.87,ViT-G,50.98,11.11,ViT-G,50.98,final,0.0,1.0,monotonic up
 IntPhys2,VideoMAE-v2,MLP,ViT-B,37.91,ViT-G,47.71,9.8,ViT-L,50.33,12,2.61,0.5,mixed up
 IntPhys2,VideoMAE-v2,Attentive,ViT-B,56.21,ViT-G,58.82,2.61,ViT-G,58.82,20,0.0,1.0,monotonic up
+MVP,V-JEPA 2.1,Linear,ViT-B,40.82,ViT-Gig.,43.21,2.39,ViT-G,46.41,40,3.2,0.4,mixed up
+MVP,V-JEPA 2.1,MLP,ViT-B,70.61,ViT-Gig.,71.92,1.31,ViT-Gig.,71.92,0.75,0.0,0.4,mixed up
+MVP,V-JEPA 2.1,Attentive,ViT-B,90.12,ViT-Gig.,92.52,2.4,ViT-Gig.,92.52,final,0.0,0.2,mixed up
+MVP,VideoMAE-v2,Linear,ViT-B,39.1,ViT-G,36.0,-3.1,ViT-L,40.04,18,4.04,-0.5,mixed down
+MVP,VideoMAE-v2,MLP,ViT-B,69.23,ViT-G,66.43,-2.8,ViT-B,69.23,12,2.8,-1.0,monotonic down
+MVP,VideoMAE-v2,Attentive,ViT-B,86.15,ViT-G,89.86,3.71,ViT-G,89.86,0.75,0.0,1.0,monotonic up
