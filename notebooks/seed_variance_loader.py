@@ -44,6 +44,7 @@ READY_MANIFESTS = (
     "seed_manifest_intphys2_ltx13b_attentive.csv",
     "seed_manifest_mvp_ltx2b_linear_mlp.csv",
     "seed_manifest_mvp_ltx2b_attentive.csv",
+    "seed_manifest_mvp_ltx2b_attentive_a100_fast.csv",
     "seed_manifest_mvp_ltx13b_linear_mlp.csv",
 )
 
@@ -470,19 +471,32 @@ def _manifest_row_reached_target(row: dict[str, Any], repo_root: Path) -> bool:
     if not _has_test_metrics(_artifact_metrics(row, repo_root)):
         return False
     train_eval = _find_train_eval_summary(row, repo_root)
-    if train_eval is None:
+    if train_eval is not None:
+        data = json.loads(train_eval.read_text(encoding="utf-8"))
+        layer = _select_layer(data, row.get("layer"))
+        train = layer.get("train", {}) if isinstance(layer, dict) else {}
+        fit = train.get("fit", {}) if isinstance(train, dict) else {}
+        target_epochs = _int_or_none(row.get("epochs"))
+        if target_epochs is None and isinstance(train, dict):
+            target_epochs = _int_or_none(train.get("probe_hparams", {}).get("epochs", None))
+        return _fit_reached_target(fit, target_epochs)
+
+    train_summary = _find_train_summary(row, repo_root)
+    if train_summary is None:
         return False
-    data = json.loads(train_eval.read_text(encoding="utf-8"))
-    layer = _select_layer(data, row.get("layer"))
-    train = layer.get("train", {}) if isinstance(layer, dict) else {}
-    fit = train.get("fit", {}) if isinstance(train, dict) else {}
+    data = json.loads(train_summary.read_text(encoding="utf-8"))
+    fit = data.get("fit", {}) if isinstance(data, dict) else {}
+    target_epochs = _int_or_none(row.get("epochs"))
+    if target_epochs is None and isinstance(data, dict):
+        target_epochs = _int_or_none(data.get("probe_hparams", {}).get("epochs", None))
+    return _fit_reached_target(fit, target_epochs)
+
+
+def _fit_reached_target(fit: dict[str, Any], target_epochs: int | None) -> bool:
     history = fit.get("history", []) if isinstance(fit, dict) else []
     n_epochs = _int_or_none(fit.get("n_epochs") if isinstance(fit, dict) else None)
     if n_epochs is None and isinstance(history, list):
         n_epochs = len(history) if history else None
-    target_epochs = _int_or_none(row.get("epochs"))
-    if target_epochs is None and isinstance(train, dict):
-        target_epochs = _int_or_none(train.get("probe_hparams", {}).get("epochs", None))
     return bool(target_epochs is not None and n_epochs is not None and n_epochs >= target_epochs)
 
 
@@ -522,15 +536,18 @@ def _artifact_metrics(row: dict[str, Any], repo_root: Path) -> dict[str, float]:
         primary = str(data.get("objective_metric_name") or DATASET_PRIMARY.get(dataset_key(row.get("dataset_hydra")), ""))
         return _metrics_from_split_map(layer.get("eval", {}).get("metrics_by_split", {}), primary)
 
-    eval_summary = _find_eval_summary(row, repo_root)
+    eval_summary = _find_eval_artifact(row, repo_root)
     if eval_summary is None:
         return {}
     data = json.loads(eval_summary.read_text(encoding="utf-8"))
     primary = str(data.get("objective_metric_name") or DATASET_PRIMARY.get(dataset_key(row.get("dataset_hydra")), ""))
     metrics_by_split = data.get("metrics_by_split")
     if not isinstance(metrics_by_split, dict):
-        metrics = data.get("metrics") if isinstance(data.get("metrics"), dict) else {}
-        metrics_by_split = {"test": metrics}
+        if all(split in data and isinstance(data.get(split), dict) for split in ("train", "val", "test")):
+            metrics_by_split = data
+        else:
+            metrics = data.get("metrics") if isinstance(data.get("metrics"), dict) else {}
+            metrics_by_split = {"test": metrics}
     return _metrics_from_split_map(metrics_by_split, primary)
 
 
@@ -540,9 +557,29 @@ def _find_train_eval_summary(row: dict[str, Any], repo_root: Path) -> Path | Non
     return next((path for path in candidates if path.exists()), None)
 
 
-def _find_eval_summary(row: dict[str, Any], repo_root: Path) -> Path | None:
-    output_dir = _resolve_path(row.get("eval_output_dir"), repo_root) / str(row.get("eval_output_subdir", ""))
-    candidates = [output_dir / "eval_summary.json", *sorted(output_dir.glob("**/eval_summary.json"))]
+def _find_train_summary(row: dict[str, Any], repo_root: Path) -> Path | None:
+    output_dir = _resolve_path(row.get("probe_output_dir"), repo_root) / str(row.get("probe_output_subdir", ""))
+    candidates = [
+        output_dir / "train" / "train_summary.json",
+        *sorted(output_dir.glob("*/train/train_summary.json")),
+    ]
+    return next((path for path in candidates if path.exists()), None)
+
+
+def _find_eval_artifact(row: dict[str, Any], repo_root: Path) -> Path | None:
+    eval_dir = _resolve_path(row.get("eval_output_dir"), repo_root) / str(row.get("eval_output_subdir", ""))
+    probe_dir = _resolve_path(row.get("probe_output_dir"), repo_root) / str(row.get("probe_output_subdir", ""))
+    candidates = [
+        eval_dir / "eval_summary.json",
+        eval_dir / "probe_eval_summary.json",
+        eval_dir / "metrics.json",
+        probe_dir / "eval" / "eval_summary.json",
+        probe_dir / "eval" / "probe_eval_summary.json",
+        probe_dir / "eval" / "metrics.json",
+        *sorted(probe_dir.glob("*/eval/eval_summary.json")),
+        *sorted(probe_dir.glob("*/eval/probe_eval_summary.json")),
+        *sorted(probe_dir.glob("*/eval/metrics.json")),
+    ]
     return next((path for path in candidates if path.exists()), None)
 
 
